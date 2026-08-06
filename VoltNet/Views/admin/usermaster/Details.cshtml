@@ -1,0 +1,60 @@
+@model VoltNet.Models.UserMaster
+
+@{
+    ViewData["Title"] = "User Details";
+    Layout = "_AdminLayout";
+}
+
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h4>User Details</h4>
+      </div>
+      <div class="card-body">
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <span class="text-muted d-block mb-1">Full Name</span>
+                <strong>@Html.DisplayFor(model => model.Fullname)</strong>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <span class="text-muted d-block mb-1">Email</span>
+                <strong>@Html.DisplayFor(model => model.Email)</strong>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <span class="text-muted d-block mb-1">Mobile</span>
+                <strong>@Html.DisplayFor(model => model.Mobile)</strong>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <span class="text-muted d-block mb-1">Role</span>
+                <strong>@Html.DisplayFor(model => model.Role)</strong>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <span class="text-muted d-block mb-1">Active Status</span>
+                <div>
+                    @if (Model.Isactive)
+                    {
+                        <span class="badge bg-success">Active</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger">Inactive</span>
+                    }
+                </div>
+            </div>
+        </div>
+      </div>
+      <div class="card-footer bg-whitesmoke d-flex gap-2">
+        <form asp-action="LoadEdit" method="post" class="d-inline">
+            <input type="hidden" name="id" value="@Model.Id" />
+            <button type="submit" class="btn btn-warning"><i class="fas fa-edit"></i> Edit</button>
+        </form>
+        <a asp-action="Index" class="btn btn-light text-dark ml-2"><i class="fas fa-arrow-left"></i> Back to List</a>
+      </div>
+    </div>
+  </div>
+</div>
