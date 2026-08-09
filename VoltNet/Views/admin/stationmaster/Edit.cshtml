@@ -1,0 +1,109 @@
+@model VoltNet.Models.Station
+
+@{
+    ViewData["Title"] = "Edit Station";
+    Layout = "_AdminLayout";
+}
+
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h4>Edit Station</h4>
+      </div>
+      <div class="card-body">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="CreatedAt" />
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Name" class="form-label">Station Name</label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label asp-for="FranchiseId" class="form-label">Franchise (optional)</label>
+                    <select asp-for="FranchiseId" class="form-control" asp-items="@((IEnumerable<SelectListItem>)ViewBag.Franchises)">
+                        <option value="">-- Company-Owned --</option>
+                    </select>
+                    <span asp-validation-for="FranchiseId" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label asp-for="Address" class="form-label">Address</label>
+                    <input asp-for="Address" class="form-control" />
+                    <span asp-validation-for="Address" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="City" class="form-label">City</label>
+                    <input asp-for="City" class="form-control" />
+                    <span asp-validation-for="City" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label asp-for="State" class="form-label">State</label>
+                    <input asp-for="State" class="form-control" />
+                    <span asp-validation-for="State" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Latitude" class="form-label">Latitude</label>
+                    <input asp-for="Latitude" class="form-control" step="0.000001" />
+                    <span asp-validation-for="Latitude" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Longitude" class="form-label">Longitude</label>
+                    <input asp-for="Longitude" class="form-control" step="0.000001" />
+                    <span asp-validation-for="Longitude" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label asp-for="OpeningTime" class="form-label">Opening Time</label>
+                    <input asp-for="OpeningTime" type="time" class="form-control" />
+                    <span asp-validation-for="OpeningTime" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label asp-for="ClosingTime" class="form-label">Closing Time</label>
+                    <input asp-for="ClosingTime" type="time" class="form-control" />
+                    <span asp-validation-for="ClosingTime" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <label asp-for="Status" class="form-label">Status</label>
+                    <select asp-for="Status" class="form-control">
+                        <option value="Active">Active</option>
+                        <option value="UnderMaintenance">Under Maintenance</option>
+                        <option value="Closed">Closed</option>
+                    </select>
+                    <span asp-validation-for="Status" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+                <a asp-action="Index" class="btn btn-light text-dark"><i class="fas fa-arrow-left"></i> Back to List</a>
+            </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

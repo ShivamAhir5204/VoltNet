@@ -17,6 +17,17 @@
   <!-- Custom style CSS -->
   <link rel="stylesheet" href="~/otika/assets/css/custom.css">
   <link rel='shortcut icon' type='image/x-icon' href='~/otika/assets/img/voltnet.ico' />
+  <style>
+    /* Remove the green borders and checkmarks for valid fields */
+    .was-validated .form-control:valid, .form-control.is-valid {
+      border-color: #e4e6fc;
+      background-image: none;
+    }
+    .was-validated .form-control:valid:focus, .form-control.is-valid:focus {
+      border-color: #6777ef;
+      box-shadow: 0 0 0 0.2rem rgba(103, 119, 239, 0.25);
+    }
+  </style>
 </head>
 
 <body>
@@ -41,10 +52,10 @@
                 }
                 <form method="POST" asp-controller="Auth" asp-action="Login" class="needs-validation" novalidate="">
                   <div class="form-group">
-                    <label for="email">Email</label>
-                    <input id="email" type="email" class="form-control" name="email" tabindex="1" required autofocus>
+                    <label for="emailOrPhone">Email or Phone Number</label>
+                    <input id="emailOrPhone" type="text" class="form-control" name="emailOrPhone" tabindex="1" required autofocus>
                     <div class="invalid-feedback">
-                      Please fill in your email
+                      Please fill in your email or phone number
                     </div>
                   </div>
                   <div class="form-group">
@@ -68,6 +79,9 @@
                     </button>
                   </div>
                 </form>
+                <div class="mt-5 text-muted text-center">
+                  Don't have an account? <a href="/register">Create One</a>
+                </div>
               </div>
             </div>
           </div>

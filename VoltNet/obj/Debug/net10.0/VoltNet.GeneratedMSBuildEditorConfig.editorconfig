@@ -31,6 +31,22 @@ build_property._RazorSourceGeneratorDebug =
 build_property.EffectiveAnalysisLevelStyle = 10.0
 build_property.EnableCodeStyleSeverity = 
 
+[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/admin/chargermaster/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcYWRtaW5cY2hhcmdlcm1hc3RlclxDcmVhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/admin/chargermaster/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcYWRtaW5cY2hhcmdlcm1hc3RlclxEZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/admin/chargermaster/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcYWRtaW5cY2hhcmdlcm1hc3RlclxFZGl0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/admin/chargermaster/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcYWRtaW5cY2hhcmdlcm1hc3RlclxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/admin/franchisemaster/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcYWRtaW5cZnJhbmNoaXNlbWFzdGVyXENyZWF0ZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
@@ -45,6 +61,38 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/admin/franchisemaster/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcYWRtaW5cZnJhbmNoaXNlbWFzdGVyXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/admin/stationmanager/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcYWRtaW5cc3RhdGlvbm1hbmFnZXJcQ3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/admin/stationmanager/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcYWRtaW5cc3RhdGlvbm1hbmFnZXJcRGV0YWlscy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/admin/stationmanager/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcYWRtaW5cc3RhdGlvbm1hbmFnZXJcRWRpdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/admin/stationmanager/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcYWRtaW5cc3RhdGlvbm1hbmFnZXJcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/admin/stationmaster/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcYWRtaW5cc3RhdGlvbm1hc3RlclxDcmVhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/admin/stationmaster/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcYWRtaW5cc3RhdGlvbm1hc3RlclxEZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/admin/stationmaster/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcYWRtaW5cc3RhdGlvbm1hc3RlclxFZGl0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/admin/stationmaster/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcYWRtaW5cc3RhdGlvbm1hc3RlclxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/admin/usermaster/Create.cshtml]
@@ -65,6 +113,14 @@ build_metadata.AdditionalFiles.CssScope =
 
 [C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/Auth/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXV0aFxMb2dpbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/Auth/Register.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXV0aFxSZWdpc3Rlci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/Auth/VerifyOtp.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXV0aFxWZXJpZnlPdHAuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/Home/Index.cshtml]

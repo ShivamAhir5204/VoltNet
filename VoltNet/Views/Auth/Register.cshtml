@@ -1,0 +1,114 @@
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
+  <title>VoltNet - Register</title>
+  <!-- General CSS Files -->
+  <link rel="stylesheet" href="~/otika/assets/css/app.min.css">
+  <link rel="stylesheet" href="~/otika/assets/bundles/bootstrap-social/bootstrap-social.css">
+  <!-- Template CSS -->
+  <link rel="stylesheet" href="~/otika/assets/css/style.css">
+  <link rel="stylesheet" href="~/otika/assets/css/components.css">
+  <!-- Custom style CSS -->
+  <link rel="stylesheet" href="~/otika/assets/css/custom.css">
+  <link rel='shortcut icon' type='image/x-icon' href='~/otika/assets/img/voltnet.ico' />
+  <style>
+    /* Remove the green borders and checkmarks for valid fields */
+    .was-validated .form-control:valid, .form-control.is-valid {
+      border-color: #e4e6fc;
+      background-image: none;
+    }
+    .was-validated .form-control:valid:focus, .form-control.is-valid:focus {
+      border-color: #6777ef;
+      box-shadow: 0 0 0 0.2rem rgba(103, 119, 239, 0.25);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="loader"></div>
+  <div id="app">
+    <section class="section">
+      <div class="container mt-5">
+        <div class="row">
+          <div class="col-12 col-sm-8 offset-sm-2 col-md-6 offset-md-3 col-lg-6 offset-lg-3 col-xl-4 offset-xl-4">
+            <div class="card card-primary">
+              <div class="card-header d-flex flex-column align-items-center pb-0">
+                <div class="w-100 text-center mb-3">
+                  <span class="logo-name" style="font-size: 28px; font-weight: 700; color: #6777ef; vertical-align: middle; margin-left: 10px;">VoltNet Register</span>
+                </div>
+              </div>
+              <div class="card-body">
+                @if (ViewBag.Error != null)
+                {
+                    <div class="alert alert-danger">
+                        @ViewBag.Error
+                    </div>
+                }
+                <form method="POST" asp-controller="Auth" asp-action="Register" class="needs-validation" novalidate="">
+                  
+                  <div class="form-group">
+                    <label for="fullname">Full Name</label>
+                    <input id="fullname" type="text" class="form-control" name="fullname" tabindex="1" required autofocus>
+                    <div class="invalid-feedback">
+                      Please fill in your full name
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="email">Email</label>
+                    <input id="email" type="email" class="form-control" name="email" tabindex="2" required>
+                    <div class="invalid-feedback">
+                      Please fill in your email
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="mobile">Phone Number</label>
+                    <input id="mobile" type="text" class="form-control" name="mobile" tabindex="3" required>
+                    <div class="invalid-feedback">
+                      Please fill in your phone number
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <div class="d-block">
+                      <label for="password" class="control-label">Password</label>
+                    </div>
+                    <input id="password" type="password" class="form-control" name="password" tabindex="4" required>
+                    <div class="invalid-feedback">
+                      Please fill in your password
+                    </div>
+                  </div>
+                  
+                  <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-lg btn-block" tabindex="5">
+                      Register
+                    </button>
+                  </div>
+                </form>
+                <div class="mt-5 text-muted text-center">
+                  Already have an account? <a href="/login">Login</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+  <!-- General JS Scripts -->
+  <script src="~/otika/assets/js/app.min.js"></script>
+  <!-- JS Libraies -->
+  <!-- Page Specific JS File -->
+  <!-- Template JS File -->
+  <script src="~/otika/assets/js/scripts.js"></script>
+  <!-- Custom JS File -->
+  <script src="~/otika/assets/js/custom.js"></script>
+</body>
+</html>

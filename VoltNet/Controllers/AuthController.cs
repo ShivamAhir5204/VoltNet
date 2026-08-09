@@ -8,17 +8,24 @@ using Microsoft.AspNetCore.Identity;
 using VoltNet.Models;
 using Microsoft.EntityFrameworkCore;
 
+using Microsoft.Extensions.Caching.Memory;
+using System.Text.Json;
+
 namespace VoltNet.Controllers;
 
 public class AuthController : Controller
 {
     private readonly AppDbContext _context;
     private readonly IConfiguration _configuration;
+    private readonly IMemoryCache _cache;
+    private readonly IHttpClientFactory _httpClientFactory;
 
-    public AuthController(AppDbContext context, IConfiguration configuration)
+    public AuthController(AppDbContext context, IConfiguration configuration, IMemoryCache cache, IHttpClientFactory httpClientFactory)
     {
         _context = context;
         _configuration = configuration;
+        _cache = cache;
+        _httpClientFactory = httpClientFactory;
     }
 
     [HttpGet("login")]
@@ -29,20 +36,20 @@ public class AuthController : Controller
 
     [HttpPost("login")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Login(string email, string password, string remember)
+    public async Task<IActionResult> Login(string emailOrPhone, string password, string remember)
     {
         bool isRememberMe = !string.IsNullOrEmpty(remember) && remember == "on";
 
-        if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
+        if (string.IsNullOrEmpty(emailOrPhone) || string.IsNullOrEmpty(password))
         {
-            ViewBag.Error = "Please enter email and password.";
+            ViewBag.Error = "Please enter email or phone number and password.";
             return View("~/Views/Auth/Login.cshtml");
         }
 
-        var user = await _context.UserMasters.FirstOrDefaultAsync(u => u.Email == email);
+        var user = await _context.UserMasters.FirstOrDefaultAsync(u => u.Email == emailOrPhone || u.Mobile == emailOrPhone);
         if (user == null || !user.Isactive)
         {
-            ViewBag.Error = "Invalid email or password, or user is inactive.";
+            ViewBag.Error = "Invalid credentials, or user is inactive.";
             return View("~/Views/Auth/Login.cshtml");
         }
 
@@ -130,5 +137,122 @@ public class AuthController : Controller
     {
         Response.Cookies.Delete("AuthToken");
         return Redirect("/login");
+    }
+
+    [HttpGet("register")]
+    public IActionResult Register()
+    {
+        return View("~/Views/Auth/Register.cshtml");
+    }
+
+    [HttpPost("register")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Register(string fullname, string email, string mobile, string password)
+    {
+        if (string.IsNullOrEmpty(fullname) || string.IsNullOrEmpty(email) || string.IsNullOrEmpty(mobile) || string.IsNullOrEmpty(password))
+        {
+            ViewBag.Error = "All fields are required.";
+            return View("~/Views/Auth/Register.cshtml");
+        }
+
+        var existingUser = await _context.UserMasters.FirstOrDefaultAsync(u => u.Email == email || u.Mobile == mobile);
+        if (existingUser != null)
+        {
+            ViewBag.Error = "Email or Phone number is already registered.";
+            return View("~/Views/Auth/Register.cshtml");
+        }
+
+        // Generate 6-digit OTP
+        var otp = new Random().Next(100000, 999999).ToString();
+
+        // Store registration payload + OTP in memory cache
+        var cacheData = new 
+        { 
+            FullName = fullname, 
+            Email = email, 
+            Mobile = mobile, 
+            Password = password,
+            Otp = otp
+        };
+        
+        _cache.Set($"registration_{email}", cacheData, TimeSpan.FromMinutes(15));
+
+        // Send OTP via API
+        var client = _httpClientFactory.CreateClient();
+        
+        var formContent = new MultipartFormDataContent();
+        formContent.Add(new StringContent(email), "to");
+        formContent.Add(new StringContent("VoltNet Verification Code"), "subject");
+        formContent.Add(new StringContent($"Your OTP for VoltNet registration is: {otp}"), "body");
+
+        try
+        {
+            var response = await client.PostAsync("http://mailsendapi.runasp.net/api/Mailing/send", formContent);
+            if (!response.IsSuccessStatusCode)
+            {
+                ViewBag.Error = "Failed to send OTP email. Please try again later.";
+                return View("~/Views/Auth/Register.cshtml");
+            }
+        }
+        catch (Exception ex)
+        {
+            ViewBag.Error = "Error communicating with mail server: " + ex.Message;
+            return View("~/Views/Auth/Register.cshtml");
+        }
+
+        return Redirect($"/verify-otp?email={Uri.EscapeDataString(email)}");
+    }
+
+    [HttpGet("verify-otp")]
+    public IActionResult VerifyOtp(string email)
+    {
+        if (string.IsNullOrEmpty(email)) return Redirect("/register");
+        
+        ViewBag.Email = email;
+        return View("~/Views/Auth/VerifyOtp.cshtml");
+    }
+
+    [HttpPost("verify-otp")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> VerifyOtp(string email, string otp)
+    {
+        if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(otp))
+        {
+            ViewBag.Error = "Email and OTP are required.";
+            ViewBag.Email = email;
+            return View("~/Views/Auth/VerifyOtp.cshtml");
+        }
+
+        if (_cache.TryGetValue($"registration_{email}", out dynamic? cacheData))
+        {
+            if (cacheData?.Otp == otp)
+            {
+                // Create the user
+                var user = new UserMaster
+                {
+                    Id = Guid.NewGuid(),
+                    Fullname = cacheData.FullName,
+                    Email = cacheData.Email,
+                    Mobile = cacheData.Mobile,
+                    Role = "Customer",
+                    Isactive = true,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                var hasher = new PasswordHasher<UserMaster>();
+                user.Password = hasher.HashPassword(user, cacheData.Password);
+
+                _context.UserMasters.Add(user);
+                await _context.SaveChangesAsync();
+
+                _cache.Remove($"registration_{email}");
+
+                return Redirect("/login");
+            }
+        }
+
+        ViewBag.Error = "Invalid or expired OTP.";
+        ViewBag.Email = email;
+        return View("~/Views/Auth/VerifyOtp.cshtml");
     }
 }
