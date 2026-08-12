@@ -179,6 +179,11 @@ public class AuthController : Controller
 
         // Send OTP via API
         var client = _httpClientFactory.CreateClient();
+        var apiKey = _configuration["MailApi:ApiKey"];
+        if (!string.IsNullOrEmpty(apiKey))
+        {
+            client.DefaultRequestHeaders.Add("x-api-key", apiKey);
+        }
         
         var formContent = new MultipartFormDataContent();
         formContent.Add(new StringContent(email), "to");
