@@ -57,7 +57,7 @@ builder.Services.AddAuthentication(options =>
             if (!context.Request.Path.StartsWithSegments("/api"))
             {
                 context.HandleResponse();
-                context.Response.Redirect("/login");
+                context.Response.Redirect("/admin/login");
             }
             return Task.CompletedTask;
         }
@@ -65,6 +65,35 @@ builder.Services.AddAuthentication(options =>
 });
 
 var app = builder.Build();
+
+// Seed default SuperAdmin if table is empty
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    try
+    {
+        if (!db.AdminUsers.Any())
+        {
+            var hasher = new PasswordHasher<AdminUser>();
+            var defaultAdmin = new AdminUser
+            {
+                Id = Guid.NewGuid(),
+                Name = "Super Admin",
+                Email = "admin@voltnet.com",
+                Role = "SuperAdmin",
+                Isactive = true,
+                CreatedAt = DateTime.UtcNow
+            };
+            defaultAdmin.Password = hasher.HashPassword(defaultAdmin, "Admin@123");
+            db.AdminUsers.Add(defaultAdmin);
+            db.SaveChanges();
+        }
+    }
+    catch
+    {
+        // Safe fallback before initial migration is applied
+    }
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -88,6 +117,5 @@ app.MapControllerRoute(
     .WithStaticAssets();
 
 app.MapRazorPages();
-
 
 app.Run();

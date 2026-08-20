@@ -52,7 +52,7 @@
                         @ViewBag.Error
                     </div>
                 }
-                <form method="POST" asp-controller="Auth" asp-action="VerifyOtp" class="needs-validation" novalidate="">
+                <form method="POST" asp-controller="Account" asp-action="VerifyOtp" class="needs-validation" novalidate="">
                   <input type="hidden" name="email" value="@ViewBag.Email" />
                   
                   <div class="form-group">

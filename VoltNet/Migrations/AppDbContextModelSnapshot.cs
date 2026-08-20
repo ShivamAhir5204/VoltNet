@@ -22,382 +22,56 @@ namespace VoltNet.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("VoltNet.Models.Booking", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("BookingTime")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasColumnName("booking_time")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<int>("ChargerId")
-                        .HasColumnType("int")
-                        .HasColumnName("charger_id");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<Guid>("CustomerUserId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("customer_user_id");
-
-                    b.Property<DateTime>("SlotEndTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("slot_end_time");
-
-                    b.Property<DateTime>("SlotStartTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("slot_start_time");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(20)")
-                        .HasColumnName("status");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CustomerUserId")
-                        .HasDatabaseName("IX_Bookings_CustomerUserId");
-
-                    b.HasIndex("ChargerId", "SlotStartTime", "SlotEndTime")
-                        .HasDatabaseName("IX_Bookings_ChargerId_SlotStartTime_SlotEndTime");
-
-                    b.ToTable("Bookings", (string)null);
-                });
-
-            modelBuilder.Entity("VoltNet.Models.Charger", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ChargerCode")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
-                        .HasColumnName("charger_code");
-
-                    b.Property<string>("ConnectorType")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(20)")
-                        .HasColumnName("connector_type");
-
-                    b.Property<DateTime?>("LastServicedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("last_serviced_at");
-
-                    b.Property<decimal>("PowerRatingKw")
-                        .HasColumnType("decimal(6,2)")
-                        .HasColumnName("power_rating_kw");
-
-                    b.Property<decimal>("RatePerKwh")
-                        .HasColumnType("decimal(8,2)")
-                        .HasColumnName("rate_per_kwh");
-
-                    b.Property<int>("StationId")
-                        .HasColumnType("int")
-                        .HasColumnName("station_id");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(20)")
-                        .HasColumnName("status");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(20)")
-                        .HasColumnName("type");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ChargerCode")
-                        .IsUnique()
-                        .HasDatabaseName("IX_Chargers_ChargerCode");
-
-                    b.HasIndex("StationId")
-                        .HasDatabaseName("IX_Chargers_StationId");
-
-                    b.HasIndex("Status")
-                        .HasDatabaseName("IX_Chargers_Status");
-
-                    b.ToTable("Chargers", (string)null);
-                });
-
-            modelBuilder.Entity("VoltNet.Models.ChargingSession", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime?>("ActualEndTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("actual_end_time");
-
-                    b.Property<DateTime>("ActualStartTime")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("actual_start_time");
-
-                    b.Property<int>("BookingId")
-                        .HasColumnType("int")
-                        .HasColumnName("booking_id");
-
-                    b.Property<decimal?>("Cost")
-                        .HasColumnType("decimal(10,2)")
-                        .HasColumnName("cost");
-
-                    b.Property<decimal?>("EnergyConsumedKwh")
-                        .HasColumnType("decimal(8,2)")
-                        .HasColumnName("energy_consumed_kwh");
-
-                    b.Property<string>("PaymentStatus")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(20)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(20)")
-                        .HasDefaultValue("Pending")
-                        .HasColumnName("payment_status");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BookingId")
-                        .IsUnique()
-                        .HasDatabaseName("IX_ChargingSessions_BookingId");
-
-                    b.ToTable("ChargingSessions", (string)null);
-                });
-
-            modelBuilder.Entity("VoltNet.Models.FranchiseMaster", b =>
+            modelBuilder.Entity("VoltNet.Models.AdminUser", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("id");
 
-                    b.Property<string>("Address")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)")
-                        .HasColumnName("address");
-
-                    b.Property<string>("ContactEmail")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("contact_email");
-
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
                         .HasColumnName("created_at")
                         .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<string>("FranchiseName")
+                    b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)")
-                        .HasColumnName("franchise_name");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("email");
 
-                    b.Property<Guid>("OwnerUserId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("owner_user_id");
-
-                    b.Property<decimal>("RevenueSharePercent")
-                        .HasColumnType("decimal(5,2)")
-                        .HasColumnName("revenue_share_percent");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OwnerUserId");
-
-                    b.ToTable("FranchiseMaster", (string)null);
-                });
-
-            modelBuilder.Entity("VoltNet.Models.FranchiseSettlement", b =>
-                {
-                    b.Property<int>("Id")
+                    b.Property<bool>("Isactive")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id");
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true)
+                        .HasColumnName("isactive");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("CompanyShareAmount")
-                        .HasColumnType("decimal(12,2)")
-                        .HasColumnName("company_share_amount");
-
-                    b.Property<Guid>("FranchiseId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("franchise_id");
-
-                    b.Property<decimal>("FranchiseShareAmount")
-                        .HasColumnType("decimal(12,2)")
-                        .HasColumnName("franchise_share_amount");
-
-                    b.Property<DateTime>("PeriodEnd")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("period_end");
-
-                    b.Property<DateTime>("PeriodStart")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("period_start");
-
-                    b.Property<string>("SettlementStatus")
+                    b.Property<string>("Name")
                         .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(20)
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("password");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(30)
                         .IsUnicode(false)
-                        .HasColumnType("varchar(20)")
-                        .HasDefaultValue("Pending")
-                        .HasColumnName("settlement_status");
-
-                    b.Property<decimal>("TotalRevenue")
-                        .HasColumnType("decimal(12,2)")
-                        .HasColumnName("total_revenue");
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("role");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FranchiseId", "PeriodStart", "PeriodEnd")
+                    b.HasIndex("Email")
                         .IsUnique()
-                        .HasDatabaseName("IX_FranchiseSettlements_FranchiseId_Period");
+                        .HasDatabaseName("IX_AdminUsers_Email");
 
-                    b.ToTable("FranchiseSettlements", (string)null);
-                });
-
-            modelBuilder.Entity("VoltNet.Models.Invoice", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(10,2)")
-                        .HasColumnName("amount");
-
-                    b.Property<int>("ChargingSessionId")
-                        .HasColumnType("int")
-                        .HasColumnName("charging_session_id");
-
-                    b.Property<Guid>("CustomerUserId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("customer_user_id");
-
-                    b.Property<decimal>("GSTAmount")
-                        .HasColumnType("decimal(10,2)")
-                        .HasColumnName("gst_amount");
-
-                    b.Property<DateTime>("IssuedDate")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasColumnName("issued_date")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<string>("PaymentMethod")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(20)")
-                        .HasColumnName("payment_method");
-
-                    b.Property<decimal>("TotalAmount")
-                        .HasColumnType("decimal(10,2)")
-                        .HasColumnName("total_amount");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ChargingSessionId")
-                        .IsUnique()
-                        .HasDatabaseName("IX_Invoices_ChargingSessionId");
-
-                    b.HasIndex("CustomerUserId");
-
-                    b.ToTable("Invoices", (string)null);
-                });
-
-            modelBuilder.Entity("VoltNet.Models.MaintenanceTicket", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<Guid?>("AssignedTechnicianId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("assigned_technician_id");
-
-                    b.Property<int>("ChargerId")
-                        .HasColumnType("int")
-                        .HasColumnName("charger_id");
-
-                    b.Property<string>("IssueDescription")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)")
-                        .HasColumnName("issue_description");
-
-                    b.Property<DateTime>("ReportedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasColumnName("reported_at")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<Guid>("ReportedByUserId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("reported_by_user_id");
-
-                    b.Property<DateTime?>("ResolvedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("resolved_at");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(20)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(20)")
-                        .HasDefaultValue("Open")
-                        .HasColumnName("status");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AssignedTechnicianId")
-                        .HasDatabaseName("IX_MaintenanceTickets_AssignedTechnicianId");
-
-                    b.HasIndex("ChargerId")
-                        .HasDatabaseName("IX_MaintenanceTickets_ChargerId");
-
-                    b.HasIndex("ReportedByUserId");
-
-                    b.HasIndex("Status")
-                        .HasDatabaseName("IX_MaintenanceTickets_Status");
-
-                    b.ToTable("MaintenanceTickets", (string)null);
+                    b.ToTable("AdminUsers", (string)null);
                 });
 
             modelBuilder.Entity("VoltNet.Models.Station", b =>
@@ -431,10 +105,6 @@ namespace VoltNet.Migrations
                         .HasColumnName("created_at")
                         .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<Guid?>("FranchiseId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("franchise_id");
-
                     b.Property<decimal>("Latitude")
                         .HasColumnType("decimal(9,6)")
                         .HasColumnName("latitude");
@@ -452,6 +122,10 @@ namespace VoltNet.Migrations
                     b.Property<TimeSpan>("OpeningTime")
                         .HasColumnType("time")
                         .HasColumnName("opening_time");
+
+                    b.Property<Guid?>("OwnerUserId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("owner_user_id");
 
                     b.Property<string>("State")
                         .IsRequired()
@@ -471,7 +145,7 @@ namespace VoltNet.Migrations
                     b.HasIndex("City")
                         .HasDatabaseName("IX_Stations_City");
 
-                    b.HasIndex("FranchiseId");
+                    b.HasIndex("OwnerUserId");
 
                     b.HasIndex("Status")
                         .HasDatabaseName("IX_Stations_Status");
@@ -563,194 +237,14 @@ namespace VoltNet.Migrations
                     b.ToTable("UserMaster", (string)null);
                 });
 
-            modelBuilder.Entity("VoltNet.Models.Wallet", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Balance")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("decimal(10,2)")
-                        .HasDefaultValue(0m)
-                        .HasColumnName("balance");
-
-                    b.Property<Guid>("CustomerUserId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("customer_user_id");
-
-                    b.Property<DateTime>("LastUpdated")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasColumnName("last_updated")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CustomerUserId")
-                        .IsUnique()
-                        .HasDatabaseName("IX_Wallets_CustomerUserId");
-
-                    b.ToTable("Wallets", (string)null);
-                });
-
-            modelBuilder.Entity("VoltNet.Models.WalletTransaction", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(10,2)")
-                        .HasColumnName("amount");
-
-                    b.Property<DateTime>("Timestamp")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasColumnName("timestamp")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(20)")
-                        .HasColumnName("type");
-
-                    b.Property<int>("WalletId")
-                        .HasColumnType("int")
-                        .HasColumnName("wallet_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("WalletId")
-                        .HasDatabaseName("IX_WalletTransactions_WalletId");
-
-                    b.ToTable("WalletTransactions", (string)null);
-                });
-
-            modelBuilder.Entity("VoltNet.Models.Booking", b =>
-                {
-                    b.HasOne("VoltNet.Models.Charger", "Charger")
-                        .WithMany()
-                        .HasForeignKey("ChargerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("VoltNet.Models.UserMaster", "CustomerUser")
-                        .WithMany()
-                        .HasForeignKey("CustomerUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Charger");
-
-                    b.Navigation("CustomerUser");
-                });
-
-            modelBuilder.Entity("VoltNet.Models.Charger", b =>
-                {
-                    b.HasOne("VoltNet.Models.Station", "Station")
-                        .WithMany()
-                        .HasForeignKey("StationId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Station");
-                });
-
-            modelBuilder.Entity("VoltNet.Models.ChargingSession", b =>
-                {
-                    b.HasOne("VoltNet.Models.Booking", "Booking")
-                        .WithOne()
-                        .HasForeignKey("VoltNet.Models.ChargingSession", "BookingId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Booking");
-                });
-
-            modelBuilder.Entity("VoltNet.Models.FranchiseMaster", b =>
+            modelBuilder.Entity("VoltNet.Models.Station", b =>
                 {
                     b.HasOne("VoltNet.Models.UserMaster", "OwnerUser")
                         .WithMany()
                         .HasForeignKey("OwnerUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("OwnerUser");
-                });
-
-            modelBuilder.Entity("VoltNet.Models.FranchiseSettlement", b =>
-                {
-                    b.HasOne("VoltNet.Models.FranchiseMaster", "Franchise")
-                        .WithMany()
-                        .HasForeignKey("FranchiseId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Franchise");
-                });
-
-            modelBuilder.Entity("VoltNet.Models.Invoice", b =>
-                {
-                    b.HasOne("VoltNet.Models.ChargingSession", "ChargingSession")
-                        .WithOne()
-                        .HasForeignKey("VoltNet.Models.Invoice", "ChargingSessionId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("VoltNet.Models.UserMaster", "CustomerUser")
-                        .WithMany()
-                        .HasForeignKey("CustomerUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("ChargingSession");
-
-                    b.Navigation("CustomerUser");
-                });
-
-            modelBuilder.Entity("VoltNet.Models.MaintenanceTicket", b =>
-                {
-                    b.HasOne("VoltNet.Models.UserMaster", "AssignedTechnician")
-                        .WithMany()
-                        .HasForeignKey("AssignedTechnicianId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("VoltNet.Models.Charger", "Charger")
-                        .WithMany()
-                        .HasForeignKey("ChargerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("VoltNet.Models.UserMaster", "ReportedByUser")
-                        .WithMany()
-                        .HasForeignKey("ReportedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("AssignedTechnician");
-
-                    b.Navigation("Charger");
-
-                    b.Navigation("ReportedByUser");
-                });
-
-            modelBuilder.Entity("VoltNet.Models.Station", b =>
-                {
-                    b.HasOne("VoltNet.Models.FranchiseMaster", "Franchise")
-                        .WithMany()
-                        .HasForeignKey("FranchiseId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Franchise");
                 });
 
             modelBuilder.Entity("VoltNet.Models.StationManager", b =>
@@ -770,28 +264,6 @@ namespace VoltNet.Migrations
                     b.Navigation("Station");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("VoltNet.Models.Wallet", b =>
-                {
-                    b.HasOne("VoltNet.Models.UserMaster", "CustomerUser")
-                        .WithOne()
-                        .HasForeignKey("VoltNet.Models.Wallet", "CustomerUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("CustomerUser");
-                });
-
-            modelBuilder.Entity("VoltNet.Models.WalletTransaction", b =>
-                {
-                    b.HasOne("VoltNet.Models.Wallet", "Wallet")
-                        .WithMany()
-                        .HasForeignKey("WalletId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Wallet");
                 });
 #pragma warning restore 612, 618
         }

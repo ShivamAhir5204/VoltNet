@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace VoltNet.Controllers.admin;
 
-[Authorize(Roles = "SuperAdmin")]
+[Authorize(Roles = "SuperAdmin,Admin")]
 [Route("admin/UserMaster/{action=Index}/{id?}")]
 public class UserMasterController : Controller
 {

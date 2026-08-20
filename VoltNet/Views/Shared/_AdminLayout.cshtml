@@ -37,9 +37,10 @@
               class="nav-link dropdown-toggle nav-link-lg nav-link-user"> <img alt="image" src="~/otika/assets/img/admin.png"
                 class="user-img-radious-style"> <span class="d-sm-none d-lg-inline-block"></span></a>
             <div class="dropdown-menu dropdown-menu-right pullDown">
-              <div class="dropdown-title">Hello Admin</div>
+              <div class="dropdown-title">Hello, @(User.Identity?.Name ?? "Admin")</div>
               <div class="dropdown-divider"></div>
-              <form asp-controller="Auth" asp-action="Logout" method="post" id="logoutForm" class="dropdown-item has-icon text-danger d-flex align-items-center" style="cursor:pointer">
+              <form action="/admin/logout" method="post" id="logoutForm" class="dropdown-item has-icon text-danger d-flex align-items-center" style="cursor:pointer">
+                @Html.AntiForgeryToken()
                 <i class="fas fa-sign-out-alt mr-2"></i>
                 <a onclick="document.getElementById('logoutForm').submit();" class="text-danger" style="margin:0; padding:0;">Logout</a>
               </form>
@@ -50,7 +51,7 @@
       <div class="main-sidebar sidebar-style-2">
         <aside id="sidebar-wrapper">
           <div class="sidebar-brand">
-            <a href="#"> <img alt="image" src="~/otika/assets/img/voltnet.png" class="header-logo" /> <span
+            <a href="/admin/UserMaster"> <img alt="image" src="~/otika/assets/img/voltnet.png" class="header-logo" /> <span
                 class="logo-name">VoltNet</span>
             </a>
           </div>
@@ -59,18 +60,12 @@
             <li class="dropdown @(Context.Request.Path.StartsWithSegments("/admin/UserMaster") ? "active" : "")">
               <a href="/admin/UserMaster" class="nav-link"><i data-feather="users"></i><span>Users</span></a>
             </li>
-            <li class="dropdown @(Context.Request.Path.StartsWithSegments("/admin/FranchiseMaster") ? "active" : "")">
-              <a href="/admin/FranchiseMaster" class="nav-link"><i data-feather="briefcase"></i><span>Franchises</span></a>
-            </li>
-            <li class="dropdown @(Context.Request.Path.StartsWithSegments("/admin/StationMaster") ? "active" : "")">
-              <a href="/admin/StationMaster" class="nav-link"><i data-feather="map-pin"></i><span>Stations</span></a>
-            </li>
-            <li class="dropdown @(Context.Request.Path.StartsWithSegments("/admin/ChargerMaster") ? "active" : "")">
-              <a href="/admin/ChargerMaster" class="nav-link"><i data-feather="zap"></i><span>Chargers</span></a>
-            </li>
-            <li class="dropdown @(Context.Request.Path.StartsWithSegments("/admin/StationManagerAssign") ? "active" : "")">
-              <a href="/admin/StationManagerAssign" class="nav-link"><i data-feather="user-check"></i><span>Station Managers</span></a>
-            </li>
+            @if (User.IsInRole("SuperAdmin"))
+            {
+              <li class="dropdown @(Context.Request.Path.StartsWithSegments("/admin/AdminUser") ? "active" : "")">
+                <a href="/admin/AdminUser" class="nav-link"><i data-feather="shield"></i><span>Admins</span></a>
+              </li>
+            }
           </ul>
         </aside>
       </div>

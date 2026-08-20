@@ -1,0 +1,134 @@
+@{
+    ViewData["Title"] = "Help & FAQ";
+    ViewData["ActivePage"] = "Faq";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+
+<!-- Page Hero -->
+<section class="vn-inner-hero">
+    <div class="container">
+        <h1 class="inner-hero-title">How Can We <span class="gradient-text">Help You?</span></h1>
+        <ul class="breadcrumb-vn">
+            <li><a asp-controller="Home" asp-action="Index">Home</a></li>
+            <li>FAQ</li>
+        </ul>
+    </div>
+</section>
+
+<!-- FAQ Accordion -->
+<section style="padding: 4rem 0;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                
+                <h4 class="gradient-text mb-4">About VoltNet</h4>
+                <div class="accordion vn-accordion mb-5" id="faqGeneral">
+                    
+                    <!-- Q1 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true">
+                                Do you own the charging stations?
+                            </button>
+                        </h2>
+                        <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#faqGeneral">
+                            <div class="accordion-body">
+                                No, VoltNet is an independent software development company. We provide the ERP (Enterprise Resource Planning) software to independent station owners to manage their chargers, and we provide the booking app to you (the driver) to find and use them. 
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Q2 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false">
+                                Are you a franchise?
+                            </button>
+                        </h2>
+                        <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#faqGeneral">
+                            <div class="accordion-body">
+                                No, we do not operate a franchise model. Station owners maintain 100% ownership and branding of their physical hardware. They simply use our software (SaaS) to manage operations and get listed on our driver network.
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <h4 class="gradient-text mb-4">For EV Drivers</h4>
+                <div class="accordion vn-accordion mb-5" id="faqCharging">
+                    
+                    <!-- Q3 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false">
+                                Who sets the charging prices?
+                            </button>
+                        </h2>
+                        <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#faqCharging">
+                            <div class="accordion-body">
+                                Because the stations are independently owned, the charging tariffs (price per kWh) are set directly by the station owners. VoltNet does not mark up the electricity costs. The price you see in the app is exactly what the owner charges.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Q4 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false">
+                                How do I book a charging slot in advance?
+                            </button>
+                        </h2>
+                        <div id="collapseFour" class="accordion-collapse collapse" data-bs-parent="#faqCharging">
+                            <div class="accordion-body">
+                                Log into your driver account, go to the Stations map, select your preferred partner station, and click "Book Slot". You can reserve a specific charger for a specific time window to guarantee availability.
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                
+                <h4 class="gradient-text mb-4">For Station Owners</h4>
+                <div class="accordion vn-accordion mb-5" id="faqBilling">
+                    
+                    <!-- Q5 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false">
+                                How do I connect my charger to your ERP?
+                            </button>
+                        </h2>
+                        <div id="collapseFive" class="accordion-collapse collapse" data-bs-parent="#faqBilling">
+                            <div class="accordion-body">
+                                Our ERP is fully compatible with any charger that supports the OCPP (1.6J or 2.0.1) standard. Once you create an owner account, you will receive an endpoint URL to configure in your charger's network settings. It takes less than 5 minutes to connect.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Q6 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSix" aria-expanded="false">
+                                How do I receive payments from drivers?
+                            </button>
+                        </h2>
+                        <div id="collapseSix" class="accordion-collapse collapse" data-bs-parent="#faqBilling">
+                            <div class="accordion-body">
+                                When a driver charges at your station, they pay through our secure gateway. We automatically settle the funds (minus standard gateway fees) into your registered bank account on a T+1 (next business day) basis.
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+        
+        <!-- Still need help -->
+        <div class="text-center mt-5 pt-4 border-top" style="border-color: var(--vn-border) !important;">
+            <h4 class="text-white mb-3">Still have questions?</h4>
+            <p class="text-secondary mb-4">Our support team is available 24/7 to assist you.</p>
+            <a asp-controller="Home" asp-action="Contact" class="btn btn-hero-primary">Contact Support</a>
+        </div>
+        
+    </div>
+</section>

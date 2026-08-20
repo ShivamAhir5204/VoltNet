@@ -10,7 +10,9 @@ public class Station
     [Required]
     public string Name { get; set; } = null!;
 
-    public Guid? FranchiseId { get; set; }
+    public Guid? OwnerUserId { get; set; }
+
+    public UserMaster OwnerUser { get; set; } = null!;
 
     [Required]
     public string Address { get; set; } = null!;
@@ -34,6 +36,4 @@ public class Station
 
     public DateTime CreatedAt { get; set; }
 
-    // Navigation properties
-    public virtual FranchiseMaster? Franchise { get; set; }
 }

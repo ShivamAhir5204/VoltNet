@@ -1,8 +1,352 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@{
+    ViewData["Title"] = "Power Your Journey";
+    ViewData["ActivePage"] = "Home";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<!-- ═══════════════ HERO ═══════════════ -->
+<section class="vn-hero" id="home">
+  <div class="hero-particle"></div>
+  <div class="hero-particle"></div>
+  <div class="hero-particle"></div>
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-7">
+        <div class="hero-badge">
+          <span class="pulse-dot"></span>
+          <span>India's Leading EV Platform</span>
+        </div>
+        <h1 class="hero-title">
+          Connecting Drivers.<br>
+          <span class="gradient-text">Empowering Owners.</span>
+        </h1>
+        <p class="hero-description">
+          The ultimate platform for EV charging. For drivers: find, book, and pay for charging slots seamlessly. For station owners: manage your entire charging business with our powerful ERP solution.
+        </p>
+        <div class="hero-buttons">
+          <a href="/register" class="btn-hero-primary">
+            Get Started <i class="bi bi-arrow-right"></i>
+          </a>
+          <a asp-controller="Home" asp-action="Services" class="btn-hero-secondary">
+            <i class="bi bi-play-circle me-2"></i> Our Services
+          </a>
+        </div>
+        <div class="hero-stats">
+          <div>
+            <div class="hero-stat-number gradient-text" data-count="500" data-suffix="+">0+</div>
+            <div class="hero-stat-label">Partner Stations</div>
+          </div>
+          <div>
+            <div class="hero-stat-number gradient-text" data-count="150000" data-suffix="+">0+</div>
+            <div class="hero-stat-label">Happy Users</div>
+          </div>
+          <div>
+            <div class="hero-stat-number gradient-text" data-count="45" data-suffix="">0</div>
+            <div class="hero-stat-label">Cities Covered</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ FEATURES PREVIEW ═══════════════ -->
+<section class="vn-features" id="features">
+  <div class="container">
+    <div class="text-center">
+      <span class="badge-vn">Why VoltNet</span>
+      <h2 class="section-title">Built for the <span class="gradient-text">Modern Ecosystem</span></h2>
+      <p class="section-subtitle">Bridging the gap between EV owners needing reliable charging and station operators needing robust management tools.</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-lg-3 col-md-6 animate-on-scroll">
+        <div class="feature-card">
+          <div class="feature-icon"><i class="bi bi-geo-alt"></i></div>
+          <h4>Find & Book (Drivers)</h4>
+          <p>Locate nearby partner stations, check real-time availability, and book slots in advance through our app.</p>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6 animate-on-scroll">
+        <div class="feature-card">
+          <div class="feature-icon"><i class="bi bi-shield-check"></i></div>
+          <h4>Seamless Payments</h4>
+          <p>Pay directly through the platform securely. No hassle, digital invoices sent straight to your email.</p>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6 animate-on-scroll">
+        <div class="feature-card">
+          <div class="feature-icon"><i class="bi bi-pc-display-horizontal"></i></div>
+          <h4>Station ERP (Owners)</h4>
+          <p>Complete management software for station owners. Monitor uptime, track revenue, and manage pricing remotely.</p>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6 animate-on-scroll">
+        <div class="feature-card">
+          <div class="feature-icon"><i class="bi bi-graph-up-arrow"></i></div>
+          <h4>Analytics Dashboard</h4>
+          <p>Get deep insights into utilization rates, peak hours, and customer trends to maximize your station's profitability.</p>
+        </div>
+      </div>
+    </div>
+    <div class="text-center mt-5 animate-on-scroll">
+      <a asp-controller="Home" asp-action="Services" class="btn-hero-secondary" style="display: inline-flex; align-items: center; gap: 8px;">
+        View All Services <i class="bi bi-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ ABOUT PREVIEW ═══════════════ -->
+<section class="vn-about">
+  <div class="container">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6 animate-on-scroll">
+        <div class="about-img-wrapper">
+          <img src="/usersite/img/about-ev.jpg" alt="EV charging platform" style="height: 420px; object-fit: cover;">
+          <div class="about-stat-box">
+            <h3>100%</h3>
+            <span>Cloud-Based ERP</span>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6 animate-on-scroll">
+        <span class="badge-vn">About VoltNet</span>
+        <h2 class="section-title">The Software Behind <span class="gradient-text">EV Mobility</span></h2>
+        <p class="text-secondary mb-4">
+          VoltNet is a technology company specializing in EV infrastructure software. We don't build the hardware — we build the digital ecosystem that makes it work flawlessly.
+        </p>
+        <ul class="about-list">
+          <li>
+            <span class="check-icon"><i class="bi bi-check-lg"></i></span>
+            Universal booking platform for EV drivers
+          </li>
+          <li>
+            <span class="check-icon"><i class="bi bi-check-lg"></i></span>
+            End-to-end ERP solutions for charging station owners
+          </li>
+          <li>
+            <span class="check-icon"><i class="bi bi-check-lg"></i></span>
+            Hardware-agnostic software (supports all major chargers)
+          </li>
+          <li>
+            <span class="check-icon"><i class="bi bi-check-lg"></i></span>
+            Secure payment gateways and revenue settlements
+          </li>
+        </ul>
+        <a asp-controller="Home" asp-action="About" class="btn-hero-primary mt-3" style="display: inline-flex;">
+          Learn More <i class="bi bi-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ STATIONS PREVIEW ═══════════════ -->
+<section class="vn-stations">
+  <div class="container">
+    <div class="text-center">
+      <span class="badge-vn">Partner Network</span>
+      <h2 class="section-title">Stations Powered by <span class="gradient-text">VoltNet</span></h2>
+      <p class="section-subtitle">Browse top-rated independently owned stations running on our smart management platform.</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-lg-4 col-md-6 animate-on-scroll">
+        <div class="station-card">
+          <div class="station-img">
+            <span class="station-status open">● Open Now</span>
+            <i class="bi bi-ev-station"></i>
+          </div>
+          <div class="station-body">
+            <h5>EcoCharge Hub — Hinjewadi</h5>
+            <div class="station-meta"><i class="bi bi-geo-alt-fill"></i> Phase 1, Hinjewadi, Pune</div>
+            <div class="station-specs">
+              <div class="station-spec">
+                <div class="station-spec-value">6</div>
+                <div class="station-spec-label">Chargers</div>
+              </div>
+              <div class="station-spec">
+                <div class="station-spec-value">150kW</div>
+                <div class="station-spec-label">Max Power</div>
+              </div>
+              <div class="station-spec">
+                <div class="station-spec-value">₹12</div>
+                <div class="station-spec-label">Per kWh</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6 animate-on-scroll">
+        <div class="station-card">
+          <div class="station-img">
+            <span class="station-status open">● Open Now</span>
+            <i class="bi bi-ev-station"></i>
+          </div>
+          <div class="station-body">
+            <h5>PowerUp Point — BKC</h5>
+            <div class="station-meta"><i class="bi bi-geo-alt-fill"></i> Bandra Kurla Complex, Mumbai</div>
+            <div class="station-specs">
+              <div class="station-spec">
+                <div class="station-spec-value">10</div>
+                <div class="station-spec-label">Chargers</div>
+              </div>
+              <div class="station-spec">
+                <div class="station-spec-value">240kW</div>
+                <div class="station-spec-label">Max Power</div>
+              </div>
+              <div class="station-spec">
+                <div class="station-spec-value">₹14</div>
+                <div class="station-spec-label">Per kWh</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6 animate-on-scroll">
+        <div class="station-card">
+          <div class="station-img">
+            <span class="station-status open">● Open Now</span>
+            <i class="bi bi-ev-station"></i>
+          </div>
+          <div class="station-body">
+            <h5>GreenGrid Plaza — Electronic City</h5>
+            <div class="station-meta"><i class="bi bi-geo-alt-fill"></i> Phase 2, Bengaluru</div>
+            <div class="station-specs">
+              <div class="station-spec">
+                <div class="station-spec-value">8</div>
+                <div class="station-spec-label">Chargers</div>
+              </div>
+              <div class="station-spec">
+                <div class="station-spec-value">120kW</div>
+                <div class="station-spec-label">Max Power</div>
+              </div>
+              <div class="station-spec">
+                <div class="station-spec-value">₹11</div>
+                <div class="station-spec-label">Per kWh</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="text-center mt-5 animate-on-scroll">
+      <a asp-controller="Home" asp-action="Stations" class="btn-hero-secondary" style="display: inline-flex; align-items: center; gap: 8px;">
+        View All Stations <i class="bi bi-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ HOW IT WORKS ═══════════════ -->
+<section class="vn-how-it-works">
+  <div class="container">
+    <div class="text-center">
+      <span class="badge-vn">For Drivers</span>
+      <h2 class="section-title">How the <span class="gradient-text">App Works</span></h2>
+      <p class="section-subtitle">Start charging your EV in just 4 simple steps at any partner station.</p>
+    </div>
+    <div class="row g-4">
+      <div class="col-lg-3 col-md-6 animate-on-scroll">
+        <div class="step-card">
+          <div class="step-connector d-none d-lg-block"></div>
+          <div class="step-number">1</div>
+          <h4>Create Account</h4>
+          <p>Sign up on our platform to access hundreds of partner stations.</p>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6 animate-on-scroll">
+        <div class="step-card">
+          <div class="step-connector d-none d-lg-block"></div>
+          <div class="step-number">2</div>
+          <h4>Find a Station</h4>
+          <p>Browse nearby stations with real-time availability and pricing.</p>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6 animate-on-scroll">
+        <div class="step-card">
+          <div class="step-connector d-none d-lg-block"></div>
+          <div class="step-number">3</div>
+          <h4>Book & Plug In</h4>
+          <p>Reserve your slot, drive to the partner station, and start charging.</p>
+        </div>
+      </div>
+      <div class="col-lg-3 col-md-6 animate-on-scroll">
+        <div class="step-card">
+          <div class="step-number">4</div>
+          <h4>Pay & Go</h4>
+          <p>Pay securely via our gateway. The station owner receives funds directly.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ PRICING PREVIEW ═══════════════ -->
+<section class="vn-pricing-preview" style="padding: 6rem 0; background: var(--vn-dark-2);">
+  <div class="container">
+    <div class="text-center">
+      <span class="badge-vn">Solutions</span>
+      <h2 class="section-title">Tailored <span class="gradient-text">Software Plans</span></h2>
+      <p class="section-subtitle">Whether you're a driver looking to charge or an owner looking to scale.</p>
+    </div>
+    <div class="row g-4 justify-content-center">
+      <div class="col-lg-4 col-md-6 animate-on-scroll">
+        <div class="feature-card text-start" style="padding: 2rem;">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="mb-0">EV Drivers</h4>
+            <span class="badge-vn" style="margin-bottom: 0; font-size: 0.65rem;">FREE</span>
+          </div>
+          <div class="mb-3">
+            <span style="font-family: 'Space Grotesk'; font-size: 2.5rem; font-weight: 800; color: var(--vn-primary);">₹0</span>
+            <span class="text-secondary">/platform fee</span>
+          </div>
+          <ul class="about-list" style="font-size: 0.9rem;">
+            <li><span class="check-icon"><i class="bi bi-check-lg"></i></span> Free app access</li>
+            <li><span class="check-icon"><i class="bi bi-check-lg"></i></span> Find & book stations</li>
+            <li><span class="check-icon"><i class="bi bi-check-lg"></i></span> Pay only for the charging</li>
+          </ul>
+        </div>
+      </div>
+      <div class="col-lg-4 col-md-6 animate-on-scroll">
+        <div class="feature-card text-start" style="padding: 2rem; border-color: rgba(0, 212, 170, 0.3);">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="mb-0">Station Owners</h4>
+            <span class="badge-vn" style="margin-bottom: 0; font-size: 0.65rem;">ERP PRO</span>
+          </div>
+          <div class="mb-3">
+            <span style="font-family: 'Space Grotesk'; font-size: 2.5rem; font-weight: 800; color: var(--vn-primary);">₹4999</span>
+            <span class="text-secondary">/month</span>
+          </div>
+          <ul class="about-list" style="font-size: 0.9rem;">
+            <li><span class="check-icon"><i class="bi bi-check-lg"></i></span> Full ERP Dashboard</li>
+            <li><span class="check-icon"><i class="bi bi-check-lg"></i></span> Remote pricing control</li>
+            <li><span class="check-icon"><i class="bi bi-check-lg"></i></span> Settlement & Analytics</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="text-center mt-5 animate-on-scroll">
+      <a asp-controller="Home" asp-action="Pricing" class="btn-hero-primary" style="display: inline-flex; align-items: center; gap: 8px;">
+        View Pricing Details <i class="bi bi-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ CTA ═══════════════ -->
+<section class="vn-cta">
+  <div class="container">
+    <div class="cta-box animate-on-scroll">
+      <h2>Join the <span class="gradient-text">VoltNet Network</span></h2>
+      <p>Drivers: charge seamlessly. Station Owners: manage powerfully.</p>
+      <div class="d-flex gap-3 justify-content-center flex-wrap">
+        <a href="/register" class="btn-hero-primary">
+          Create Account <i class="bi bi-arrow-right"></i>
+        </a>
+        <a asp-controller="Home" asp-action="Contact" class="btn-hero-secondary">
+          <i class="bi bi-chat-dots me-2"></i> Contact Sales
+        </a>
+      </div>
+    </div>
+  </div>
+</section>

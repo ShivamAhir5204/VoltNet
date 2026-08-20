@@ -1,0 +1,64 @@
+@model VoltNet.Models.AdminUser
+
+@{
+    ViewData["Title"] = "Admin Details";
+    Layout = "_AdminLayout";
+}
+
+<div class="row">
+  <div class="col-12 col-md-8 col-lg-6">
+    <div class="card">
+      <div class="card-header">
+        <h4>Admin User Details</h4>
+      </div>
+      <div class="card-body">
+        <div class="row mb-3 border-bottom pb-2">
+            <div class="col-sm-4 text-muted">Name</div>
+            <div class="col-sm-8 font-weight-bold">@Model.Name</div>
+        </div>
+        <div class="row mb-3 border-bottom pb-2">
+            <div class="col-sm-4 text-muted">Email</div>
+            <div class="col-sm-8">@Model.Email</div>
+        </div>
+        <div class="row mb-3 border-bottom pb-2">
+            <div class="col-sm-4 text-muted">Role</div>
+            <div class="col-sm-8">
+                @if (Model.Role == "SuperAdmin")
+                {
+                    <span class="badge badge-primary"><i class="fas fa-crown mr-1"></i> SuperAdmin</span>
+                }
+                else
+                {
+                    <span class="badge badge-info"><i class="fas fa-user-shield mr-1"></i> Admin</span>
+                }
+            </div>
+        </div>
+        <div class="row mb-3 border-bottom pb-2">
+            <div class="col-sm-4 text-muted">Status</div>
+            <div class="col-sm-8">
+                @if (Model.Isactive)
+                {
+                    <span class="badge badge-success">Active</span>
+                }
+                else
+                {
+                    <span class="badge badge-danger">Inactive</span>
+                }
+            </div>
+        </div>
+        <div class="row mb-3 border-bottom pb-2">
+            <div class="col-sm-4 text-muted">Created At</div>
+            <div class="col-sm-8 text-muted">@Model.CreatedAt.ToString("g")</div>
+        </div>
+
+        <div class="mt-4">
+            <form asp-action="LoadEdit" method="post" class="d-inline-block">
+                <input type="hidden" name="id" value="@Model.Id" />
+                <button type="submit" class="btn btn-warning">Edit</button>
+            </form>
+            <a asp-action="Index" class="btn btn-secondary ml-2">Back to List</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

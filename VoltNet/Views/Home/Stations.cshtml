@@ -1,0 +1,150 @@
+@{
+    ViewData["Title"] = "Our Stations";
+    ViewData["ActivePage"] = "Stations";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+
+<!-- Page Hero -->
+<section class="vn-inner-hero" style="background: url('/usersite/img/stations-hero.jpg') center/cover no-repeat; padding: 12rem 0 8rem;">
+    <div style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(10, 14, 23, 0.95), rgba(10, 14, 23, 0.7)); z-index: 1;"></div>
+    <div class="container" style="z-index: 2;">
+        <h1 class="inner-hero-title">Find a <span class="gradient-text">Charging Station</span></h1>
+        <ul class="breadcrumb-vn">
+            <li><a asp-controller="Home" asp-action="Index">Home</a></li>
+            <li>Stations</li>
+        </ul>
+    </div>
+</section>
+
+<!-- Filter & Search -->
+<section style="background: var(--vn-dark-2); padding: 2rem 0; border-bottom: 1px solid var(--vn-border);">
+    <div class="container">
+        <div class="row g-3 align-items-center justify-content-center">
+            <div class="col-lg-4 col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-end-0 text-secondary border-color-vn"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control vn-form-control border-start-0 ps-0" placeholder="Search city, area, or station name..." style="border-color: var(--vn-border);">
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-4">
+                <select class="form-select vn-form-control">
+                    <option value="">All Cities</option>
+                    <option value="Pune">Pune</option>
+                    <option value="Mumbai">Mumbai</option>
+                    <option value="Bengaluru">Bengaluru</option>
+                    <option value="Delhi">Delhi NCR</option>
+                </select>
+            </div>
+            <div class="col-lg-3 col-md-4">
+                <select class="form-select vn-form-control">
+                    <option value="">All Connector Types</option>
+                    <option value="CCS2">CCS2 (DC Fast)</option>
+                    <option value="CHAdeMO">CHAdeMO</option>
+                    <option value="Type2">Type 2 (AC)</option>
+                </select>
+            </div>
+            <div class="col-lg-2 col-md-4 text-center text-md-start">
+                <button class="btn btn-hero-primary w-100 p-2" style="border-radius: var(--vn-radius-sm);">Search</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stations Grid -->
+<section class="vn-stations">
+    <div class="container">
+        <div class="row g-4">
+            <!-- Row 1 -->
+            <div class="col-lg-4 col-md-6 animate-on-scroll">
+                <div class="station-card">
+                    <div class="station-img"><span class="station-status open">● Open Now</span><i class="bi bi-ev-station"></i></div>
+                    <div class="station-body">
+                        <h5>VoltNet Hub — Hinjewadi</h5>
+                        <div class="station-meta"><i class="bi bi-geo-alt-fill"></i> Phase 1, Hinjewadi, Pune</div>
+                        <div class="station-specs">
+                            <div class="station-spec"><div class="station-spec-value">6</div><div class="station-spec-label">Chargers</div></div>
+                            <div class="station-spec"><div class="station-spec-value">150kW</div><div class="station-spec-label">Max Power</div></div>
+                            <div class="station-spec"><div class="station-spec-value">₹12</div><div class="station-spec-label">Per kWh</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 animate-on-scroll">
+                <div class="station-card">
+                    <div class="station-img"><span class="station-status open">● Open Now</span><i class="bi bi-ev-station"></i></div>
+                    <div class="station-body">
+                        <h5>VoltNet Supercharger — BKC</h5>
+                        <div class="station-meta"><i class="bi bi-geo-alt-fill"></i> Bandra Kurla Complex, Mumbai</div>
+                        <div class="station-specs">
+                            <div class="station-spec"><div class="station-spec-value">10</div><div class="station-spec-label">Chargers</div></div>
+                            <div class="station-spec"><div class="station-spec-value">240kW</div><div class="station-spec-label">Max Power</div></div>
+                            <div class="station-spec"><div class="station-spec-value">₹14</div><div class="station-spec-label">Per kWh</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 animate-on-scroll">
+                <div class="station-card">
+                    <div class="station-img"><span class="station-status open">● Open Now</span><i class="bi bi-ev-station"></i></div>
+                    <div class="station-body">
+                        <h5>VoltNet Green — Electronic City</h5>
+                        <div class="station-meta"><i class="bi bi-geo-alt-fill"></i> Phase 2, Electronic City, Bengaluru</div>
+                        <div class="station-specs">
+                            <div class="station-spec"><div class="station-spec-value">8</div><div class="station-spec-label">Chargers</div></div>
+                            <div class="station-spec"><div class="station-spec-value">120kW</div><div class="station-spec-label">Max Power</div></div>
+                            <div class="station-spec"><div class="station-spec-value">₹11</div><div class="station-spec-label">Per kWh</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Row 2 -->
+            <div class="col-lg-4 col-md-6 animate-on-scroll">
+                <div class="station-card">
+                    <div class="station-img"><span class="station-status open">● Open Now</span><i class="bi bi-ev-station"></i></div>
+                    <div class="station-body">
+                        <h5>VoltNet Express — Viman Nagar</h5>
+                        <div class="station-meta"><i class="bi bi-geo-alt-fill"></i> Phoenix Mall, Viman Nagar, Pune</div>
+                        <div class="station-specs">
+                            <div class="station-spec"><div class="station-spec-value">4</div><div class="station-spec-label">Chargers</div></div>
+                            <div class="station-spec"><div class="station-spec-value">60kW</div><div class="station-spec-label">Max Power</div></div>
+                            <div class="station-spec"><div class="station-spec-value">₹13</div><div class="station-spec-label">Per kWh</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 animate-on-scroll">
+                <div class="station-card">
+                    <div class="station-img" style="color: var(--vn-text-muted);"><span class="station-status" style="background: rgba(255,255,255,0.1); color: #fff; border-color: rgba(255,255,255,0.2);">○ Closed</span><i class="bi bi-ev-station"></i></div>
+                    <div class="station-body">
+                        <h5>VoltNet Metro — Andheri</h5>
+                        <div class="station-meta"><i class="bi bi-geo-alt-fill"></i> Andheri East, Mumbai</div>
+                        <div class="station-specs">
+                            <div class="station-spec"><div class="station-spec-value">2</div><div class="station-spec-label">Chargers</div></div>
+                            <div class="station-spec"><div class="station-spec-value">30kW</div><div class="station-spec-label">Max Power</div></div>
+                            <div class="station-spec"><div class="station-spec-value">₹10</div><div class="station-spec-label">Per kWh</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 animate-on-scroll">
+                <div class="station-card">
+                    <div class="station-img"><span class="station-status open">● Open Now</span><i class="bi bi-ev-station"></i></div>
+                    <div class="station-body">
+                        <h5>VoltNet Plaza — Connaught Place</h5>
+                        <div class="station-meta"><i class="bi bi-geo-alt-fill"></i> CP, New Delhi</div>
+                        <div class="station-specs">
+                            <div class="station-spec"><div class="station-spec-value">12</div><div class="station-spec-label">Chargers</div></div>
+                            <div class="station-spec"><div class="station-spec-value">150kW</div><div class="station-spec-label">Max Power</div></div>
+                            <div class="station-spec"><div class="station-spec-value">₹15</div><div class="station-spec-label">Per kWh</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-5">
+            <button class="btn-hero-secondary">Load More Stations</button>
+        </div>
+    </div>
+</section>

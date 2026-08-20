@@ -1,0 +1,116 @@
+@{
+    ViewData["Title"] = "About Us";
+    ViewData["ActivePage"] = "About";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+
+<!-- Page Hero -->
+<section class="vn-inner-hero">
+    <div class="container">
+        <h1 class="inner-hero-title">The Software Behind <span class="gradient-text">Smart Charging</span></h1>
+        <ul class="breadcrumb-vn">
+            <li><a asp-controller="Home" asp-action="Index">Home</a></li>
+            <li>About Us</li>
+        </ul>
+    </div>
+</section>
+
+<!-- Our Story -->
+<section class="vn-about" style="padding-top: 4rem;">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6 animate-on-scroll">
+                <img src="/usersite/img/about-ev.jpg" alt="VoltNet Story" class="img-fluid rounded" style="border: 1px solid rgba(0, 212, 170, 0.15);">
+            </div>
+            <div class="col-lg-6 animate-on-scroll">
+                <span class="badge-vn">Our Mission</span>
+                <h2 class="section-title">Connecting the <span class="gradient-text">EV Ecosystem</span></h2>
+                <p class="text-secondary mb-4">
+                    Founded in 2023, VoltNet is a software development company focused purely on electric vehicle infrastructure. We don't own charging stations; instead, we build the digital backbone that makes owning and operating them seamless and profitable.
+                </p>
+                <p class="text-secondary mb-4">
+                    Our dual-sided platform provides Station Owners with a powerful Enterprise Resource Planning (ERP) suite to manage operations, billing, and analytics. Simultaneously, we provide EV Drivers with an intuitive platform to discover partner stations, book slots, and pay securely.
+                </p>
+                <div class="row g-4 mt-2">
+                    <div class="col-6">
+                        <h3 class="gradient-text mb-1" style="font-size: 2rem; font-weight: 800;">2023</h3>
+                        <p class="text-secondary text-sm">Year Founded</p>
+                    </div>
+                    <div class="col-6">
+                        <h3 class="gradient-text mb-1" style="font-size: 2rem; font-weight: 800;">100%</h3>
+                        <p class="text-secondary text-sm">Software Focused</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats -->
+<section style="background: var(--vn-dark-card); padding: 4rem 0; border-top: 1px solid var(--vn-border); border-bottom: 1px solid var(--vn-border);">
+    <div class="container">
+        <div class="row g-4 text-center">
+            <div class="col-md-3 col-6 animate-on-scroll">
+                <div class="hero-stat-number gradient-text" data-count="500" data-suffix="+">0+</div>
+                <div class="hero-stat-label">Stations Running VoltNet</div>
+            </div>
+            <div class="col-md-3 col-6 animate-on-scroll">
+                <div class="hero-stat-number gradient-text" data-count="150" data-suffix="K+">0K+</div>
+                <div class="hero-stat-label">Drivers Registered</div>
+            </div>
+            <div class="col-md-3 col-6 animate-on-scroll">
+                <div class="hero-stat-number gradient-text" data-count="45" data-suffix="">0</div>
+                <div class="hero-stat-label">Cities Reached</div>
+            </div>
+            <div class="col-md-3 col-6 animate-on-scroll">
+                <div class="hero-stat-number gradient-text" data-count="2" data-suffix="M+">0M+</div>
+                <div class="hero-stat-label">API Calls Daily</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Leadership Team -->
+<section style="padding: 6rem 0;">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="badge-vn">Leadership</span>
+            <h2 class="section-title">Meet the <span class="gradient-text">Developers</span></h2>
+            <p class="section-subtitle">The software engineers and architects building the platform.</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-12 animate-on-scroll mb-5">
+                <img src="/usersite/img/team-office.jpg" alt="VoltNet Tech Team" class="img-fluid rounded shadow-lg" style="border: 1px solid rgba(0,212,170,0.2); max-height: 400px; width: 100%; object-fit: cover;">
+            </div>
+            <!-- Standard Placeholder profiles for team -->
+            <div class="col-lg-3 col-md-6 animate-on-scroll">
+                <div class="team-card p-4">
+                    <div class="testimonial-avatar mx-auto mb-3" style="width: 80px; height: 80px; font-size: 1.5rem;">VK</div>
+                    <h5 class="mb-1 text-white">Vikram Kapoor</h5>
+                    <p class="text-secondary small mb-0">Founder & CEO</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 animate-on-scroll">
+                <div class="team-card p-4">
+                    <div class="testimonial-avatar mx-auto mb-3" style="width: 80px; height: 80px; font-size: 1.5rem;">AR</div>
+                    <h5 class="mb-1 text-white">Ananya Reddy</h5>
+                    <p class="text-secondary small mb-0">Chief Technology Officer</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 animate-on-scroll">
+                <div class="team-card p-4">
+                    <div class="testimonial-avatar mx-auto mb-3" style="width: 80px; height: 80px; font-size: 1.5rem;">MS</div>
+                    <h5 class="mb-1 text-white">Mohit Sharma</h5>
+                    <p class="text-secondary small mb-0">Head of Product</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 animate-on-scroll">
+                <div class="team-card p-4">
+                    <div class="testimonial-avatar mx-auto mb-3" style="width: 80px; height: 80px; font-size: 1.5rem;">PD</div>
+                    <h5 class="mb-1 text-white">Priya Desai</h5>
+                    <p class="text-secondary small mb-0">Lead Cloud Architect</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
