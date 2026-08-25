@@ -1,0 +1,57 @@
+@model IEnumerable<VoltNet.Models.StationManager>
+
+@{
+    ViewData["Title"] = "Station Managers";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Station Managers</h2>
+    <a asp-action="Create" class="btn btn-primary">Assign Manager</a>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Station</th>
+                        <th>Manager Name</th>
+                        <th>Assigned Date</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Station?.Name</td>
+                            <td>@item.User?.Fullname</td>
+                            <td>@item.AssignedAt.ToLocalTime().ToString("g")</td>
+                            <td class="text-end">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <form asp-action="LoadEdit" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-primary">Edit</button>
+                                    </form>
+                                    <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to remove this assignment?');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-muted">No station managers assigned yet.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,177 @@
+@{
+    ViewData["Title"] = "Select Location";
+    Layout = "_AdminLayout";
+    var returnTo = ViewBag.ReturnTo as string ?? "Create";
+    var stationId = ViewBag.StationId as int?;
+}
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    #pickMap {
+        height: calc(100vh - 260px);
+        min-height: 450px;
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+        z-index: 1;
+    }
+    .pick-info-bar {
+        background: #1a2236;
+        color: #e2e8f0;
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 8px;
+        padding: 10px 18px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+    .pick-info-bar .coord-display {
+        font-family: 'Space Grotesk', monospace;
+        font-size: 1rem;
+        color: #00d4aa;
+        font-weight: 600;
+    }
+    .pick-info-bar small { color: #94a3b8; }
+</style>
+
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h4 class="mb-0"><i class="bi bi-geo-alt"></i> Select Station Location</h4>
+        <div class="d-flex gap-2">
+            <button id="btnMyLocation" class="btn btn-sm btn-outline-info">
+                <i class="bi bi-crosshair"></i> My Location
+            </button>
+            <button id="btnConfirm" class="btn btn-sm btn-success" disabled>
+                <i class="bi bi-check-lg"></i> Confirm Location
+            </button>
+            <button id="btnCancel" class="btn btn-sm btn-light text-dark">
+                <i class="bi bi-x-lg"></i> Cancel
+            </button>
+        </div>
+      </div>
+      <div class="card-body p-2">
+        <div class="pick-info-bar mb-2">
+            <div>
+                <small>Latitude</small>
+                <div class="coord-display" id="displayLat">—</div>
+            </div>
+            <div>
+                <small>Longitude</small>
+                <div class="coord-display" id="displayLng">—</div>
+            </div>
+            <div class="ms-auto text-secondary" style="font-size: 0.85rem;">
+                <i class="bi bi-info-circle"></i> Click on the map to place a marker
+            </div>
+        </div>
+
+        <div id="pickMap"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function () {
+    var returnTo = '@Html.Raw(returnTo)';
+    var stationId = @(stationId.HasValue ? stationId.Value.ToString() : "null");
+
+    // Check if we have initial coordinates from the form
+    var initialData = sessionStorage.getItem('pickLocationInitial');
+    var initLat = 20.5937, initLng = 78.9629, initZoom = 5;
+    if (initialData) {
+        var init = JSON.parse(initialData);
+        var parsedLat = parseFloat(init.lat);
+        var parsedLng = parseFloat(init.lng);
+        if (!isNaN(parsedLat) && !isNaN(parsedLng) && parsedLat !== 0 && parsedLng !== 0) {
+            initLat = parsedLat;
+            initLng = parsedLng;
+            initZoom = 15;
+        }
+        sessionStorage.removeItem('pickLocationInitial');
+    }
+
+    var map = L.map('pickMap').setView([initLat, initLng], initZoom);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom: 19
+    }).addTo(map);
+
+    var marker = null;
+    var selectedLat = null;
+    var selectedLng = null;
+
+    // If we have initial coords, place a marker
+    if (initZoom === 15) {
+        marker = L.marker([initLat, initLng]).addTo(map);
+        selectedLat = initLat;
+        selectedLng = initLng;
+        document.getElementById('displayLat').textContent = initLat.toFixed(6);
+        document.getElementById('displayLng').textContent = initLng.toFixed(6);
+        document.getElementById('btnConfirm').disabled = false;
+    }
+
+    // Click to pick location
+    map.on('click', function (e) {
+        selectedLat = parseFloat(e.latlng.lat.toFixed(6));
+        selectedLng = parseFloat(e.latlng.lng.toFixed(6));
+
+        if (marker) {
+            marker.setLatLng(e.latlng);
+        } else {
+            marker = L.marker(e.latlng).addTo(map);
+        }
+
+        document.getElementById('displayLat').textContent = selectedLat.toFixed(6);
+        document.getElementById('displayLng').textContent = selectedLng.toFixed(6);
+        document.getElementById('btnConfirm').disabled = false;
+
+        marker.bindPopup('Lat: ' + selectedLat + '<br>Lng: ' + selectedLng).openPopup();
+    });
+
+    // My Location
+    document.getElementById('btnMyLocation').addEventListener('click', function () {
+        if (!navigator.geolocation) {
+            alert('Geolocation is not supported by your browser.');
+            return;
+        }
+        navigator.geolocation.getCurrentPosition(function (pos) {
+            var lat = pos.coords.latitude;
+            var lng = pos.coords.longitude;
+            map.setView([lat, lng], 15);
+        }, function () {
+            alert('Unable to get your location.');
+        });
+    });
+
+    // Confirm & go back
+    document.getElementById('btnConfirm').addEventListener('click', function () {
+        if (selectedLat === null || selectedLng === null) return;
+
+        sessionStorage.setItem('pickedLocation', JSON.stringify({
+            lat: selectedLat.toFixed(6),
+            lng: selectedLng.toFixed(6)
+        }));
+
+        if (returnTo === 'Edit' && stationId) {
+            window.location.href = '/admin/Station/Edit/' + stationId;
+        } else {
+            window.location.href = '/admin/Station/Create';
+        }
+    });
+
+    // Cancel
+    document.getElementById('btnCancel').addEventListener('click', function () {
+        if (returnTo === 'Edit' && stationId) {
+            window.location.href = '/admin/Station/Edit/' + stationId;
+        } else {
+            window.location.href = '/admin/Station/Create';
+        }
+    });
+})();
+</script>
+}

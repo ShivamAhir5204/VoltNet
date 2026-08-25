@@ -1,0 +1,100 @@
+@model VoltNet.Models.Station
+
+@{
+    ViewData["Title"] = "Station Details";
+    Layout = "_AdminLayout";
+}
+
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h4>Station Details</h4>
+        @if (Model.Latitude != 0 || Model.Longitude != 0)
+        {
+            <a href="/admin/Station/Map?highlight=@Model.Id" class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-geo-alt"></i> View on Map
+            </a>
+        }
+      </div>
+      <div class="card-body">
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <span class="text-muted d-block mb-1">Station Name</span>
+                <strong>@Html.DisplayFor(model => model.Name)</strong>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <span class="text-muted d-block mb-1">Owner</span>
+                <strong>@(Model.OwnerUser?.Fullname ?? "—")</strong>
+            </div>
+
+            <div class="col-md-12 mb-3">
+                <span class="text-muted d-block mb-1">Address</span>
+                <strong>@Html.DisplayFor(model => model.Address)</strong>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <span class="text-muted d-block mb-1">City</span>
+                <strong>@Html.DisplayFor(model => model.City)</strong>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <span class="text-muted d-block mb-1">State</span>
+                <strong>@Html.DisplayFor(model => model.State)</strong>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <span class="text-muted d-block mb-1">Latitude</span>
+                <strong>@Html.DisplayFor(model => model.Latitude)</strong>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <span class="text-muted d-block mb-1">Longitude</span>
+                <strong>@Html.DisplayFor(model => model.Longitude)</strong>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <span class="text-muted d-block mb-1">Opening Time</span>
+                <strong>@Model.OpeningTime.ToString(@"hh\:mm")</strong>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <span class="text-muted d-block mb-1">Closing Time</span>
+                <strong>@Model.ClosingTime.ToString(@"hh\:mm")</strong>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <span class="text-muted d-block mb-1">Status</span>
+                <div>
+                    @if (Model.Status == "Active")
+                    {
+                        <span class="badge bg-success">Active</span>
+                    }
+                    else if (Model.Status == "Maintenance")
+                    {
+                        <span class="badge bg-warning text-dark">Maintenance</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger">Inactive</span>
+                    }
+                </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <span class="text-muted d-block mb-1">Created At</span>
+                <strong>@Model.CreatedAt.ToString("dd MMM yyyy, HH:mm")</strong>
+            </div>
+        </div>
+      </div>
+      <div class="card-footer bg-whitesmoke d-flex gap-2">
+        <form asp-action="LoadEdit" method="post" class="d-inline">
+            <input type="hidden" name="id" value="@Model.Id" />
+            <button type="submit" class="btn btn-warning"><i class="fas fa-edit"></i> Edit</button>
+        </form>
+        <a asp-action="Index" class="btn btn-light text-dark ml-2"><i class="fas fa-arrow-left"></i> Back to List</a>
+      </div>
+    </div>
+  </div>
+</div>

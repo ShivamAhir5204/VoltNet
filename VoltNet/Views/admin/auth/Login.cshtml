@@ -72,17 +72,13 @@
                 <form method="POST" action="/admin/login" class="needs-validation" novalidate="">
                   @Html.AntiForgeryToken()
                   <div class="form-group">
-                    <label for="email" class="font-weight-bold">Admin Email</label>
+                    <label for="username" class="font-weight-bold">Admin Username</label>
                     <div class="input-group">
-                      <div class="input-group-prepend">
-                        <div class="input-group-text">
-                          <i class="fas fa-user-shield text-primary"></i>
-                        </div>
-                      </div>
-                      <input id="email" type="email" class="form-control" name="email" tabindex="1" placeholder="admin@voltnet.com" required autofocus>
+                      
+                      <input id="username" type="text" class="form-control" name="username" tabindex="1" placeholder="Please enter your username." required autofocus>
                     </div>
                     <div class="invalid-feedback">
-                      Please enter your admin email.
+                      Please enter your admin username.
                     </div>
                   </div>
 
@@ -91,11 +87,7 @@
                       <label for="password" class="control-label font-weight-bold">Password</label>
                     </div>
                     <div class="input-group">
-                      <div class="input-group-prepend">
-                        <div class="input-group-text">
-                          <i class="fas fa-lock text-primary"></i>
-                        </div>
-                      </div>
+                      
                       <input id="password" type="password" class="form-control" name="password" tabindex="2" placeholder="••••••••" required>
                     </div>
                     <div class="invalid-feedback">

@@ -1,0 +1,292 @@
+@{
+    ViewData["Title"] = "Station Map";
+    Layout = "_AdminLayout";
+    var highlightId = ViewBag.HighlightId as int?;
+}
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    #stationMap {
+        height: calc(100vh - 220px);
+        min-height: 500px;
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+        z-index: 1;
+    }
+    .route-info {
+        background: #1a2236;
+        color: #e2e8f0;
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 8px;
+        padding: 12px 18px;
+        display: none;
+        align-items: center;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+    .route-info.active { display: flex; }
+    .route-info .route-stat {
+        text-align: center;
+    }
+    .route-info .route-stat strong {
+        display: block;
+        font-size: 1.1rem;
+        color: #00d4aa;
+    }
+    .route-info .route-stat small {
+        color: #94a3b8;
+        font-size: 0.75rem;
+    }
+    .leaflet-popup-content { min-width: 200px; }
+    .popup-station-name { font-weight: 700; font-size: 1rem; margin-bottom: 6px; }
+    .popup-meta { color: #666; font-size: 0.85rem; margin-bottom: 4px; }
+    .popup-status { display: inline-block; padding: 2px 10px; border-radius: 50px; font-size: 0.75rem; font-weight: 600; }
+    .popup-status.active { background: #d1fae5; color: #065f46; }
+    .popup-status.inactive { background: #fee2e2; color: #991b1b; }
+    .popup-status.maintenance { background: #fef3c7; color: #92400e; }
+    .popup-actions { margin-top: 10px; display: flex; gap: 6px; }
+    .popup-actions a, .popup-actions button { font-size: 0.8rem; padding: 4px 10px; border-radius: 4px; border: none; cursor: pointer; text-decoration: none; }
+    .popup-btn-directions { background: #00d4aa; color: #fff; }
+    .popup-btn-directions:hover { background: #00b894; color: #fff; }
+    .popup-btn-details { background: #e2e8f0; color: #1a2236; }
+    .popup-btn-details:hover { background: #cbd5e1; color: #1a2236; }
+</style>
+
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h4 class="mb-0">Station Map</h4>
+        <div class="d-flex gap-2">
+            <button id="btnMyLocation" class="btn btn-sm btn-outline-info">
+                <i class="bi bi-crosshair"></i> My Location
+            </button>
+            <button id="btnClearRoute" class="btn btn-sm btn-outline-danger" style="display: none;">
+                <i class="bi bi-x-lg"></i> Clear Route
+            </button>
+            <a href="/admin/Station" class="btn btn-sm btn-light text-dark">
+                <i class="bi bi-list-ul"></i> Back to List
+            </a>
+        </div>
+      </div>
+      <div class="card-body p-2">
+        <!-- Route Info Bar -->
+        <div id="routeInfo" class="route-info mb-2">
+            <div class="route-stat">
+                <strong id="routeDistance">—</strong>
+                <small>Distance</small>
+            </div>
+            <div class="route-stat">
+                <strong id="routeDuration">—</strong>
+                <small>Est. Time</small>
+            </div>
+            <div class="route-stat">
+                <strong id="routeTo">—</strong>
+                <small>Destination</small>
+            </div>
+        </div>
+
+        <div id="stationMap"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+@section Scripts {
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function () {
+    // ── Config ───────────────────────────────────────────────
+    var highlightId = @(highlightId.HasValue ? highlightId.Value.ToString() : "null");
+    var defaultCenter = [20.5937, 78.9629];
+    var defaultZoom = 5;
+
+    var map = L.map('stationMap').setView(defaultCenter, defaultZoom);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom: 19
+    }).addTo(map);
+
+    // Custom icons
+    var stationIcon = L.divIcon({
+        className: 'custom-div-icon',
+        html: '<div style="background:#00d4aa;width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.3);"></div>',
+        iconSize: [20, 20],
+        iconAnchor: [10, 10]
+    });
+
+    var highlightIcon = L.divIcon({
+        className: 'custom-div-icon',
+        html: '<div style="background:#ff4757;width:18px;height:18px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(255,71,87,0.5);animation:pulse 1.5s infinite;"></div>',
+        iconSize: [24, 24],
+        iconAnchor: [12, 12]
+    });
+
+    var userIcon = L.divIcon({
+        className: 'custom-div-icon',
+        html: '<div style="background:#6c63ff;width:16px;height:16px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(108,99,255,0.5);"></div>',
+        iconSize: [22, 22],
+        iconAnchor: [11, 11]
+    });
+
+    var markers = {};
+    var routeLine = null;
+    var userMarker = null;
+    var userLatLng = null;
+
+    // ── Load Stations ────────────────────────────────────────
+    fetch('/admin/Station/MapData')
+        .then(function (res) { return res.json(); })
+        .then(function (stations) {
+            if (stations.length === 0) return;
+
+            var bounds = L.latLngBounds();
+
+            stations.forEach(function (s) {
+                var isHighlight = (s.id === highlightId);
+                var icon = isHighlight ? highlightIcon : stationIcon;
+                var statusClass = s.status.toLowerCase();
+
+                var popupHtml =
+                    '<div class="popup-station-name">' + s.name + '</div>' +
+                    '<div class="popup-meta"><i class="bi bi-person"></i> ' + s.owner + '</div>' +
+                    '<div class="popup-meta"><i class="bi bi-geo-alt"></i> ' + s.address + ', ' + s.city + '</div>' +
+                    '<div class="popup-meta"><i class="bi bi-clock"></i> ' + s.opening + ' – ' + s.closing + '</div>' +
+                    '<span class="popup-status ' + statusClass + '">' + s.status + '</span>' +
+                    '<div class="popup-actions">' +
+                        '<button class="popup-btn-directions" onclick="getDirections(' + s.latitude + ',' + s.longitude + ',\'' + s.name.replace(/'/g, "\\'") + '\')">🧭 Directions</button>' +
+                        '<a href="/admin/Station/Map?highlight=' + s.id + '" class="popup-btn-details">📍 Focus</a>' +
+                    '</div>';
+
+                var marker = L.marker([s.latitude, s.longitude], { icon: icon })
+                    .addTo(map)
+                    .bindPopup(popupHtml);
+
+                markers[s.id] = marker;
+                bounds.extend([s.latitude, s.longitude]);
+
+                if (isHighlight) {
+                    map.setView([s.latitude, s.longitude], 16);
+                    setTimeout(function () { marker.openPopup(); }, 500);
+                }
+            });
+
+            if (!highlightId) {
+                map.fitBounds(bounds, { padding: [40, 40] });
+            }
+        });
+
+    // ── My Location ──────────────────────────────────────────
+    document.getElementById('btnMyLocation').addEventListener('click', function () {
+        if (!navigator.geolocation) {
+            alert('Geolocation is not supported by your browser.');
+            return;
+        }
+        navigator.geolocation.getCurrentPosition(function (pos) {
+            userLatLng = L.latLng(pos.coords.latitude, pos.coords.longitude);
+            if (userMarker) {
+                userMarker.setLatLng(userLatLng);
+            } else {
+                userMarker = L.marker(userLatLng, { icon: userIcon })
+                    .addTo(map)
+                    .bindPopup('<strong>Your Location</strong>');
+            }
+            map.setView(userLatLng, 14);
+            userMarker.openPopup();
+        }, function () {
+            alert('Unable to get your location. Please allow location access.');
+        });
+    });
+
+    // ── Directions (OSRM) ────────────────────────────────────
+    window.getDirections = function (destLat, destLng, stationName) {
+        if (!navigator.geolocation) {
+            alert('Geolocation is not supported by your browser.');
+            return;
+        }
+
+        // Get current position first
+        navigator.geolocation.getCurrentPosition(function (pos) {
+            userLatLng = L.latLng(pos.coords.latitude, pos.coords.longitude);
+
+            // Show user marker
+            if (userMarker) {
+                userMarker.setLatLng(userLatLng);
+            } else {
+                userMarker = L.marker(userLatLng, { icon: userIcon })
+                    .addTo(map)
+                    .bindPopup('<strong>Your Location</strong>');
+            }
+
+            // Call OSRM for route
+            var osrmUrl = 'https://router.project-osrm.org/route/v1/driving/' +
+                pos.coords.longitude + ',' + pos.coords.latitude + ';' +
+                destLng + ',' + destLat +
+                '?overview=full&geometries=geojson';
+
+            fetch(osrmUrl)
+                .then(function (res) { return res.json(); })
+                .then(function (data) {
+                    if (!data.routes || data.routes.length === 0) {
+                        alert('No route found.');
+                        return;
+                    }
+
+                    // Clear previous route
+                    if (routeLine) map.removeLayer(routeLine);
+
+                    var route = data.routes[0];
+                    var coords = route.geometry.coordinates.map(function (c) {
+                        return [c[1], c[0]];
+                    });
+
+                    routeLine = L.polyline(coords, {
+                        color: '#6c63ff',
+                        weight: 5,
+                        opacity: 0.8,
+                        dashArray: '10, 8'
+                    }).addTo(map);
+
+                    map.fitBounds(routeLine.getBounds(), { padding: [60, 60] });
+
+                    // Update route info bar
+                    var distKm = (route.distance / 1000).toFixed(1);
+                    var durationMin = Math.round(route.duration / 60);
+                    var hours = Math.floor(durationMin / 60);
+                    var mins = durationMin % 60;
+                    var timeStr = hours > 0 ? hours + 'h ' + mins + 'm' : mins + ' min';
+
+                    document.getElementById('routeDistance').textContent = distKm + ' km';
+                    document.getElementById('routeDuration').textContent = timeStr;
+                    document.getElementById('routeTo').textContent = stationName;
+                    document.getElementById('routeInfo').classList.add('active');
+                    document.getElementById('btnClearRoute').style.display = 'inline-block';
+                })
+                .catch(function () {
+                    alert('Failed to fetch route. Please try again.');
+                });
+        }, function () {
+            alert('Unable to get your location. Please allow location access.');
+        });
+    };
+
+    // ── Clear Route ──────────────────────────────────────────
+    document.getElementById('btnClearRoute').addEventListener('click', function () {
+        if (routeLine) {
+            map.removeLayer(routeLine);
+            routeLine = null;
+        }
+        document.getElementById('routeInfo').classList.remove('active');
+        this.style.display = 'none';
+    });
+})();
+</script>
+
+<style>
+@@keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.4); opacity: 0.6; }
+}
+</style>
+}

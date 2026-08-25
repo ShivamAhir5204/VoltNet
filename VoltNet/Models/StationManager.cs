@@ -4,9 +4,9 @@ namespace VoltNet.Models;
 
 public class StationManager
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
-    public int StationId { get; set; }
+    public Guid StationId { get; set; }
 
     public Guid UserId { get; set; }
 

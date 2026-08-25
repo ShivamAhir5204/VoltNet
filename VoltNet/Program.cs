@@ -14,7 +14,14 @@ builder.Services.AddMemoryCache();
 builder.Services.AddHttpClient();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
+        sqlServerOptionsAction: sqlOptions =>
+        {
+            sqlOptions.EnableRetryOnFailure(
+                maxRetryCount: 5,
+                maxRetryDelay: TimeSpan.FromSeconds(30),
+                errorNumbersToAdd: null);
+        }));
 
 builder.Services.AddRazorPages();
 
@@ -65,35 +72,6 @@ builder.Services.AddAuthentication(options =>
 });
 
 var app = builder.Build();
-
-// Seed default SuperAdmin if table is empty
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    try
-    {
-        if (!db.AdminUsers.Any())
-        {
-            var hasher = new PasswordHasher<AdminUser>();
-            var defaultAdmin = new AdminUser
-            {
-                Id = Guid.NewGuid(),
-                Name = "Super Admin",
-                Email = "admin@voltnet.com",
-                Role = "SuperAdmin",
-                Isactive = true,
-                CreatedAt = DateTime.UtcNow
-            };
-            defaultAdmin.Password = hasher.HashPassword(defaultAdmin, "Admin@123");
-            db.AdminUsers.Add(defaultAdmin);
-            db.SaveChanges();
-        }
-    }
-    catch
-    {
-        // Safe fallback before initial migration is applied
-    }
-}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

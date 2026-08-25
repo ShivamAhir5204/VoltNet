@@ -30,7 +30,11 @@
 /* ── Base ──────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; }
 
-html { scroll-behavior: smooth; }
+html { 
+  scroll-behavior: smooth; 
+  overflow-x: hidden;
+  max-width: 100%;
+}
 
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -38,6 +42,7 @@ body {
   color: var(--vn-text);
   line-height: 1.7;
   overflow-x: hidden;
+  max-width: 100%;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -181,6 +186,7 @@ img { max-width: 100%; height: auto; }
   display: flex;
   align-items: center;
   overflow: hidden;
+  padding-top: 90px; /* Accounts for fixed navbar height */
 }
 
 .vn-hero::before {

@@ -33,19 +33,19 @@ public class AuthController : Controller
 
     [HttpPost("admin/login")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Login(string email, string password, string remember)
+    public async Task<IActionResult> Login(string username, string password, string remember)
     {
         bool isRememberMe = !string.IsNullOrEmpty(remember) && remember == "on";
 
-        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+        if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
         {
-            ViewBag.Error = "Please enter your email and password.";
+            ViewBag.Error = "Please enter your username and password.";
             return View("~/Views/admin/auth/Login.cshtml");
         }
 
-        var trimmedEmail = email.Trim();
+        var trimmedUsername = username.Trim();
         var admin = await _context.AdminUsers
-            .FirstOrDefaultAsync(u => u.Email == trimmedEmail);
+            .FirstOrDefaultAsync(u => u.Username == trimmedUsername);
 
         if (admin == null || !admin.Isactive)
         {
@@ -88,7 +88,7 @@ public class AuthController : Controller
         var claims = new List<Claim>
         {
             new Claim(JwtRegisteredClaimNames.Sub, admin.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, admin.Email),
+            new Claim(JwtRegisteredClaimNames.Name, admin.Username),
             new Claim(ClaimTypes.Name, admin.Name),
             new Claim(ClaimTypes.Role, admin.Role),
             new Claim("AdminId", admin.Id.ToString())

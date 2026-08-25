@@ -60,6 +60,12 @@
             <li class="dropdown @(Context.Request.Path.StartsWithSegments("/admin/UserMaster") ? "active" : "")">
               <a href="/admin/UserMaster" class="nav-link"><i data-feather="users"></i><span>Users</span></a>
             </li>
+            <li class="dropdown @(Context.Request.Path.StartsWithSegments("/admin/Station") ? "active" : "")">
+              <a href="/admin/Station" class="nav-link"><i data-feather="map-pin"></i><span>Stations</span></a>
+            </li>
+            <li class="dropdown @(Context.Request.Path.StartsWithSegments("/admin/StationManager") ? "active" : "")">
+              <a href="/admin/StationManager" class="nav-link"><i data-feather="briefcase"></i><span>Station Managers</span></a>
+            </li>
             @if (User.IsInRole("SuperAdmin"))
             {
               <li class="dropdown @(Context.Request.Path.StartsWithSegments("/admin/AdminUser") ? "active" : "")">

@@ -50,7 +50,7 @@ public class AdminUserController : Controller
     // POST: admin/AdminUser/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Name,Email,Password,Role,Isactive")] AdminUser adminUser)
+    public async Task<IActionResult> Create([Bind("Name,Username,Password,Role,Isactive")] AdminUser adminUser)
     {
         if (string.IsNullOrWhiteSpace(adminUser.Password))
         {
@@ -62,11 +62,11 @@ public class AdminUserController : Controller
             adminUser.Role = "Admin";
         }
 
-        // Check if email already exists
-        var emailExists = await _context.AdminUsers.AnyAsync(a => a.Email == adminUser.Email);
-        if (emailExists)
+        // Check if username already exists
+        var usernameExists = await _context.AdminUsers.AnyAsync(a => a.Username == adminUser.Username);
+        if (usernameExists)
         {
-            ModelState.AddModelError("Email", "An admin with this email already exists.");
+            ModelState.AddModelError("Username", "An admin with this username already exists.");
         }
 
         if (ModelState.IsValid)
@@ -101,18 +101,18 @@ public class AdminUserController : Controller
     // POST: admin/AdminUser/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(Guid id, [Bind("Id,Name,Email,Password,Role,Isactive,CreatedAt")] AdminUser adminUser)
+    public async Task<IActionResult> Edit(Guid id, [Bind("Id,Name,Username,Password,Role,Isactive,CreatedAt")] AdminUser adminUser)
     {
         if (id != adminUser.Id)
         {
             return NotFound();
         }
 
-        // Check duplicate email (excluding self)
-        var emailExists = await _context.AdminUsers.AnyAsync(a => a.Email == adminUser.Email && a.Id != id);
-        if (emailExists)
+        // Check duplicate username (excluding self)
+        var usernameExists = await _context.AdminUsers.AnyAsync(a => a.Username == adminUser.Username && a.Id != id);
+        if (usernameExists)
         {
-            ModelState.AddModelError("Email", "An admin with this email already exists.");
+            ModelState.AddModelError("Username", "An admin with this username already exists.");
         }
 
         if (ModelState.IsValid)

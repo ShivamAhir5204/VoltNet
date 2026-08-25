@@ -5,14 +5,14 @@ namespace VoltNet.Models;
 
 public class Station
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
     [Required]
     public string Name { get; set; } = null!;
 
     public Guid? OwnerUserId { get; set; }
 
-    public UserMaster OwnerUser { get; set; } = null!;
+    public UserMaster? OwnerUser { get; set; }
 
     [Required]
     public string Address { get; set; } = null!;

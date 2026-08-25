@@ -27,9 +27,9 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Id)
                 .ValueGeneratedNever()
                 .HasColumnName("id");
-            entity.Property(e => e.Email)
+            entity.Property(e => e.Username)
                 .HasMaxLength(100)
-                .HasColumnName("email");
+                .HasColumnName("username");
             entity.Property(e => e.Name)
                 .HasMaxLength(100)
                 .HasColumnName("name");
@@ -47,9 +47,9 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("created_at")
                 .HasDefaultValueSql("GETUTCDATE()");
 
-            entity.HasIndex(e => e.Email)
+            entity.HasIndex(e => e.Username)
                 .IsUnique()
-                .HasDatabaseName("IX_AdminUsers_Email");
+                .HasDatabaseName("IX_AdminUsers_Username");
         });
 
         // ── UserMaster ──────────────────────────────────────────────
@@ -89,6 +89,7 @@ public partial class AppDbContext : DbContext
             entity.ToTable("Stations");
 
             entity.Property(e => e.Id)
+                .ValueGeneratedNever()
                 .HasColumnName("id");
             entity.Property(e => e.Name)
                 .HasMaxLength(150)
@@ -105,10 +106,10 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(100)
                 .HasColumnName("state");
             entity.Property(e => e.Latitude)
-                .HasColumnType("decimal(9,6)")
+                .HasColumnType("decimal(18,9)")
                 .HasColumnName("latitude");
             entity.Property(e => e.Longitude)
-                .HasColumnType("decimal(9,6)")
+                .HasColumnType("decimal(18,9)")
                 .HasColumnName("longitude");
             entity.Property(e => e.OpeningTime)
                 .HasColumnName("opening_time");
@@ -137,6 +138,7 @@ public partial class AppDbContext : DbContext
             entity.ToTable("StationManagers");
 
             entity.Property(e => e.Id)
+                .ValueGeneratedNever()
                 .HasColumnName("id");
             entity.Property(e => e.StationId)
                 .HasColumnName("station_id");

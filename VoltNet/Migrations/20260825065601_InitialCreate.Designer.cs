@@ -12,8 +12,8 @@ using VoltNet.Data;
 namespace VoltNet.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260815075908_RemoveFranchiseAndUnusedModels")]
-    partial class RemoveFranchiseAndUnusedModels
+    [Migration("20260825065601_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,14 +25,63 @@ namespace VoltNet.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("VoltNet.Models.Station", b =>
+            modelBuilder.Entity("VoltNet.Models.AdminUser", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier")
                         .HasColumnName("id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("email");
+
+                    b.Property<bool>("Isactive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true)
+                        .HasColumnName("isactive");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("password");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(30)")
+                        .HasColumnName("role");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique()
+                        .HasDatabaseName("IX_AdminUsers_Email");
+
+                    b.ToTable("AdminUsers", (string)null);
+                });
+
+            modelBuilder.Entity("VoltNet.Models.Station", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("id");
 
                     b.Property<string>("Address")
                         .IsRequired()
@@ -57,11 +106,11 @@ namespace VoltNet.Migrations
                         .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<decimal>("Latitude")
-                        .HasColumnType("decimal(9,6)")
+                        .HasColumnType("decimal(18,9)")
                         .HasColumnName("latitude");
 
                     b.Property<decimal>("Longitude")
-                        .HasColumnType("decimal(9,6)")
+                        .HasColumnType("decimal(18,9)")
                         .HasColumnName("longitude");
 
                     b.Property<string>("Name")
@@ -106,12 +155,9 @@ namespace VoltNet.Migrations
 
             modelBuilder.Entity("VoltNet.Models.StationManager", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier")
                         .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("AssignedAt")
                         .ValueGeneratedOnAdd()
@@ -119,8 +165,8 @@ namespace VoltNet.Migrations
                         .HasColumnName("assigned_at")
                         .HasDefaultValueSql("GETUTCDATE()");
 
-                    b.Property<int>("StationId")
-                        .HasColumnType("int")
+                    b.Property<Guid>("StationId")
+                        .HasColumnType("uniqueidentifier")
                         .HasColumnName("station_id");
 
                     b.Property<Guid>("UserId")
