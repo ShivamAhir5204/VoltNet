@@ -26,7 +26,7 @@ public class AuthController : Controller
     {
         if (User.Identity != null && User.Identity.IsAuthenticated && (User.IsInRole("SuperAdmin") || User.IsInRole("Admin")))
         {
-            return Redirect("/admin/UserMaster");
+            return Redirect("/admin/Dashboard");
         }
         return View("~/Views/admin/auth/Login.cshtml");
     }
@@ -40,6 +40,7 @@ public class AuthController : Controller
         if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
         {
             ViewBag.Error = "Please enter your username and password.";
+            ViewBag.Username = username;
             return View("~/Views/admin/auth/Login.cshtml");
         }
 
@@ -50,6 +51,7 @@ public class AuthController : Controller
         if (admin == null || !admin.Isactive)
         {
             ViewBag.Error = "Invalid credentials, or admin account is inactive.";
+            ViewBag.Username = username;
             return View("~/Views/admin/auth/Login.cshtml");
         }
 
@@ -78,6 +80,7 @@ public class AuthController : Controller
         if (result == PasswordVerificationResult.Failed)
         {
             ViewBag.Error = "Invalid credentials.";
+            ViewBag.Username = username;
             return View("~/Views/admin/auth/Login.cshtml");
         }
 
@@ -123,7 +126,7 @@ public class AuthController : Controller
 
         Response.Cookies.Append("AuthToken", tokenString, cookieOptions);
 
-        return Redirect("/admin/UserMaster");
+        return Redirect("/admin/Dashboard");
     }
 
     [HttpPost("admin/logout")]

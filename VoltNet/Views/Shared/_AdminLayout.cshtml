@@ -38,6 +38,9 @@
                 class="user-img-radious-style"> <span class="d-sm-none d-lg-inline-block"></span></a>
             <div class="dropdown-menu dropdown-menu-right pullDown">
               <div class="dropdown-title">Hello, @(User.Identity?.Name ?? "Admin")</div>
+              <a href="/admin/Dashboard/ResetPassword" class="dropdown-item has-icon"> <i class="fas fa-key"></i>
+                Reset Password
+              </a>
               <div class="dropdown-divider"></div>
               <form action="/admin/logout" method="post" id="logoutForm" class="dropdown-item has-icon text-danger d-flex align-items-center" style="cursor:pointer">
                 @Html.AntiForgeryToken()
@@ -51,20 +54,20 @@
       <div class="main-sidebar sidebar-style-2">
         <aside id="sidebar-wrapper">
           <div class="sidebar-brand">
-            <a href="/admin/UserMaster"> <img alt="image" src="~/otika/assets/img/voltnet.png" class="header-logo" /> <span
+            <a href="/admin/Dashboard"> <img alt="image" src="~/otika/assets/img/voltnet.png" class="header-logo" /> <span
                 class="logo-name">VoltNet</span>
             </a>
           </div>
           <ul class="sidebar-menu">
             <li class="menu-header">Main</li>
+            <li class="dropdown @(Context.Request.Path.StartsWithSegments("/admin/Dashboard") ? "active" : "")">
+              <a href="/admin/Dashboard" class="nav-link"><i data-feather="monitor"></i><span>Dashboard</span></a>
+            </li>
             <li class="dropdown @(Context.Request.Path.StartsWithSegments("/admin/UserMaster") ? "active" : "")">
               <a href="/admin/UserMaster" class="nav-link"><i data-feather="users"></i><span>Users</span></a>
             </li>
             <li class="dropdown @(Context.Request.Path.StartsWithSegments("/admin/Station") ? "active" : "")">
               <a href="/admin/Station" class="nav-link"><i data-feather="map-pin"></i><span>Stations</span></a>
-            </li>
-            <li class="dropdown @(Context.Request.Path.StartsWithSegments("/admin/StationManager") ? "active" : "")">
-              <a href="/admin/StationManager" class="nav-link"><i data-feather="briefcase"></i><span>Station Managers</span></a>
             </li>
             @if (User.IsInRole("SuperAdmin"))
             {

@@ -26,7 +26,7 @@
                 </div>
                 
                 <div class="col-md-6 mb-3">
-                    <label asp-for="Username" class="form-label font-weight-bold">Username Address</label>
+                    <label asp-for="Username" class="form-label font-weight-bold">Username</label>
                     <input asp-for="Username" type="Username" class="form-control" required />
                     <span asp-validation-for="Username" class="text-danger"></span>
                 </div>
@@ -39,16 +39,8 @@
                     <span asp-validation-for="Password" class="text-danger"></span>
                     <small class="form-text text-muted">Only enter a new password if you wish to change it.</small>
                 </div>
-
-                <div class="col-md-6 mb-3">
-                    <label asp-for="Role" class="form-label font-weight-bold">Admin Role</label>
-                    <select asp-for="Role" class="form-control" required>
-                        <option value="Admin">Admin</option>
-                        <option value="SuperAdmin">SuperAdmin</option>
-                    </select>
-                    <span asp-validation-for="Role" class="text-danger"></span>
-                </div>
             </div>
+            <input type="hidden" asp-for="Role" value="Admin" />
 
             <div class="row">
                 <div class="col-md-6 mb-3 d-flex align-items-center">
@@ -65,7 +57,7 @@
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-save mr-1"></i> Update Admin
                 </button>
-                <a asp-action="Index" class="btn btn-secondary ml-2">Back to List</a>
+                <a asp-action="Index" class="btn btn-outline-secondary ml-2">Back to List</a>
             </div>
         </form>
       </div>

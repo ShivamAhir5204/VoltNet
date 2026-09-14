@@ -51,16 +51,12 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcYWRtaW5cYXV0aFxMb2dpbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/admin/stationmanager/Create.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcYWRtaW5cc3RhdGlvbm1hbmFnZXJcQ3JlYXRlLmNzaHRtbA==
+[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/admin/dashboard/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcYWRtaW5cZGFzaGJvYXJkXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/admin/stationmanager/Edit.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcYWRtaW5cc3RhdGlvbm1hbmFnZXJcRWRpdC5jc2h0bWw=
-build_metadata.AdditionalFiles.CssScope = 
-
-[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/admin/stationmanager/Index.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcYWRtaW5cc3RhdGlvbm1hbmFnZXJcSW5kZXguY3NodG1s
+[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/admin/dashboard/ResetPassword.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcYWRtaW5cZGFzaGJvYXJkXFJlc2V0UGFzc3dvcmQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/admin/station/Create.cshtml]

@@ -18,13 +18,13 @@
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label asp-for="Name" class="form-label font-weight-bold">Name</label>
-                    <input asp-for="Name" class="form-control" placeholder="e.g. John Doe" required />
+                    <input asp-for="Name" class="form-control" placeholder="" required />
                     <span asp-validation-for="Name" class="text-danger"></span>
                 </div>
                 
                 <div class="col-md-6 mb-3">
-                    <label asp-for="Username" class="form-label font-weight-bold">Username Address</label>
-                    <input asp-for="Username" type="Username" class="form-control" placeholder="admin_username" required />
+                    <label asp-for="Username" class="form-label font-weight-bold">Username</label>
+                    <input asp-for="Username" type="Username" class="form-control" required />
                     <span asp-validation-for="Username" class="text-danger"></span>
                 </div>
             </div>
@@ -32,19 +32,11 @@
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label asp-for="Password" class="form-label font-weight-bold">Password</label>
-                    <input asp-for="Password" type="password" class="form-control" placeholder="Enter secure password" required />
+                    <input asp-for="Password" type="password" class="form-control" required />
                     <span asp-validation-for="Password" class="text-danger"></span>
                 </div>
-
-                <div class="col-md-6 mb-3">
-                    <label asp-for="Role" class="form-label font-weight-bold">Admin Role</label>
-                    <select asp-for="Role" class="form-control" required>
-                        <option value="Admin">Admin</option>
-                        <option value="SuperAdmin">SuperAdmin</option>
-                    </select>
-                    <span asp-validation-for="Role" class="text-danger"></span>
-                </div>
             </div>
+            <input type="hidden" asp-for="Role" value="Admin" />
 
             <div class="row">
                 <div class="col-md-6 mb-3 d-flex align-items-center">
@@ -61,7 +53,7 @@
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-save mr-1"></i> Save Admin
                 </button>
-                <a asp-action="Index" class="btn btn-secondary ml-2">Back to List</a>
+                <a asp-action="Index" class="btn btn-outline-secondary ml-2">Back to List</a>
             </div>
         </form>
       </div>

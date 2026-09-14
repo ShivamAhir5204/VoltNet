@@ -64,7 +64,7 @@
             <button id="btnClearRoute" class="btn btn-sm btn-outline-danger" style="display: none;">
                 <i class="bi bi-x-lg"></i> Clear Route
             </button>
-            <a href="/admin/Station" class="btn btn-sm btn-light text-dark">
+            <a href="/admin/Station" class="btn btn-sm btn-outline-secondary">
                 <i class="bi bi-list-ul"></i> Back to List
             </a>
         </div>
@@ -103,10 +103,24 @@
 
     var map = L.map('stationMap').setView(defaultCenter, defaultZoom);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    var streetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
         maxZoom: 19
-    }).addTo(map);
+    });
+
+    var satelliteMap = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles &copy; Esri',
+        maxZoom: 19
+    });
+
+    streetMap.addTo(map);
+
+    var baseMaps = {
+        "Street Map": streetMap,
+        "Satellite Map": satelliteMap
+    };
+
+    L.control.layers(baseMaps).addTo(map);
 
     // Custom icons
     var stationIcon = L.divIcon({

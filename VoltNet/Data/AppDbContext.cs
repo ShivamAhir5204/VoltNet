@@ -19,7 +19,7 @@ public partial class AppDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // ── AdminUser ───────────────────────────────────────────────
+        // -- AdminUser -----------------------------------------------
         modelBuilder.Entity<AdminUser>(entity =>
         {
             entity.ToTable("AdminUsers");
@@ -52,7 +52,7 @@ public partial class AppDbContext : DbContext
                 .HasDatabaseName("IX_AdminUsers_Username");
         });
 
-        // ── UserMaster ──────────────────────────────────────────────
+        // -- UserMaster ----------------------------------------------
         modelBuilder.Entity<UserMaster>(entity =>
         {
             entity.ToTable("UserMaster");
@@ -83,7 +83,7 @@ public partial class AppDbContext : DbContext
                 .HasDefaultValueSql("GETUTCDATE()");
         });
 
-        // ── Stations ────────────────────────────────────────────────
+        // -- Stations ------------------------------------------------
         modelBuilder.Entity<Station>(entity =>
         {
             entity.ToTable("Stations");
@@ -132,7 +132,7 @@ public partial class AppDbContext : DbContext
             entity.HasIndex(e => e.Status).HasDatabaseName("IX_Stations_Status");
         });
 
-        // ── StationManagers ─────────────────────────────────────────
+        // -- StationManagers -----------------------------------------
         modelBuilder.Entity<StationManager>(entity =>
         {
             entity.ToTable("StationManagers");
