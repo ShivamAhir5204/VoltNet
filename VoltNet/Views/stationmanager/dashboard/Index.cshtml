@@ -1,0 +1,17 @@
+@{
+    ViewData["Title"] = "StationManager Dashboard";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card card-primary">
+            <div class="card-header">
+                <h4>Welcome, @(User.Identity?.Name ?? "StationManager")</h4>
+            </div>
+            <div class="card-body">
+                <p>Welcome to your StationManager dashboard. This is your landing page.</p>
+            </div>
+        </div>
+    </div>
+</div>
