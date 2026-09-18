@@ -1,0 +1,63 @@
+@model VoltNet.Models.StationOwner
+@{
+    ViewData["Title"] = "Application Status";
+    ViewData["ActivePage"] = "BecomePartner";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+
+<section style="padding: 120px 0 80px; min-height: 100vh;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 40px; text-align: center;">
+
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success">@TempData["Success"]</div>
+                    }
+
+                    @if (Model.Status == "Pending")
+                    {
+                        <div style="font-size: 4rem; margin-bottom: 16px;">⏳</div>
+                        <h2 style="color: #fff;">Application Under Review</h2>
+                        <p style="color: #94a3b8;">Your partner application is being reviewed by our team. We will notify you once a decision is made.</p>
+                        <div style="background: rgba(255,193,7,0.1); border: 1px solid rgba(255,193,7,0.3); border-radius: 12px; padding: 20px; margin-top: 20px;">
+                            <strong style="color: #ffc107;">Status: Pending Review</strong><br/>
+                            <small style="color: #94a3b8;">Applied on @Model.CreatedAt.ToString("dd MMM yyyy, hh:mm tt")</small>
+                        </div>
+                    }
+                    else if (Model.Status == "Approved")
+                    {
+                        <div style="font-size: 4rem; margin-bottom: 16px;">✅</div>
+                        <h2 style="color: #fff;">Application Approved!</h2>
+                        <p style="color: #94a3b8;">Congratulations! You are now a VoltNet Station Owner. Please log in again to access your Owner Dashboard.</p>
+                        <div style="background: rgba(0,212,170,0.1); border: 1px solid rgba(0,212,170,0.3); border-radius: 12px; padding: 20px; margin-top: 20px;">
+                            <strong style="color: #00d4aa;">Status: Approved</strong><br/>
+                            <small style="color: #94a3b8;">Approved on @(Model.ApprovedAt?.ToString("dd MMM yyyy") ?? "—")</small>
+                        </div>
+                        <a href="/logout" class="btn-hero-primary mt-4 d-inline-block" style="text-decoration: none; padding: 12px 32px;">
+                            Re-Login as Station Owner <i class="bi bi-arrow-right"></i>
+                        </a>
+                    }
+                    else
+                    {
+                        <div style="font-size: 4rem; margin-bottom: 16px;">❌</div>
+                        <h2 style="color: #fff;">Application Rejected</h2>
+                        <p style="color: #94a3b8;">Unfortunately, your partner application was not approved.</p>
+                        @if (!string.IsNullOrEmpty(Model.RejectionReason))
+                        {
+                            <div style="background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 12px; padding: 20px; margin-top: 20px; text-align: left;">
+                                <strong style="color: #ef4444;">Reason:</strong>
+                                <p style="color: #e2e8f0; margin-bottom: 0;">@Model.RejectionReason</p>
+                            </div>
+                        }
+                    }
+
+                    <div class="mt-4">
+                        <a href="/" style="color: #94a3b8; text-decoration: none;">← Back to Home</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

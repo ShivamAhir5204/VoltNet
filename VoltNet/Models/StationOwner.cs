@@ -35,6 +35,13 @@ public class StationOwner
     [StringLength(20)]
     public string? GSTNumber { get; set; }
 
+    [Required]
+    [StringLength(20)]
+    public string Status { get; set; } = "Pending";
+
+    [StringLength(500)]
+    public string? RejectionReason { get; set; }
+
     public DateTime? ApprovedAt { get; set; }
 
     public Guid? ApprovedBy { get; set; }

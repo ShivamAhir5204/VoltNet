@@ -66,8 +66,15 @@
             <li class="dropdown @(Context.Request.Path.StartsWithSegments("/admin/UserMaster") ? "active" : "")">
               <a href="/admin/UserMaster" class="nav-link"><i data-feather="users"></i><span>Users</span></a>
             </li>
-            <li class="dropdown @(Context.Request.Path.StartsWithSegments("/admin/Station") ? "active" : "")">
+            <li class="dropdown @(Context.Request.Path.StartsWithSegments("/admin/Station") && !Context.Request.Path.StartsWithSegments("/admin/VerifyStations") ? "active" : "")">
               <a href="/admin/Station" class="nav-link"><i data-feather="map-pin"></i><span>Stations</span></a>
+            </li>
+            <li class="menu-header">Verification</li>
+            <li class="dropdown @(Context.Request.Path.StartsWithSegments("/admin/VerifyStations") ? "active" : "")">
+              <a href="/admin/VerifyStations" class="nav-link"><i data-feather="check-square"></i><span>Verify Stations</span></a>
+            </li>
+            <li class="dropdown @(Context.Request.Path.StartsWithSegments("/admin/VerifyOwners") ? "active" : "")">
+              <a href="/admin/VerifyOwners" class="nav-link"><i data-feather="user-check"></i><span>Verify Owners</span></a>
             </li>
             @if (User.IsInRole("SuperAdmin"))
             {

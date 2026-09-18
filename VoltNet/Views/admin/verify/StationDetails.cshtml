@@ -1,0 +1,155 @@
+@model VoltNet.Models.Station
+@{
+    ViewData["Title"] = "Station Details";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    #stationMap {
+        height: 300px;
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+        z-index: 1;
+    }
+</style>
+
+<div class="row">
+    <div class="col-12 col-lg-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4>Station Details — @Model.Name</h4>
+                <a href="/admin/VerifyStations" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left"></i> Back</a>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Station Name</strong>
+                        <p>@Model.Name</p>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Owner</strong>
+                        <p>@(Model.OwnerUser?.Fullname ?? "N/A")</p>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <strong>Address</strong>
+                        <p>@Model.Address</p>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>City</strong>
+                        <p>@Model.City</p>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>State</strong>
+                        <p>@Model.State</p>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Opening Time</strong>
+                        <p>@Model.OpeningTime.ToString(@"hh\:mm")</p>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Closing Time</strong>
+                        <p>@Model.ClosingTime.ToString(@"hh\:mm")</p>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Latitude</strong>
+                        <p>@Model.Latitude</p>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Longitude</strong>
+                        <p>@Model.Longitude</p>
+                    </div>
+                </div>
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <strong>Location Map</strong>
+                        <div class="mt-2" id="stationMap"></div>
+                    </div>
+                </div>
+
+                @if (Model.Status == "PendingVerification")
+                {
+                    <hr />
+                    <div class="d-flex gap-2">
+                        <form method="post" action="/admin/VerifyStations/Approve" class="d-inline-block mr-2">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@Model.Id" />
+                            <button type="submit" class="btn btn-success" onclick="return confirm('Approve this station?');">
+                                <i class="fas fa-check"></i> Approve
+                            </button>
+                        </form>
+                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#rejectModal">
+                            <i class="fas fa-times"></i> Reject
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (Model.Status == "PendingVerification")
+{
+    <!-- Reject Modal -->
+    <div class="modal fade" id="rejectModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form method="post" action="/admin/VerifyStations/Reject">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <div class="modal-header">
+                        <h5 class="modal-title">Reject Station</h5>
+                        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Rejecting station: <strong>@Model.Name</strong></p>
+                        <div class="form-group">
+                            <label>Reason for Rejection <span class="text-danger">*</span></label>
+                            <textarea name="rejectionReason" class="form-control" rows="3" required placeholder="Enter reason..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">Reject Station</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        (function() {
+            var lat = @Model.Latitude;
+            var lng = @Model.Longitude;
+            
+            var map = L.map('stationMap').setView([lat, lng], 15);
+            
+            var streetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap',
+                maxZoom: 19
+            });
+            var satelliteMap = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles &copy; Esri',
+                maxZoom: 19
+            });
+
+            streetMap.addTo(map);
+            L.control.layers({ "Street Map": streetMap, "Satellite Map": satelliteMap }).addTo(map);
+            
+            L.marker([lat, lng]).addTo(map)
+                .bindPopup("<b>@Model.Name</b><br>@Model.Address")
+                .openPopup();
+        })();
+    </script>
+}

@@ -1,0 +1,109 @@
+@model IEnumerable<VoltNet.Models.Station>
+@{
+    ViewData["Title"] = "Verify Stations";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4>Pending Station Verifications</h4>
+            </div>
+            <div class="card-body">
+                @if (TempData["Success"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show">
+                        @TempData["Success"]
+                        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+                    </div>
+                }
+                @if (!Model.Any())
+                {
+                    <div class="alert alert-info">
+                        <i class="fas fa-check-circle"></i> No pending station verifications.
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Station Name</th>
+                                    <th>Owner</th>
+                                    <th>City</th>
+                                    <th>State</th>
+                                    <th>Submitted</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var station in Model)
+                                {
+                                    <tr>
+                                        <td>@station.Name</td>
+                                        <td>@(station.OwnerUser?.Fullname ?? "N/A")</td>
+                                        <td>@station.City</td>
+                                        <td>@station.State</td>
+                                        <td>@station.CreatedAt.ToString("dd MMM yyyy")</td>
+                                        <td>
+                                            <div class="d-flex justify-content-center gap-1">
+                                                <form method="post" action="/admin/VerifyStations/Details" class="d-inline-block mr-1">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="id" value="@station.Id" />
+                                                    <button type="submit" class="btn btn-info" title="View Details">
+                                                        <i class="fas fa-info-circle"></i>
+                                                    </button>
+                                                </form>
+                                                <form method="post" action="/admin/VerifyStations/Approve" class="d-inline-block mr-1">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="id" value="@station.Id" />
+                                                    <button type="submit" class="btn btn-success" title="Approve" onclick="return confirm('Approve this station?');">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                </form>
+                                                <button type="button" class="btn btn-danger" title="Reject"
+                                                        data-toggle="modal" data-target="#rejectModal"
+                                                        onclick="document.getElementById('rejectStationId').value='@station.Id'; document.getElementById('rejectStationName').textContent='@station.Name';">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reject Modal -->
+<div class="modal fade" id="rejectModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form method="post" action="/admin/VerifyStations/Reject">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" id="rejectStationId" />
+                <div class="modal-header">
+                    <h5 class="modal-title">Reject Station</h5>
+                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <p>Rejecting station: <strong id="rejectStationName"></strong></p>
+                    <div class="form-group">
+                        <label>Reason for Rejection <span class="text-danger">*</span></label>
+                        <textarea name="rejectionReason" class="form-control" rows="3" required placeholder="Enter reason..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Reject Station</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

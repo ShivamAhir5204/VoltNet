@@ -118,6 +118,14 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.GSTNumber)
                 .HasMaxLength(20)
                 .HasColumnName("gst_number");
+            entity.Property(e => e.Status)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasColumnName("status")
+                .HasDefaultValue("Pending");
+            entity.Property(e => e.RejectionReason)
+                .HasMaxLength(500)
+                .HasColumnName("rejection_reason");
             entity.Property(e => e.ApprovedAt)
                 .HasColumnName("approved_at");
             entity.Property(e => e.ApprovedBy)

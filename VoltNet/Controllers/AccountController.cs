@@ -38,7 +38,7 @@ public class AccountController : Controller
             if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
                 return Redirect("/admin/Dashboard");
 
-            return RedirectToAction("Index", "Home");
+            return Redirect("/customer/dashboard");
         }
         return View("~/Views/Auth/Login.cshtml");
     }
@@ -156,8 +156,8 @@ public class AccountController : Controller
         if (user.Role == "StationManager")
             return Redirect("/manager/dashboard");
 
-        // Default: Customer goes to Home Page
-        return RedirectToAction("Index", "Home");
+        // Default: Customer goes to Customer Dashboard
+        return Redirect("/customer/dashboard");
     }
 
     [HttpPost("logout")]

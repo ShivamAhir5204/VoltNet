@@ -86,4 +86,11 @@ public class OwnerStationController : Controller
         }
         return View("~/Views/stationowner/CreateStation.cshtml", model);
     }
+
+    // GET: owner/stations/PickLocation
+    [HttpGet]
+    public IActionResult PickLocation()
+    {
+        return View("~/Views/stationowner/OwnerPickLocation.cshtml");
+    }
 }

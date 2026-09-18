@@ -1,0 +1,109 @@
+@model IEnumerable<VoltNet.Models.StationOwner>
+@{
+    ViewData["Title"] = "Verify Partner Applications";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4>Pending Partner Applications</h4>
+            </div>
+            <div class="card-body">
+                @if (TempData["Success"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show">
+                        @TempData["Success"]
+                        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+                    </div>
+                }
+                @if (!Model.Any())
+                {
+                    <div class="alert alert-info">
+                        <i class="fas fa-check-circle"></i> No pending partner applications.
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Full Name</th>
+                                    <th>Business Name</th>
+                                    <th>Phone</th>
+                                    <th>City</th>
+                                    <th>Applied</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var owner in Model)
+                                {
+                                    <tr>
+                                        <td>@owner.FullName</td>
+                                        <td>@(owner.BusinessName ?? "—")</td>
+                                        <td>@owner.Phone</td>
+                                        <td>@(owner.City ?? "—")</td>
+                                        <td>@owner.CreatedAt.ToString("dd MMM yyyy")</td>
+                                        <td>
+                                            <div class="d-flex justify-content-center gap-1">
+                                                <form method="post" action="/admin/VerifyOwners/Details" class="d-inline-block mr-1">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="id" value="@owner.Id" />
+                                                    <button type="submit" class="btn btn-info" title="View Details">
+                                                        <i class="fas fa-info-circle"></i>
+                                                    </button>
+                                                </form>
+                                                <form method="post" action="/admin/VerifyOwners/Approve" class="d-inline-block mr-1">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="id" value="@owner.Id" />
+                                                    <button type="submit" class="btn btn-success" title="Approve" onclick="return confirm('Approve this partner application?');">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                </form>
+                                                <button type="button" class="btn btn-danger" title="Reject"
+                                                        data-toggle="modal" data-target="#rejectOwnerModal"
+                                                        onclick="document.getElementById('rejectOwnerId').value='@owner.Id'; document.getElementById('rejectOwnerName').textContent='@owner.FullName';">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reject Modal -->
+<div class="modal fade" id="rejectOwnerModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form method="post" action="/admin/VerifyOwners/Reject">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" id="rejectOwnerId" />
+                <div class="modal-header">
+                    <h5 class="modal-title">Reject Partner Application</h5>
+                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <p>Rejecting application from: <strong id="rejectOwnerName"></strong></p>
+                    <div class="form-group">
+                        <label>Reason for Rejection <span class="text-danger">*</span></label>
+                        <textarea name="rejectionReason" class="form-control" rows="3" required placeholder="Enter reason..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Reject Application</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

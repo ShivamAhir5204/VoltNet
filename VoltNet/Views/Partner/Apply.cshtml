@@ -1,0 +1,76 @@
+@{
+    ViewData["Title"] = "Apply to Become a Partner";
+    ViewData["ActivePage"] = "BecomePartner";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+
+<section style="padding: 120px 0 80px; min-height: 100vh;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 40px;">
+                    <h2 style="color: #fff; margin-bottom: 8px;">Partner Application</h2>
+                    <p style="color: #94a3b8; margin-bottom: 30px;">Fill in your details below to apply to become a VoltNet Station Owner.</p>
+
+                    @if (ViewBag.Error != null)
+                    {
+                        <div class="alert alert-danger">@ViewBag.Error</div>
+                    }
+
+                    <form method="post" action="/partner/apply">
+                        @Html.AntiForgeryToken()
+
+                        <div class="row mb-3">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" style="color: #e2e8f0;">Full Name <span class="text-danger">*</span></label>
+                                <input type="text" name="fullName" class="form-control" style="background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); color: #fff;" value="@ViewBag.UserFullName" required />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" style="color: #e2e8f0;">Phone Number <span class="text-danger">*</span></label>
+                                <input type="text" name="phone" class="form-control" style="background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); color: #fff;" value="@ViewBag.UserPhone" required />
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" style="color: #e2e8f0;">Business Name</label>
+                                <input type="text" name="businessName" class="form-control" style="background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); color: #fff;" placeholder="Optional" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label" style="color: #e2e8f0;">Business Registration Number</label>
+                                <input type="text" name="businessRegistrationNumber" class="form-control" style="background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); color: #fff;" placeholder="Optional" />
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" style="color: #e2e8f0;">Address</label>
+                            <input type="text" name="address" class="form-control" style="background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); color: #fff;" placeholder="Business/Station Address" />
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label" style="color: #e2e8f0;">City</label>
+                                <input type="text" name="city" class="form-control" style="background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); color: #fff;" />
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label" style="color: #e2e8f0;">State</label>
+                                <input type="text" name="state" class="form-control" style="background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); color: #fff;" />
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label" style="color: #e2e8f0;">GST Number</label>
+                                <input type="text" name="gstNumber" class="form-control" style="background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); color: #fff;" placeholder="Optional" />
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-3 mt-4">
+                            <button type="submit" class="btn-hero-primary" style="border: none; cursor: pointer; padding: 12px 32px;">
+                                <i class="bi bi-send"></i> Submit Application
+                            </button>
+                            <a href="/Home/BecomePartner" style="color: #94a3b8; text-decoration: none; padding: 12px 16px;">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
