@@ -124,6 +124,11 @@ namespace VoltNet.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("owner_user_id");
 
+                    b.Property<string>("RejectionReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("rejection_reason");
+
                     b.Property<string>("State")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -156,11 +161,33 @@ namespace VoltNet.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("id");
 
-                    b.Property<DateTime>("AssignedAt")
+                    b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasColumnName("assigned_at")
+                        .HasColumnName("created_at")
                         .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)")
+                        .HasColumnName("full_name");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true)
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasColumnName("phone");
 
                     b.Property<Guid>("StationId")
                         .HasColumnType("uniqueidentifier")
@@ -172,13 +199,94 @@ namespace VoltNet.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("CreatedBy");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_StationManagers_UserId");
 
                     b.HasIndex("StationId", "UserId")
                         .IsUnique()
                         .HasDatabaseName("IX_StationManagers_StationId_UserId");
 
                     b.ToTable("StationManagers", (string)null);
+                });
+
+            modelBuilder.Entity("VoltNet.Models.StationOwner", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)")
+                        .HasColumnName("address");
+
+                    b.Property<DateTime?>("ApprovedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("approved_at");
+
+                    b.Property<Guid?>("ApprovedBy")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("approved_by");
+
+                    b.Property<string>("BusinessName")
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)")
+                        .HasColumnName("business_name");
+
+                    b.Property<string>("BusinessRegistrationNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("business_registration_number");
+
+                    b.Property<string>("City")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("city");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)")
+                        .HasColumnName("full_name");
+
+                    b.Property<string>("GSTNumber")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasColumnName("gst_number");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasColumnName("phone");
+
+                    b.Property<string>("State")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("state");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApprovedBy");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_StationOwners_UserId");
+
+                    b.ToTable("StationOwners", (string)null);
                 });
 
             modelBuilder.Entity("VoltNet.Models.UserMaster", b =>
@@ -243,6 +351,12 @@ namespace VoltNet.Migrations
 
             modelBuilder.Entity("VoltNet.Models.StationManager", b =>
                 {
+                    b.HasOne("VoltNet.Models.StationOwner", "CreatedByOwner")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("VoltNet.Models.Station", "Station")
                         .WithMany()
                         .HasForeignKey("StationId")
@@ -250,12 +364,32 @@ namespace VoltNet.Migrations
                         .IsRequired();
 
                     b.HasOne("VoltNet.Models.UserMaster", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
+                        .WithOne()
+                        .HasForeignKey("VoltNet.Models.StationManager", "UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.Navigation("CreatedByOwner");
+
                     b.Navigation("Station");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("VoltNet.Models.StationOwner", b =>
+                {
+                    b.HasOne("VoltNet.Models.UserMaster", "ApprovedByUser")
+                        .WithMany()
+                        .HasForeignKey("ApprovedBy")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("VoltNet.Models.UserMaster", "User")
+                        .WithOne()
+                        .HasForeignKey("VoltNet.Models.StationOwner", "UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ApprovedByUser");
 
                     b.Navigation("User");
                 });

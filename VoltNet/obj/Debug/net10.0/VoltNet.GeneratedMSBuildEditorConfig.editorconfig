@@ -20,153 +20,185 @@ build_property.TargetFrameworkVersion = v10.0
 build_property.EntryPointFilePath = 
 build_property.RootNamespace = VoltNet
 build_property.RootNamespace = VoltNet
-build_property.ProjectDir = C:\Users\avadi\Documents\GitHub\VoltNet\VoltNet\
+build_property.ProjectDir = D:\Voltnet\VoltNet\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.RazorLangVersion = 10.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = C:\Users\avadi\Documents\GitHub\VoltNet\VoltNet
+build_property.MSBuildProjectDirectory = D:\Voltnet\VoltNet
 build_property._RazorSourceGeneratorDebug = 
 build_property.EffectiveAnalysisLevelStyle = 10.0
 build_property.EnableCodeStyleSeverity = 
 
-[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/admin/adminuser/Create.cshtml]
+[D:/Voltnet/VoltNet/Views/admin/adminuser/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcYWRtaW5cYWRtaW51c2VyXENyZWF0ZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/admin/adminuser/Details.cshtml]
+[D:/Voltnet/VoltNet/Views/admin/adminuser/Details.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcYWRtaW5cYWRtaW51c2VyXERldGFpbHMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/admin/adminuser/Edit.cshtml]
+[D:/Voltnet/VoltNet/Views/admin/adminuser/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcYWRtaW5cYWRtaW51c2VyXEVkaXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/admin/adminuser/Index.cshtml]
+[D:/Voltnet/VoltNet/Views/admin/adminuser/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcYWRtaW5cYWRtaW51c2VyXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/admin/auth/Login.cshtml]
+[D:/Voltnet/VoltNet/Views/admin/auth/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcYWRtaW5cYXV0aFxMb2dpbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/admin/dashboard/Index.cshtml]
+[D:/Voltnet/VoltNet/Views/admin/dashboard/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcYWRtaW5cZGFzaGJvYXJkXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/admin/dashboard/ResetPassword.cshtml]
+[D:/Voltnet/VoltNet/Views/admin/dashboard/ResetPassword.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcYWRtaW5cZGFzaGJvYXJkXFJlc2V0UGFzc3dvcmQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/admin/station/Create.cshtml]
+[D:/Voltnet/VoltNet/Views/admin/station/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcYWRtaW5cc3RhdGlvblxDcmVhdGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/admin/station/Details.cshtml]
+[D:/Voltnet/VoltNet/Views/admin/station/Details.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcYWRtaW5cc3RhdGlvblxEZXRhaWxzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/admin/station/Edit.cshtml]
+[D:/Voltnet/VoltNet/Views/admin/station/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcYWRtaW5cc3RhdGlvblxFZGl0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/admin/station/Index.cshtml]
+[D:/Voltnet/VoltNet/Views/admin/station/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcYWRtaW5cc3RhdGlvblxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/admin/station/Map.cshtml]
+[D:/Voltnet/VoltNet/Views/admin/station/Map.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcYWRtaW5cc3RhdGlvblxNYXAuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/admin/station/PickLocation.cshtml]
+[D:/Voltnet/VoltNet/Views/admin/station/PickLocation.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcYWRtaW5cc3RhdGlvblxQaWNrTG9jYXRpb24uY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/admin/usermaster/Create.cshtml]
+[D:/Voltnet/VoltNet/Views/admin/usermaster/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcYWRtaW5cdXNlcm1hc3RlclxDcmVhdGUuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/admin/usermaster/Details.cshtml]
+[D:/Voltnet/VoltNet/Views/admin/usermaster/Details.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcYWRtaW5cdXNlcm1hc3RlclxEZXRhaWxzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/admin/usermaster/Edit.cshtml]
+[D:/Voltnet/VoltNet/Views/admin/usermaster/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcYWRtaW5cdXNlcm1hc3RlclxFZGl0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/admin/usermaster/Index.cshtml]
+[D:/Voltnet/VoltNet/Views/admin/usermaster/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcYWRtaW5cdXNlcm1hc3RlclxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/Auth/Login.cshtml]
+[D:/Voltnet/VoltNet/Views/Auth/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXV0aFxMb2dpbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/Auth/Register.cshtml]
+[D:/Voltnet/VoltNet/Views/Auth/Register.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXV0aFxSZWdpc3Rlci5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/Auth/VerifyOtp.cshtml]
+[D:/Voltnet/VoltNet/Views/Auth/VerifyOtp.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXV0aFxWZXJpZnlPdHAuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/Home/About.cshtml]
+[D:/Voltnet/VoltNet/Views/Home/About.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxBYm91dC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/Home/Contact.cshtml]
+[D:/Voltnet/VoltNet/Views/Home/Contact.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxDb250YWN0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/Home/Faq.cshtml]
+[D:/Voltnet/VoltNet/Views/Home/Faq.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxGYXEuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/Home/Index.cshtml]
+[D:/Voltnet/VoltNet/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/Home/Pricing.cshtml]
+[D:/Voltnet/VoltNet/Views/Home/Pricing.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcmljaW5nLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/Home/Privacy.cshtml]
+[D:/Voltnet/VoltNet/Views/Home/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/Home/Services.cshtml]
+[D:/Voltnet/VoltNet/Views/Home/Services.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxTZXJ2aWNlcy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/Home/Stations.cshtml]
+[D:/Voltnet/VoltNet/Views/Home/Stations.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxTdGF0aW9ucy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/Shared/Error.cshtml]
+[D:/Voltnet/VoltNet/Views/Shared/Error.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/Shared/_AdminLayout.cshtml]
+[D:/Voltnet/VoltNet/Views/Shared/_AdminLayout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9BZG1pbkxheW91dC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/Shared/_UserLayout.cshtml]
+[D:/Voltnet/VoltNet/Views/Shared/_OwnerLayout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9Pd25lckxheW91dC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Voltnet/VoltNet/Views/Shared/_UserLayout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9Vc2VyTGF5b3V0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/Shared/_ValidationScriptsPartial.cshtml]
+[D:/Voltnet/VoltNet/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/_ViewImports.cshtml]
+[D:/Voltnet/VoltNet/Views/stationowner/ChangePassword.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3Ncc3RhdGlvbm93bmVyXENoYW5nZVBhc3N3b3JkLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Voltnet/VoltNet/Views/stationowner/CreateStation.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3Ncc3RhdGlvbm93bmVyXENyZWF0ZVN0YXRpb24uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Voltnet/VoltNet/Views/stationowner/CreateStationManager.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3Ncc3RhdGlvbm93bmVyXENyZWF0ZVN0YXRpb25NYW5hZ2VyLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Voltnet/VoltNet/Views/stationowner/Dashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3Ncc3RhdGlvbm93bmVyXERhc2hib2FyZC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Voltnet/VoltNet/Views/stationowner/StationDetails.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3Ncc3RhdGlvbm93bmVyXFN0YXRpb25EZXRhaWxzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Voltnet/VoltNet/Views/stationowner/StationManagers.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3Ncc3RhdGlvbm93bmVyXFN0YXRpb25NYW5hZ2Vycy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Voltnet/VoltNet/Views/stationowner/Stations.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3Ncc3RhdGlvbm93bmVyXFN0YXRpb25zLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Voltnet/VoltNet/Views/_ViewImports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/_ViewStart.cshtml]
+[D:/Voltnet/VoltNet/Views/_ViewStart.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/avadi/Documents/GitHub/VoltNet/VoltNet/Views/Shared/_Layout.cshtml]
+[D:/Voltnet/VoltNet/Views/Shared/_Layout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = b-enifeq622h

@@ -1,0 +1,115 @@
+@model VoltNet.Models.Station
+
+@{
+    ViewData["Title"] = "Station Details";
+    Layout = "~/Views/Shared/_OwnerLayout.cshtml";
+}
+
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h4>Station: @Model.Name</h4>
+        <a href="/owner/stations" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> Back</a>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <table class="table table-bordered">
+              <tr><th style="width:35%">Name</th><td>@Model.Name</td></tr>
+              <tr><th>Address</th><td>@Model.Address</td></tr>
+              <tr><th>City</th><td>@Model.City</td></tr>
+              <tr><th>State</th><td>@Model.State</td></tr>
+              <tr><th>Latitude</th><td>@Model.Latitude</td></tr>
+              <tr><th>Longitude</th><td>@Model.Longitude</td></tr>
+            </table>
+          </div>
+          <div class="col-md-6">
+            <table class="table table-bordered">
+              <tr>
+                <th style="width:35%">Status</th>
+                <td>
+                  @if (Model.Status == "Active")
+                  {
+                    <span class="badge bg-success">Active</span>
+                  }
+                  else if (Model.Status == "PendingVerification")
+                  {
+                    <span class="badge bg-warning text-dark">Pending Verification</span>
+                  }
+                  else if (Model.Status == "Rejected")
+                  {
+                    <span class="badge bg-danger">Rejected</span>
+                  }
+                  else
+                  {
+                    <span class="badge bg-secondary">@Model.Status</span>
+                  }
+                </td>
+              </tr>
+              @if (Model.Status == "Rejected" && !string.IsNullOrEmpty(Model.RejectionReason))
+              {
+                <tr><th>Rejection Reason</th><td class="text-danger">@Model.RejectionReason</td></tr>
+              }
+              <tr><th>Opening Time</th><td>@Model.OpeningTime.ToString(@"hh\:mm")</td></tr>
+              <tr><th>Closing Time</th><td>@Model.ClosingTime.ToString(@"hh\:mm")</td></tr>
+              <tr><th>Created At</th><td>@Model.CreatedAt.ToString("dd MMM yyyy, hh:mm tt")</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+@{
+    var managers = ViewBag.Managers as List<VoltNet.Models.StationManager>;
+}
+@if (managers != null && managers.Any())
+{
+<div class="row mt-3">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h4>Assigned Managers</h4>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-striped align-middle">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Status</th>
+                <th>Assigned</th>
+              </tr>
+            </thead>
+            <tbody>
+              @foreach (var mgr in managers)
+              {
+                <tr>
+                  <td>@mgr.FullName</td>
+                  <td>@mgr.User?.Email</td>
+                  <td>@mgr.Phone</td>
+                  <td>
+                    @if (mgr.IsActive)
+                    {
+                      <span class="badge bg-success">Active</span>
+                    }
+                    else
+                    {
+                      <span class="badge bg-danger">Inactive</span>
+                    }
+                  </td>
+                  <td>@mgr.CreatedAt.ToString("dd MMM yyyy")</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+}

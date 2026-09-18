@@ -31,6 +31,13 @@ public class AccountController : Controller
     {
         if (User.Identity != null && User.Identity.IsAuthenticated)
         {
+            if (User.IsInRole("StationOwner"))
+                return Redirect("/owner/dashboard");
+            if (User.IsInRole("StationManager"))
+                return Redirect("/manager/dashboard");
+            if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
+                return Redirect("/admin/Dashboard");
+
             return RedirectToAction("Index", "Home");
         }
         return View("~/Views/Auth/Login.cshtml");
@@ -97,6 +104,23 @@ public class AccountController : Controller
             new Claim("UserId", user.Id.ToString())
         };
 
+        // Add role-specific profile ID claims for ownership scoping
+        if (user.Role == "StationOwner")
+        {
+            var owner = await _context.StationOwners.FirstOrDefaultAsync(o => o.UserId == user.Id);
+            if (owner != null)
+                claims.Add(new Claim("StationOwnerId", owner.Id.ToString()));
+        }
+        else if (user.Role == "StationManager")
+        {
+            var manager = await _context.StationManagers.FirstOrDefaultAsync(m => m.UserId == user.Id);
+            if (manager != null)
+            {
+                claims.Add(new Claim("StationManagerId", manager.Id.ToString()));
+                claims.Add(new Claim("StationId", manager.StationId.ToString()));
+            }
+        }
+
         var expires = isRememberMe ? DateTime.UtcNow.AddDays(7) : DateTime.UtcNow.AddHours(8);
 
         var tokenDescriptor = new SecurityTokenDescriptor
@@ -126,7 +150,13 @@ public class AccountController : Controller
 
         Response.Cookies.Append("AuthToken", tokenString, cookieOptions);
 
-        // Redirect normal users to Home Page
+        // Role-based redirect
+        if (user.Role == "StationOwner")
+            return Redirect("/owner/dashboard");
+        if (user.Role == "StationManager")
+            return Redirect("/manager/dashboard");
+
+        // Default: Customer goes to Home Page
         return RedirectToAction("Index", "Home");
     }
 

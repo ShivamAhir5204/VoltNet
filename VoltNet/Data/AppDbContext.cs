@@ -14,6 +14,7 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<AdminUser> AdminUsers { get; set; }
     public virtual DbSet<UserMaster> UserMasters { get; set; }
+    public virtual DbSet<StationOwner> StationOwners { get; set; }
     public virtual DbSet<Station> Stations { get; set; }
     public virtual DbSet<StationManager> StationManagers { get; set; }
 
@@ -83,6 +84,63 @@ public partial class AppDbContext : DbContext
                 .HasDefaultValueSql("GETUTCDATE()");
         });
 
+        // -- StationOwner --------------------------------------------
+        modelBuilder.Entity<StationOwner>(entity =>
+        {
+            entity.ToTable("StationOwners");
+
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnName("id");
+            entity.Property(e => e.UserId)
+                .HasColumnName("user_id");
+            entity.Property(e => e.FullName)
+                .HasMaxLength(150)
+                .HasColumnName("full_name");
+            entity.Property(e => e.BusinessName)
+                .HasMaxLength(150)
+                .HasColumnName("business_name");
+            entity.Property(e => e.Phone)
+                .HasMaxLength(20)
+                .HasColumnName("phone");
+            entity.Property(e => e.BusinessRegistrationNumber)
+                .HasMaxLength(100)
+                .HasColumnName("business_registration_number");
+            entity.Property(e => e.Address)
+                .HasMaxLength(300)
+                .HasColumnName("address");
+            entity.Property(e => e.City)
+                .HasMaxLength(100)
+                .HasColumnName("city");
+            entity.Property(e => e.State)
+                .HasMaxLength(100)
+                .HasColumnName("state");
+            entity.Property(e => e.GSTNumber)
+                .HasMaxLength(20)
+                .HasColumnName("gst_number");
+            entity.Property(e => e.ApprovedAt)
+                .HasColumnName("approved_at");
+            entity.Property(e => e.ApprovedBy)
+                .HasColumnName("approved_by");
+            entity.Property(e => e.CreatedAt)
+                .HasColumnName("created_at")
+                .HasDefaultValueSql("GETUTCDATE()");
+
+            entity.HasOne(e => e.User)
+                .WithOne()
+                .HasForeignKey<StationOwner>(e => e.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.ApprovedByUser)
+                .WithMany()
+                .HasForeignKey(e => e.ApprovedBy)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasIndex(e => e.UserId)
+                .IsUnique()
+                .HasDatabaseName("IX_StationOwners_UserId");
+        });
+
         // -- Stations ------------------------------------------------
         modelBuilder.Entity<Station>(entity =>
         {
@@ -119,6 +177,9 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .HasColumnName("status");
+            entity.Property(e => e.RejectionReason)
+                .HasMaxLength(500)
+                .HasColumnName("rejection_reason");
             entity.Property(e => e.CreatedAt)
                 .HasColumnName("created_at")
                 .HasDefaultValueSql("GETUTCDATE()");
@@ -144,8 +205,19 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("station_id");
             entity.Property(e => e.UserId)
                 .HasColumnName("user_id");
-            entity.Property(e => e.AssignedAt)
-                .HasColumnName("assigned_at")
+            entity.Property(e => e.FullName)
+                .HasMaxLength(150)
+                .HasColumnName("full_name");
+            entity.Property(e => e.Phone)
+                .HasMaxLength(20)
+                .HasColumnName("phone");
+            entity.Property(e => e.CreatedBy)
+                .HasColumnName("created_by");
+            entity.Property(e => e.IsActive)
+                .HasColumnName("is_active")
+                .HasDefaultValue(true);
+            entity.Property(e => e.CreatedAt)
+                .HasColumnName("created_at")
                 .HasDefaultValueSql("GETUTCDATE()");
 
             entity.HasOne(e => e.Station)
@@ -154,13 +226,22 @@ public partial class AppDbContext : DbContext
                 .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasOne(e => e.User)
+                .WithOne()
+                .HasForeignKey<StationManager>(e => e.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.CreatedByOwner)
                 .WithMany()
-                .HasForeignKey(e => e.UserId)
+                .HasForeignKey(e => e.CreatedBy)
                 .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasIndex(e => new { e.StationId, e.UserId })
                 .IsUnique()
                 .HasDatabaseName("IX_StationManagers_StationId_UserId");
+
+            entity.HasIndex(e => e.UserId)
+                .IsUnique()
+                .HasDatabaseName("IX_StationManagers_UserId");
         });
 
         OnModelCreatingPartial(modelBuilder);
@@ -168,3 +249,4 @@ public partial class AppDbContext : DbContext
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
+

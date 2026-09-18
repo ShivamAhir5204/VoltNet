@@ -1,0 +1,134 @@
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/Shared/_OwnerLayout.cshtml";
+}
+
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger">@ViewBag.Error</div>
+}
+
+<div class="row">
+    <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12">
+        <div class="card">
+            <div class="card-statistic-4">
+                <div class="align-items-center justify-content-between">
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pr-0 pt-3">
+                            <div class="card-content">
+                                <h5 class="font-15">My Stations</h5>
+                                <h2 class="mb-3 font-18">@(ViewBag.TotalStations ?? 0)</h2>
+                                <p class="mb-0"><span class="col-green">@(ViewBag.ActiveStations ?? 0)</span> Active</p>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0">
+                            <div class="banner-img">
+                                <img src="~/otika/assets/img/banner/1.png" alt="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12">
+        <div class="card">
+            <div class="card-statistic-4">
+                <div class="align-items-center justify-content-between">
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pr-0 pt-3">
+                            <div class="card-content">
+                                <h5 class="font-15">Pending</h5>
+                                <h2 class="mb-3 font-18">@(ViewBag.PendingStations ?? 0)</h2>
+                                <p class="mb-0"><span class="col-orange">Verification</span></p>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0">
+                            <div class="banner-img">
+                                <img src="~/otika/assets/img/banner/3.png" alt="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12">
+        <div class="card">
+            <div class="card-statistic-4">
+                <div class="align-items-center justify-content-between">
+                    <div class="row">
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pr-0 pt-3">
+                            <div class="card-content">
+                                <h5 class="font-15">Managers</h5>
+                                <h2 class="mb-3 font-18">@(ViewBag.TotalManagers ?? 0)</h2>
+                                <p class="mb-0"><span class="col-green">@(ViewBag.ActiveManagers ?? 0)</span> Active</p>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0">
+                            <div class="banner-img">
+                                <img src="~/otika/assets/img/banner/2.png" alt="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (ViewBag.RecentStations != null)
+{
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4>Recent Stations</h4>
+                <a href="/owner/stations" class="btn btn-primary btn-sm">View All</a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped align-middle">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>City</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var station in (List<VoltNet.Models.Station>)ViewBag.RecentStations)
+                            {
+                                <tr>
+                                    <td>@station.Name</td>
+                                    <td>@station.City</td>
+                                    <td>
+                                        @if (station.Status == "Active")
+                                        {
+                                            <span class="badge bg-success">Active</span>
+                                        }
+                                        else if (station.Status == "PendingVerification")
+                                        {
+                                            <span class="badge bg-warning text-dark">Pending</span>
+                                        }
+                                        else if (station.Status == "Rejected")
+                                        {
+                                            <span class="badge bg-danger">Rejected</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">@station.Status</span>
+                                        }
+                                    </td>
+                                    <td>@station.CreatedAt.ToString("dd MMM yyyy")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+}

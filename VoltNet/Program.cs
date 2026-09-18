@@ -64,7 +64,14 @@ builder.Services.AddAuthentication(options =>
             if (!context.Request.Path.StartsWithSegments("/api"))
             {
                 context.HandleResponse();
-                context.Response.Redirect("/admin/login");
+                if (context.Request.Path.StartsWithSegments("/admin"))
+                {
+                    context.Response.Redirect("/admin/login");
+                }
+                else
+                {
+                    context.Response.Redirect("/login");
+                }
             }
             return Task.CompletedTask;
         }

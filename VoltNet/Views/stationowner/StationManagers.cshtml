@@ -1,0 +1,86 @@
+@model IEnumerable<VoltNet.Models.StationManager>
+
+@{
+    ViewData["Title"] = "Station Managers";
+    Layout = "~/Views/Shared/_OwnerLayout.cshtml";
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span>&times;</span></button>
+    </div>
+}
+
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h4>Station Managers</h4>
+        <a href="/owner/station-managers/Create" class="btn btn-primary">
+          <i class="fas fa-plus"></i> Create New Manager
+        </a>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-striped align-middle" id="table-1">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Station</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th class="text-center" style="width:150px">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @foreach (var mgr in Model)
+              {
+                <tr>
+                  <td>@mgr.FullName</td>
+                  <td>@mgr.User?.Email</td>
+                  <td>@mgr.Phone</td>
+                  <td>@mgr.Station?.Name</td>
+                  <td>
+                    @if (mgr.IsActive)
+                    {
+                      <span class="badge bg-success">Active</span>
+                    }
+                    else
+                    {
+                      <span class="badge bg-danger">Inactive</span>
+                    }
+                  </td>
+                  <td>@mgr.CreatedAt.ToString("dd MMM yyyy")</td>
+                  <td class="text-center">
+                    @if (mgr.IsActive)
+                    {
+                      <form asp-action="Deactivate" method="post" class="d-inline-block">
+                        <input type="hidden" name="id" value="@mgr.Id" />
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Deactivate this manager?');" title="Deactivate">
+                          <i class="fas fa-ban"></i> Deactivate
+                        </button>
+                      </form>
+                    }
+                    else
+                    {
+                      <form asp-action="Activate" method="post" class="d-inline-block">
+                        <input type="hidden" name="id" value="@mgr.Id" />
+                        <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Activate this manager?');" title="Activate">
+                          <i class="fas fa-check"></i> Activate
+                        </button>
+                      </form>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

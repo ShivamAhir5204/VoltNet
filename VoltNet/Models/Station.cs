@@ -34,6 +34,9 @@ public class Station
     [Required]
     public string Status { get; set; } = "Active";
 
+    [StringLength(500)]
+    public string? RejectionReason { get; set; }
+
     public DateTime CreatedAt { get; set; }
 
 }
