@@ -12,19 +12,26 @@
         <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span>&times;</span></button>
     </div>
 }
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span>&times;</span></button>
+    </div>
+}
 
 <div class="row">
   <div class="col-12">
     <div class="card">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <h4>My Stations</h4>
-        <a href="/owner/stations/Create" class="btn btn-primary">
+      <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+        <h4 class="mb-0">My Stations</h4>
+        <a href="/owner/stations/Create" class="btn btn-primary mt-2 mt-sm-0">
           <i class="fas fa-plus"></i> Create New
         </a>
       </div>
       <div class="card-body">
         <div class="table-responsive">
-          <table class="table table-striped align-middle" id="table-1">
+          <table class="table table-striped align-middle table-responsive-cards" id="table-1">
             <thead>
               <tr>
                 <th>Name</th>
@@ -34,46 +41,67 @@
                 <th>Status</th>
                 <th>Opening</th>
                 <th>Closing</th>
-                <th class="text-center">Actions</th>
+                <th class="text-center" style="width: 180px;">Actions</th>
               </tr>
             </thead>
             <tbody>
               @foreach (var item in Model)
               {
                 <tr>
-                  <td>@item.Name</td>
-                  <td>@item.Address</td>
-                  <td>@item.City</td>
-                  <td>@item.State</td>
-                  <td>
-                    @if (item.Status == "Active")
-                    {
-                      <span class="badge bg-success">Active</span>
-                    }
-                    else if (item.Status == "PendingVerification")
-                    {
-                      <span class="badge bg-warning text-dark">Pending</span>
-                    }
-                    else if (item.Status == "Rejected")
-                    {
-                      <span class="badge bg-danger">Rejected</span>
-                    }
-                    else if (item.Status == "Suspended")
-                    {
-                      <span class="badge bg-secondary">Suspended</span>
-                    }
-                    else
-                    {
-                      <span class="badge bg-info">@item.Status</span>
-                    }
+                  <td class="col-primary" data-label="Name">
+                    <div class="d-flex align-items-center justify-content-between">
+                      <span class="font-weight-bold">@item.Name</span>
+                      <button type="button" class="mobile-expand-btn ml-2" title="Show details">
+                        <i data-feather="chevron-down"></i>
+                      </button>
+                    </div>
                   </td>
-                  <td>@item.OpeningTime.ToString(@"hh\:mm")</td>
-                  <td>@item.ClosingTime.ToString(@"hh\:mm")</td>
-                  <td class="text-center">
-                    <form asp-action="Details" method="post" class="d-inline-block">
-                      <input type="hidden" name="id" value="@item.Id" />
-                      <button type="submit" class="btn btn-info btn-sm" title="Details"><i class="fas fa-info-circle"></i> View</button>
-                    </form>
+                  <td class="col-secondary" data-label="Address"><div>@item.Address</div></td>
+                  <td class="col-secondary" data-label="City"><div>@item.City</div></td>
+                  <td class="col-secondary" data-label="State"><div>@item.State</div></td>
+                  <td class="col-secondary" data-label="Status">
+                    <div>
+                      @if (item.Status == "Active")
+                      {
+                        <span class="badge bg-success">Active</span>
+                      }
+                      else if (item.Status == "PendingVerification")
+                      {
+                        <span class="badge bg-warning text-dark">Pending</span>
+                      }
+                      else if (item.Status == "Rejected")
+                      {
+                        <span class="badge bg-danger" title="@item.RejectionReason">Rejected</span>
+                      }
+                      else if (item.Status == "Suspended")
+                      {
+                        <span class="badge bg-secondary">Suspended</span>
+                      }
+                      else
+                      {
+                        <span class="badge bg-info">@item.Status</span>
+                      }
+                    </div>
+                  </td>
+                  <td class="col-secondary" data-label="Opening"><div>@item.OpeningTime.ToString(@"hh\:mm")</div></td>
+                  <td class="col-secondary" data-label="Closing"><div>@item.ClosingTime.ToString(@"hh\:mm")</div></td>
+                  <td class="text-center col-action" data-label="Actions">
+                    <div class="d-flex justify-content-center flex-wrap gap-1">
+                      <a href="/owner/stations/Edit/@item.Id" class="btn btn-warning btn-sm mr-1" title="Edit Station">
+                        <i class="fas fa-edit"></i> Edit
+                      </a>
+                      <form asp-action="Details" method="post" class="d-inline-block mr-1">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@item.Id" />
+                        <button type="submit" class="btn btn-info btn-sm" title="Details"><i class="fas fa-info-circle"></i> View</button>
+                      </form>
+                      <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline-block">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete station \'@item.Name\'?');" title="Delete">
+                          <i class="fas fa-trash"></i> Delete
+                        </button>
+                      </form>
+                    </div>
                   </td>
                 </tr>
               }

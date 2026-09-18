@@ -183,6 +183,114 @@ public class OwnerStationManagerController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    // GET: owner/station-managers/Edit/{id}
+    [HttpGet]
+    public async Task<IActionResult> Edit(Guid id)
+    {
+        var ownerId = GetStationOwnerId();
+        var userId = GetUserId();
+        if (ownerId == null) return Unauthorized();
+
+        var manager = await _context.StationManagers
+            .Include(m => m.User)
+            .FirstOrDefaultAsync(m => m.Id == id && m.CreatedBy == ownerId.Value);
+
+        if (manager == null)
+            return NotFound();
+
+        await PopulateStationDropdown(userId, manager.StationId);
+        return View("~/Views/stationowner/EditStationManager.cshtml", manager);
+    }
+
+    // POST: owner/station-managers/Edit
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(Guid id, string fullName, string phone, Guid stationId)
+    {
+        var ownerId = GetStationOwnerId();
+        var userId = GetUserId();
+        if (ownerId == null) return Unauthorized();
+
+        var manager = await _context.StationManagers
+            .Include(m => m.User)
+            .FirstOrDefaultAsync(m => m.Id == id && m.CreatedBy == ownerId.Value);
+
+        if (manager == null)
+            return NotFound();
+
+        if (string.IsNullOrWhiteSpace(fullName) || string.IsNullOrWhiteSpace(phone) || stationId == Guid.Empty)
+        {
+            ViewBag.Error = "Full Name, Phone number, and Station are required.";
+            await PopulateStationDropdown(userId, stationId);
+            return View("~/Views/stationowner/EditStationManager.cshtml", manager);
+        }
+
+        // Validate phone
+        if (phone.Trim().Length != 10 || !phone.Trim().All(char.IsDigit))
+        {
+            ViewBag.Error = "Please enter a valid 10-digit mobile number.";
+            await PopulateStationDropdown(userId, stationId);
+            return View("~/Views/stationowner/EditStationManager.cshtml", manager);
+        }
+
+        // Verify the assigned station belongs to this owner
+        var station = await _context.Stations
+            .FirstOrDefaultAsync(s => s.Id == stationId && s.OwnerUserId == userId);
+        if (station == null)
+        {
+            ViewBag.Error = "Invalid station selected.";
+            await PopulateStationDropdown(userId, stationId);
+            return View("~/Views/stationowner/EditStationManager.cshtml", manager);
+        }
+
+        manager.FullName = fullName.Trim();
+        manager.Phone = phone.Trim();
+        manager.StationId = stationId;
+
+        if (manager.User != null)
+        {
+            manager.User.Fullname = fullName.Trim();
+            manager.User.Mobile = phone.Trim();
+        }
+
+        await _context.SaveChangesAsync();
+
+        TempData["Success"] = $"Station Manager '{manager.FullName}' updated successfully.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    // POST: owner/station-managers/Delete
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var ownerId = GetStationOwnerId();
+        if (ownerId == null) return Unauthorized();
+
+        var manager = await _context.StationManagers
+            .Include(m => m.User)
+            .FirstOrDefaultAsync(m => m.Id == id && m.CreatedBy == ownerId.Value);
+
+        if (manager == null)
+            return NotFound();
+
+        var managerName = manager.FullName;
+
+        // Remove manager profile
+        _context.StationManagers.Remove(manager);
+
+        // Remove login UserMaster account if exists
+        if (manager.User != null)
+        {
+            _context.UserMasters.Remove(manager.User);
+        }
+
+        await _context.SaveChangesAsync();
+
+        TempData["Success"] = $"Station Manager '{managerName}' deleted successfully.";
+        return RedirectToAction(nameof(Index));
+    }
+
     private async Task PopulateStationDropdown(Guid userId, Guid? selectedId = null)
     {
         var stations = await _context.Stations

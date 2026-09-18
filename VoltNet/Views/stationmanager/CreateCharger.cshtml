@@ -1,0 +1,62 @@
+@model VoltNet.Models.Charger
+@{
+    ViewData["Title"] = "Add New Charger";
+    Layout = "~/Views/Shared/_ManagerLayout.cshtml";
+}
+
+<div class="row">
+    <div class="col-12 col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header">
+                <h4>Add New Charger</h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    <div class="form-group">
+                        <label>Charger Name/ID</label>
+                        <input type="text" asp-for="Name" class="form-control" placeholder="e.g. Fast Charger 1" required>
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>Connector Type</label>
+                            <select asp-for="ConnectorType" class="form-control" required>
+                                <option value="">Select Connector...</option>
+                                <option value="CCS2">CCS2</option>
+                                <option value="CHAdeMO">CHAdeMO</option>
+                                <option value="Type 2">Type 2 (AC)</option>
+                                <option value="GB/T">GB/T</option>
+                            </select>
+                            <span asp-validation-for="ConnectorType" class="text-danger"></span>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Capacity (kW)</label>
+                            <input type="number" asp-for="CapacityKw" class="form-control" step="0.1" min="1" max="500" placeholder="e.g. 50" required>
+                            <span asp-validation-for="CapacityKw" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Initial Status</label>
+                        <select asp-for="Status" class="form-control" required>
+                            <option value="Active">Active</option>
+                            <option value="Maintenance">Maintenance</option>
+                            <option value="Offline">Offline</option>
+                        </select>
+                        <span asp-validation-for="Status" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group text-right">
+                        <a href="/manager/chargers" class="btn btn-secondary mr-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Save Charger</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,84 @@
+@model IEnumerable<VoltNet.Models.Charger>
+@{
+    ViewData["Title"] = "Manage Chargers";
+    Layout = "~/Views/Shared/_ManagerLayout.cshtml";
+}
+
+<div class="row">
+    <div class="col-12">
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible show fade">
+                <div class="alert-body">
+                    <button class="close" data-dismiss="alert"><span>&times;</span></button>
+                    @TempData["Success"]
+                </div>
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible show fade">
+                <div class="alert-body">
+                    <button class="close" data-dismiss="alert"><span>&times;</span></button>
+                    @TempData["Error"]
+                </div>
+            </div>
+        }
+
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4>Chargers</h4>
+                <a href="/manager/chargers/create" class="btn btn-primary"><i class="fas fa-plus"></i> Add New Charger</a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-md table-responsive-cards">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Connector Type</th>
+                                <th>Capacity (kW)</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td data-label="Name">@item.Name</td>
+                                    <td data-label="Connector Type">@item.ConnectorType</td>
+                                    <td data-label="Capacity (kW)">@item.CapacityKw kW</td>
+                                    <td data-label="Status">
+                                        <span class="badge @(item.Status == "Active" ? "badge-success" : (item.Status == "Maintenance" ? "badge-warning" : "badge-danger"))">
+                                            @item.Status
+                                        </span>
+                                    </td>
+                                    <td data-label="Actions">
+                                        <div class="d-flex" style="gap:5px;">
+                                            <a href="/manager/chargers/edit/@item.Id" class="btn btn-warning btn-sm" title="Edit">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </a>
+                                            <form action="/manager/chargers/delete/@item.Id" method="post" onsubmit="return confirm('Are you sure you want to delete this charger?');">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-danger btn-sm" title="Delete">
+                                                    <i class="fas fa-trash"></i> Delete
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                            @if (!Model.Any())
+                            {
+                                <tr>
+                                    <td colspan="5" class="text-center">No chargers found. Add your first charger!</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,878 @@
+@{
+    ViewData["Title"] = "Find Nearby Stations";
+    ViewData["ActivePage"] = "NearbyMap";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<style>
+    /* ── Map Page Layout ──────────────────────────────── */
+    .map-page {
+        padding-top: 80px;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .map-container {
+        display: flex;
+        flex: 1;
+        position: relative;
+        height: calc(100vh - 80px);
+    }
+
+    /* ── Sidebar ──────────────────────────────────────── */
+    .map-sidebar {
+        width: 380px;
+        min-width: 380px;
+        background: var(--vn-dark-2);
+        border-right: 1px solid var(--vn-border);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        z-index: 10;
+    }
+
+    .sidebar-header {
+        padding: 16px 20px;
+        background: var(--vn-dark-3);
+        border-bottom: 1px solid var(--vn-border);
+    }
+
+    .sidebar-header h5 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--vn-text);
+    }
+
+    .sidebar-header .subtitle {
+        font-size: 0.8rem;
+        color: var(--vn-text-muted);
+        margin-top: 2px;
+    }
+
+    .sidebar-search {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--vn-border);
+    }
+
+    .sidebar-search input {
+        width: 100%;
+        background: var(--vn-dark-card);
+        border: 1px solid var(--vn-border);
+        border-radius: 8px;
+        color: var(--vn-text);
+        padding: 10px 14px;
+        font-size: 0.9rem;
+    }
+
+    .sidebar-search input::placeholder {
+        color: var(--vn-text-muted);
+    }
+
+    .sidebar-search input:focus {
+        outline: none;
+        border-color: var(--vn-primary);
+        box-shadow: 0 0 0 3px var(--vn-primary-glow);
+    }
+
+    .station-list {
+        flex: 1;
+        overflow-y: auto;
+        padding: 0;
+    }
+
+    .station-list::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .station-list::-webkit-scrollbar-thumb {
+        background: rgba(255,255,255,0.15);
+        border-radius: 3px;
+    }
+
+    .station-card {
+        padding: 14px 18px;
+        border-bottom: 1px solid var(--vn-border);
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .station-card:hover {
+        background: rgba(0, 212, 170, 0.05);
+    }
+
+    .station-card .station-name {
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: var(--vn-text);
+        margin-bottom: 4px;
+    }
+
+    .station-card .station-address {
+        font-size: 0.8rem;
+        color: var(--vn-text-muted);
+        margin-bottom: 6px;
+    }
+
+    .station-card .station-meta {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 0.78rem;
+    }
+
+    .station-card .station-distance {
+        color: var(--vn-primary);
+        font-weight: 600;
+    }
+
+    .station-card .station-hours {
+        color: var(--vn-text-muted);
+    }
+
+    .station-card .btn-focus {
+        margin-left: auto;
+        background: var(--vn-primary);
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        padding: 4px 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .station-card .btn-focus:hover {
+        background: var(--vn-primary-dark);
+    }
+
+    /* ── Map Area ──────────────────────────────────────── */
+    .map-area {
+        flex: 1;
+        position: relative;
+    }
+
+    #nearbyMap {
+        width: 100%;
+        height: 100%;
+    }
+
+    /* ── Location Banner ──────────────────────────────── */
+    .location-banner {
+        position: absolute;
+        top: 14px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1000;
+        background: var(--vn-dark-3);
+        border: 1px solid rgba(255,193,7,0.4);
+        border-radius: 12px;
+        padding: 12px 24px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        max-width: 90%;
+    }
+
+    .location-banner.hidden { display: none; }
+
+    .location-banner i {
+        font-size: 1.3rem;
+        color: #ffc107;
+    }
+
+    .location-banner .banner-text {
+        font-size: 0.85rem;
+        color: var(--vn-text);
+    }
+
+    .location-banner .btn-enable {
+        background: var(--vn-primary);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 6px 16px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+    .location-banner .btn-close-banner {
+        background: none;
+        border: none;
+        color: var(--vn-text-muted);
+        cursor: pointer;
+        font-size: 1.2rem;
+        padding: 0 4px;
+    }
+
+    /* ── Map Controls ──────────────────────────────────── */
+    .map-controls {
+        position: absolute;
+        top: 70px;
+        right: 14px;
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .map-btn {
+        background: var(--vn-dark-3);
+        border: 1px solid var(--vn-border);
+        border-radius: 10px;
+        color: var(--vn-text);
+        padding: 10px 14px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        transition: all 0.2s;
+        white-space: nowrap;
+    }
+
+    .map-btn:hover {
+        background: var(--vn-dark-card);
+        border-color: var(--vn-primary);
+    }
+
+    .map-btn.active-btn {
+        background: var(--vn-primary);
+        color: #fff;
+        border-color: var(--vn-primary);
+    }
+
+    /* ── Route Info Bar ──────────────────────────────── */
+    .route-bar {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1000;
+        background: var(--vn-dark-3);
+        border: 1px solid var(--vn-border);
+        border-radius: 14px;
+        padding: 14px 28px;
+        display: none;
+        align-items: center;
+        gap: 28px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+    }
+
+    .route-bar.active { display: flex; }
+
+    .route-stat {
+        text-align: center;
+    }
+
+    .route-stat strong {
+        display: block;
+        font-size: 1.1rem;
+        color: var(--vn-primary);
+        font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .route-stat small {
+        color: var(--vn-text-muted);
+        font-size: 0.72rem;
+    }
+
+    /* ── Popups ──────────────────────────────────────── */
+    .leaflet-popup-content {
+        min-width: 230px;
+        color: #1a2236;
+    }
+
+    .popup-name {
+        font-weight: 700;
+        font-size: 1rem;
+        margin-bottom: 6px;
+        color: #1a2236;
+    }
+
+    .popup-meta {
+        font-size: 0.82rem;
+        color: #555;
+        margin-bottom: 3px;
+    }
+
+    .popup-badge {
+        display: inline-block;
+        padding: 2px 10px;
+        border-radius: 50px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        background: #d1fae5;
+        color: #065f46;
+        margin-top: 4px;
+    }
+
+    .popup-actions {
+        margin-top: 10px;
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    .popup-actions button, .popup-actions a {
+        font-size: 0.78rem;
+        padding: 5px 12px;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .btn-popup-dir {
+        background: #00d4aa;
+        color: #fff;
+    }
+
+    .btn-popup-dir:hover {
+        background: #00b894;
+        color: #fff;
+    }
+
+    .btn-popup-nav {
+        background: #4285f4;
+        color: #fff;
+    }
+
+    .btn-popup-nav:hover {
+        background: #3367d6;
+        color: #fff;
+    }
+
+    /* ── Loading Spinner ──────────────────────────────── */
+    .map-loading {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1000;
+        text-align: center;
+        color: var(--vn-text-muted);
+    }
+
+    .map-loading .spinner-border {
+        width: 2.5rem;
+        height: 2.5rem;
+        color: var(--vn-primary);
+    }
+
+    /* ── Mobile Toggle ──────────────────────────────── */
+    .sidebar-toggle {
+        display: none;
+        position: absolute;
+        bottom: 80px;
+        left: 14px;
+        z-index: 1001;
+    }
+
+    /* ── Pulse animation ──────────────────────────────── */
+    @@keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.5); opacity: 0.5; }
+    }
+
+    @@keyframes userPulse {
+        0% { box-shadow: 0 0 0 0 rgba(108, 99, 255, 0.5); }
+        70% { box-shadow: 0 0 0 14px rgba(108, 99, 255, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(108, 99, 255, 0); }
+    }
+
+    /* ── Mobile Responsive ──────────────────────────── */
+    @@media (max-width: 768px) {
+        .map-container {
+            display: block;
+        }
+
+        .map-area {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .map-sidebar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            min-width: 100%;
+            height: 50vh;
+            max-height: 50vh;
+            border-right: none;
+            border-top: 1px solid var(--vn-border);
+            z-index: 1002; /* Above map */
+            transition: transform 0.3s ease;
+        }
+
+        .map-sidebar.collapsed {
+            transform: translateY(100%);
+            height: 50vh;
+            overflow: hidden;
+            border: none;
+        }
+
+        .sidebar-toggle {
+            display: block;
+            bottom: calc(50vh + 14px);
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            transition: bottom 0.3s ease;
+        }
+        
+        .map-sidebar.collapsed ~ .map-area .sidebar-toggle,
+        /* also handle direct state via JS if needed, but we can just use inline styles or a class on body */
+        .sidebar-toggle.collapsed-state {
+            bottom: 20px;
+        }
+
+        .route-bar {
+            bottom: 80px;
+            padding: 10px 16px;
+            gap: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .location-banner {
+            top: 8px;
+            flex-wrap: wrap;
+            padding: 10px 16px;
+            gap: 8px;
+        }
+    }
+</style>
+
+<div class="map-page">
+    <div class="map-container">
+        <!-- Sidebar: Station List -->
+        <div class="map-sidebar" id="mapSidebar">
+            <div class="sidebar-header">
+                <h5><i class="bi bi-ev-station me-2" style="color: var(--vn-primary);"></i>Nearby Stations</h5>
+                <div class="subtitle" id="sidebarSubtitle">Fetching your location...</div>
+            </div>
+            <div class="sidebar-search">
+                <input type="text" id="stationSearch" placeholder="Search stations by name or city..." />
+            </div>
+            <div class="station-list" id="stationList">
+                <div class="map-loading" id="listLoading">
+                    <div class="spinner-border" role="status"></div>
+                    <div class="mt-2">Loading stations...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Map Area -->
+        <div class="map-area">
+            <!-- Location Permission Banner -->
+            <div class="location-banner hidden" id="locationBanner">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span class="banner-text">Enable location access to find stations near you</span>
+                <button class="btn-enable" id="btnRetryLocation">Enable Location</button>
+                <button class="btn-close-banner" id="btnCloseBanner" title="Dismiss">&times;</button>
+            </div>
+
+            <!-- Map Controls -->
+            <div class="map-controls">
+                <button class="map-btn" id="btnMyLocation" title="Center on my location">
+                    <i class="bi bi-crosshair"></i> My Location
+                </button>
+                <button class="map-btn" id="btnClearRoute" style="display:none;" title="Clear route">
+                    <i class="bi bi-x-lg"></i> Clear Route
+                </button>
+            </div>
+
+            <!-- Route Info Bar -->
+            <div class="route-bar" id="routeBar">
+                <div class="route-stat">
+                    <strong id="routeDistance">—</strong>
+                    <small>Distance</small>
+                </div>
+                <div class="route-stat">
+                    <strong id="routeDuration">—</strong>
+                    <small>Est. Time</small>
+                </div>
+                <div class="route-stat">
+                    <strong id="routeDestination">—</strong>
+                    <small>Destination</small>
+                </div>
+            </div>
+
+            <!-- Sidebar Toggle for Mobile -->
+            <button class="map-btn sidebar-toggle" id="btnToggleSidebar">
+                <i class="bi bi-list-ul"></i> Stations
+            </button>
+
+            <div id="nearbyMap"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function () {
+    'use strict';
+
+    // ── Config ──────────────────────────────────────────
+    var defaultCenter = [20.5937, 78.9629]; // India center
+    var defaultZoom = 5;
+    var allStations = [];
+    var userLatLng = null;
+    var userMarker = null;
+    var routeLine = null;
+    var stationMarkers = {};
+
+    // ── Map Init ────────────────────────────────────────
+    var map = L.map('nearbyMap', { zoomControl: true }).setView(defaultCenter, defaultZoom);
+
+    var streetLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom: 19
+    });
+
+    var satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles &copy; Esri',
+        maxZoom: 19
+    });
+
+    streetLayer.addTo(map);
+    L.control.layers({ "Street": streetLayer, "Satellite": satelliteLayer }).addTo(map);
+
+    // ── Icons ───────────────────────────────────────────
+    var stationIcon = L.divIcon({
+        className: 'custom-div-icon',
+        html: '<div style="background:#00d4aa;width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.3);"></div>',
+        iconSize: [20, 20],
+        iconAnchor: [10, 10]
+    });
+
+    var userIcon = L.divIcon({
+        className: 'custom-div-icon',
+        html: '<div style="background:#6c63ff;width:16px;height:16px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(108,99,255,0.5);animation:userPulse 2s infinite;"></div>',
+        iconSize: [22, 22],
+        iconAnchor: [11, 11]
+    });
+
+    // ── Haversine Distance ──────────────────────────────
+    function haversineKm(lat1, lon1, lat2, lon2) {
+        var R = 6371;
+        var dLat = (lat2 - lat1) * Math.PI / 180;
+        var dLon = (lon2 - lon1) * Math.PI / 180;
+        var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    // ── Build Popup HTML ────────────────────────────────
+    function buildPopup(s) {
+        var escapedName = s.name.replace(/'/g, "\\'");
+        return '<div class="popup-name">' + s.name + '</div>' +
+            '<div class="popup-meta"><i class="bi bi-geo-alt"></i> ' + s.address + ', ' + s.city + '</div>' +
+            '<div class="popup-meta"><i class="bi bi-clock"></i> ' + s.opening + ' – ' + s.closing + '</div>' +
+            '<span class="popup-badge">Active</span>' +
+            (s.distanceKm !== undefined ? '<div class="popup-meta" style="margin-top:4px;"><strong style="color:#00d4aa;">' + s.distanceKm.toFixed(1) + ' km away</strong></div>' : '') +
+            '<div class="popup-actions">' +
+                '<button class="btn-popup-dir" onclick="window.vnGetDirections(' + s.latitude + ',' + s.longitude + ',\'' + escapedName + '\')">🧭 Directions</button>' +
+                '<a class="btn-popup-nav" href="https://www.google.com/maps/dir/?api=1&destination=' + s.latitude + ',' + s.longitude + '" target="_blank" rel="noopener">🚗 Google Maps</a>' +
+            '</div>';
+    }
+
+    // ── Render Station Cards ────────────────────────────
+    function renderStationCards(stations) {
+        var listEl = document.getElementById('stationList');
+        var loadingEl = document.getElementById('listLoading');
+        if (loadingEl) loadingEl.style.display = 'none';
+
+        // Clear previous cards
+        var existingCards = listEl.querySelectorAll('.station-card');
+        existingCards.forEach(function(c) { c.remove(); });
+
+        var noResult = listEl.querySelector('.no-results');
+        if (noResult) noResult.remove();
+
+        if (stations.length === 0) {
+            listEl.innerHTML += '<div class="no-results" style="padding:30px 20px;text-align:center;color:var(--vn-text-muted);">No stations found in this area.</div>';
+            return;
+        }
+
+        // Limit to 50 stations max in the list to prevent DOM bloat
+        var stationsToRender = stations.slice(0, 50);
+
+        stationsToRender.forEach(function (s) {
+            var card = document.createElement('div');
+            card.className = 'station-card';
+            card.setAttribute('data-id', s.id);
+            card.innerHTML =
+                '<div class="station-name">' + s.name + '</div>' +
+                '<div class="station-address"><i class="bi bi-geo-alt me-1"></i>' + s.address + ', ' + s.city + ', ' + s.state + '</div>' +
+                '<div class="station-meta">' +
+                    (s.distanceKm !== undefined ? '<span class="station-distance"><i class="bi bi-signpost-split me-1"></i>' + s.distanceKm.toFixed(1) + ' km</span>' : '') +
+                    '<span class="station-hours"><i class="bi bi-clock me-1"></i>' + s.opening + ' – ' + s.closing + '</span>' +
+                    '<button class="btn-focus" onclick="window.vnFocusStation(\'' + s.id + '\')">Focus</button>' +
+                '</div>';
+            listEl.appendChild(card);
+
+            card.addEventListener('click', function (e) {
+                if (e.target.classList.contains('btn-focus') || e.target.closest('.btn-focus')) return;
+                window.vnFocusStation(s.id);
+            });
+        });
+    }
+
+    // ── Focus on Station ────────────────────────────────
+    window.vnFocusStation = function (id) {
+        var marker = stationMarkers[id];
+        if (marker) {
+            map.setView(marker.getLatLng(), 16);
+            marker.openPopup();
+        }
+    };
+
+    // ── Get Directions ──────────────────────────────────
+    window.vnGetDirections = function (destLat, destLng, stationName) {
+        if (!navigator.geolocation) {
+            alert('Geolocation is not supported by your browser.');
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(function (pos) {
+            userLatLng = L.latLng(pos.coords.latitude, pos.coords.longitude);
+            placeUserMarker(userLatLng);
+
+            var osrmUrl = 'https://router.project-osrm.org/route/v1/driving/' +
+                pos.coords.longitude + ',' + pos.coords.latitude + ';' +
+                destLng + ',' + destLat + '?overview=full&geometries=geojson';
+
+            fetch(osrmUrl)
+                .then(function (res) { return res.json(); })
+                .then(function (data) {
+                    if (!data.routes || data.routes.length === 0) {
+                        alert('No route found.');
+                        return;
+                    }
+
+                    if (routeLine) map.removeLayer(routeLine);
+
+                    var route = data.routes[0];
+                    var coords = route.geometry.coordinates.map(function (c) { return [c[1], c[0]]; });
+
+                    routeLine = L.polyline(coords, {
+                        color: '#6c63ff',
+                        weight: 5,
+                        opacity: 0.8,
+                        dashArray: '10, 8'
+                    }).addTo(map);
+
+                    map.fitBounds(routeLine.getBounds(), { padding: [60, 60] });
+
+                    var distKm = (route.distance / 1000).toFixed(1);
+                    var durationMin = Math.round(route.duration / 60);
+                    var hours = Math.floor(durationMin / 60);
+                    var mins = durationMin % 60;
+                    var timeStr = hours > 0 ? hours + 'h ' + mins + 'm' : mins + ' min';
+
+                    document.getElementById('routeDistance').textContent = distKm + ' km';
+                    document.getElementById('routeDuration').textContent = timeStr;
+                    document.getElementById('routeDestination').textContent = stationName;
+                    document.getElementById('routeBar').classList.add('active');
+                    document.getElementById('btnClearRoute').style.display = 'flex';
+                })
+                .catch(function () {
+                    alert('Failed to fetch route. Please try again.');
+                });
+        }, function () {
+            alert('Please allow location access to get directions.');
+        });
+    };
+
+    // ── Place User Marker ───────────────────────────────
+    function placeUserMarker(latlng) {
+        if (userMarker) {
+            userMarker.setLatLng(latlng);
+        } else {
+            userMarker = L.marker(latlng, { icon: userIcon })
+                .addTo(map)
+                .bindPopup('<strong style="color:#6c63ff;">📍 Your Location</strong>');
+        }
+    }
+
+    // ── Process Stations with Distance ──────────────────
+    function processStations() {
+        allStations.forEach(function (s) {
+            if (userLatLng) {
+                s.distanceKm = haversineKm(userLatLng.lat, userLatLng.lng, parseFloat(s.latitude), parseFloat(s.longitude));
+            }
+        });
+
+        var displayStations = allStations;
+
+        if (userLatLng) {
+            allStations.sort(function (a, b) { return a.distanceKm - b.distanceKm; });
+            displayStations = allStations.filter(function(s) { return s.distanceKm <= 100; });
+        }
+
+        // Place markers for all stations on the map
+        var bounds = L.latLngBounds();
+        allStations.forEach(function (s) {
+            var marker = L.marker([s.latitude, s.longitude], { icon: stationIcon })
+                .addTo(map)
+                .bindPopup(buildPopup(s));
+            stationMarkers[s.id] = marker;
+            bounds.extend([s.latitude, s.longitude]);
+        });
+
+        if (userLatLng) {
+            bounds.extend(userLatLng);
+        }
+
+        if (allStations.length > 0 && !userLatLng) {
+            map.fitBounds(bounds, { padding: [40, 40] });
+        }
+
+        // Only render the filtered list in the sidebar
+        renderStationCards(displayStations);
+
+        if (userLatLng) {
+            document.getElementById('sidebarSubtitle').textContent = displayStations.length + ' station' + (displayStations.length !== 1 ? 's' : '') + ' within 100 km';
+        } else {
+            document.getElementById('sidebarSubtitle').textContent = allStations.length + ' active station' + (allStations.length !== 1 ? 's' : '') + ' across India';
+        }
+    }
+
+    // ── Request Location ────────────────────────────────
+    function requestLocation() {
+        if (!navigator.geolocation) {
+            showBanner();
+            document.getElementById('sidebarSubtitle').textContent = 'Location not supported by your browser';
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            function (pos) {
+                userLatLng = L.latLng(pos.coords.latitude, pos.coords.longitude);
+                placeUserMarker(userLatLng);
+                map.setView(userLatLng, 13);
+                hideBanner();
+                processStations();
+            },
+            function (err) {
+                showBanner();
+                document.getElementById('sidebarSubtitle').textContent = 'Location denied — showing all stations';
+                processStations();
+            },
+            { enableHighAccuracy: true, timeout: 10000 }
+        );
+    }
+
+    function showBanner() {
+        document.getElementById('locationBanner').classList.remove('hidden');
+    }
+
+    function hideBanner() {
+        document.getElementById('locationBanner').classList.add('hidden');
+    }
+
+    // ── Fetch Stations from API ─────────────────────────
+    fetch('/nearby-map/data')
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+            allStations = data;
+            requestLocation();
+        })
+        .catch(function () {
+            document.getElementById('sidebarSubtitle').textContent = 'Failed to load stations';
+            var loadingEl = document.getElementById('listLoading');
+            if (loadingEl) loadingEl.innerHTML = '<div style="padding:20px;color:#ef4444;text-align:center;">Failed to load stations. Please refresh.</div>';
+        });
+
+    // ── My Location Button ──────────────────────────────
+    document.getElementById('btnMyLocation').addEventListener('click', function () {
+        if (!navigator.geolocation) {
+            alert('Geolocation is not supported by your browser.');
+            return;
+        }
+        navigator.geolocation.getCurrentPosition(function (pos) {
+            userLatLng = L.latLng(pos.coords.latitude, pos.coords.longitude);
+            placeUserMarker(userLatLng);
+            map.setView(userLatLng, 14);
+            userMarker.openPopup();
+            hideBanner();
+            processStations();
+        }, function () {
+            alert('Unable to retrieve your location. Please enable location services.');
+        });
+    });
+
+    // ── Retry Location Button ───────────────────────────
+    document.getElementById('btnRetryLocation').addEventListener('click', function () {
+        requestLocation();
+    });
+
+    // ── Close Banner ────────────────────────────────────
+    document.getElementById('btnCloseBanner').addEventListener('click', function () {
+        hideBanner();
+    });
+
+    // ── Clear Route ─────────────────────────────────────
+    document.getElementById('btnClearRoute').addEventListener('click', function () {
+        if (routeLine) {
+            map.removeLayer(routeLine);
+            routeLine = null;
+        }
+        document.getElementById('routeBar').classList.remove('active');
+        this.style.display = 'none';
+    });
+
+    // ── Search Filter ───────────────────────────────────
+    document.getElementById('stationSearch').addEventListener('input', function () {
+        var query = this.value.toLowerCase().trim();
+        var filtered = allStations.filter(function (s) {
+            return s.name.toLowerCase().indexOf(query) !== -1 ||
+                   s.city.toLowerCase().indexOf(query) !== -1 ||
+                   s.address.toLowerCase().indexOf(query) !== -1;
+        });
+        renderStationCards(filtered);
+    });
+
+    // ── Mobile Sidebar Toggle ───────────────────────────
+    document.getElementById('btnToggleSidebar').addEventListener('click', function () {
+        var sidebar = document.getElementById('mapSidebar');
+        sidebar.classList.toggle('collapsed');
+        this.classList.toggle('collapsed-state');
+        var icon = this.querySelector('i');
+        if (sidebar.classList.contains('collapsed')) {
+            icon.className = 'bi bi-list-ul';
+            this.innerHTML = '<i class="bi bi-list-ul"></i> Stations';
+        } else {
+            icon.className = 'bi bi-x-lg';
+            this.innerHTML = '<i class="bi bi-x-lg"></i> Close';
+        }
+        
+        // Let leaflet know size changed
+        setTimeout(function() { map.invalidateSize(); }, 350);
+    });
+
+})();
+</script>
+}

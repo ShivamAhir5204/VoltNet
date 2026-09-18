@@ -12,19 +12,26 @@
         <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span>&times;</span></button>
     </div>
 }
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span>&times;</span></button>
+    </div>
+}
 
 <div class="row">
   <div class="col-12">
     <div class="card">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <h4>Station Managers</h4>
-        <a href="/owner/station-managers/Create" class="btn btn-primary">
+      <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+        <h4 class="mb-0">Station Managers</h4>
+        <a href="/owner/station-managers/Create" class="btn btn-primary mt-2 mt-sm-0">
           <i class="fas fa-plus"></i> Create New Manager
         </a>
       </div>
       <div class="card-body">
         <div class="table-responsive">
-          <table class="table table-striped align-middle" id="table-1">
+          <table class="table table-striped align-middle table-responsive-cards" id="table-1">
             <thead>
               <tr>
                 <th>Name</th>
@@ -33,47 +40,70 @@
                 <th>Station</th>
                 <th>Status</th>
                 <th>Created</th>
-                <th class="text-center" style="width:150px">Actions</th>
+                <th class="text-center" style="width:230px">Actions</th>
               </tr>
             </thead>
             <tbody>
               @foreach (var mgr in Model)
               {
                 <tr>
-                  <td>@mgr.FullName</td>
-                  <td>@mgr.User?.Email</td>
-                  <td>@mgr.Phone</td>
-                  <td>@mgr.Station?.Name</td>
-                  <td>
-                    @if (mgr.IsActive)
-                    {
-                      <span class="badge bg-success">Active</span>
-                    }
-                    else
-                    {
-                      <span class="badge bg-danger">Inactive</span>
-                    }
+                  <td class="col-primary" data-label="Name">
+                    <div class="d-flex align-items-center justify-content-between">
+                      <span class="font-weight-bold">@mgr.FullName</span>
+                      <button type="button" class="mobile-expand-btn ml-2" title="Show details">
+                        <i data-feather="chevron-down"></i>
+                      </button>
+                    </div>
                   </td>
-                  <td>@mgr.CreatedAt.ToString("dd MMM yyyy")</td>
-                  <td class="text-center">
-                    @if (mgr.IsActive)
-                    {
-                      <form asp-action="Deactivate" method="post" class="d-inline-block">
+                  <td class="col-secondary" data-label="Email"><div>@(mgr.User?.Email ?? "—")</div></td>
+                  <td class="col-secondary" data-label="Phone"><div>@mgr.Phone</div></td>
+                  <td class="col-secondary" data-label="Station"><div>@(mgr.Station?.Name ?? "—")</div></td>
+                  <td class="col-secondary" data-label="Status">
+                    <div>
+                      @if (mgr.IsActive)
+                      {
+                        <span class="badge bg-success">Active</span>
+                      }
+                      else
+                      {
+                        <span class="badge bg-danger">Inactive</span>
+                      }
+                    </div>
+                  </td>
+                  <td class="col-secondary" data-label="Created"><div>@mgr.CreatedAt.ToString("dd MMM yyyy")</div></td>
+                  <td class="text-center col-action" data-label="Actions">
+                    <div class="d-flex justify-content-center flex-wrap gap-1">
+                      <a href="/owner/station-managers/Edit/@mgr.Id" class="btn btn-warning btn-sm mr-1" title="Edit Manager">
+                        <i class="fas fa-edit"></i> Edit
+                      </a>
+                      @if (mgr.IsActive)
+                      {
+                        <form asp-action="Deactivate" method="post" class="d-inline-block mr-1">
+                          @Html.AntiForgeryToken()
+                          <input type="hidden" name="id" value="@mgr.Id" />
+                          <button type="submit" class="btn btn-secondary btn-sm" onclick="return confirm('Deactivate this manager?');" title="Deactivate">
+                            <i class="fas fa-ban"></i> Deactivate
+                          </button>
+                        </form>
+                      }
+                      else
+                      {
+                        <form asp-action="Activate" method="post" class="d-inline-block mr-1">
+                          @Html.AntiForgeryToken()
+                          <input type="hidden" name="id" value="@mgr.Id" />
+                          <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Activate this manager?');" title="Activate">
+                            <i class="fas fa-check"></i> Activate
+                          </button>
+                        </form>
+                      }
+                      <form asp-action="Delete" method="post" class="d-inline-block">
+                        @Html.AntiForgeryToken()
                         <input type="hidden" name="id" value="@mgr.Id" />
-                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Deactivate this manager?');" title="Deactivate">
-                          <i class="fas fa-ban"></i> Deactivate
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to permanently delete manager \'@mgr.FullName\'?');" title="Delete">
+                          <i class="fas fa-trash"></i> Delete
                         </button>
                       </form>
-                    }
-                    else
-                    {
-                      <form asp-action="Activate" method="post" class="d-inline-block">
-                        <input type="hidden" name="id" value="@mgr.Id" />
-                        <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Activate this manager?');" title="Activate">
-                          <i class="fas fa-check"></i> Activate
-                        </button>
-                      </form>
-                    }
+                    </div>
                   </td>
                 </tr>
               }

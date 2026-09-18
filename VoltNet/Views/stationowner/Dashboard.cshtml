@@ -82,46 +82,63 @@
 <div class="row">
     <div class="col-12">
         <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4>Recent Stations</h4>
-                <a href="/owner/stations" class="btn btn-primary btn-sm">View All</a>
+            <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+                <h4 class="mb-0">Recent Stations</h4>
+                <a href="/owner/stations" class="btn btn-primary btn-sm mt-2 mt-sm-0">View All</a>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-striped align-middle">
+                    <table class="table table-striped align-middle table-responsive-cards">
                         <thead>
                             <tr>
                                 <th>Name</th>
                                 <th>City</th>
                                 <th>Status</th>
                                 <th>Created</th>
+                                <th class="text-center" style="width: 100px;">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (var station in (List<VoltNet.Models.Station>)ViewBag.RecentStations)
                             {
                                 <tr>
-                                    <td>@station.Name</td>
-                                    <td>@station.City</td>
-                                    <td>
-                                        @if (station.Status == "Active")
-                                        {
-                                            <span class="badge bg-success">Active</span>
-                                        }
-                                        else if (station.Status == "PendingVerification")
-                                        {
-                                            <span class="badge bg-warning text-dark">Pending</span>
-                                        }
-                                        else if (station.Status == "Rejected")
-                                        {
-                                            <span class="badge bg-danger">Rejected</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-secondary">@station.Status</span>
-                                        }
+                                    <td class="col-primary" data-label="Name">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <span class="font-weight-bold">@station.Name</span>
+                                            <button type="button" class="mobile-expand-btn ml-2" title="Show details">
+                                                <i data-feather="chevron-down"></i>
+                                            </button>
+                                        </div>
                                     </td>
-                                    <td>@station.CreatedAt.ToString("dd MMM yyyy")</td>
+                                    <td class="col-secondary" data-label="City"><div>@station.City</div></td>
+                                    <td class="col-secondary" data-label="Status">
+                                        <div>
+                                            @if (station.Status == "Active")
+                                            {
+                                                <span class="badge bg-success">Active</span>
+                                            }
+                                            else if (station.Status == "PendingVerification")
+                                            {
+                                                <span class="badge bg-warning text-dark">Pending</span>
+                                            }
+                                            else if (station.Status == "Rejected")
+                                            {
+                                                <span class="badge bg-danger">Rejected</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">@station.Status</span>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td class="col-secondary" data-label="Created"><div>@station.CreatedAt.ToString("dd MMM yyyy")</div></td>
+                                    <td class="text-center col-action" data-label="Action">
+                                        <div>
+                                            <a href="/owner/stations/Edit/@station.Id" class="btn btn-warning btn-sm" title="Edit Station">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </a>
+                                        </div>
+                                    </td>
                                 </tr>
                             }
                         </tbody>

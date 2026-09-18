@@ -18,6 +18,8 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<Station> Stations { get; set; }
     public virtual DbSet<StationManager> StationManagers { get; set; }
 
+    public virtual DbSet<Charger> Chargers { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // -- AdminUser -----------------------------------------------
@@ -250,6 +252,39 @@ public partial class AppDbContext : DbContext
             entity.HasIndex(e => e.UserId)
                 .IsUnique()
                 .HasDatabaseName("IX_StationManagers_UserId");
+        });
+
+        // -- Chargers ------------------------------------------------
+        modelBuilder.Entity<Charger>(entity =>
+        {
+            entity.ToTable("Chargers");
+
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnName("id");
+            entity.Property(e => e.StationId)
+                .HasColumnName("station_id");
+            entity.Property(e => e.Name)
+                .HasMaxLength(100)
+                .HasColumnName("name");
+            entity.Property(e => e.ConnectorType)
+                .HasMaxLength(50)
+                .HasColumnName("connector_type");
+            entity.Property(e => e.CapacityKw)
+                .HasColumnType("decimal(18,2)")
+                .HasColumnName("capacity_kw");
+            entity.Property(e => e.Status)
+                .HasMaxLength(50)
+                .HasColumnName("status")
+                .HasDefaultValue("Active");
+            entity.Property(e => e.CreatedAt)
+                .HasColumnName("created_at")
+                .HasDefaultValueSql("GETUTCDATE()");
+
+            entity.HasOne(e => e.Station)
+                .WithMany(s => s.Chargers)
+                .HasForeignKey(e => e.StationId)
+                .OnDelete(DeleteBehavior.Cascade); // If a station is deleted, chargers are deleted
         });
 
         OnModelCreatingPartial(modelBuilder);

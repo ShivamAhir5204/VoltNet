@@ -153,11 +153,19 @@
             lng: selectedLng.toFixed(6)
         }));
 
-        window.location.href = '/owner/stations/Create';
+        var returnUrl = '@ViewBag.ReturnTo' === 'Edit' && '@ViewBag.StationId' 
+            ? '/owner/stations/Edit/@ViewBag.StationId' 
+            : '/owner/stations/Create';
+
+        window.location.href = returnUrl;
     });
 
     document.getElementById('btnCancel').addEventListener('click', function () {
-        window.location.href = '/owner/stations/Create';
+        var returnUrl = '@ViewBag.ReturnTo' === 'Edit' && '@ViewBag.StationId' 
+            ? '/owner/stations/Edit/@ViewBag.StationId' 
+            : '/owner/stations/Create';
+
+        window.location.href = returnUrl;
     });
 })();
 </script>

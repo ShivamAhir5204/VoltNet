@@ -1,7 +1,7 @@
 @model VoltNet.Models.Station
 
 @{
-    ViewData["Title"] = "Create Station";
+    ViewData["Title"] = "Edit Station";
     Layout = "~/Views/Shared/_OwnerLayout.cshtml";
 }
 
@@ -9,65 +9,84 @@
   <div class="col-12 col-lg-8">
     <div class="card">
       <div class="card-header d-flex justify-content-between align-items-center">
-        <h4>Create New Station</h4>
+        <h4>Edit Station</h4>
         <a href="/owner/stations" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left"></i> Back</a>
       </div>
       <div class="card-body">
-        <form method="post" asp-action="Create">
+        <form method="post" asp-action="Edit" id="stationEditForm">
+          @Html.AntiForgeryToken()
+          <input type="hidden" asp-for="Id" />
+          <input type="hidden" asp-for="OwnerUserId" />
+          <input type="hidden" asp-for="Status" />
+          <input type="hidden" asp-for="CreatedAt" />
+          <input type="hidden" asp-for="RejectionReason" />
+
           <div class="form-group">
-            <label for="Name">Station Name <span class="text-danger">*</span></label>
-            <input asp-for="Name" class="form-control" required />
+            <label asp-for="Name">Station Name <span class="text-danger">*</span></label>
+            <input asp-for="Name" class="form-control" required placeholder="Enter station name" />
             <span asp-validation-for="Name" class="text-danger"></span>
           </div>
+
           <div class="form-group">
-            <label for="Address">Address <span class="text-danger">*</span></label>
-            <input asp-for="Address" class="form-control" required />
+            <label asp-for="Address">Address <span class="text-danger">*</span></label>
+            <input asp-for="Address" class="form-control" required placeholder="Enter street address" />
             <span asp-validation-for="Address" class="text-danger"></span>
           </div>
+
           <div class="row">
             <div class="col-md-6 form-group">
-              <label for="City">City <span class="text-danger">*</span></label>
-              <input asp-for="City" class="form-control" required />
+              <label asp-for="City">City <span class="text-danger">*</span></label>
+              <input asp-for="City" class="form-control" required placeholder="Enter city" />
               <span asp-validation-for="City" class="text-danger"></span>
             </div>
             <div class="col-md-6 form-group">
-              <label for="State">State <span class="text-danger">*</span></label>
-              <input asp-for="State" class="form-control" required />
+              <label asp-for="State">State <span class="text-danger">*</span></label>
+              <input asp-for="State" class="form-control" required placeholder="Enter state" />
               <span asp-validation-for="State" class="text-danger"></span>
             </div>
           </div>
+
           <div class="row">
             <div class="col-12 col-md-5 form-group">
-              <label for="Latitude">Latitude <span class="text-danger">*</span></label>
+              <label asp-for="Latitude">Latitude <span class="text-danger">*</span></label>
               <input asp-for="Latitude" id="Latitude" type="number" step="any" class="form-control" required />
               <span asp-validation-for="Latitude" class="text-danger"></span>
             </div>
             <div class="col-12 col-md-5 form-group">
-              <label for="Longitude">Longitude <span class="text-danger">*</span></label>
+              <label asp-for="Longitude">Longitude <span class="text-danger">*</span></label>
               <input asp-for="Longitude" id="Longitude" type="number" step="any" class="form-control" required />
               <span asp-validation-for="Longitude" class="text-danger"></span>
             </div>
             <div class="col-12 col-md-2 form-group d-flex align-items-end">
               <button type="button" id="btnPickMap" class="btn btn-info btn-block mb-1">
-                <i class="fas fa-map-marker-alt"></i> Pick from Map
+                <i class="fas fa-map-marker-alt"></i> Pick on Map
               </button>
             </div>
           </div>
+
           <div class="row">
             <div class="col-md-6 form-group">
-              <label for="OpeningTime">Opening Time <span class="text-danger">*</span></label>
+              <label asp-for="OpeningTime">Opening Time <span class="text-danger">*</span></label>
               <input asp-for="OpeningTime" type="time" class="form-control" required />
               <span asp-validation-for="OpeningTime" class="text-danger"></span>
             </div>
             <div class="col-md-6 form-group">
-              <label for="ClosingTime">Closing Time <span class="text-danger">*</span></label>
+              <label asp-for="ClosingTime">Closing Time <span class="text-danger">*</span></label>
               <input asp-for="ClosingTime" type="time" class="form-control" required />
               <span asp-validation-for="ClosingTime" class="text-danger"></span>
             </div>
           </div>
 
+          @if (Model.Status == "Rejected" && !string.IsNullOrEmpty(Model.RejectionReason))
+          {
+            <div class="alert alert-warning">
+              <strong>Previous Rejection Reason:</strong> @Model.RejectionReason
+              <div class="small text-muted mt-1">Saving your edits will automatically resubmit this station for verification.</div>
+            </div>
+          }
+
           <div class="form-group mt-4">
-            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Submit for Verification</button>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
             <a href="/owner/stations" class="btn btn-outline-secondary ml-2">Cancel</a>
           </div>
         </form>
@@ -83,9 +102,11 @@
         // Check if we have picked location from map
         var picked = sessionStorage.getItem('ownerPickedLocation');
         if (picked) {
-            var loc = JSON.parse(picked);
-            document.getElementById('Latitude').value = loc.lat;
-            document.getElementById('Longitude').value = loc.lng;
+            try {
+                var loc = JSON.parse(picked);
+                document.getElementById('Latitude').value = loc.lat;
+                document.getElementById('Longitude').value = loc.lng;
+            } catch(e) {}
             sessionStorage.removeItem('ownerPickedLocation');
         }
 
@@ -96,7 +117,7 @@
             if (lat && lng && parseFloat(lat) !== 0 && parseFloat(lng) !== 0) {
                 sessionStorage.setItem('ownerPickLocationInitial', JSON.stringify({ lat: lat, lng: lng }));
             }
-            window.location.href = '/owner/stations/PickLocation';
+            window.location.href = '/owner/stations/PickLocation?returnTo=Edit&id=@Model.Id';
         });
     })();
     </script>

@@ -1,5 +1,7 @@
+@model VoltNet.Models.StationManager
+
 @{
-    ViewData["Title"] = "Create Station Manager";
+    ViewData["Title"] = "Edit Station Manager";
     Layout = "~/Views/Shared/_OwnerLayout.cshtml";
 }
 
@@ -7,7 +9,7 @@
   <div class="col-12 col-md-8 col-lg-6">
     <div class="card">
       <div class="card-header d-flex justify-content-between align-items-center">
-        <h4>Create Station Manager</h4>
+        <h4>Edit Station Manager</h4>
         <a href="/owner/station-managers" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> Back</a>
       </div>
       <div class="card-body">
@@ -15,24 +17,26 @@
         {
           <div class="alert alert-danger">@ViewBag.Error</div>
         }
-        <form method="post" asp-action="Create">
+        <form method="post" asp-action="Edit" id="managerEditForm">
+          @Html.AntiForgeryToken()
+          <input type="hidden" name="id" value="@Model.Id" />
+
           <div class="form-group">
             <label for="fullName">Full Name <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="fullName" name="fullName" required placeholder="Enter full name" />
+            <input type="text" class="form-control" id="fullName" name="fullName" value="@Model.FullName" required placeholder="Enter full name" />
           </div>
+
           <div class="form-group">
-            <label for="email">Email <span class="text-danger">*</span></label>
-            <input type="email" class="form-control" id="email" name="email" required placeholder="Enter email address" />
+            <label for="email">Email Address</label>
+            <input type="email" class="form-control" id="email" value="@(Model.User?.Email)" disabled readonly />
+            <small class="form-text text-muted">Manager email is permanent for login security.</small>
           </div>
+
           <div class="form-group">
             <label for="phone">Phone <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="phone" name="phone" required maxlength="10" pattern="[0-9]{10}" title="Please enter a valid 10-digit mobile number" placeholder="Enter 10-digit phone number" />
+            <input type="text" class="form-control" id="phone" name="phone" value="@Model.Phone" required maxlength="10" pattern="[0-9]{10}" placeholder="Enter 10-digit mobile number" />
           </div>
-          <div class="form-group">
-            <label for="password">Initial Password <span class="text-danger">*</span></label>
-            <input type="password" class="form-control" id="password" name="password" required minlength="6" placeholder="Set initial password" />
-            <small class="form-text text-muted">The manager can change this after first login.</small>
-          </div>
+
           <div class="form-group">
             <label for="stationId">Assign to Station <span class="text-danger">*</span></label>
             <select class="form-control" id="stationId" name="stationId" required>
@@ -46,8 +50,9 @@
               }
             </select>
           </div>
+
           <div class="form-group mt-4">
-            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Create Manager</button>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
             <a href="/owner/station-managers" class="btn btn-light ml-2">Cancel</a>
           </div>
         </form>
@@ -55,3 +60,7 @@
     </div>
   </div>
 </div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

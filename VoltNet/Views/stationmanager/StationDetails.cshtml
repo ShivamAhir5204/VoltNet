@@ -1,0 +1,67 @@
+@model VoltNet.Models.Station
+@{
+    ViewData["Title"] = "My Station Details";
+    Layout = "~/Views/Shared/_ManagerLayout.cshtml";
+}
+
+<div class="row">
+    <div class="col-12">
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible show fade">
+                <div class="alert-body">
+                    <button class="close" data-dismiss="alert"><span>&times;</span></button>
+                    @TempData["Success"]
+                </div>
+            </div>
+        }
+
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+                <h4>Station Details: @Model.Name</h4>
+                <div class="mt-2 mt-md-0">
+                    <form asp-action="UpdateStatus" method="post" class="form-inline">
+                        <select name="status" class="form-control mr-2">
+                            <option value="Active" selected="@(Model.Status == "Active")">Active</option>
+                            <option value="Maintenance" selected="@(Model.Status == "Maintenance")">Maintenance</option>
+                            <option value="Offline" selected="@(Model.Status == "Offline")">Offline</option>
+                        </select>
+                        <button type="submit" class="btn btn-primary">Update Status</button>
+                    </form>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-md table-responsive-cards">
+                        <tbody>
+                            <tr>
+                                <th>Name</th>
+                                <td>@Model.Name</td>
+                            </tr>
+                            <tr>
+                                <th>Address</th>
+                                <td>@Model.Address, @Model.City, @Model.State</td>
+                            </tr>
+                            <tr>
+                                <th>Coordinates</th>
+                                <td>@Model.Latitude, @Model.Longitude</td>
+                            </tr>
+                            <tr>
+                                <th>Operating Hours</th>
+                                <td>@Model.OpeningTime.ToString(@"hh\:mm") to @Model.ClosingTime.ToString(@"hh\:mm")</td>
+                            </tr>
+                            <tr>
+                                <th>Current Status</th>
+                                <td>
+                                    <span class="badge @(Model.Status == "Active" ? "badge-success" : (Model.Status == "Maintenance" ? "badge-warning" : "badge-danger"))">
+                                        @Model.Status
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

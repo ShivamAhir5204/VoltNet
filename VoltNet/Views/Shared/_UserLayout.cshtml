@@ -29,6 +29,7 @@
           <li class="nav-item"><a class="nav-link @(ViewData["ActivePage"]?.ToString() == "About" ? "active" : "")" asp-controller="Home" asp-action="About">About</a></li>
           <li class="nav-item"><a class="nav-link @(ViewData["ActivePage"]?.ToString() == "Services" ? "active" : "")" asp-controller="Home" asp-action="Services">Services</a></li>
           <li class="nav-item"><a class="nav-link @(ViewData["ActivePage"]?.ToString() == "Stations" ? "active" : "")" asp-controller="Home" asp-action="Stations">Stations</a></li>
+          <li class="nav-item"><a class="nav-link @(ViewData["ActivePage"]?.ToString() == "NearbyMap" ? "active" : "")" href="/nearby-map"><i class="bi bi-geo-alt-fill me-1"></i>Map</a></li>
           <li class="nav-item"><a class="nav-link @(ViewData["ActivePage"]?.ToString() == "Pricing" ? "active" : "")" asp-controller="Home" asp-action="Pricing">Pricing</a></li>
           <li class="nav-item"><a class="nav-link @(ViewData["ActivePage"]?.ToString() == "Contact" ? "active" : "")" asp-controller="Home" asp-action="Contact">Contact</a></li>
           <li class="nav-item"><a class="nav-link @(ViewData["ActivePage"]?.ToString() == "BecomePartner" ? "active" : "")" asp-controller="Home" asp-action="BecomePartner">Become Partner</a></li>

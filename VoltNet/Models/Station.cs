@@ -39,4 +39,5 @@ public class Station
 
     public DateTime CreatedAt { get; set; }
 
+    public virtual ICollection<Charger> Chargers { get; set; } = new List<Charger>();
 }

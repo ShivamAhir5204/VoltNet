@@ -8,13 +8,16 @@
 <div class="row">
   <div class="col-12">
     <div class="card">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <h4>Station: @Model.Name</h4>
-        <a href="/owner/stations" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> Back</a>
+      <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+        <h4 class="mb-0">Station: @Model.Name</h4>
+        <div class="mt-2 mt-sm-0">
+          <a href="/owner/stations/Edit/@Model.Id" class="btn btn-warning btn-sm mr-1"><i class="fas fa-edit"></i> Edit</a>
+          <a href="/owner/stations" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> Back</a>
+        </div>
       </div>
       <div class="card-body">
         <div class="row">
-          <div class="col-md-6">
+          <div class="col-12 col-md-6 mb-3 mb-md-0">
             <table class="table table-bordered">
               <tr><th style="width:35%">Name</th><td>@Model.Name</td></tr>
               <tr><th>Address</th><td>@Model.Address</td></tr>
@@ -24,7 +27,7 @@
               <tr><th>Longitude</th><td>@Model.Longitude</td></tr>
             </table>
           </div>
-          <div class="col-md-6">
+          <div class="col-12 col-md-6">
             <table class="table table-bordered">
               <tr>
                 <th style="width:35%">Status</th>
@@ -75,7 +78,7 @@
       </div>
       <div class="card-body">
         <div class="table-responsive">
-          <table class="table table-striped align-middle">
+          <table class="table table-striped align-middle table-responsive-cards">
             <thead>
               <tr>
                 <th>Name</th>
@@ -89,20 +92,29 @@
               @foreach (var mgr in managers)
               {
                 <tr>
-                  <td>@mgr.FullName</td>
-                  <td>@mgr.User?.Email</td>
-                  <td>@mgr.Phone</td>
-                  <td>
-                    @if (mgr.IsActive)
-                    {
-                      <span class="badge bg-success">Active</span>
-                    }
-                    else
-                    {
-                      <span class="badge bg-danger">Inactive</span>
-                    }
+                  <td class="col-primary" data-label="Name">
+                    <div class="d-flex align-items-center justify-content-between">
+                      <span class="font-weight-bold">@mgr.FullName</span>
+                      <button type="button" class="mobile-expand-btn ml-2" title="Show details">
+                        <i data-feather="chevron-down"></i>
+                      </button>
+                    </div>
                   </td>
-                  <td>@mgr.CreatedAt.ToString("dd MMM yyyy")</td>
+                  <td class="col-secondary" data-label="Email"><div>@(mgr.User?.Email ?? "—")</div></td>
+                  <td class="col-secondary" data-label="Phone"><div>@mgr.Phone</div></td>
+                  <td class="col-secondary" data-label="Status">
+                    <div>
+                      @if (mgr.IsActive)
+                      {
+                        <span class="badge bg-success">Active</span>
+                      }
+                      else
+                      {
+                        <span class="badge bg-danger">Inactive</span>
+                      }
+                    </div>
+                  </td>
+                  <td class="col-secondary" data-label="Assigned"><div>@mgr.CreatedAt.ToString("dd MMM yyyy")</div></td>
                 </tr>
               }
             </tbody>
