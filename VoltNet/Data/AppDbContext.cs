@@ -74,6 +74,12 @@ public partial class AppDbContext : DbContext
                 .HasMaxLength(10)
                 .IsUnicode(false)
                 .HasColumnName("mobile");
+            entity.Property(e => e.City)
+                .HasMaxLength(100)
+                .HasColumnName("city");
+            entity.Property(e => e.State)
+                .HasMaxLength(100)
+                .HasColumnName("state");
             entity.Property(e => e.Password)
                 .HasMaxLength(255)
                 .HasColumnName("password");

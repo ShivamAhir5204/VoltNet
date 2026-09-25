@@ -38,7 +38,7 @@
                 class="user-img-radious-style"> <span class="d-sm-none d-lg-inline-block"></span></a>
             <div class="dropdown-menu dropdown-menu-right pullDown">
               <div class="dropdown-title">Hello, @(User.Identity?.Name ?? "Manager")</div>
-              <a href="/manager/change-password" class="dropdown-item has-icon"> <i class="fas fa-key"></i>
+              <a href="/manager/dashboard/change-password" class="dropdown-item has-icon"> <i class="fas fa-key"></i>
                 Change Password
               </a>
               <div class="dropdown-divider"></div>
@@ -68,6 +68,10 @@
             </li>
             <li class="dropdown @(Context.Request.Path.StartsWithSegments("/manager/chargers") ? "active" : "")">
               <a href="/manager/chargers" class="nav-link"><i data-feather="zap"></i><span>Chargers</span></a>
+            </li>
+            <li class="menu-header">Account</li>
+            <li class="dropdown @(Context.Request.Path.StartsWithSegments("/manager/dashboard/change-password") ? "active" : "")">
+              <a href="/manager/dashboard/change-password" class="nav-link"><i data-feather="lock"></i><span>Change Password</span></a>
             </li>
           </ul>
         </aside>

@@ -22,6 +22,7 @@
             <th>Full Name</th>
             <th>Email</th>
             <th>Mobile</th>
+            <th>City</th>
             <th>Role</th>
             <th>Active</th>
             <th class="text-center" style="width: 200px;">Actions</th>
@@ -41,6 +42,7 @@
                 </td>
                 <td class="" data-label="Email"><div>@Html.DisplayFor(modelItem => item.Email)</div></td>
                 <td class="col-secondary" data-label="Mobile"><div>@Html.DisplayFor(modelItem => item.Mobile)</div></td>
+                <td class="col-secondary" data-label="City"><div>@(item.City ?? "—")</div></td>
                 <td class="col-secondary" data-label="Role"><div>@Html.DisplayFor(modelItem => item.Role)</div></td>
                 <td class="col-secondary" data-label="Active">
                     <div>

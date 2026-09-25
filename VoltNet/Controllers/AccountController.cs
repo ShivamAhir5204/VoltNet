@@ -183,7 +183,7 @@ public class AccountController : Controller
 
     [HttpPost("register")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Register(string fullname, string email, string mobile, string password)
+    public async Task<IActionResult> Register(string fullname, string email, string mobile, string city, string state, string password)
     {
         if (string.IsNullOrWhiteSpace(fullname) || string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(mobile) || string.IsNullOrWhiteSpace(password))
         {
@@ -211,6 +211,8 @@ public class AccountController : Controller
             FullName = fullname.Trim(),
             Email = trimmedEmail,
             Mobile = trimmedMobile,
+            City = city?.Trim(),
+            State = state?.Trim(),
             Password = password,
             Otp = otp
         };
@@ -282,6 +284,8 @@ public class AccountController : Controller
                     Fullname = cacheData.FullName,
                     Email = cacheData.Email,
                     Mobile = cacheData.Mobile,
+                    City = cacheData.City,
+                    State = cacheData.State,
                     Role = "Customer",
                     Isactive = true,
                     CreatedAt = DateTime.UtcNow

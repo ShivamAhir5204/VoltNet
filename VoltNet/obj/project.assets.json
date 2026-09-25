@@ -3151,25 +3151,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\HP\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {},
-    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
+    "C:\\Users\\SHIVAM\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Voltnet\\VoltNet\\VoltNet.csproj",
+      "projectUniqueName": "C:\\Users\\SHIVAM\\Documents\\GitHub\\VoltNet\\VoltNet\\VoltNet.csproj",
       "projectName": "VoltNet",
-      "projectPath": "D:\\Voltnet\\VoltNet\\VoltNet.csproj",
-      "packagesPath": "C:\\Users\\HP\\.nuget\\packages\\",
-      "outputPath": "D:\\Voltnet\\VoltNet\\obj\\",
+      "projectPath": "C:\\Users\\SHIVAM\\Documents\\GitHub\\VoltNet\\VoltNet\\VoltNet.csproj",
+      "packagesPath": "C:\\Users\\SHIVAM\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\SHIVAM\\Documents\\GitHub\\VoltNet\\VoltNet\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
-        "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\HP\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\SHIVAM\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],

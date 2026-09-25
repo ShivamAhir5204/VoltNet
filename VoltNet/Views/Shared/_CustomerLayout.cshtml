@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="~/otika/assets/bundles/datatables/datatables.min.css">
   <link rel="stylesheet" href="~/otika/assets/bundles/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css">
   <!-- Template CSS -->
+  <link rel="stylesheet" href="~/otika/assets/bundles/select2/dist/css/select2.min.css">
   <link rel="stylesheet" href="~/otika/assets/css/style.css">
   <link rel="stylesheet" href="~/otika/assets/css/components.css">
   <!-- Custom style CSS -->
@@ -60,6 +61,13 @@
             <li class="dropdown @(Context.Request.Path.StartsWithSegments("/customer/dashboard") ? "active" : "")">
               <a href="/customer/dashboard" class="nav-link"><i data-feather="monitor"></i><span>Dashboard</span></a>
             </li>
+            <li class="menu-header">Account</li>
+            <li class="dropdown @(Context.Request.Path.StartsWithSegments("/customer/profile") ? "active" : "")">
+              <a href="/customer/profile" class="nav-link"><i data-feather="user"></i><span>My Profile</span></a>
+            </li>
+            <li class="dropdown @(Context.Request.Path.StartsWithSegments("/customer/change-password") ? "active" : "")">
+              <a href="/customer/change-password" class="nav-link"><i data-feather="lock"></i><span>Change Password</span></a>
+            </li>
           </ul>
         </aside>
       </div>
@@ -86,6 +94,8 @@
   <script src="~/otika/assets/bundles/datatables/datatables.min.js"></script>
   <script src="~/otika/assets/bundles/datatables/DataTables-1.10.16/js/dataTables.bootstrap4.min.js"></script>
   <!-- Template JS File -->
+  <script src="~/otika/assets/bundles/select2/dist/js/select2.full.min.js"></script>
+  <script src="~/js/indian-states.js"></script>
   <script src="~/otika/assets/js/scripts.js"></script>
   <!-- Custom JS File -->
   <script src="~/otika/assets/js/custom.js"></script>

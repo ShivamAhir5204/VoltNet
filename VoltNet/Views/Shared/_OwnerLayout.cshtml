@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="~/otika/assets/bundles/datatables/datatables.min.css">
   <link rel="stylesheet" href="~/otika/assets/bundles/datatables/DataTables-1.10.16/css/dataTables.bootstrap4.min.css">
   <!-- Template CSS -->
+  <link rel="stylesheet" href="~/otika/assets/bundles/select2/dist/css/select2.min.css">
   <link rel="stylesheet" href="~/otika/assets/css/style.css">
   <link rel="stylesheet" href="~/otika/assets/css/components.css">
   <!-- Custom style CSS -->
@@ -38,6 +39,9 @@
                 class="user-img-radious-style"> <span class="d-sm-none d-lg-inline-block"></span></a>
             <div class="dropdown-menu dropdown-menu-right pullDown">
               <div class="dropdown-title">Hello, @(User.Identity?.Name ?? "Owner")</div>
+              <a href="/owner/profile" class="dropdown-item has-icon"> <i class="fas fa-user"></i>
+                Profile
+              </a>
               <a href="/owner/change-password" class="dropdown-item has-icon"> <i class="fas fa-key"></i>
                 Change Password
               </a>
@@ -69,6 +73,13 @@
             <li class="dropdown @(Context.Request.Path.StartsWithSegments("/owner/station-managers") ? "active" : "")">
               <a href="/owner/station-managers" class="nav-link"><i data-feather="users"></i><span>Station Managers</span></a>
             </li>
+            <li class="menu-header">Account</li>
+            <li class="dropdown @(Context.Request.Path.StartsWithSegments("/owner/profile") ? "active" : "")">
+              <a href="/owner/profile" class="nav-link"><i data-feather="user"></i><span>My Profile</span></a>
+            </li>
+            <li class="dropdown @(Context.Request.Path.StartsWithSegments("/owner/change-password") ? "active" : "")">
+              <a href="/owner/change-password" class="nav-link"><i data-feather="lock"></i><span>Change Password</span></a>
+            </li>
           </ul>
         </aside>
       </div>
@@ -98,6 +109,8 @@
   <script src="~/otika/assets/js/scripts.js"></script>
   <!-- Custom JS File -->
   <script src="~/otika/assets/js/custom.js"></script>
+  <script src="~/otika/assets/bundles/select2/dist/js/select2.full.min.js"></script>
+  <script src="~/js/indian-states.js"></script>
 
   @await RenderSectionAsync("Scripts", required: false)
 

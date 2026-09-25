@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("VoltNet")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+584e6ffa237d55bb78ee03aec79ec8f0b5374595")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+43227708c28f38453241a9f340ab5909c9288152")]
 [assembly: System.Reflection.AssemblyProductAttribute("VoltNet")]
 [assembly: System.Reflection.AssemblyTitleAttribute("VoltNet")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

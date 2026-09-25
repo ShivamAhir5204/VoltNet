@@ -7,7 +7,7 @@ using System.Security.Claims;
 namespace VoltNet.Controllers.stationowner;
 
 [Authorize(Roles = "StationOwner")]
-[Route("owner/{action=Dashboard}")]
+[Route("owner")]
 public class OwnerDashboardController : Controller
 {
     private readonly AppDbContext _context;
@@ -28,7 +28,8 @@ public class OwnerDashboardController : Controller
         return Guid.Parse(User.FindFirstValue("UserId")!);
     }
 
-    [HttpGet]
+    [HttpGet("")]
+    [HttpGet("dashboard")]
     public async Task<IActionResult> Dashboard()
     {
         var ownerId = GetStationOwnerId();
@@ -65,13 +66,81 @@ public class OwnerDashboardController : Controller
         return View("~/Views/stationowner/Dashboard.cshtml");
     }
 
-    [HttpGet]
+    [HttpGet("profile")]
+    public async Task<IActionResult> Profile()
+    {
+        var ownerId = GetStationOwnerId();
+        if (ownerId == null) return RedirectToAction(nameof(Dashboard));
+
+        var owner = await _context.StationOwners
+            .Include(o => o.User)
+            .FirstOrDefaultAsync(o => o.Id == ownerId);
+
+        if (owner == null) return NotFound();
+
+        return View("~/Views/stationowner/Profile.cshtml", owner);
+    }
+
+    [HttpPost("profile")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Profile(string fullname, string email, string phone, string businessName, string businessRegistrationNumber, string address, string city, string state, string gstNumber)
+    {
+        var ownerId = GetStationOwnerId();
+        if (ownerId == null) return RedirectToAction(nameof(Dashboard));
+
+        var owner = await _context.StationOwners
+            .Include(o => o.User)
+            .FirstOrDefaultAsync(o => o.Id == ownerId);
+
+        if (owner == null) return NotFound();
+
+        var trimmedEmail = email?.Trim().ToLower();
+        var trimmedPhone = phone?.Trim();
+
+        // Check uniqueness for email in UserMaster
+        if (await _context.UserMasters.AnyAsync(u => u.Email == trimmedEmail && u.Id != owner.UserId))
+        {
+            ViewBag.Error = "Email address is already in use.";
+            return View("~/Views/stationowner/Profile.cshtml", owner);
+        }
+
+        // Check uniqueness for phone in UserMaster
+        if (await _context.UserMasters.AnyAsync(u => u.Mobile == trimmedPhone && u.Id != owner.UserId))
+        {
+            ViewBag.Error = "Mobile number is already in use.";
+            return View("~/Views/stationowner/Profile.cshtml", owner);
+        }
+
+        // Update fields in StationOwner
+        owner.FullName = fullname?.Trim() ?? "";
+        owner.Phone = trimmedPhone ?? "";
+        owner.BusinessName = businessName?.Trim();
+        owner.BusinessRegistrationNumber = businessRegistrationNumber?.Trim();
+        owner.Address = address?.Trim();
+        owner.City = city?.Trim();
+        owner.State = state?.Trim();
+        owner.GSTNumber = gstNumber?.Trim();
+
+        // Sync with UserMaster
+        owner.User.Fullname = owner.FullName;
+        owner.User.Email = trimmedEmail;
+        owner.User.Mobile = owner.Phone;
+        owner.User.City = owner.City;
+        owner.User.State = owner.State;
+
+        await _context.SaveChangesAsync();
+
+        TempData["Success"] = "Profile updated successfully.";
+        return RedirectToAction(nameof(Profile));
+    }
+
+    [HttpGet("change-password")]
     public IActionResult ChangePassword()
     {
         return View("~/Views/stationowner/ChangePassword.cshtml");
     }
 
-    [HttpPost]
+    [HttpPost("change-password")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ChangePassword(string currentPassword, string newPassword, string confirmPassword)
     {

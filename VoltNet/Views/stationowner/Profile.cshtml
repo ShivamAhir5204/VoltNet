@@ -1,0 +1,435 @@
+@model VoltNet.Models.StationOwner
+@{
+    ViewData["Title"] = "My Profile";
+    Layout = "~/Views/Shared/_OwnerLayout.cshtml";
+}
+
+<style>
+    /* ── Profile Page Responsive Styles ──────────────────────── */
+    .profile-header-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    .profile-header-card .card-body {
+        padding: 2rem;
+    }
+    .profile-avatar {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.25);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.2rem;
+        color: #fff;
+        font-weight: 700;
+        border: 3px solid rgba(255,255,255,0.5);
+        flex-shrink: 0;
+    }
+    .profile-header-info h4 {
+        color: #fff;
+        margin-bottom: 0.25rem;
+        font-weight: 600;
+    }
+    .profile-header-info p {
+        color: rgba(255,255,255,0.8);
+        margin-bottom: 0;
+        font-size: 0.9rem;
+    }
+    .profile-badge {
+        background: rgba(255,255,255,0.2);
+        color: #fff;
+        padding: 0.35rem 1rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        display: inline-block;
+        margin-top: 0.5rem;
+    }
+    .profile-form-card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+    .profile-form-card .card-header {
+        background: #fff;
+        border-bottom: 1px solid #eef0f4;
+        border-radius: 12px 12px 0 0 !important;
+        padding: 1.25rem 1.5rem;
+    }
+    .profile-form-card .card-header h4 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #34395e;
+        margin: 0;
+    }
+    .profile-form-card .card-body {
+        padding: 1.5rem;
+    }
+    .profile-form-card .form-group label {
+        font-weight: 600;
+        color: #34395e;
+        font-size: 0.875rem;
+        margin-bottom: 0.4rem;
+    }
+    .profile-form-card .form-control {
+        border-radius: 8px;
+        border: 1px solid #e4e6ef;
+        padding: 0.6rem 1rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .profile-form-card .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102,126,234,0.15);
+    }
+    .info-card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+    .info-card .card-header {
+        background: #fff;
+        border-bottom: 1px solid #eef0f4;
+        border-radius: 12px 12px 0 0 !important;
+        padding: 1.25rem 1.5rem;
+    }
+    .info-card .card-header h4 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #34395e;
+        margin: 0;
+    }
+    .info-card .card-body {
+        padding: 1.5rem;
+    }
+    .info-item {
+        display: flex;
+        align-items: flex-start;
+        padding: 0.85rem 0;
+        border-bottom: 1px solid #f4f5f7;
+    }
+    .info-item:last-child {
+        border-bottom: none;
+    }
+    .info-item-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        flex-shrink: 0;
+        margin-right: 1rem;
+    }
+    .info-item-icon.bg-light-primary {
+        background: rgba(102,126,234,0.12);
+        color: #667eea;
+    }
+    .info-item-icon.bg-light-success {
+        background: rgba(40,167,69,0.12);
+        color: #28a745;
+    }
+    .info-item-icon.bg-light-warning {
+        background: rgba(255,193,7,0.12);
+        color: #e0a800;
+    }
+    .info-item-icon.bg-light-info {
+        background: rgba(23,162,184,0.12);
+        color: #17a2b8;
+    }
+    .info-item-text small {
+        color: #98a6ad;
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .info-item-text p {
+        margin: 0;
+        color: #34395e;
+        font-weight: 500;
+    }
+    .btn-save-profile {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        padding: 0.6rem 2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        color: #fff;
+        transition: opacity 0.2s, transform 0.15s;
+    }
+    .btn-save-profile:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+        color: #fff;
+    }
+    .btn-change-pw {
+        background: transparent;
+        border: 2px solid #667eea;
+        color: #667eea;
+        padding: 0.6rem 2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+    .btn-change-pw:hover {
+        background: #667eea;
+        color: #fff;
+    }
+
+    /* ── Responsive ─────────────────────────────────────────── */
+    @@media (max-width: 767.98px) {
+        .profile-header-card .card-body {
+            padding: 1.25rem;
+        }
+        .profile-avatar {
+            width: 64px;
+            height: 64px;
+            font-size: 1.5rem;
+        }
+        .profile-header-info h4 {
+            font-size: 1.1rem;
+        }
+        .profile-form-card .card-body,
+        .info-card .card-body {
+            padding: 1rem;
+        }
+        .btn-save-profile,
+        .btn-change-pw {
+            width: 100%;
+            text-align: center;
+        }
+        .profile-actions {
+            flex-direction: column;
+            gap: 0.5rem !important;
+        }
+    }
+</style>
+
+<!-- Page Header -->
+<div class="section-header">
+    <h1>My Profile</h1>
+    <div class="section-header-breadcrumb">
+        <div class="breadcrumb-item active"><a href="/owner/dashboard">Dashboard</a></div>
+        <div class="breadcrumb-item">My Profile</div>
+    </div>
+</div>
+
+<!-- Alerts -->
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle mr-1"></i> @TempData["Success"]
+        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+    </div>
+}
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle mr-1"></i> @ViewBag.Error
+        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+    </div>
+}
+
+<div class="row">
+    <!-- Profile Header -->
+    <div class="col-12">
+        <div class="card profile-header-card">
+            <div class="card-body">
+                <div class="d-flex align-items-center flex-wrap" style="gap:1rem;">
+                    <div class="profile-avatar">
+                        @(Model.FullName?.Substring(0, 1).ToUpper() ?? "O")
+                    </div>
+                    <div class="profile-header-info">
+                        <h4>@(Model.FullName ?? "Station Owner")</h4>
+                        <p>@Model.User.Email</p>
+                        <span class="profile-badge"><i class="fas fa-building mr-1"></i> Station Owner (@Model.Status)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Edit Profile Form -->
+    <div class="col-12 col-lg-8">
+        <div class="card profile-form-card">
+            <div class="card-header">
+                <h4><i class="fas fa-edit mr-2"></i>Edit Profile</h4>
+            </div>
+            <div class="card-body">
+                <form method="post" action="/owner/profile" id="profileForm">
+                    @Html.AntiForgeryToken()
+
+                    <h5 class="mb-3" style="font-size: 1rem; color: #667eea; font-weight: 600;">Personal Information</h5>
+                    <div class="row">
+                        <div class="col-12 col-md-6">
+                            <div class="form-group">
+                                <label for="fullname">Full Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="fullname" name="fullname"
+                                       value="@Model.FullName" required placeholder="Enter your full name" />
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="form-group">
+                                <label for="phone">Mobile Number <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="phone" name="phone"
+                                       value="@Model.Phone" required maxlength="10" minlength="10"
+                                       pattern="[0-9]{10}" title="Enter a valid 10-digit mobile number"
+                                       placeholder="e.g. 9876543210" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email Address <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" id="email" name="email"
+                               value="@Model.User.Email" required placeholder="e.g. name@example.com" />
+                    </div>
+
+                    <h5 class="mt-4 mb-3" style="font-size: 1rem; color: #667eea; font-weight: 600;">Business Details</h5>
+                    <div class="row">
+                        <div class="col-12 col-md-6">
+                            <div class="form-group">
+                                <label for="businessName">Business Name</label>
+                                <input type="text" class="form-control" id="businessName" name="businessName"
+                                       value="@Model.BusinessName" placeholder="Enter business name" />
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="form-group">
+                                <label for="businessRegistrationNumber">Registration Number</label>
+                                <input type="text" class="form-control" id="businessRegistrationNumber" name="businessRegistrationNumber"
+                                       value="@Model.BusinessRegistrationNumber" placeholder="Business Reg. No" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gstNumber">GST Number</label>
+                        <input type="text" class="form-control" id="gstNumber" name="gstNumber"
+                               value="@Model.GSTNumber" placeholder="Enter GST Number" />
+                    </div>
+
+                    <h5 class="mt-4 mb-3" style="font-size: 1rem; color: #667eea; font-weight: 600;">Location Details</h5>
+                    <div class="form-group">
+                        <label for="address">Address</label>
+                        <input type="text" class="form-control" id="address" name="address"
+                               value="@Model.Address" placeholder="Full address" />
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-12 col-md-6">
+                            <div class="form-group">
+                                <label for="city">City</label>
+                                <input type="text" class="form-control" id="city" name="city"
+                                       value="@Model.City" placeholder="e.g. Mumbai" />
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="form-group">
+                                <label for="State">State</label>
+                                <select class="form-control select2" id="State" name="state" data-selected="@Model.State">
+                                    <option value="">-- Select State --</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="mt-4 mb-4" />
+                    
+                    <div class="d-flex justify-content-end align-items-center flex-wrap profile-actions" style="gap: 1rem;">
+                        <button type="submit" class="btn btn-save-profile">
+                            <i class="fas fa-save mr-1"></i> Save Changes
+                        </button>
+                        <a href="/owner/change-password" class="btn btn-change-pw">
+                            <i class="fas fa-key mr-1"></i> Change Password
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column (Info display) -->
+    <div class="col-12 col-lg-4 mt-4 mt-lg-0">
+        <div class="card info-card">
+            <div class="card-header">
+                <h4><i class="fas fa-info-circle mr-2"></i>Account Overview</h4>
+            </div>
+            <div class="card-body">
+                <div class="info-item">
+                    <div class="info-item-icon bg-light-primary">
+                        <i class="fas fa-id-card"></i>
+                    </div>
+                    <div class="info-item-text">
+                        <small>Role</small>
+                        <p>Station Owner</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-item-icon bg-light-success">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="info-item-text">
+                        <small>Email Address</small>
+                        <p style="word-break: break-all;">@Model.User.Email</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-item-icon bg-light-warning">
+                        <i class="fas fa-phone-alt"></i>
+                    </div>
+                    <div class="info-item-text">
+                        <small>Mobile Number</small>
+                        <p>@(string.IsNullOrEmpty(Model.Phone) ? "Not set" : Model.Phone)</p>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-item-icon bg-light-info">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <div class="info-item-text">
+                        <small>Joined Date</small>
+                        <p>@Model.CreatedAt.ToString("MMM dd, yyyy")</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            var stateSelect = $('#State');
+            
+            // Populate states
+            if (typeof indianStates !== 'undefined') {
+                indianStates.forEach(function(state) {
+                    var option = new Option(state, state);
+                    stateSelect.append(option);
+                });
+            }
+            
+            // Set selected value
+            var selectedState = stateSelect.data('selected');
+            if (selectedState) {
+                stateSelect.val(selectedState);
+            }
+            
+            // Initialize Select2 if it exists
+            if ($.fn.select2) {
+                stateSelect.select2({
+                    placeholder: "-- Select State --",
+                    width: '100%'
+                });
+            }
+        });
+    </script>
+}

@@ -15,6 +15,10 @@ public partial class UserMaster
 
     public string? Mobile { get; set; }
 
+    public string? City { get; set; }
+
+    public string? State { get; set; }
+
     public string Role { get; set; } = null!;
 
     public bool Isactive { get; set; }

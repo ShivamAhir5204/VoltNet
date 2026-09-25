@@ -356,6 +356,11 @@ namespace VoltNet.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("id");
 
+                    b.Property<string>("City")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("city");
+
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
@@ -394,6 +399,11 @@ namespace VoltNet.Migrations
                         .IsUnicode(false)
                         .HasColumnType("varchar(30)")
                         .HasColumnName("role");
+
+                    b.Property<string>("State")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("state");
 
                     b.HasKey("Id");
 

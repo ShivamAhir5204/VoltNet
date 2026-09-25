@@ -48,7 +48,7 @@ public class UserMasterController : Controller
     // POST: admin/UserMaster/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Id,Fullname,Email,Password,Mobile,Role,Isactive")] UserMaster user)
+    public async Task<IActionResult> Create([Bind("Id,Fullname,Email,Password,Mobile,City,State,Role,Isactive")] UserMaster user)
     {
         if (string.IsNullOrEmpty(user.Password))
         {
@@ -83,7 +83,7 @@ public class UserMasterController : Controller
     // POST: admin/UserMaster/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(Guid id, [Bind("Id,Fullname,Email,Password,Mobile,Role,Isactive,CreatedAt")] UserMaster user)
+    public async Task<IActionResult> Edit(Guid id, [Bind("Id,Fullname,Email,Password,Mobile,City,State,Role,Isactive,CreatedAt")] UserMaster user)
     {
         if (id != user.Id)
         {

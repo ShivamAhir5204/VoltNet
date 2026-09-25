@@ -29,6 +29,16 @@
             </div>
 
             <div class="col-md-6 mb-3">
+                <span class="text-muted d-block mb-1">City</span>
+                <strong>@(Model.City ?? "—")</strong>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <span class="text-muted d-block mb-1">State</span>
+                <strong>@(Model.State ?? "—")</strong>
+            </div>
+
+            <div class="col-md-6 mb-3">
                 <span class="text-muted d-block mb-1">Role</span>
                 <strong>@Html.DisplayFor(model => model.Role)</strong>
             </div>
