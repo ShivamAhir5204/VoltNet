@@ -5,42 +5,41 @@
 }
 
 <!-- Page Hero -->
-<section class="vn-inner-hero">
-    <div class="container">
-        <h1 class="inner-hero-title">Software <span class="gradient-text">Solutions</span></h1>
-        <ul class="breadcrumb-vn">
-            <li><a asp-controller="Home" asp-action="Index">Home</a></li>
-            <li>Services</li>
-        </ul>
+<section class="vn-inner-hero" style="padding: 160px 0 80px 0; background: var(--vn-bg); border-bottom: 1px solid var(--vn-border);">
+    <div class="container text-center">
+        <span class="badge-vn vn-reveal">Solutions</span>
+        <h1 class="section-title vn-reveal" style="font-size: 3.5rem; transition-delay: 100ms;">Software <span style="color: var(--vn-green);">Services</span></h1>
+        <p class="section-subtitle mx-auto vn-reveal" style="max-width: 600px; transition-delay: 200ms;">Comprehensive digital solutions designed for modern EV infrastructure.</p>
     </div>
 </section>
 
 <!-- Services Grid -->
-<section class="vn-features">
+<section class="vn-features" style="padding: 100px 0;">
     <div class="container">
         
+        <!-- For Station Owners -->
         <div class="text-center mb-5">
-            <h3 class="text-white">For Station Owners</h3>
-            <p class="text-secondary">Comprehensive ERP for managing your charging infrastructure.</p>
+            <h3 class="vn-reveal" style="font-weight: 700; color: var(--vn-dark);">For Station Owners</h3>
+            <p class="text-muted vn-reveal" style="transition-delay: 100ms;">Comprehensive ERP for managing your charging infrastructure.</p>
         </div>
         
-        <div class="row g-4 mb-5 pb-5 border-bottom border-secondary">
-            <div class="col-lg-4 col-md-6 animate-on-scroll">
-                <div class="feature-card text-start">
+        <div class="row g-4 mb-5 pb-5 border-bottom" style="border-color: var(--vn-bg) !important;">
+            <div class="col-lg-4 col-md-6 vn-reveal" style="transition-delay: 100ms;">
+                <div class="feature-card vn-card text-start p-4 h-100" style="background: var(--vn-white); border-radius: var(--vn-radius-lg); border: 1px solid var(--vn-border);">
                     <div class="feature-icon"><i class="bi bi-pc-display-horizontal"></i></div>
                     <h4 class="mb-3">Centralized Dashboard</h4>
                     <p>Monitor all your charging stations from a single web interface. Check hardware status, active sessions, and errors in real-time.</p>
                 </div>
             </div>
-            <div class="col-lg-4 col-md-6 animate-on-scroll">
-                <div class="feature-card text-start">
+            <div class="col-lg-4 col-md-6 vn-reveal" style="transition-delay: 200ms;">
+                <div class="feature-card vn-card text-start p-4 h-100" style="background: var(--vn-white); border-radius: var(--vn-radius-lg); border: 1px solid var(--vn-border);">
                     <div class="feature-icon"><i class="bi bi-cash-coin"></i></div>
                     <h4 class="mb-3">Dynamic Pricing Engine</h4>
                     <p>Set custom tariffs based on time of day, day of week, or connector type. Maximize revenue during peak hours seamlessly.</p>
                 </div>
             </div>
-            <div class="col-lg-4 col-md-6 animate-on-scroll">
-                <div class="feature-card text-start">
+            <div class="col-lg-4 col-md-6 vn-reveal" style="transition-delay: 300ms;">
+                <div class="feature-card vn-card text-start p-4 h-100" style="background: var(--vn-white); border-radius: var(--vn-radius-lg); border: 1px solid var(--vn-border);">
                     <div class="feature-icon"><i class="bi bi-graph-up-arrow"></i></div>
                     <h4 class="mb-3">Advanced Analytics</h4>
                     <p>Exportable reports on energy dispensed, revenue generated, utilization rates, and customer retention metrics.</p>
@@ -48,55 +47,32 @@
             </div>
         </div>
 
+        <!-- For EV Drivers -->
         <div class="text-center mb-5 mt-5">
-            <h3 class="text-white">For EV Drivers</h3>
-            <p class="text-secondary">An intuitive platform to make charging hassle-free.</p>
+            <h3 class="vn-reveal" style="font-weight: 700; color: var(--vn-dark);">For EV Drivers</h3>
+            <p class="text-muted vn-reveal" style="transition-delay: 100ms;">An intuitive platform to make charging hassle-free.</p>
         </div>
 
         <div class="row g-4">
-            <div class="col-lg-4 col-md-6 animate-on-scroll">
-                <div class="feature-card text-start">
+            <div class="col-lg-4 col-md-6 vn-reveal" style="transition-delay: 100ms;">
+                <div class="feature-card vn-card text-start p-4 h-100" style="background: var(--vn-white); border-radius: var(--vn-radius-lg); border: 1px solid var(--vn-border);">
                     <div class="feature-icon"><i class="bi bi-geo-alt"></i></div>
                     <h4 class="mb-3">Station Discovery</h4>
                     <p>Find partner stations near you, filter by connector type and speed, and see real-time availability before you arrive.</p>
                 </div>
             </div>
-            <div class="col-lg-4 col-md-6 animate-on-scroll">
-                <div class="feature-card text-start">
+            <div class="col-lg-4 col-md-6 vn-reveal" style="transition-delay: 200ms;">
+                <div class="feature-card vn-card text-start p-4 h-100" style="background: var(--vn-white); border-radius: var(--vn-radius-lg); border: 1px solid var(--vn-border);">
                     <div class="feature-icon"><i class="bi bi-calendar-check"></i></div>
                     <h4 class="mb-3">Smart Booking</h4>
                     <p>Reserve a specific charger at a partner station in advance so you never have to wait in line.</p>
                 </div>
             </div>
-            <div class="col-lg-4 col-md-6 animate-on-scroll">
-                <div class="feature-card text-start">
+            <div class="col-lg-4 col-md-6 vn-reveal" style="transition-delay: 300ms;">
+                <div class="feature-card vn-card text-start p-4 h-100" style="background: var(--vn-white); border-radius: var(--vn-radius-lg); border: 1px solid var(--vn-border);">
                     <div class="feature-icon"><i class="bi bi-shield-check"></i></div>
                     <h4 class="mb-3">Secure Payments</h4>
                     <p>Pay instantly via UPI or Card. The payment is securely routed and settled directly with the station owner.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Compatible Connectors -->
-<section style="padding: 5rem 0; background: var(--vn-dark);">
-    <div class="container text-center">
-        <span class="badge-vn">Hardware Agnostic</span>
-        <h2 class="section-title mb-5">Supported <span class="gradient-text">Hardware Protocols</span></h2>
-        <p class="section-subtitle">Our ERP integrates seamlessly via OCPP (Open Charge Point Protocol) with all major charger manufacturers.</p>
-        
-        <div class="row justify-content-center g-4 mt-2">
-            <div class="col-md-3 col-6">
-                <div class="p-4 border rounded" style="border-color: var(--vn-border) !important; background: var(--vn-dark-card);">
-                    <h4 class="text-white mb-2">OCPP 1.6J</h4>
-                    <p class="text-secondary small mb-0">Fully supported</p>
-                </div>
-            </div>
-            <div class="col-md-3 col-6">
-                <div class="p-4 border rounded" style="border-color: var(--vn-border) !important; background: var(--vn-dark-card);">
-                    <h4 class="text-white mb-2">OCPP 2.0.1</h4>
-                    <p class="text-secondary small mb-0">Fully supported</p>
                 </div>
             </div>
         </div>

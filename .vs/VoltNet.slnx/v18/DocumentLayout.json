@@ -1,12 +1,7 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\SHIVAM\\Documents\\GitHub\\VoltNet\\",
-  "Documents": [
-    {
-      "AbsoluteMoniker": "D:0:0:{9F6BE109-81B1-4116-A021-8F6481AEA67C}|VoltNet\\VoltNet.csproj|c:\\users\\shivam\\documents\\github\\voltnet\\voltnet\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{9F6BE109-81B1-4116-A021-8F6481AEA67C}|VoltNet\\VoltNet.csproj|solutionrelative:voltnet\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    }
-  ],
+  "Documents": [],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -14,7 +9,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 6,
+          "SelectedChildIndex": -1,
           "Children": [
             {
               "$type": "Bookmark",
@@ -39,19 +34,6 @@
             {
               "$type": "Bookmark",
               "Name": "ST:129:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\SHIVAM\\Documents\\GitHub\\VoltNet\\VoltNet\\Program.cs",
-              "RelativeDocumentMoniker": "VoltNet\\Program.cs",
-              "ToolTip": "C:\\Users\\SHIVAM\\Documents\\GitHub\\VoltNet\\VoltNet\\Program.cs",
-              "RelativeToolTip": "VoltNet\\Program.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-25T05:44:58.306Z",
-              "EditorCaption": ""
             }
           ]
         }

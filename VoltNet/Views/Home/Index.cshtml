@@ -6,44 +6,67 @@
 
 <!-- ═══════════════ HERO ═══════════════ -->
 <section class="vn-hero" id="home">
-  <div class="hero-particle"></div>
-  <div class="hero-particle"></div>
-  <div class="hero-particle"></div>
-  <div class="container">
+  <!-- ════════ LIVING BACKGROUND SYSTEM ════════ -->
+  <div class="hero-background">
+    <div class="bg-glow-primary"></div>
+    <div class="bg-glow-secondary"></div>
+    <div class="bg-grid">
+      <div class="bg-grid-inner"></div>
+    </div>
+    <div class="bg-energy-lines">
+      <svg viewBox="0 0 1000 500" preserveAspectRatio="none">
+        <path class="energy-path" d="M -100,300 C 200,200 400,400 800,250 C 1000,150 1200,200 1200,200" />
+        <path class="energy-path delay" d="M -100,400 C 300,500 500,200 900,350 C 1100,400 1200,300 1200,300" />
+      </svg>
+    </div>
+    <div class="bg-orbit">
+      <div class="orbit-ring"></div>
+    </div>
+  </div>
+  <div class="container hero-parallax-container">
     <div class="row align-items-center">
-      <div class="col-lg-7">
-        <div class="hero-badge">
+      <div class="col-lg-7 hero-text-col">
+        <div class="hero-badge hero-seq-1">
           <span class="pulse-dot"></span>
           <span>India's Leading EV Platform</span>
         </div>
         <h1 class="hero-title">
-          Connecting Drivers.<br>
-          <span class="gradient-text">Empowering Owners.</span>
+          <span class="d-inline-block hero-seq-2">Find.</span> 
+          <span class="d-inline-block hero-seq-3">Book.</span> 
+          <span class="d-inline-block hero-seq-4" style="color: var(--vn-green);">Charge.</span>
         </h1>
-        <p class="hero-description">
-          The ultimate platform for EV charging. For drivers: find, book, and pay for charging slots seamlessly. For station owners: manage your entire charging business with our powerful ERP solution.
+        <p class="hero-description hero-seq-5">
+          Discover nearby EV charging stations, reserve a slot, and get back on the road with VoltNet.
         </p>
-        <div class="hero-buttons">
-          <a href="/register" class="btn-hero-primary">
-            Get Started <i class="bi bi-arrow-right"></i>
+        <div class="d-flex flex-wrap gap-3 mb-5">
+          <a href="/nearby-map" class="btn-vn-primary hero-seq-6">
+            Find Charging Stations
           </a>
-          <a asp-controller="Home" asp-action="Services" class="btn-hero-secondary">
-            <i class="bi bi-play-circle me-2"></i> Our Services
+          <a asp-controller="Home" asp-action="BecomePartner" class="btn-vn-secondary hero-seq-7">
+            Become a Partner
           </a>
         </div>
-        <div class="hero-stats">
-          <div>
-            <div class="hero-stat-number gradient-text" data-count="500" data-suffix="+">0+</div>
-            <div class="hero-stat-label">Partner Stations</div>
+        <div class="hero-stats hero-seq-8">
+          <div class="d-flex align-items-center gap-4">
+            <div>
+              <div class="fs-2 fw-bold" style="color: var(--vn-dark);" data-count="500" data-suffix="+">0+</div>
+              <div class="text-muted small text-uppercase fw-semibold">Partner Stations</div>
+            </div>
+            <div>
+              <div class="fs-2 fw-bold" style="color: var(--vn-dark);" data-count="150000" data-suffix="+">0+</div>
+              <div class="text-muted small text-uppercase fw-semibold">Happy Users</div>
+            </div>
+            <div>
+              <div class="fs-2 fw-bold" style="color: var(--vn-dark);" data-count="45" data-suffix="">0</div>
+              <div class="text-muted small text-uppercase fw-semibold">Cities Covered</div>
+            </div>
           </div>
-          <div>
-            <div class="hero-stat-number gradient-text" data-count="150000" data-suffix="+">0+</div>
-            <div class="hero-stat-label">Happy Users</div>
-          </div>
-          <div>
-            <div class="hero-stat-number gradient-text" data-count="45" data-suffix="">0</div>
-            <div class="hero-stat-label">Cities Covered</div>
-          </div>
+        </div>
+      </div>
+      <div class="col-lg-5 d-none d-lg-block text-center position-relative hero-visual-col">
+        <div class="charger-wrapper hero-seq-9 position-relative">
+          <img src="~/usersite/img/hero-charger.png" alt="Minimal EV Charger" class="img-fluid charger-img position-relative z-3" style="max-height: 500px; object-fit: contain;" />
+          <div class="charger-shadow"></div>
         </div>
       </div>
     </div>
@@ -54,42 +77,42 @@
 <section class="vn-features" id="features">
   <div class="container">
     <div class="text-center">
-      <span class="badge-vn">Why VoltNet</span>
-      <h2 class="section-title">Built for the <span class="gradient-text">Modern Ecosystem</span></h2>
-      <p class="section-subtitle">Bridging the gap between EV owners needing reliable charging and station operators needing robust management tools.</p>
+      <span class="badge-vn vn-reveal">Why VoltNet</span>
+      <h2 class="section-title vn-reveal" style="transition-delay: 100ms;">Built for the <span style="color: var(--vn-green);">Modern Ecosystem</span></h2>
+      <p class="section-subtitle vn-reveal" style="transition-delay: 200ms;">Bridging the gap between EV owners needing reliable charging and station operators needing robust management tools.</p>
     </div>
     <div class="row g-4">
-      <div class="col-lg-3 col-md-6 animate-on-scroll">
-        <div class="feature-card">
+      <div class="col-lg-3 col-md-6 animate-on-scroll vn-reveal">
+        <div class="feature-card vn-card p-4 h-100">
           <div class="feature-icon"><i class="bi bi-geo-alt"></i></div>
           <h4>Find & Book (Drivers)</h4>
           <p>Locate nearby partner stations, check real-time availability, and book slots in advance through our app.</p>
         </div>
       </div>
-      <div class="col-lg-3 col-md-6 animate-on-scroll">
-        <div class="feature-card">
+      <div class="col-lg-3 col-md-6 animate-on-scroll vn-reveal">
+        <div class="feature-card vn-card p-4 h-100">
           <div class="feature-icon"><i class="bi bi-shield-check"></i></div>
           <h4>Seamless Payments</h4>
           <p>Pay directly through the platform securely. No hassle, digital invoices sent straight to your email.</p>
         </div>
       </div>
-      <div class="col-lg-3 col-md-6 animate-on-scroll">
-        <div class="feature-card">
+      <div class="col-lg-3 col-md-6 animate-on-scroll vn-reveal">
+        <div class="feature-card vn-card p-4 h-100">
           <div class="feature-icon"><i class="bi bi-pc-display-horizontal"></i></div>
           <h4>Station ERP (Owners)</h4>
           <p>Complete management software for station owners. Monitor uptime, track revenue, and manage pricing remotely.</p>
         </div>
       </div>
-      <div class="col-lg-3 col-md-6 animate-on-scroll">
-        <div class="feature-card">
+      <div class="col-lg-3 col-md-6 animate-on-scroll vn-reveal">
+        <div class="feature-card vn-card p-4 h-100">
           <div class="feature-icon"><i class="bi bi-graph-up-arrow"></i></div>
           <h4>Analytics Dashboard</h4>
           <p>Get deep insights into utilization rates, peak hours, and customer trends to maximize your station's profitability.</p>
         </div>
       </div>
     </div>
-    <div class="text-center mt-5 animate-on-scroll">
-      <a asp-controller="Home" asp-action="Services" class="btn-hero-secondary" style="display: inline-flex; align-items: center; gap: 8px;">
+    <div class="text-center mt-5 animate-on-scroll vn-reveal">
+      <a asp-controller="Home" asp-action="Services" class="btn-vn-secondary" style="display: inline-flex; align-items: center; gap: 8px;">
         View All Services <i class="bi bi-arrow-right"></i>
       </a>
     </div>
@@ -100,22 +123,18 @@
 <section class="vn-about">
   <div class="container">
     <div class="row align-items-center g-5">
-      <div class="col-lg-6 animate-on-scroll">
+      <div class="col-lg-6 vn-reveal">
         <div class="about-img-wrapper">
           <img src="/usersite/img/about-ev.jpg" alt="EV charging platform" style="height: 420px; object-fit: cover;">
-          <div class="about-stat-box">
-            <h3>100%</h3>
-            <span>Cloud-Based ERP</span>
-          </div>
         </div>
       </div>
-      <div class="col-lg-6 animate-on-scroll">
-        <span class="badge-vn">About VoltNet</span>
-        <h2 class="section-title">The Software Behind <span class="gradient-text">EV Mobility</span></h2>
-        <p class="text-secondary mb-4">
+      <div class="col-lg-6">
+        <span class="badge-vn vn-reveal">About VoltNet</span>
+        <h2 class="section-title vn-reveal" style="transition-delay: 100ms;">The Software Behind <span style="color: var(--vn-green);">EV Mobility</span></h2>
+        <p class="text-secondary mb-4 vn-reveal" style="transition-delay: 200ms;">
           VoltNet is a technology company specializing in EV infrastructure software. We don't build the hardware — we build the digital ecosystem that makes it work flawlessly.
         </p>
-        <ul class="about-list">
+        <ul class="about-list vn-reveal" style="transition-delay: 300ms;">
           <li>
             <span class="check-icon"><i class="bi bi-check-lg"></i></span>
             Universal booking platform for EV drivers
@@ -126,14 +145,14 @@
           </li>
           <li>
             <span class="check-icon"><i class="bi bi-check-lg"></i></span>
-            Hardware-agnostic software (supports all major chargers)
+            Seamless integration with all major charging hardware
           </li>
           <li>
             <span class="check-icon"><i class="bi bi-check-lg"></i></span>
             Secure payment gateways and revenue settlements
           </li>
         </ul>
-        <a asp-controller="Home" asp-action="About" class="btn-hero-primary mt-3" style="display: inline-flex;">
+        <a asp-controller="Home" asp-action="About" class="btn-vn-primary mt-3" style="display: inline-flex;">
           Learn More <i class="bi bi-arrow-right"></i>
         </a>
       </div>
@@ -145,12 +164,12 @@
 <section class="vn-stations">
   <div class="container">
     <div class="text-center">
-      <span class="badge-vn">Partner Network</span>
-      <h2 class="section-title">Stations Powered by <span class="gradient-text">VoltNet</span></h2>
-      <p class="section-subtitle">Browse top-rated independently owned stations running on our smart management platform.</p>
+      <span class="badge-vn vn-reveal">Partner Network</span>
+      <h2 class="section-title vn-reveal" style="transition-delay: 100ms;">Stations Powered by <span style="color: var(--vn-green);">VoltNet</span></h2>
+      <p class="section-subtitle vn-reveal" style="transition-delay: 200ms;">Browse top-rated independently owned stations running on our smart management platform.</p>
     </div>
     <div class="row g-4">
-      <div class="col-lg-4 col-md-6 animate-on-scroll">
+      <div class="col-lg-4 col-md-6 vn-reveal">
         <div class="station-card">
           <div class="station-img">
             <span class="station-status open">● Open Now</span>
@@ -176,7 +195,7 @@
           </div>
         </div>
       </div>
-      <div class="col-lg-4 col-md-6 animate-on-scroll">
+      <div class="col-lg-4 col-md-6 vn-reveal">
         <div class="station-card">
           <div class="station-img">
             <span class="station-status open">● Open Now</span>
@@ -202,7 +221,7 @@
           </div>
         </div>
       </div>
-      <div class="col-lg-4 col-md-6 animate-on-scroll">
+      <div class="col-lg-4 col-md-6 vn-reveal">
         <div class="station-card">
           <div class="station-img">
             <span class="station-status open">● Open Now</span>
@@ -229,8 +248,8 @@
         </div>
       </div>
     </div>
-    <div class="text-center mt-5 animate-on-scroll">
-      <a asp-controller="Home" asp-action="Stations" class="btn-hero-secondary" style="display: inline-flex; align-items: center; gap: 8px;">
+    <div class="text-center mt-5 vn-reveal">
+      <a asp-controller="Home" asp-action="Stations" class="btn-vn-secondary" style="display: inline-flex; align-items: center; gap: 8px;">
         View All Stations <i class="bi bi-arrow-right"></i>
       </a>
     </div>
@@ -241,12 +260,12 @@
 <section class="vn-how-it-works">
   <div class="container">
     <div class="text-center">
-      <span class="badge-vn">For Drivers</span>
-      <h2 class="section-title">How the <span class="gradient-text">App Works</span></h2>
-      <p class="section-subtitle">Start charging your EV in just 4 simple steps at any partner station.</p>
+      <span class="badge-vn vn-reveal">For Drivers</span>
+      <h2 class="section-title vn-reveal" style="transition-delay: 100ms;">How the <span style="color: var(--vn-green);">App Works</span></h2>
+      <p class="section-subtitle vn-reveal" style="transition-delay: 200ms;">Start charging your EV in just 4 simple steps at any partner station.</p>
     </div>
     <div class="row g-4">
-      <div class="col-lg-3 col-md-6 animate-on-scroll">
+      <div class="col-lg-3 col-md-6 vn-reveal">
         <div class="step-card">
           <div class="step-connector d-none d-lg-block"></div>
           <div class="step-number">1</div>
@@ -254,7 +273,7 @@
           <p>Sign up on our platform to access hundreds of partner stations.</p>
         </div>
       </div>
-      <div class="col-lg-3 col-md-6 animate-on-scroll">
+      <div class="col-lg-3 col-md-6 vn-reveal">
         <div class="step-card">
           <div class="step-connector d-none d-lg-block"></div>
           <div class="step-number">2</div>
@@ -262,7 +281,7 @@
           <p>Browse nearby stations with real-time availability and pricing.</p>
         </div>
       </div>
-      <div class="col-lg-3 col-md-6 animate-on-scroll">
+      <div class="col-lg-3 col-md-6 vn-reveal">
         <div class="step-card">
           <div class="step-connector d-none d-lg-block"></div>
           <div class="step-number">3</div>
@@ -270,7 +289,7 @@
           <p>Reserve your slot, drive to the partner station, and start charging.</p>
         </div>
       </div>
-      <div class="col-lg-3 col-md-6 animate-on-scroll">
+      <div class="col-lg-3 col-md-6 vn-reveal">
         <div class="step-card">
           <div class="step-number">4</div>
           <h4>Pay & Go</h4>
@@ -285,13 +304,13 @@
 <section class="vn-pricing-preview" style="padding: 6rem 0; background: var(--vn-dark-2);">
   <div class="container">
     <div class="text-center">
-      <span class="badge-vn">Solutions</span>
-      <h2 class="section-title">Tailored <span class="gradient-text">Software Plans</span></h2>
-      <p class="section-subtitle">Whether you're a driver looking to charge or an owner looking to scale.</p>
+      <span class="badge-vn vn-reveal">Solutions</span>
+      <h2 class="section-title vn-reveal" style="transition-delay: 100ms;">Tailored <span style="color: var(--vn-green);">Software Plans</span></h2>
+      <p class="section-subtitle vn-reveal" style="transition-delay: 200ms;">Whether you're a driver looking to charge or an owner looking to scale.</p>
     </div>
     <div class="row g-4 justify-content-center">
-      <div class="col-lg-4 col-md-6 animate-on-scroll">
-        <div class="feature-card text-start" style="padding: 2rem;">
+      <div class="col-lg-4 col-md-6 vn-reveal">
+        <div class="feature-card vn-card p-4 h-100 text-start" style="padding: 2rem;">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <h4 class="mb-0">EV Drivers</h4>
             <span class="badge-vn" style="margin-bottom: 0; font-size: 0.65rem;">FREE</span>
@@ -307,8 +326,8 @@
           </ul>
         </div>
       </div>
-      <div class="col-lg-4 col-md-6 animate-on-scroll">
-        <div class="feature-card text-start" style="padding: 2rem; border-color: rgba(0, 212, 170, 0.3);">
+      <div class="col-lg-4 col-md-6 vn-reveal">
+        <div class="feature-card vn-card p-4 h-100 text-start" style="padding: 2rem; border-color: rgba(0, 212, 170, 0.3);">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <h4 class="mb-0">Station Owners</h4>
             <span class="badge-vn" style="margin-bottom: 0; font-size: 0.65rem;">ERP PRO</span>
@@ -325,8 +344,8 @@
         </div>
       </div>
     </div>
-    <div class="text-center mt-5 animate-on-scroll">
-      <a asp-controller="Home" asp-action="Pricing" class="btn-hero-primary" style="display: inline-flex; align-items: center; gap: 8px;">
+    <div class="text-center mt-5 vn-reveal">
+      <a asp-controller="Home" asp-action="Pricing" class="btn-vn-primary" style="display: inline-flex; align-items: center; gap: 8px;">
         View Pricing Details <i class="bi bi-arrow-right"></i>
       </a>
     </div>
@@ -336,14 +355,14 @@
 <!-- ═══════════════ CTA ═══════════════ -->
 <section class="vn-cta">
   <div class="container">
-    <div class="cta-box animate-on-scroll">
-      <h2>Join the <span class="gradient-text">VoltNet Network</span></h2>
-      <p>Drivers: charge seamlessly. Station Owners: manage powerfully.</p>
+    <div class="cta-box vn-reveal">
+      <h2 class="vn-reveal" style="transition-delay: 100ms;">Join the <span style="color: var(--vn-green);">VoltNet Network</span></h2>
+      <p class="vn-reveal" style="transition-delay: 200ms;">Drivers: charge seamlessly. Station Owners: manage powerfully.</p>
       <div class="d-flex gap-3 justify-content-center flex-wrap">
-        <a href="/register" class="btn-hero-primary">
+        <a href="/register" class="btn-vn-primary">
           Create Account <i class="bi bi-arrow-right"></i>
         </a>
-        <a asp-controller="Home" asp-action="Contact" class="btn-hero-secondary">
+        <a asp-controller="Home" asp-action="Contact" class="btn-vn-secondary">
           <i class="bi bi-chat-dots me-2"></i> Contact Sales
         </a>
       </div>

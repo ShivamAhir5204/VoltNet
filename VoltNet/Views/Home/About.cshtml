@@ -5,40 +5,40 @@
 }
 
 <!-- Page Hero -->
-<section class="vn-inner-hero">
-    <div class="container">
-        <h1 class="inner-hero-title">The Software Behind <span class="gradient-text">Smart Charging</span></h1>
-        <ul class="breadcrumb-vn">
-            <li><a asp-controller="Home" asp-action="Index">Home</a></li>
-            <li>About Us</li>
-        </ul>
+<section class="vn-inner-hero" style="padding: 160px 0 80px 0; background: var(--vn-bg); border-bottom: 1px solid var(--vn-border);">
+    <div class="container text-center">
+        <span class="badge-vn vn-reveal">About Us</span>
+        <h1 class="section-title vn-reveal" style="font-size: 3.5rem; transition-delay: 100ms;">The Software Behind <span style="color: var(--vn-green);">Smart Charging</span></h1>
+        <p class="section-subtitle mx-auto vn-reveal" style="max-width: 600px; transition-delay: 200ms;">We are building the digital ecosystem that powers the future of sustainable EV mobility.</p>
     </div>
 </section>
 
 <!-- Our Story -->
-<section class="vn-about" style="padding-top: 4rem;">
+<section class="vn-about" style="padding: 100px 0;">
     <div class="container">
         <div class="row align-items-center g-5">
-            <div class="col-lg-6 animate-on-scroll">
-                <img src="/usersite/img/about-ev.jpg" alt="VoltNet Story" class="img-fluid rounded" style="border: 1px solid rgba(0, 212, 170, 0.15);">
+            <div class="col-lg-6 vn-reveal">
+                <div class="about-img-wrapper" style="position: relative;">
+                    <img src="/usersite/img/about-ev.jpg" alt="VoltNet Story" class="img-fluid rounded-4 shadow-lg" style="height: 500px; width: 100%; object-fit: cover; border: 1px solid var(--vn-border);">
+                </div>
             </div>
-            <div class="col-lg-6 animate-on-scroll">
-                <span class="badge-vn">Our Mission</span>
-                <h2 class="section-title">Connecting the <span class="gradient-text">EV Ecosystem</span></h2>
-                <p class="text-secondary mb-4">
+            <div class="col-lg-6">
+                <span class="badge-vn vn-reveal">Our Mission</span>
+                <h2 class="section-title vn-reveal" style="transition-delay: 100ms;">Connecting the <span style="color: var(--vn-green);">EV Ecosystem</span></h2>
+                <p class="text-secondary mb-4 vn-reveal" style="font-size: 1.1rem; line-height: 1.7; transition-delay: 200ms;">
                     Founded in 2023, VoltNet is a software development company focused purely on electric vehicle infrastructure. We don't own charging stations; instead, we build the digital backbone that makes owning and operating them seamless and profitable.
                 </p>
-                <p class="text-secondary mb-4">
+                <p class="text-secondary mb-5 vn-reveal" style="font-size: 1.1rem; line-height: 1.7; transition-delay: 300ms;">
                     Our dual-sided platform provides Station Owners with a powerful Enterprise Resource Planning (ERP) suite to manage operations, billing, and analytics. Simultaneously, we provide EV Drivers with an intuitive platform to discover partner stations, book slots, and pay securely.
                 </p>
-                <div class="row g-4 mt-2">
+                <div class="row g-4 mt-2 vn-reveal" style="transition-delay: 400ms;">
                     <div class="col-6">
-                        <h3 class="gradient-text mb-1" style="font-size: 2rem; font-weight: 800;">2023</h3>
-                        <p class="text-secondary text-sm">Year Founded</p>
+                        <h3 class="mb-1" style="font-family: 'Space Grotesk'; font-size: 2.5rem; font-weight: 800; color: var(--vn-dark);">2023</h3>
+                        <p class="text-uppercase small fw-bold" style="color: var(--vn-text-muted); letter-spacing: 1px;">Year Founded</p>
                     </div>
                     <div class="col-6">
-                        <h3 class="gradient-text mb-1" style="font-size: 2rem; font-weight: 800;">100%</h3>
-                        <p class="text-secondary text-sm">Software Focused</p>
+                        <h3 class="mb-1" style="font-family: 'Space Grotesk'; font-size: 2.5rem; font-weight: 800; color: var(--vn-green);">100%</h3>
+                        <p class="text-uppercase small fw-bold" style="color: var(--vn-text-muted); letter-spacing: 1px;">Software Focused</p>
                     </div>
                 </div>
             </div>
@@ -47,68 +47,69 @@
 </section>
 
 <!-- Stats -->
-<section style="background: var(--vn-dark-card); padding: 4rem 0; border-top: 1px solid var(--vn-border); border-bottom: 1px solid var(--vn-border);">
+<section style="background: linear-gradient(145deg, #111A1A 0%, #1a2f24 100%); padding: 6rem 0; border-top: 1px solid rgba(46, 157, 84, 0.15); border-bottom: 1px solid rgba(46, 157, 84, 0.15);">
     <div class="container">
         <div class="row g-4 text-center">
-            <div class="col-md-3 col-6 animate-on-scroll">
-                <div class="hero-stat-number gradient-text" data-count="500" data-suffix="+">0+</div>
-                <div class="hero-stat-label">Stations Running VoltNet</div>
+            <div class="col-md-3 col-6 vn-reveal">
+                <div class="mb-2" style="font-family: 'Space Grotesk'; font-size: 3.5rem; font-weight: 800; color: var(--vn-white);"><span data-count="500">0</span>+</div>
+                <div class="text-uppercase small fw-bold" style="color: rgba(255,255,255,0.7); letter-spacing: 1px;">Stations Running VoltNet</div>
             </div>
-            <div class="col-md-3 col-6 animate-on-scroll">
-                <div class="hero-stat-number gradient-text" data-count="150" data-suffix="K+">0K+</div>
-                <div class="hero-stat-label">Drivers Registered</div>
+            <div class="col-md-3 col-6 vn-reveal" style="transition-delay: 100ms;">
+                <div class="mb-2" style="font-family: 'Space Grotesk'; font-size: 3.5rem; font-weight: 800; color: var(--vn-green);"><span data-count="150">0</span>K+</div>
+                <div class="text-uppercase small fw-bold" style="color: rgba(255,255,255,0.7); letter-spacing: 1px;">Drivers Registered</div>
             </div>
-            <div class="col-md-3 col-6 animate-on-scroll">
-                <div class="hero-stat-number gradient-text" data-count="45" data-suffix="">0</div>
-                <div class="hero-stat-label">Cities Reached</div>
+            <div class="col-md-3 col-6 vn-reveal" style="transition-delay: 200ms;">
+                <div class="mb-2" style="font-family: 'Space Grotesk'; font-size: 3.5rem; font-weight: 800; color: var(--vn-white);"><span data-count="45">0</span></div>
+                <div class="text-uppercase small fw-bold" style="color: rgba(255,255,255,0.7); letter-spacing: 1px;">Cities Reached</div>
             </div>
-            <div class="col-md-3 col-6 animate-on-scroll">
-                <div class="hero-stat-number gradient-text" data-count="2" data-suffix="M+">0M+</div>
-                <div class="hero-stat-label">API Calls Daily</div>
+            <div class="col-md-3 col-6 vn-reveal" style="transition-delay: 300ms;">
+                <div class="mb-2" style="font-family: 'Space Grotesk'; font-size: 3.5rem; font-weight: 800; color: var(--vn-green);"><span data-count="2">0</span>M+</div>
+                <div class="text-uppercase small fw-bold" style="color: rgba(255,255,255,0.7); letter-spacing: 1px;">API Calls Daily</div>
             </div>
         </div>
     </div>
 </section>
 
 <!-- Leadership Team -->
-<section style="padding: 6rem 0;">
+<section style="padding: 100px 0;">
     <div class="container">
-        <div class="text-center mb-5">
-            <span class="badge-vn">Leadership</span>
-            <h2 class="section-title">Meet the <span class="gradient-text">Developers</span></h2>
-            <p class="section-subtitle">The software engineers and architects building the platform.</p>
+        <div class="text-center">
+            <span class="badge-vn vn-reveal">Leadership</span>
+            <h2 class="section-title vn-reveal" style="transition-delay: 100ms;">Meet the <span style="color: var(--vn-green);">Developers</span></h2>
+            <p class="section-subtitle vn-reveal" style="transition-delay: 200ms;">The software engineers and architects building the platform.</p>
         </div>
-        <div class="row g-4">
-            <div class="col-12 animate-on-scroll mb-5">
-                <img src="/usersite/img/team-office.jpg" alt="VoltNet Tech Team" class="img-fluid rounded shadow-lg" style="border: 1px solid rgba(0,212,170,0.2); max-height: 400px; width: 100%; object-fit: cover;">
+        <div class="row g-4 mt-4">
+            <div class="col-12 vn-reveal mb-4" style="transition-delay: 300ms;">
+                <img src="/usersite/img/team-office.jpg" alt="VoltNet Tech Team" class="img-fluid rounded-4 shadow-lg" style="border: 1px solid var(--vn-border); max-height: 500px; width: 100%; object-fit: cover;">
             </div>
-            <!-- Standard Placeholder profiles for team -->
-            <div class="col-lg-3 col-md-6 animate-on-scroll">
-                <div class="team-card p-4">
-                    <div class="testimonial-avatar mx-auto mb-3" style="width: 80px; height: 80px; font-size: 1.5rem;">VK</div>
-                    <h5 class="mb-1 text-white">Vikram Kapoor</h5>
-                    <p class="text-secondary small mb-0">Founder & CEO</p>
+            
+            <!-- Profiles -->
+            <div class="col-lg-3 col-md-6 vn-reveal">
+                <div class="vn-card text-center p-4 h-100" style="background: var(--vn-white); border: 1px solid var(--vn-border); border-radius: var(--vn-radius-md);">
+                    <div class="profile-avatar mx-auto mb-3 shadow-sm" style="width: 80px; height: 80px; font-size: 1.5rem; background: var(--vn-dark); color: var(--vn-white);">VK</div>
+                    <h5 class="mb-1" style="font-weight: 700; color: var(--vn-dark);">Vikram Kapoor</h5>
+                    <p class="text-muted small mb-0 fw-semibold text-uppercase">Founder & CEO</p>
                 </div>
             </div>
-            <div class="col-lg-3 col-md-6 animate-on-scroll">
-                <div class="team-card p-4">
-                    <div class="testimonial-avatar mx-auto mb-3" style="width: 80px; height: 80px; font-size: 1.5rem;">AR</div>
-                    <h5 class="mb-1 text-white">Ananya Reddy</h5>
-                    <p class="text-secondary small mb-0">Chief Technology Officer</p>
+            <div class="col-lg-3 col-md-6 vn-reveal" style="transition-delay: 100ms;">
+                <div class="vn-card text-center p-4 h-100" style="background: var(--vn-white); border: 1px solid var(--vn-border); border-radius: var(--vn-radius-md);">
+                    <div class="profile-avatar mx-auto mb-3 shadow-sm" style="width: 80px; height: 80px; font-size: 1.5rem; background: var(--vn-green-pale); color: var(--vn-green);">AR</div>
+                    <h5 class="mb-1" style="font-weight: 700; color: var(--vn-dark);">Ananya Reddy</h5>
+                    <p class="text-muted small mb-0 fw-semibold text-uppercase">Chief Technology Officer</p>
                 </div>
             </div>
-            <div class="col-lg-3 col-md-6 animate-on-scroll">
-                <div class="team-card p-4">
-                    <div class="testimonial-avatar mx-auto mb-3" style="width: 80px; height: 80px; font-size: 1.5rem;">MS</div>
-                    <h5 class="mb-1 text-white">Mohit Sharma</h5>
-                    <p class="text-secondary small mb-0">Head of Product</p>
+            <div class="col-lg-3 col-md-6 vn-reveal" style="transition-delay: 200ms;">
+                <div class="vn-card text-center p-4 h-100" style="background: var(--vn-white); border: 1px solid var(--vn-border); border-radius: var(--vn-radius-md);">
+                    <div class="profile-avatar mx-auto mb-3 shadow-sm" style="width: 80px; height: 80px; font-size: 1.5rem; background: var(--vn-bg); color: var(--vn-dark);">MS</div>
+                    <h5 class="mb-1" style="font-weight: 700; color: var(--vn-dark);">Mohit Sharma</h5>
+                    <p class="text-muted small mb-0 fw-semibold text-uppercase">Head of Product</p>
                 </div>
             </div>
-            <div class="col-lg-3 col-md-6 animate-on-scroll">
-                <div class="team-card p-4">
-                    <div class="testimonial-avatar mx-auto mb-3" style="width: 80px; height: 80px; font-size: 1.5rem;">PD</div>
-                    <h5 class="mb-1 text-white">Priya Desai</h5>
-                    <p class="text-secondary small mb-0">Lead Cloud Architect</p>
+            <div class="col-lg-3 col-md-6 vn-reveal" style="transition-delay: 300ms;">
+                <div class="vn-card text-center p-4 h-100" style="background: var(--vn-white); border: 1px solid var(--vn-border); border-radius: var(--vn-radius-md);">
+                    <div class="profile-avatar mx-auto mb-3 shadow-sm" style="width: 80px; height: 80px; font-size: 1.5rem; background: rgba(0,0,0,0.05); color: var(--vn-text-muted);">PD</div>
+                    <h5 class="mb-1" style="font-weight: 700; color: var(--vn-dark);">Priya Desai</h5>
+                    <p class="text-muted small mb-0 fw-semibold text-uppercase">Lead Cloud Architect</p>
                 </div>
             </div>
         </div>

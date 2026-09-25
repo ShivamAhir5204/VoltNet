@@ -5,78 +5,76 @@
 }
 
 <!-- Page Hero -->
-<section class="vn-inner-hero">
-    <div class="container">
-        <h1 class="inner-hero-title">Transparent <span class="gradient-text">Software Pricing</span></h1>
-        <ul class="breadcrumb-vn">
-            <li><a asp-controller="Home" asp-action="Index">Home</a></li>
-            <li>Pricing</li>
-        </ul>
+<section class="vn-inner-hero" style="padding: 160px 0 80px 0; background: var(--vn-bg); border-bottom: 1px solid var(--vn-border);">
+    <div class="container text-center">
+        <span class="badge-vn vn-reveal">Pricing</span>
+        <h1 class="section-title vn-reveal" style="font-size: 3.5rem; transition-delay: 100ms;">Transparent <span style="color: var(--vn-green);">Software Pricing</span></h1>
+        <p class="section-subtitle mx-auto vn-reveal" style="max-width: 600px; transition-delay: 200ms;">Whether you're a driver looking to charge, or an owner looking to scale.</p>
     </div>
 </section>
 
 <!-- Pricing Tables -->
-<section style="padding: 5rem 0;">
+<section style="padding: 100px 0; background: var(--vn-white);">
     <div class="container">
-        
-        <div class="text-center mb-5">
-            <h2 class="text-white">Choose Your Profile</h2>
-            <p class="text-secondary">Are you an EV driver looking to charge, or a station owner looking to manage?</p>
-        </div>
-
         <div class="row g-4 justify-content-center align-items-center">
             
             <!-- Drivers -->
-            <div class="col-lg-4 col-md-6 animate-on-scroll">
-                <div class="pricing-card shadow-lg" style="border-color: rgba(255,255,255,0.1);">
-                    <h3 class="mb-2">EV Drivers</h3>
-                    <p class="text-secondary small mb-4">Book & Pay for Charging</p>
+            <div class="col-lg-4 col-md-6 vn-reveal" style="transition-delay: 100ms;">
+                <div class="feature-card vn-card text-start h-100 d-flex flex-column" style="padding: 2rem 1.5rem; background: var(--vn-bg); border: 1px solid var(--vn-border); border-radius: var(--vn-radius-lg);">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="mb-0" style="font-weight: 700; color: var(--vn-dark);">EV Drivers</h4>
+                        <span class="badge-vn" style="margin-bottom: 0; font-size: 0.65rem;">FREE</span>
+                    </div>
+                    <p class="text-muted small mb-4">Book & Pay for Charging</p>
                     
                     <div class="mb-4">
-                        <span style="font-family: 'Space Grotesk'; font-size: 3rem; font-weight: 800; color: #fff;">Free</span>
-                        <span class="text-secondary">/app usage</span>
+                        <span style="font-family: 'Space Grotesk'; font-size: 2.5rem; font-weight: 800; color: var(--vn-dark);">₹0</span>
+                        <span class="text-muted">/app usage</span>
                     </div>
                     
-                    <div class="p-2 mb-4 rounded" style="background: rgba(255,255,255,0.05);">
-                        <span class="text-white fw-bold small">Pay only the station's kWh rate.</span>
+                    <div class="p-2 mb-4 rounded text-center" style="background: rgba(0,0,0,0.03);">
+                        <span class="text-dark fw-bold small">Pay only the station's kWh rate.</span>
                     </div>
                     
-                    <ul class="about-list text-start mb-4" style="font-size: 0.95rem;">
+                    <ul class="about-list text-start mb-5 flex-grow-1" style="font-size: 0.95rem;">
                         <li><span class="check-icon"><i class="bi bi-check-lg"></i></span> Access to all partner stations</li>
                         <li><span class="check-icon"><i class="bi bi-check-lg"></i></span> Real-time charger availability</li>
                         <li><span class="check-icon"><i class="bi bi-check-lg"></i></span> Advance slot booking</li>
                         <li><span class="check-icon"><i class="bi bi-check-lg"></i></span> Secure digital payments</li>
                     </ul>
                     
-                    <a href="/register" class="btn btn-hero-secondary w-100 p-3" style="border-radius: var(--vn-radius-sm);">Create Driver Account</a>
+                    <a href="/register" class="btn-vn-secondary w-100 text-center" style="padding: 12px 0;">Create Driver Account</a>
                 </div>
             </div>
             
             <!-- Station Owners (Featured) -->
-            <div class="col-lg-4 col-md-6 animate-on-scroll">
-                <div class="pricing-card featured shadow-lg">
-                    <span class="badge-vn position-absolute" style="top: -15px; left: 50%; transform: translateX(-50%);">FOR OWNERS</span>
-                    <h3 class="mb-2 text-white">Station ERP Pro</h3>
-                    <p class="text-secondary small mb-4">Complete Management Software</p>
+            <div class="col-lg-4 col-md-6 vn-reveal" style="transition-delay: 200ms;">
+                <div class="feature-card vn-card text-start h-100 d-flex flex-column position-relative" style="padding: 2rem 1.5rem; background: var(--vn-white); border: 2px solid var(--vn-green); border-radius: var(--vn-radius-lg); box-shadow: 0 10px 30px rgba(46, 157, 84, 0.1);">
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="mb-0" style="font-weight: 700; color: var(--vn-dark);">Station ERP Pro</h4>
+                        <span class="badge-vn" style="margin-bottom: 0; font-size: 0.65rem; background: var(--vn-green); color: white;">FOR OWNERS</span>
+                    </div>
+                    <p class="text-muted small mb-4">Complete Management Software</p>
                     
                     <div class="mb-4">
-                        <span style="font-family: 'Space Grotesk'; font-size: 3rem; font-weight: 800; color: #fff;">₹4,999</span>
-                        <span class="text-secondary">/mo per station</span>
+                        <span style="font-family: 'Space Grotesk'; font-size: 2.5rem; font-weight: 800; color: var(--vn-dark);">₹4,999</span>
+                        <span class="text-muted">/mo per station</span>
                     </div>
                     
-                    <div class="p-2 mb-4 rounded" style="background: rgba(0,212,170,0.1); border: 1px solid rgba(0,212,170,0.2);">
-                        <span class="text-primary fw-bold">14-Day Free Trial</span>
+                    <div class="p-2 mb-4 rounded text-center" style="background: rgba(46, 157, 84, 0.1); border: 1px solid rgba(46, 157, 84, 0.2);">
+                        <span class="fw-bold" style="color: var(--vn-green);">14-Day Free Trial</span>
                     </div>
                     
-                    <ul class="about-list text-start mb-4 text-white" style="font-size: 0.95rem;">
-                        <li><span class="check-icon"><i class="bi bi-check-lg"></i></span> Full OCPP 1.6J/2.0 integration</li>
-                        <li><span class="check-icon"><i class="bi bi-check-lg"></i></span> Remote start/stop & diagnostics</li>
-                        <li><span class="check-icon"><i class="bi bi-check-lg"></i></span> Dynamic pricing controls</li>
-                        <li><span class="check-icon"><i class="bi bi-check-lg"></i></span> Automated payment settlement (T+1)</li>
-                        <li><span class="check-icon"><i class="bi bi-check-lg"></i></span> Advanced revenue analytics</li>
+                    <ul class="about-list text-start mb-5 flex-grow-1" style="font-size: 0.95rem;">
+                        <li><span class="check-icon" style="background: rgba(46,157,84,0.15);"><i class="bi bi-check-lg" style="color: var(--vn-green);"></i></span> Full OCPP integration</li>
+                        <li><span class="check-icon" style="background: rgba(46,157,84,0.15);"><i class="bi bi-check-lg" style="color: var(--vn-green);"></i></span> Remote start/stop & diagnostics</li>
+                        <li><span class="check-icon" style="background: rgba(46,157,84,0.15);"><i class="bi bi-check-lg" style="color: var(--vn-green);"></i></span> Dynamic pricing controls</li>
+                        <li><span class="check-icon" style="background: rgba(46,157,84,0.15);"><i class="bi bi-check-lg" style="color: var(--vn-green);"></i></span> Automated settlement (T+1)</li>
+                        <li><span class="check-icon" style="background: rgba(46,157,84,0.15);"><i class="bi bi-check-lg" style="color: var(--vn-green);"></i></span> Advanced revenue analytics</li>
                     </ul>
                     
-                    <a href="/register" class="btn btn-hero-primary w-100 p-3" style="border-radius: var(--vn-radius-sm);">Start ERP Trial</a>
+                    <a href="/register" class="btn-vn-primary w-100 text-center" style="padding: 12px 0;">Start ERP Trial</a>
                 </div>
             </div>
             
@@ -85,14 +83,20 @@
 </section>
 
 <!-- Additional Fees Info -->
-<section style="background: var(--vn-dark-2); padding: 4rem 0;">
+<section style="background: var(--vn-bg); padding: 5rem 0; border-top: 1px solid var(--vn-border);">
     <div class="container text-center">
-        <h3 class="mb-4 text-white">For Station Owners</h3>
+        <h3 class="mb-4 vn-reveal" style="font-weight: 700; color: var(--vn-dark);">Additional Information</h3>
         <div class="row justify-content-center">
-            <div class="col-lg-8 text-secondary">
-                <p><strong>Setup Fee:</strong> Zero setup fee. Simply configure your OCPP hardware to point to our secure endpoints.</p>
-                <p><strong>Transaction Fees:</strong> A standard 1.5% payment gateway fee applies to all driver payments processed through the platform.</p>
-                <p><strong>Enterprise:</strong> Managing more than 10 stations? <a asp-controller="Home" asp-action="Contact" class="text-primary">Contact us</a> for custom volume pricing and white-label options.</p>
+            <div class="col-lg-8 text-muted">
+                <div class="vn-reveal" style="transition-delay: 100ms;">
+                    <p class="mb-3"><strong>Setup Fee:</strong> Zero setup fee. Simply configure your OCPP hardware to point to our secure endpoints.</p>
+                </div>
+                <div class="vn-reveal" style="transition-delay: 200ms;">
+                    <p class="mb-3"><strong>Transaction Fees:</strong> A standard 1.5% payment gateway fee applies to all driver payments processed through the platform.</p>
+                </div>
+                <div class="vn-reveal" style="transition-delay: 300ms;">
+                    <p class="mb-0"><strong>Enterprise:</strong> Managing more than 10 stations? <a asp-controller="Home" asp-action="Contact" style="color: var(--vn-green); font-weight: 600; text-decoration: none;">Contact us</a> for custom volume pricing and white-label options.</p>
+                </div>
             </div>
         </div>
     </div>

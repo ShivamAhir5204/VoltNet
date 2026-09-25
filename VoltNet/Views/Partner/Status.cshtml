@@ -5,56 +5,73 @@
     Layout = "~/Views/Shared/_UserLayout.cshtml";
 }
 
-<section style="padding: 120px 0 80px; min-height: 100vh;">
+<!-- Page Hero -->
+<section class="vn-inner-hero" style="padding: 160px 0 80px 0; background: var(--vn-bg); border-bottom: 1px solid var(--vn-border);">
+    <div class="container text-center">
+        <span class="badge-vn vn-reveal">Status</span>
+        <h1 class="section-title vn-reveal" style="font-size: 3.5rem; transition-delay: 100ms;">Application <span style="color: var(--vn-green);">Status</span></h1>
+        <p class="section-subtitle mx-auto vn-reveal" style="max-width: 600px; transition-delay: 200ms;">Track the progress of your partner application.</p>
+    </div>
+</section>
+
+<section style="padding: 100px 0; background: var(--vn-white); min-height: 50vh;">
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-lg-6">
-                <div style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 40px; text-align: center;">
+            <div class="col-lg-6 vn-reveal" style="transition-delay: 300ms;">
+                <div class="vn-card p-5 text-center" style="background: var(--vn-bg); border: 1px solid var(--vn-border); border-radius: var(--vn-radius-lg);">
 
                     @if (TempData["Success"] != null)
                     {
-                        <div class="alert alert-success">@TempData["Success"]</div>
+                        <div class="alert alert-success mb-4" style="background: rgba(46, 157, 84, 0.1); border: none; color: var(--vn-green); border-radius: var(--vn-radius-sm);">
+                            @TempData["Success"]
+                        </div>
                     }
 
                     @if (Model.Status == "Pending")
                     {
                         <div style="font-size: 4rem; margin-bottom: 16px;">⏳</div>
-                        <h2 style="color: #fff;">Application Under Review</h2>
-                        <p style="color: #94a3b8;">Your partner application is being reviewed by our team. We will notify you once a decision is made.</p>
-                        <div style="background: rgba(255,193,7,0.1); border: 1px solid rgba(255,193,7,0.3); border-radius: 12px; padding: 20px; margin-top: 20px;">
-                            <strong style="color: #ffc107;">Status: Pending Review</strong><br/>
-                            <small style="color: #94a3b8;">Applied on @Model.CreatedAt.ToString("dd MMM yyyy, hh:mm tt")</small>
+                        <h3 class="mb-3" style="font-weight: 700; color: var(--vn-dark);">Application Under Review</h3>
+                        <p class="text-muted mb-4">Your partner application is being reviewed by our team. We will notify you once a decision is made.</p>
+                        
+                        <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: var(--vn-radius-md); padding: 20px; display: inline-block; min-width: 80%;">
+                            <strong style="color: #d97706; font-size: 1.1rem; display: block; margin-bottom: 4px;">Status: Pending Review</strong>
+                            <small class="text-muted fw-semibold">Applied on @Model.CreatedAt.ToString("dd MMM yyyy, hh:mm tt")</small>
                         </div>
                     }
                     else if (Model.Status == "Approved")
                     {
                         <div style="font-size: 4rem; margin-bottom: 16px;">✅</div>
-                        <h2 style="color: #fff;">Application Approved!</h2>
-                        <p style="color: #94a3b8;">Congratulations! You are now a VoltNet Station Owner. Please log in again to access your Owner Dashboard.</p>
-                        <div style="background: rgba(0,212,170,0.1); border: 1px solid rgba(0,212,170,0.3); border-radius: 12px; padding: 20px; margin-top: 20px;">
-                            <strong style="color: #00d4aa;">Status: Approved</strong><br/>
-                            <small style="color: #94a3b8;">Approved on @(Model.ApprovedAt?.ToString("dd MMM yyyy") ?? "—")</small>
+                        <h3 class="mb-3" style="font-weight: 700; color: var(--vn-dark);">Application Approved!</h3>
+                        <p class="text-muted mb-4">Congratulations! You are now a VoltNet Station Owner. Please log in again to access your Owner Dashboard.</p>
+                        
+                        <div style="background: rgba(46, 157, 84, 0.1); border: 1px solid rgba(46, 157, 84, 0.3); border-radius: var(--vn-radius-md); padding: 20px; display: inline-block; min-width: 80%; margin-bottom: 30px;">
+                            <strong style="color: var(--vn-green); font-size: 1.1rem; display: block; margin-bottom: 4px;">Status: Approved</strong>
+                            <small class="text-muted fw-semibold">Approved on @(Model.ApprovedAt?.ToString("dd MMM yyyy") ?? "—")</small>
                         </div>
-                        <a href="/logout" class="btn-hero-primary mt-4 d-inline-block" style="text-decoration: none; padding: 12px 32px;">
-                            Re-Login as Station Owner <i class="bi bi-arrow-right"></i>
-                        </a>
+                        
+                        <div>
+                            <a href="/logout" class="btn-vn-primary" style="display: inline-flex; align-items: center; gap: 8px; padding: 14px 32px;">
+                                Re-Login as Station Owner <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
                     }
                     else
                     {
                         <div style="font-size: 4rem; margin-bottom: 16px;">❌</div>
-                        <h2 style="color: #fff;">Application Rejected</h2>
-                        <p style="color: #94a3b8;">Unfortunately, your partner application was not approved.</p>
+                        <h3 class="mb-3" style="font-weight: 700; color: var(--vn-dark);">Application Rejected</h3>
+                        <p class="text-muted mb-4">Unfortunately, your partner application was not approved.</p>
+                        
                         @if (!string.IsNullOrEmpty(Model.RejectionReason))
                         {
-                            <div style="background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 12px; padding: 20px; margin-top: 20px; text-align: left;">
-                                <strong style="color: #ef4444;">Reason:</strong>
-                                <p style="color: #e2e8f0; margin-bottom: 0;">@Model.RejectionReason</p>
+                            <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: var(--vn-radius-md); padding: 20px; text-align: left;">
+                                <strong style="color: #ef4444; display: block; margin-bottom: 8px;">Reason for Rejection:</strong>
+                                <p class="text-muted mb-0" style="line-height: 1.6;">@Model.RejectionReason</p>
                             </div>
                         }
                     }
 
-                    <div class="mt-4">
-                        <a href="/" style="color: #94a3b8; text-decoration: none;">← Back to Home</a>
+                    <div class="mt-5">
+                        <a href="/" class="text-muted fw-semibold" style="text-decoration: none;"><i class="bi bi-arrow-left me-2"></i>Back to Home</a>
                     </div>
                 </div>
             </div>
