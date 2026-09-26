@@ -32,7 +32,9 @@
             </div>
             <div class="col-md-6 form-group">
               <label for="State">State <span class="text-danger">*</span></label>
-              <input asp-for="State" class="form-control" required />
+              <select asp-for="State" class="form-control" id="State" required>
+                <option value="">-- Select State --</option>
+              </select>
               <span asp-validation-for="State" class="text-danger"></span>
             </div>
           </div>
@@ -97,6 +99,22 @@
                 sessionStorage.setItem('ownerPickLocationInitial', JSON.stringify({ lat: lat, lng: lng }));
             }
             window.location.href = '/owner/stations/PickLocation';
+        });
+
+        $(document).ready(function() {
+            var stateSelect = $('#State');
+            if (typeof indianStates !== 'undefined') {
+                indianStates.forEach(function(state) {
+                    var option = new Option(state, state);
+                    stateSelect.append(option);
+                });
+            }
+            if ($.fn.select2) {
+                stateSelect.select2({
+                    placeholder: "-- Select State --",
+                    width: '100%'
+                });
+            }
         });
     })();
     </script>

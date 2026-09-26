@@ -64,8 +64,16 @@
         </div>
       </div>
       <div class="col-lg-5 d-none d-lg-block text-center position-relative hero-visual-col">
-        <div class="charger-wrapper hero-seq-9 position-relative">
-          <img src="~/usersite/img/hero-charger.png" alt="Minimal EV Charger" class="img-fluid charger-img position-relative z-3" style="max-height: 500px; object-fit: contain;" />
+        <div class="charger-wrapper position-relative">
+          <div class="charger-frame-animation position-relative z-3" style="width: 100%; height: 650px; max-height: 650px; transform: scale(1.15);">
+            <img
+                id="heroChargerFrame"
+                src="~/usersite/img/hero-frames/frame_001.jpg"
+                alt="VoltNet EV Charging Station"
+                class="charger-frame-img img-fluid"
+                style="width: 100%; height: 100%; object-fit: contain;" onerror="this.onerror=null; this.src='/usersite/img/hero-charger12.png';"
+            />
+          </div>
           <div class="charger-shadow"></div>
         </div>
       </div>
@@ -301,7 +309,7 @@
 </section>
 
 <!-- ═══════════════ PRICING PREVIEW ═══════════════ -->
-<section class="vn-pricing-preview" style="padding: 6rem 0; background: var(--vn-dark-2);">
+<section class="vn-pricing-preview" style="padding: 6rem 0; background: var(--vn-bg);">
   <div class="container">
     <div class="text-center">
       <span class="badge-vn vn-reveal">Solutions</span>
@@ -316,7 +324,7 @@
             <span class="badge-vn" style="margin-bottom: 0; font-size: 0.65rem;">FREE</span>
           </div>
           <div class="mb-3">
-            <span style="font-family: 'Space Grotesk'; font-size: 2.5rem; font-weight: 800; color: var(--vn-primary);">₹0</span>
+            <span style="font-family: 'Inter'; font-size: 2.5rem; font-weight: 800; color: var(--vn-dark);">₹0</span>
             <span class="text-secondary">/platform fee</span>
           </div>
           <ul class="about-list" style="font-size: 0.9rem;">
@@ -333,7 +341,7 @@
             <span class="badge-vn" style="margin-bottom: 0; font-size: 0.65rem;">ERP PRO</span>
           </div>
           <div class="mb-3">
-            <span style="font-family: 'Space Grotesk'; font-size: 2.5rem; font-weight: 800; color: var(--vn-primary);">₹4999</span>
+            <span style="font-family: 'Inter'; font-size: 2.5rem; font-weight: 800; color: var(--vn-dark);">₹4999</span>
             <span class="text-secondary">/month</span>
           </div>
           <ul class="about-list" style="font-size: 0.9rem;">
@@ -369,3 +377,79 @@
     </div>
   </div>
 </section>
+
+
+
+@section Scripts {
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const framePaths = [
+        '/usersite/img/hero-frames/frame_001.png',
+        '/usersite/img/hero-frames/frame_002.png',
+        '/usersite/img/hero-frames/frame_003.png',
+        '/usersite/img/hero-frames/frame_004.png',
+        '/usersite/img/hero-frames/frame_005.png',
+        '/usersite/img/hero-frames/frame_006.png',
+        '/usersite/img/hero-frames/frame_007.png',
+        '/usersite/img/hero-frames/frame_008.png',
+        '/usersite/img/hero-frames/frame_009.png',
+        '/usersite/img/hero-frames/frame_010.png'
+    ];
+
+    const FRAME_DURATION = 200;
+    const frameCache = [];
+    let currentFrame = 0;
+    let framesLoaded = 0;
+    let lastFrameTime = 0;
+    let animationId;
+    
+    const heroImgElement = document.getElementById('heroChargerFrame');
+    
+    if (!heroImgElement) return;
+
+    // Respect prefers-reduced-motion
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Preload all images
+    framePaths.forEach((path, index) => {
+        const img = new Image();
+        img.onload = () => {
+            framesLoaded++;
+            if (framesLoaded === framePaths.length) {
+                // All frames loaded, start animation if motion is allowed
+                if (!prefersReducedMotion) {
+                    startAnimation();
+                }
+            }
+        };
+        img.onerror = () => {
+            console.error('Failed to load frame:', path);
+        };
+        img.src = path;
+        frameCache[index] = img;
+    });
+
+    function startAnimation() {
+        lastFrameTime = performance.now();
+        animationId = requestAnimationFrame(playFrames);
+    }
+
+    function playFrames(timestamp) {
+        if (!lastFrameTime) lastFrameTime = timestamp;
+        
+        const elapsed = timestamp - lastFrameTime;
+        
+        if (elapsed > FRAME_DURATION) {
+            // Update frame
+            currentFrame++;
+            if (currentFrame >= framePaths.length) return;
+            heroImgElement.src = frameCache[currentFrame].src;
+            
+            lastFrameTime = timestamp - (elapsed % FRAME_DURATION);
+        }
+        
+        animationId = requestAnimationFrame(playFrames);
+    }
+});
+</script>
+}

@@ -4,7 +4,7 @@
    ===================================================== */
 
 /* ── Google Fonts ──────────────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 /* ── CSS Variables ─────────────────────────────────── */
 :root {
@@ -96,6 +96,208 @@ section:not(.vn-hero) {
     section:not(.vn-hero) {
         padding: 60px 0;
     }
+}
+
+/* ── Inner Page Hero (About, Services, etc.) ──────── */
+.vn-inner-hero {
+    padding: 160px 0 80px 0;
+    background: var(--vn-bg);
+    border-bottom: 1px solid var(--vn-border);
+}
+
+@media (max-width: 768px) {
+    .vn-inner-hero {
+        padding: 120px 0 60px 0;
+    }
+    .vn-inner-hero .section-title {
+        font-size: 2.2rem !important;
+    }
+}
+
+/* ── Hero Badge (Homepage) ────────────────────────── */
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--vn-green-pale);
+    padding: 8px 18px;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--vn-green-dark);
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.3px;
+}
+
+.pulse-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--vn-green);
+    display: inline-block;
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+    0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(46, 157, 84, 0.4); }
+    50% { opacity: 0.8; transform: scale(1.2); box-shadow: 0 0 0 6px rgba(46, 157, 84, 0); }
+}
+
+/* ── Form Controls ────────────────────────────────── */
+.vn-form-control {
+    border: 1px solid var(--vn-border);
+    border-radius: var(--vn-radius-sm);
+    padding: 12px 16px;
+    font-size: 0.95rem;
+    color: var(--vn-dark);
+    transition: var(--vn-transition);
+    outline: none;
+}
+
+.vn-form-control:focus {
+    border-color: var(--vn-green);
+    box-shadow: 0 0 0 3px rgba(46, 157, 84, 0.12);
+}
+
+.vn-form-control::placeholder {
+    color: var(--vn-text-muted);
+    opacity: 0.7;
+}
+
+/* ── Mobile Responsive Fixes ──────────────────────── */
+@media (max-width: 576px) {
+    .hero-title {
+        font-size: 2.5rem !important;
+    }
+    .hero-description {
+        font-size: 1.05rem;
+    }
+    .hero-stats .d-flex {
+        gap: 1.5rem !important;
+    }
+    .hero-stats .fs-2 {
+        font-size: 1.5rem !important;
+    }
+    .cta-box {
+        padding: 2.5rem 1.5rem !important;
+    }
+    .cta-box h2 {
+        font-size: 1.5rem;
+    }
+    .footer-bottom p {
+        font-size: 0.8rem;
+    }
+    .btn-vn-primary, .btn-vn-secondary {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .vn-hero {
+        min-height: auto;
+        padding-top: 100px;
+        padding-bottom: 60px;
+    }
+    .vn-navbar .nav-link {
+        padding: 0.6rem 0.7rem !important;
+    }
+    .station-specs {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    .about-stat-box {
+        position: relative;
+        bottom: auto;
+        left: auto;
+        margin-top: 1rem;
+    }
+}
+
+/* ── Legacy Compatibility Classes ─────────────────── */
+.gradient-text {
+    color: var(--vn-green);
+}
+
+.inner-hero-title {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 700;
+    color: var(--vn-dark);
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.breadcrumb-vn {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    color: var(--vn-text-muted);
+    font-size: 0.9rem;
+}
+
+.breadcrumb-vn li + li::before {
+    content: '›';
+    margin-right: 8px;
+    color: var(--vn-text-muted);
+}
+
+.breadcrumb-vn a {
+    color: var(--vn-green);
+    text-decoration: none;
+}
+
+.btn-hero-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--vn-green);
+    color: var(--vn-white);
+    border: none;
+    padding: 12px 24px;
+    border-radius: var(--vn-radius-sm);
+    font-weight: 600;
+    transition: var(--vn-transition);
+    text-decoration: none;
+}
+
+.btn-hero-primary:hover {
+    background: var(--vn-green-dark);
+    color: var(--vn-white);
+    transform: translateY(-1px);
+}
+
+/* ── Accordion (FAQ) ──────────────────────────────── */
+.vn-accordion .accordion-item {
+    border: 1px solid var(--vn-border);
+    border-radius: var(--vn-radius-sm) !important;
+    margin-bottom: 0.75rem;
+    overflow: hidden;
+}
+
+.vn-accordion .accordion-button {
+    background: var(--vn-white);
+    color: var(--vn-dark);
+    font-weight: 600;
+    font-size: 0.95rem;
+    box-shadow: none;
+}
+
+.vn-accordion .accordion-button:not(.collapsed) {
+    background: var(--vn-green-pale);
+    color: var(--vn-green-dark);
+}
+
+.vn-accordion .accordion-button:focus {
+    box-shadow: 0 0 0 3px rgba(46, 157, 84, 0.12);
+}
+
+.vn-accordion .accordion-body {
+    color: var(--vn-text-muted);
+    font-size: 0.95rem;
+    line-height: 1.7;
 }
 
 .section-padding {

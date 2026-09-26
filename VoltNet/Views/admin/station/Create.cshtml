@@ -48,7 +48,9 @@
 
                 <div class="col-md-6 mb-3">
                     <label asp-for="State" class="form-label">State</label>
-                    <input asp-for="State" class="form-control" />
+                    <select asp-for="State" class="form-control" id="State" required>
+                        <option value="">-- Select State --</option>
+                    </select>
                     <span asp-validation-for="State" class="text-danger"></span>
                 </div>
             </div>
@@ -147,6 +149,30 @@
             var lng = document.getElementById('Longitude').value || '0';
             sessionStorage.setItem('pickLocationInitial', JSON.stringify({ lat: lat, lng: lng }));
             window.location.href = '/admin/Station/PickLocation?returnTo=Create';
+        });
+
+        $(document).ready(function() {
+            var stateSelect = $('#State');
+            if (typeof indianStates !== 'undefined') {
+                indianStates.forEach(function(state) {
+                    var option = new Option(state, state);
+                    stateSelect.append(option);
+                });
+            }
+            if ($.fn.select2) {
+                stateSelect.select2({
+                    placeholder: "-- Select State --",
+                    width: '100%'
+                });
+            }
+            // Restore state if available
+            var savedForm = sessionStorage.getItem('createFormData');
+            if (savedForm) {
+                var data = JSON.parse(savedForm);
+                if (data['State']) {
+                    stateSelect.val(data['State']).trigger('change');
+                }
+            }
         });
     })();
     </script>
