@@ -906,8 +906,6 @@ C:\Users\SHIVAM\Documents\GitHub\VoltNet\VoltNet\obj\Release\net10.0\compressed\
 C:\Users\SHIVAM\Documents\GitHub\VoltNet\VoltNet\obj\Release\net10.0\compressed\pva2fjowiy-{0}-4thskpq66d-4thskpq66d.gz
 C:\Users\SHIVAM\Documents\GitHub\VoltNet\VoltNet\obj\Release\net10.0\compressed\vc7lsn4f2b-{0}-hhlbsm01z9-hhlbsm01z9.gz
 C:\Users\SHIVAM\Documents\GitHub\VoltNet\VoltNet\obj\Release\net10.0\compressed\d9g4euxysx-{0}-l2erj52yxo-l2erj52yxo.gz
-C:\Users\SHIVAM\Documents\GitHub\VoltNet\VoltNet\obj\Release\net10.0\compressed\wq2cnd114g-{0}-13j9pidxiu-13j9pidxiu.gz
-C:\Users\SHIVAM\Documents\GitHub\VoltNet\VoltNet\obj\Release\net10.0\compressed\m69wm164e3-{0}-hthbtquehr-hthbtquehr.gz
 C:\Users\SHIVAM\Documents\GitHub\VoltNet\VoltNet\obj\Release\net10.0\compressed\v7i5rgu5w6-{0}-pg451r13a0-pg451r13a0.gz
 C:\Users\SHIVAM\Documents\GitHub\VoltNet\VoltNet\obj\Release\net10.0\compressed\k3gz07csmk-{0}-pg451r13a0-pg451r13a0.gz
 C:\Users\SHIVAM\Documents\GitHub\VoltNet\VoltNet\obj\Release\net10.0\staticwebassets.build.json
@@ -922,3 +920,7 @@ C:\Users\SHIVAM\Documents\GitHub\VoltNet\VoltNet\obj\Release\net10.0\refint\Volt
 C:\Users\SHIVAM\Documents\GitHub\VoltNet\VoltNet\obj\Release\net10.0\VoltNet.pdb
 C:\Users\SHIVAM\Documents\GitHub\VoltNet\VoltNet\obj\Release\net10.0\VoltNet.genruntimeconfig.cache
 C:\Users\SHIVAM\Documents\GitHub\VoltNet\VoltNet\obj\Release\net10.0\ref\VoltNet.dll
+C:\Users\SHIVAM\Documents\GitHub\VoltNet\VoltNet\obj\Release\net10.0\compressed\qflvcg7wu1-{0}-sc7gg5u911-sc7gg5u911.gz
+C:\Users\SHIVAM\Documents\GitHub\VoltNet\VoltNet\obj\Release\net10.0\compressed\gjt0hb7r4n-{0}-c18sjr1ndy-c18sjr1ndy.gz
+C:\Users\SHIVAM\Documents\GitHub\VoltNet\VoltNet\obj\Release\net10.0\compressed\wq2cnd114g-{0}-u56ubpkgg5-u56ubpkgg5.gz
+C:\Users\SHIVAM\Documents\GitHub\VoltNet\VoltNet\obj\Release\net10.0\compressed\m69wm164e3-{0}-lxyzpvn9r1-lxyzpvn9r1.gz

@@ -10,18 +10,19 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ── Scroll-triggered animations ──
-  const animElements = document.querySelectorAll('.animate-on-scroll');
+  const animElements = document.querySelectorAll('.animate-on-scroll, .vn-reveal, .vn-card, .vn-scale-reveal');
   if (animElements.length) {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry, index) => {
         if (entry.isIntersecting) {
+          // Stagger effect if there are multiple elements entering at once
           setTimeout(() => {
             entry.target.classList.add('visible');
-          }, index * 100);
+          }, index * 80);
           observer.unobserve(entry.target);
         }
       });
-    }, { threshold: 0.12 });
+    }, { threshold: 0.1 });
 
     animElements.forEach(el => observer.observe(el));
   }
@@ -74,6 +75,46 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { threshold: 0.5 });
 
     counters.forEach(el => counterObserver.observe(el));
+  }
+
+  // ── Scroll To Top Button ──
+  const scrollTopBtn = document.querySelector('.vn-scroll-top');
+  if (scrollTopBtn) {
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 400) {
+        scrollTopBtn.classList.add('visible');
+      } else {
+        scrollTopBtn.classList.remove('visible');
+      }
+    });
+
+    scrollTopBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
+  // ── Hero Subtle Mouse Parallax (Desktop Only) ──
+  const heroSection = document.querySelector('.vn-hero');
+  const chargerImg = document.querySelector('.charger-img');
+  
+  if (heroSection && chargerImg && window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+    heroSection.addEventListener('mousemove', (e) => {
+      // Calculate mouse position relative to center of screen, scaled down for subtlety
+      const x = (window.innerWidth / 2 - e.pageX) / 90;
+      const y = (window.innerHeight / 2 - e.pageY) / 90;
+      
+      chargerImg.style.transform = `translate(${x}px, ${y}px)`;
+    });
+
+    heroSection.addEventListener('mouseleave', () => {
+      chargerImg.style.transform = `translate(0px, 0px)`;
+      chargerImg.style.transition = `transform 0.5s ease-out`;
+    });
+    
+    heroSection.addEventListener('mouseenter', () => {
+      chargerImg.style.transition = `none`;
+    });
   }
 
 });

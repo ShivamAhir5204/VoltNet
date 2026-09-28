@@ -67,11 +67,11 @@
         <div class="charger-wrapper position-relative">
           <div class="charger-frame-animation position-relative z-3" style="width: 100%; height: 650px; max-height: 650px; transform: scale(1.15);">
             <img
-                id="heroChargerFrame"
-                src="~/usersite/img/hero-frames/frame_001.jpg"
+                src="~/usersite/img/hero-frames/frame_010.png"
                 alt="VoltNet EV Charging Station"
                 class="charger-frame-img img-fluid"
-                style="width: 100%; height: 100%; object-fit: contain;" onerror="this.onerror=null; this.src='/usersite/img/hero-charger12.png';"
+                style="width: 100%; height: 100%; object-fit: contain;"
+                onerror="this.onerror=null; this.src='/usersite/img/hero-charger12.png';"
             />
           </div>
           <div class="charger-shadow"></div>
@@ -379,77 +379,3 @@
 </section>
 
 
-
-@section Scripts {
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const framePaths = [
-        '/usersite/img/hero-frames/frame_001.png',
-        '/usersite/img/hero-frames/frame_002.png',
-        '/usersite/img/hero-frames/frame_003.png',
-        '/usersite/img/hero-frames/frame_004.png',
-        '/usersite/img/hero-frames/frame_005.png',
-        '/usersite/img/hero-frames/frame_006.png',
-        '/usersite/img/hero-frames/frame_007.png',
-        '/usersite/img/hero-frames/frame_008.png',
-        '/usersite/img/hero-frames/frame_009.png',
-        '/usersite/img/hero-frames/frame_010.png'
-    ];
-
-    const FRAME_DURATION = 200;
-    const frameCache = [];
-    let currentFrame = 0;
-    let framesLoaded = 0;
-    let lastFrameTime = 0;
-    let animationId;
-    
-    const heroImgElement = document.getElementById('heroChargerFrame');
-    
-    if (!heroImgElement) return;
-
-    // Respect prefers-reduced-motion
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    // Preload all images
-    framePaths.forEach((path, index) => {
-        const img = new Image();
-        img.onload = () => {
-            framesLoaded++;
-            if (framesLoaded === framePaths.length) {
-                // All frames loaded, start animation if motion is allowed
-                if (!prefersReducedMotion) {
-                    startAnimation();
-                }
-            }
-        };
-        img.onerror = () => {
-            console.error('Failed to load frame:', path);
-        };
-        img.src = path;
-        frameCache[index] = img;
-    });
-
-    function startAnimation() {
-        lastFrameTime = performance.now();
-        animationId = requestAnimationFrame(playFrames);
-    }
-
-    function playFrames(timestamp) {
-        if (!lastFrameTime) lastFrameTime = timestamp;
-        
-        const elapsed = timestamp - lastFrameTime;
-        
-        if (elapsed > FRAME_DURATION) {
-            // Update frame
-            currentFrame++;
-            if (currentFrame >= framePaths.length) return;
-            heroImgElement.src = frameCache[currentFrame].src;
-            
-            lastFrameTime = timestamp - (elapsed % FRAME_DURATION);
-        }
-        
-        animationId = requestAnimationFrame(playFrames);
-    }
-});
-</script>
-}
