@@ -1,0 +1,128 @@
+@model VoltNet.Models.Station
+@{
+    ViewData["Title"] = Model.Name;
+    ViewData["ActivePage"] = "Stations";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+    bool isOpen = ViewBag.IsOpen ?? false;
+}
+
+<!-- Page Hero -->
+<section class="vn-inner-hero" style="padding: 160px 0 80px 0; background: var(--vn-bg); border-bottom: 1px solid var(--vn-border);">
+    <div class="container text-center">
+        <span class="badge-vn vn-reveal">Station Details</span>
+        <h1 class="section-title vn-reveal" style="font-size: 3rem; transition-delay: 100ms;">@Model.Name</h1>
+        <p class="section-subtitle mx-auto vn-reveal" style="max-width: 600px; transition-delay: 200ms;"><i class="bi bi-geo-alt-fill"></i> @Model.Address, @Model.City, @Model.State</p>
+    </div>
+</section>
+
+<!-- Station Info Content -->
+<section style="padding: 80px 0;">
+    <div class="container">
+        <div class="row g-5">
+            <!-- Left Column: Details -->
+            <div class="col-lg-8 vn-reveal" style="transition-delay: 300ms;">
+                
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 style="font-weight: 700; color: var(--vn-text);"><i class="bi bi-info-circle me-2" style="color: var(--vn-green);"></i> Overview</h3>
+                    @if (isOpen)
+                    {
+                        <span class="station-status open" style="position: relative; top: auto; left: auto; padding: 8px 16px; font-size: 1rem;">● Open Now</span>
+                    }
+                    else
+                    {
+                        <span class="station-status" style="position: relative; top: auto; left: auto; background: rgba(239,68,68,0.15); color: #ef4444; padding: 8px 16px; font-size: 1rem;">● Closed</span>
+                    }
+                </div>
+
+                <div class="card" style="border: 1px solid var(--vn-border); border-radius: var(--vn-radius-md); box-shadow: var(--vn-shadow-sm); margin-bottom: 40px;">
+                    <div class="card-body p-4">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div style="color: var(--vn-text-muted); font-size: 0.9rem; font-weight: 600; text-transform: uppercase;">Operating Hours</div>
+                                <div style="font-size: 1.1rem; font-weight: 600; margin-top: 5px;">@Model.OpeningTime.ToString(@"hh\:mm") - @Model.ClosingTime.ToString(@"hh\:mm")</div>
+                            </div>
+                            <div class="col-md-6">
+                                <div style="color: var(--vn-text-muted); font-size: 0.9rem; font-weight: 600; text-transform: uppercase;">Total Chargers</div>
+                                <div style="font-size: 1.1rem; font-weight: 600; margin-top: 5px;">@Model.Chargers.Count</div>
+                            </div>
+                            <div class="col-md-6">
+                                <div style="color: var(--vn-text-muted); font-size: 0.9rem; font-weight: 600; text-transform: uppercase;">City</div>
+                                <div style="font-size: 1.1rem; font-weight: 600; margin-top: 5px;">@Model.City</div>
+                            </div>
+                            <div class="col-md-6">
+                                <div style="color: var(--vn-text-muted); font-size: 0.9rem; font-weight: 600; text-transform: uppercase;">State</div>
+                                <div style="font-size: 1.1rem; font-weight: 600; margin-top: 5px;">@Model.State</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="font-weight: 700; color: var(--vn-text); margin-bottom: 20px;"><i class="bi bi-ev-station me-2" style="color: var(--vn-green);"></i> Available Chargers</h3>
+                <div class="row g-3">
+                    @if (Model.Chargers != null && Model.Chargers.Any())
+                    {
+                        foreach (var charger in Model.Chargers)
+                        {
+                            <div class="col-md-6">
+                                <div class="card h-100" style="border: 1px solid var(--vn-border); border-radius: var(--vn-radius-sm); transition: transform 0.2s;">
+                                    <div class="card-body p-4">
+                                        <div class="d-flex justify-content-between align-items-start mb-3">
+                                            <h5 style="margin: 0; font-weight: 700;">@charger.Name</h5>
+                                            @if (charger.Status == "Active")
+                                            {
+                                                <span class="badge" style="background: #dcfce7; color: #16a34a; font-size: 0.8rem;">Active</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge" style="background: #f1f5f9; color: #64748b; font-size: 0.8rem;">@charger.Status</span>
+                                            }
+                                        </div>
+                                        <div class="d-flex align-items-center mb-2">
+                                            <i class="bi bi-plug" style="font-size: 1.2rem; color: var(--vn-green); margin-right: 10px;"></i>
+                                            <span style="font-weight: 600; color: var(--vn-text-muted);">Connector:</span>
+                                            <span class="ms-2" style="font-weight: 700;">@charger.ConnectorType</span>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <i class="bi bi-lightning-charge" style="font-size: 1.2rem; color: var(--vn-green); margin-right: 10px;"></i>
+                                            <span style="font-weight: 600; color: var(--vn-text-muted);">Power:</span>
+                                            <span class="ms-2" style="font-weight: 700;">@(charger.CapacityKw)kW</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="col-12 text-muted">
+                            <p>No chargers available at this station currently.</p>
+                        </div>
+                    }
+                </div>
+
+            </div>
+
+            <!-- Right Column: Booking & Map -->
+            <div class="col-lg-4 vn-reveal" style="transition-delay: 400ms;">
+                <div class="card" style="border: 1px solid var(--vn-border); border-radius: var(--vn-radius-md); box-shadow: var(--vn-shadow-sm); position: sticky; top: 100px;">
+                    <div class="card-body p-4 text-center">
+                        <i class="bi bi-calendar-check" style="font-size: 3rem; color: var(--vn-green); margin-bottom: 15px; display: block;"></i>
+                        <h4 style="font-weight: 700; margin-bottom: 15px;">Book a Slot</h4>
+                        <p style="color: var(--vn-text-muted); font-size: 0.95rem; margin-bottom: 25px;">Reserve a charger in advance and skip the waiting queue.</p>
+                        <button class="btn-vn-primary w-100" style="padding: 14px; font-size: 1.1rem;" onclick="alert('Booking functionality coming soon!')">Book Now</button>
+                    </div>
+                </div>
+
+                @if (Model.Latitude != 0 || Model.Longitude != 0)
+                {
+                    <div class="card mt-4" style="border: 1px solid var(--vn-border); border-radius: var(--vn-radius-md); box-shadow: var(--vn-shadow-sm); overflow: hidden;">
+                        <iframe width="100%" height="250" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?q=@Model.Latitude,@Model.Longitude&hl=en&z=14&amp;output=embed"></iframe>
+                        <div class="card-footer bg-white text-center p-3" style="border-top: 1px solid var(--vn-border);">
+                            <a href="https://www.google.com/maps/dir/?api=1&destination=@Model.Latitude,@Model.Longitude" target="_blank" class="btn-vn-secondary w-100"><i class="bi bi-cursor"></i> Get Directions</a>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</section>

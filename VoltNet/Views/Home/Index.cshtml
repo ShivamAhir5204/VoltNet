@@ -64,7 +64,7 @@
         </div>
       </div>
       <div class="col-lg-5 d-none d-lg-block text-center position-relative hero-visual-col">
-        <div class="charger-wrapper position-relative">
+        <div class="charger-wrapper hero-seq-9 position-relative">
           <div class="charger-frame-animation position-relative z-3" style="width: 100%; height: 650px; max-height: 650px; transform: scale(1.15);">
             <img
                 src="~/usersite/img/hero-frames/frame_010.png"
@@ -177,84 +177,47 @@
       <p class="section-subtitle vn-reveal" style="transition-delay: 200ms;">Browse top-rated independently owned stations running on our smart management platform.</p>
     </div>
     <div class="row g-4">
-      <div class="col-lg-4 col-md-6 vn-reveal">
-        <div class="station-card">
-          <div class="station-img">
-            <span class="station-status open">● Open Now</span>
-            <i class="bi bi-ev-station"></i>
+      @if (ViewBag.NearbyStations != null)
+      {
+        foreach (dynamic station in ViewBag.NearbyStations)
+        {
+          <div class="col-lg-3 col-md-6 vn-reveal">
+            <a href="/station/@station.Id" style="text-decoration: none; color: inherit; display: block;">
+              <div class="station-card" style="cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;">
+                <div class="station-img">
+                  @if ((bool)station.IsOpen)
+                  {
+                    <span class="station-status open">● Open Now</span>
+                  }
+                  else
+                  {
+                    <span class="station-status" style="background: rgba(239,68,68,0.15); color: #ef4444;">● Closed</span>
+                  }
+                  <i class="bi bi-ev-station"></i>
+                </div>
+                <div class="station-body">
+                  <h5>@station.Name</h5>
+                  <div class="station-meta"><i class="bi bi-geo-alt-fill"></i> @station.Address, @station.City</div>
+                  <div class="station-specs">
+                    <div class="station-spec">
+                      <div class="station-spec-value">@station.ChargerCount</div>
+                      <div class="station-spec-label">Chargers</div>
+                    </div>
+                    <div class="station-spec">
+                      <div class="station-spec-value">@station.Opening</div>
+                      <div class="station-spec-label">Opens</div>
+                    </div>
+                    <div class="station-spec">
+                      <div class="station-spec-value">@station.Closing</div>
+                      <div class="station-spec-label">Closes</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </a>
           </div>
-          <div class="station-body">
-            <h5>EcoCharge Hub — Hinjewadi</h5>
-            <div class="station-meta"><i class="bi bi-geo-alt-fill"></i> Phase 1, Hinjewadi, Pune</div>
-            <div class="station-specs">
-              <div class="station-spec">
-                <div class="station-spec-value">6</div>
-                <div class="station-spec-label">Chargers</div>
-              </div>
-              <div class="station-spec">
-                <div class="station-spec-value">150kW</div>
-                <div class="station-spec-label">Max Power</div>
-              </div>
-              <div class="station-spec">
-                <div class="station-spec-value">₹12</div>
-                <div class="station-spec-label">Per kWh</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-4 col-md-6 vn-reveal">
-        <div class="station-card">
-          <div class="station-img">
-            <span class="station-status open">● Open Now</span>
-            <i class="bi bi-ev-station"></i>
-          </div>
-          <div class="station-body">
-            <h5>PowerUp Point — BKC</h5>
-            <div class="station-meta"><i class="bi bi-geo-alt-fill"></i> Bandra Kurla Complex, Mumbai</div>
-            <div class="station-specs">
-              <div class="station-spec">
-                <div class="station-spec-value">10</div>
-                <div class="station-spec-label">Chargers</div>
-              </div>
-              <div class="station-spec">
-                <div class="station-spec-value">240kW</div>
-                <div class="station-spec-label">Max Power</div>
-              </div>
-              <div class="station-spec">
-                <div class="station-spec-value">₹14</div>
-                <div class="station-spec-label">Per kWh</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-4 col-md-6 vn-reveal">
-        <div class="station-card">
-          <div class="station-img">
-            <span class="station-status open">● Open Now</span>
-            <i class="bi bi-ev-station"></i>
-          </div>
-          <div class="station-body">
-            <h5>GreenGrid Plaza — Electronic City</h5>
-            <div class="station-meta"><i class="bi bi-geo-alt-fill"></i> Phase 2, Bengaluru</div>
-            <div class="station-specs">
-              <div class="station-spec">
-                <div class="station-spec-value">8</div>
-                <div class="station-spec-label">Chargers</div>
-              </div>
-              <div class="station-spec">
-                <div class="station-spec-value">120kW</div>
-                <div class="station-spec-label">Max Power</div>
-              </div>
-              <div class="station-spec">
-                <div class="station-spec-value">₹11</div>
-                <div class="station-spec-label">Per kWh</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+        }
+      }
     </div>
     <div class="text-center mt-5 vn-reveal">
       <a asp-controller="Home" asp-action="Stations" class="btn-vn-secondary" style="display: inline-flex; align-items: center; gap: 8px;">

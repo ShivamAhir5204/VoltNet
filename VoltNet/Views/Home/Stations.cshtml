@@ -16,34 +16,57 @@
 <!-- Filter & Search -->
 <section style="background: var(--vn-white); padding: 2.5rem 0; border-bottom: 1px solid var(--vn-border); box-shadow: var(--vn-shadow-sm);">
     <div class="container vn-reveal" style="transition-delay: 300ms;">
-        <div class="row g-3 align-items-center justify-content-center">
-            <div class="col-lg-4 col-md-6">
-                <div class="input-group">
-                    <span class="input-group-text bg-transparent text-muted" style="border-radius: var(--vn-radius-sm) 0 0 var(--vn-radius-sm); border-color: var(--vn-border);"><i class="bi bi-search"></i></span>
-                    <input type="text" class="form-control vn-form-control border-start-0 ps-0" placeholder="Search city, area, or station name..." style="border-radius: 0 var(--vn-radius-sm) var(--vn-radius-sm) 0; border-color: var(--vn-border);">
+        <form method="get" action="/Home/Stations">
+            <div class="row g-3 align-items-center justify-content-center">
+                <div class="col-lg-4 col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent text-muted" style="border-radius: var(--vn-radius-sm) 0 0 var(--vn-radius-sm); border-color: var(--vn-border);"><i class="bi bi-search"></i></span>
+                        <input type="text" name="q" value="@ViewBag.SearchQuery" class="form-control vn-form-control border-start-0 ps-0" placeholder="Search city, area, or station name..." style="border-radius: 0 var(--vn-radius-sm) var(--vn-radius-sm) 0; border-color: var(--vn-border);">
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-4">
+                    <select name="city" class="form-select vn-form-control" style="border-radius: var(--vn-radius-sm); border-color: var(--vn-border);">
+                        <option value="">All Cities</option>
+                        @if (ViewBag.Cities != null)
+                        {
+                            foreach (var city in ViewBag.Cities)
+                            {
+                                if (ViewBag.SearchCity == city)
+                                {
+                                    <option value="@city" selected>@city</option>
+                                }
+                                else
+                                {
+                                    <option value="@city">@city</option>
+                                }
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-lg-3 col-md-4">
+                    <select name="connector" class="form-select vn-form-control" style="border-radius: var(--vn-radius-sm); border-color: var(--vn-border);">
+                        <option value="">All Connector Types</option>
+                        @if (ViewBag.Connectors != null)
+                        {
+                            foreach (var connector in ViewBag.Connectors)
+                            {
+                                if (ViewBag.SearchConnector == connector)
+                                {
+                                    <option value="@connector" selected>@connector</option>
+                                }
+                                else
+                                {
+                                    <option value="@connector">@connector</option>
+                                }
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-lg-2 col-md-4 text-center text-md-start">
+                    <button type="submit" class="btn-vn-primary w-100" style="padding: 10px 0;">Search</button>
                 </div>
             </div>
-            <div class="col-lg-3 col-md-4">
-                <select class="form-select vn-form-control" style="border-radius: var(--vn-radius-sm); border-color: var(--vn-border);">
-                    <option value="">All Cities</option>
-                    <option value="Pune">Pune</option>
-                    <option value="Mumbai">Mumbai</option>
-                    <option value="Bengaluru">Bengaluru</option>
-                    <option value="Delhi">Delhi NCR</option>
-                </select>
-            </div>
-            <div class="col-lg-3 col-md-4">
-                <select class="form-select vn-form-control" style="border-radius: var(--vn-radius-sm); border-color: var(--vn-border);">
-                    <option value="">All Connector Types</option>
-                    <option value="CCS2">CCS2 (DC Fast)</option>
-                    <option value="CHAdeMO">CHAdeMO</option>
-                    <option value="Type2">Type 2 (AC)</option>
-                </select>
-            </div>
-            <div class="col-lg-2 col-md-4 text-center text-md-start">
-                <button class="btn-vn-primary w-100" style="padding: 10px 0;">Search</button>
-            </div>
-        </div>
+        </form>
     </div>
 </section>
 
@@ -51,97 +74,63 @@
 <section class="vn-stations" style="padding: 100px 0;">
     <div class="container">
         <div class="row g-4">
-            <!-- Row 1 -->
-            <div class="col-lg-4 col-md-6 vn-reveal" style="transition-delay: 100ms;">
-                <div class="station-card">
-                    <div class="station-img"><span class="station-status open">● Open Now</span><i class="bi bi-ev-station"></i></div>
-                    <div class="station-body">
-                        <h5>EcoCharge Hub — Hinjewadi</h5>
-                        <div class="station-meta"><i class="bi bi-geo-alt-fill"></i> Phase 1, Hinjewadi, Pune</div>
-                        <div class="station-specs">
-                            <div class="station-spec"><div class="station-spec-value">6</div><div class="station-spec-label">Chargers</div></div>
-                            <div class="station-spec"><div class="station-spec-value">150kW</div><div class="station-spec-label">Max Power</div></div>
-                            <div class="station-spec"><div class="station-spec-value">₹12</div><div class="station-spec-label">Per kWh</div></div>
+            @if (ViewBag.Stations != null)
+            {
+                var stations = ((IEnumerable<dynamic>)ViewBag.Stations).ToList();
+                if (stations.Count > 0)
+                {
+                    int delay = 100;
+                    foreach (var station in stations)
+                    {
+                        <div class="col-lg-4 col-md-6 vn-reveal" style="transition-delay: @(delay)ms;">
+                            <a href="/station/@station.Id" style="text-decoration: none; color: inherit; display: block;">
+                                <div class="station-card" style="cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;">
+                                    <div class="station-img">
+                                        @if (station.IsOpen)
+                                        {
+                                            <span class="station-status open">● Open Now</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="station-status" style="background: rgba(239,68,68,0.15); color: #ef4444;">● Closed</span>
+                                        }
+                                        <i class="bi bi-ev-station"></i>
+                                    </div>
+                                    <div class="station-body">
+                                        <h5>@station.Name</h5>
+                                        <div class="station-meta"><i class="bi bi-geo-alt-fill"></i> @station.Address, @station.City</div>
+                                        <div class="station-specs">
+                                            <div class="station-spec">
+                                                <div class="station-spec-value">@station.ChargerCount</div>
+                                                <div class="station-spec-label">Chargers</div>
+                                            </div>
+                                            <div class="station-spec">
+                                                <div class="station-spec-value">@(station.MaxPower)kW</div>
+                                                <div class="station-spec-label">Max Power</div>
+                                            </div>
+                                            <div class="station-spec">
+                                                <div class="station-spec-value">@station.Opening</div>
+                                                <div class="station-spec-label">Opens At</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
                         </div>
+                        delay += 100;
+                        if (delay > 300) delay = 100;
+                    }
+                }
+                else
+                {
+                    <div class="col-12 text-center text-muted" style="padding: 60px 0;">
+                        <i class="bi bi-ev-station" style="font-size: 3rem; color: #cbd5e1;"></i>
+                        <h4 class="mt-3">No stations found</h4>
+                        <p>Try adjusting your search filters.</p>
+                        <a href="/Home/Stations" class="btn-vn-secondary mt-3">Clear Filters</a>
                     </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6 vn-reveal" style="transition-delay: 200ms;">
-                <div class="station-card">
-                    <div class="station-img"><span class="station-status open">● Open Now</span><i class="bi bi-ev-station"></i></div>
-                    <div class="station-body">
-                        <h5>VoltNet Supercharger — BKC</h5>
-                        <div class="station-meta"><i class="bi bi-geo-alt-fill"></i> Bandra Kurla Complex, Mumbai</div>
-                        <div class="station-specs">
-                            <div class="station-spec"><div class="station-spec-value">10</div><div class="station-spec-label">Chargers</div></div>
-                            <div class="station-spec"><div class="station-spec-value">240kW</div><div class="station-spec-label">Max Power</div></div>
-                            <div class="station-spec"><div class="station-spec-value">₹14</div><div class="station-spec-label">Per kWh</div></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6 vn-reveal" style="transition-delay: 300ms;">
-                <div class="station-card">
-                    <div class="station-img"><span class="station-status open">● Open Now</span><i class="bi bi-ev-station"></i></div>
-                    <div class="station-body">
-                        <h5>GreenGrid Plaza — Electronic City</h5>
-                        <div class="station-meta"><i class="bi bi-geo-alt-fill"></i> Phase 2, Electronic City, Bengaluru</div>
-                        <div class="station-specs">
-                            <div class="station-spec"><div class="station-spec-value">8</div><div class="station-spec-label">Chargers</div></div>
-                            <div class="station-spec"><div class="station-spec-value">120kW</div><div class="station-spec-label">Max Power</div></div>
-                            <div class="station-spec"><div class="station-spec-value">₹11</div><div class="station-spec-label">Per kWh</div></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Row 2 -->
-            <div class="col-lg-4 col-md-6 vn-reveal" style="transition-delay: 100ms;">
-                <div class="station-card">
-                    <div class="station-img"><span class="station-status open">● Open Now</span><i class="bi bi-ev-station"></i></div>
-                    <div class="station-body">
-                        <h5>VoltNet Express — Viman Nagar</h5>
-                        <div class="station-meta"><i class="bi bi-geo-alt-fill"></i> Phoenix Mall, Viman Nagar, Pune</div>
-                        <div class="station-specs">
-                            <div class="station-spec"><div class="station-spec-value">4</div><div class="station-spec-label">Chargers</div></div>
-                            <div class="station-spec"><div class="station-spec-value">60kW</div><div class="station-spec-label">Max Power</div></div>
-                            <div class="station-spec"><div class="station-spec-value">₹13</div><div class="station-spec-label">Per kWh</div></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6 vn-reveal" style="transition-delay: 200ms;">
-                <div class="station-card">
-                    <div class="station-img" style="color: var(--vn-text-muted);"><span class="station-status" style="background: var(--vn-bg); color: var(--vn-text-muted); border-color: var(--vn-border);">○ Closed</span><i class="bi bi-ev-station"></i></div>
-                    <div class="station-body">
-                        <h5>VoltNet Metro — Andheri</h5>
-                        <div class="station-meta"><i class="bi bi-geo-alt-fill"></i> Andheri East, Mumbai</div>
-                        <div class="station-specs">
-                            <div class="station-spec"><div class="station-spec-value">2</div><div class="station-spec-label">Chargers</div></div>
-                            <div class="station-spec"><div class="station-spec-value">30kW</div><div class="station-spec-label">Max Power</div></div>
-                            <div class="station-spec"><div class="station-spec-value">₹10</div><div class="station-spec-label">Per kWh</div></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6 vn-reveal" style="transition-delay: 300ms;">
-                <div class="station-card">
-                    <div class="station-img"><span class="station-status open">● Open Now</span><i class="bi bi-ev-station"></i></div>
-                    <div class="station-body">
-                        <h5>VoltNet Plaza — Connaught Place</h5>
-                        <div class="station-meta"><i class="bi bi-geo-alt-fill"></i> CP, New Delhi</div>
-                        <div class="station-specs">
-                            <div class="station-spec"><div class="station-spec-value">12</div><div class="station-spec-label">Chargers</div></div>
-                            <div class="station-spec"><div class="station-spec-value">150kW</div><div class="station-spec-label">Max Power</div></div>
-                            <div class="station-spec"><div class="station-spec-value">₹15</div><div class="station-spec-label">Per kWh</div></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="text-center mt-5 vn-reveal" style="transition-delay: 400ms;">
-            <button class="btn-vn-secondary">Load More Stations</button>
+                }
+            }
         </div>
     </div>
 </section>
