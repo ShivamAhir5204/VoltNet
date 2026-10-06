@@ -1,0 +1,72 @@
+@model VoltNet.Models.SubscriptionPlan
+@{
+    ViewData["Title"] = "Edit Subscription Plan";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="section-header">
+    <div class="section-header-back">
+        <a href="/admin/subscription" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
+    </div>
+    <h1>Edit Subscription Plan</h1>
+</div>
+
+<div class="row">
+    <div class="col-12 col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header">
+                <h4>Plan Details</h4>
+            </div>
+            <div class="card-body">
+                <form method="post" action="/admin/subscription/edit/@Model.Id">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="Id" value="@Model.Id" />
+                    
+                    <div class="form-group">
+                        <label>Plan Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="Name" value="@Model.Name" required />
+                        <span class="text-danger">@Html.ValidationMessageFor(m => m.Name)</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Description <span class="text-danger">*</span></label>
+                        <textarea class="form-control" name="Description" required rows="3">@Model.Description</textarea>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            <label>Price (₹) <span class="text-danger">*</span></label>
+                            <input type="number" step="0.01" min="0" class="form-control" name="PricePerMonth" value="@Model.PricePerMonth" required />
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>Duration (Days) <span class="text-danger">*</span></label>
+                            <input type="number" min="1" class="form-control" name="DurationDays" value="@Model.DurationDays" required />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            <label>Max Stations Allowed <span class="text-danger">*</span></label>
+                            <input type="number" min="1" class="form-control" name="MaxStations" value="@Model.MaxStations" required />
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>Max Managers per Station <span class="text-danger">*</span></label>
+                            <input type="number" min="1" class="form-control" name="MaxManagersPerStation" value="@Model.MaxManagersPerStation" required />
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-0">
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="IsActive" name="IsActive" value="true" @(Model.IsActive ? "checked" : "")>
+                            <label class="custom-control-label" for="IsActive">Plan is active</label>
+                        </div>
+                    </div>
+
+                    <div class="card-footer text-right px-0 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">Update Plan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

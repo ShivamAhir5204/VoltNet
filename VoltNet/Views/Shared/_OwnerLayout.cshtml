@@ -70,6 +70,9 @@
             <li class="dropdown @(Context.Request.Path.StartsWithSegments("/owner/stations") ? "active" : "")">
               <a href="/owner/stations" class="nav-link"><i data-feather="map-pin"></i><span>My Stations</span></a>
             </li>
+            <li class="dropdown @(Context.Request.Path.StartsWithSegments("/owner/subscription") ? "active" : "")">
+              <a href="/owner/subscription" class="nav-link"><i data-feather="credit-card"></i><span>Subscriptions</span></a>
+            </li>
             <li class="dropdown @(Context.Request.Path.StartsWithSegments("/owner/station-managers") ? "active" : "")">
               <a href="/owner/station-managers" class="nav-link"><i data-feather="users"></i><span>Station Managers</span></a>
             </li>

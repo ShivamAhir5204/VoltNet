@@ -77,6 +77,13 @@
             <li class="dropdown @(Context.Request.Path.StartsWithSegments("/admin/VerifyOwners") ? "active" : "")">
               <a href="/admin/VerifyOwners" class="nav-link"><i data-feather="user-check"></i><span>Verify Owners</span></a>
             </li>
+            <li class="menu-header">Billing & Subscriptions</li>
+            <li class="dropdown @(Context.Request.Path == "/admin/subscription" ? "active" : "")">
+              <a href="/admin/subscription" class="nav-link"><i data-feather="dollar-sign"></i><span>Subscription Plans</span></a>
+            </li>
+            <li class="dropdown @(Context.Request.Path.StartsWithSegments("/admin/subscription/cancellation-requests") ? "active" : "")">
+              <a href="/admin/subscription/cancellation-requests" class="nav-link"><i data-feather="slash"></i><span>Cancellation Requests</span></a>
+            </li>
             @if (User.IsInRole("SuperAdmin"))
             {
               <li class="dropdown @(Context.Request.Path.StartsWithSegments("/admin/AdminUser") ? "active" : "")">

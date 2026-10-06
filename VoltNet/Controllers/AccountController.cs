@@ -307,4 +307,112 @@ public class AccountController : Controller
         ViewBag.Email = trimmedEmail;
         return View("~/Views/Auth/VerifyOtp.cshtml");
     }
+
+    [HttpGet("forgot-password")]
+    public IActionResult ForgotPassword()
+    {
+        return View("~/Views/Auth/ForgotPassword.cshtml");
+    }
+
+    [HttpPost("forgot-password")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ForgotPassword(string email)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            ViewBag.Error = "Email is required.";
+            return View("~/Views/Auth/ForgotPassword.cshtml");
+        }
+
+        var trimmedEmail = email.Trim();
+        var user = await _context.UserMasters.FirstOrDefaultAsync(u => u.Email == trimmedEmail);
+
+        if (user != null)
+        {
+            var otp = new Random().Next(100000, 999999).ToString();
+            _cache.Set($"reset_{trimmedEmail}", otp, TimeSpan.FromMinutes(15));
+
+            var client = _httpClientFactory.CreateClient();
+            var apiKey = _configuration["MailApi:ApiKey"];
+            if (!string.IsNullOrEmpty(apiKey))
+            {
+                client.DefaultRequestHeaders.Add("x-api-key", apiKey);
+            }
+
+            var formContent = new MultipartFormDataContent();
+            formContent.Add(new StringContent(trimmedEmail), "to");
+            formContent.Add(new StringContent("VoltNet Password Reset"), "subject");
+            formContent.Add(new StringContent($"Your OTP to reset password is: {otp}"), "body");
+
+            try
+            {
+                await client.PostAsync("http://mailsendapi.runasp.net/api/Mailing/send", formContent);
+            }
+            catch
+            {
+                // Ignore email failure for now
+            }
+            return Redirect($"/reset-password?email={Uri.EscapeDataString(trimmedEmail)}");
+        }
+
+        ViewBag.Success = "If this email exists, an OTP has been sent.";
+        return View("~/Views/Auth/ForgotPassword.cshtml");
+    }
+
+    [HttpGet("reset-password")]
+    public IActionResult ResetPassword(string email)
+    {
+        if (string.IsNullOrEmpty(email)) return Redirect("/forgot-password");
+        ViewBag.Email = email;
+        return View("~/Views/Auth/ResetPassword.cshtml");
+    }
+
+    [HttpPost("reset-password")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ResetPassword(string email, string otp, string newPassword, string confirmPassword)
+    {
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(otp) || string.IsNullOrWhiteSpace(newPassword) || string.IsNullOrWhiteSpace(confirmPassword))
+        {
+            ViewBag.Error = "All fields are required.";
+            ViewBag.Email = email;
+            return View("~/Views/Auth/ResetPassword.cshtml");
+        }
+
+        if (newPassword != confirmPassword)
+        {
+            ViewBag.Error = "New password and confirm password do not match.";
+            ViewBag.Email = email;
+            return View("~/Views/Auth/ResetPassword.cshtml");
+        }
+
+        if (newPassword.Length < 6)
+        {
+            ViewBag.Error = "Password must be at least 6 characters.";
+            ViewBag.Email = email;
+            return View("~/Views/Auth/ResetPassword.cshtml");
+        }
+
+        var trimmedEmail = email.Trim();
+        var trimmedOtp = otp.Trim();
+
+        if (_cache.TryGetValue($"reset_{trimmedEmail}", out string? cachedOtp) && cachedOtp == trimmedOtp)
+        {
+            var user = await _context.UserMasters.FirstOrDefaultAsync(u => u.Email == trimmedEmail);
+            if (user != null)
+            {
+                var hasher = new PasswordHasher<UserMaster>();
+                user.Password = hasher.HashPassword(user, newPassword);
+                await _context.SaveChangesAsync();
+                
+                _cache.Remove($"reset_{trimmedEmail}");
+                
+                TempData["Success"] = "Password reset successfully. You can now login.";
+                return Redirect("/login");
+            }
+        }
+
+        ViewBag.Error = "Invalid or expired OTP.";
+        ViewBag.Email = trimmedEmail;
+        return View("~/Views/Auth/ResetPassword.cshtml");
+    }
 }

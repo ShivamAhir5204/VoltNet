@@ -169,3 +169,85 @@ This document details **why** and **which** technical, security, UX, and archite
 - **Decision**: Created `_ManagerLayout.cshtml` copied and adapted from `_OwnerLayout.cshtml`.
 - **Why**:
   - Maintains consistent UI/UX for internal users while strictly separating their sidebar navigation links and routing prefixes (`/manager/...` vs `/owner/...`).
+
+---
+
+## 7. Authentication & Profile Decisions (Phase 0)
+
+### 7.1 OTP-Based Password Reset
+- **Decision**: The "Forgot Password" flow generates a 6-digit OTP, stores it in `IMemoryCache` for 15 minutes mapped to the email, and emails it using the internal `MailApi`.
+- **Why**: 
+  - Prevents database clutter (no need for a dedicated `PasswordResetTokens` table).
+  - In-memory cache auto-expires, handling cleanup implicitly.
+
+### 7.2 Manager Profile Data Synchronization
+- **Decision**: In `ManagerDashboardController.Profile` (POST), updates to `FullName` and `Phone` are written to both `StationManagers` and the parent `UserMaster` record in a single transaction.
+- **Why**: 
+  - The authentication system (`UserMaster`) and the domain profile (`StationManagers`) must never fall out of sync. Without this, the JWT token would display outdated names in the top-right navbar.
+
+---
+
+## 8. Subscription Architecture Decisions (Phase 1)
+
+### 8.1 Station-Level Plan Assignment
+- **Decision**: The schema uses three entities: `SubscriptionPlan` (the template), `OwnerSubscription` (the active purchase), and `Station.OwnerSubscriptionId` (the assignment mapping).
+- **Why**: 
+  - **Real-World Flexibility**: Rather than tying a plan directly to an owner's account blindly, this maps quotas exactly. If an owner buys a "Growth Plan (Max 5 Stations)" but has 10 stations, they must explicitly choose *which* 5 stations become Active.
+  - **Graceful Expiration**: If an `OwnerSubscription` expires, the `Station` query can instantly determine that the station is no longer active without needing to write a cron job that iterates through all stations to change their status strings.
+
+### 8.2 Client-Side Quota Validation
+- **Decision**: The `Assign.cshtml` view limits checkbox selections using jQuery (`$('.station-checkbox:checked').length > maxAllowed`) and disables the submit button if the limit is exceeded.
+- **Why**: 
+  - Provides instantaneous UX feedback so the user doesn't submit a form only to receive a server error. (Server-side checks still exist as a secondary guard).
+
+### 8.3 Auto-Expiration & Validation Checks
+- **Decision**: Instead of running a scheduled background job (cron) to turn off stations when their subscriptions end, the system dynamically filters out expired stations at query-time. All queries in the public `HomeController` now require:
+  `s.Status == "Active" && s.OwnerSubscription != null && s.OwnerSubscription.Status == "Active" && s.OwnerSubscription.EndDate >= DateTime.UtcNow`
+- **Why**: 
+  - **Fail-Safe Integrity**: This completely eliminates the edge case where a background job might crash, leaving unpaid stations active on the map. The moment the UTC clock crosses the `EndDate`, the station drops off the map and searches immediately.
+  - **Performance**: A simple `JOIN` and date comparison on the database layer is highly optimized and significantly less complex than managing external job queues and transaction rollbacks.
+
+### 8.4 Razorpay Payment Gateway Integration
+- **Decision**: Integrated Razorpay Checkout (client-side modal) with server-side Order creation and HMAC-SHA256 signature verification. The flow is:
+  1. Client clicks "Buy" → AJAX POST to `/create-order` → Server calls Razorpay Orders API with Basic Auth → returns `order_id`
+  2. Client opens Razorpay Checkout modal with the `order_id`
+  3. On payment success → Hidden form POSTs `razorpay_order_id`, `razorpay_payment_id`, `razorpay_signature` to `/verify-payment`
+  4. Server verifies signature using `HMAC-SHA256(order_id|payment_id, key_secret)` → Creates subscription only if signature matches
+- **Why**:
+  - **Security**: The payment is never trusted from the client alone. The HMAC signature verification ensures the payment response hasn't been tampered with. Even if a malicious user crafts a fake `payment_id`, the signature will fail.
+  - **Atomicity**: The subscription record is only created AFTER signature verification. If the user closes the Razorpay modal, cancels, or their payment fails, no subscription is created.
+  - **No NuGet dependency**: Instead of adding the `Razorpay` NuGet package, we use raw `HttpClient` + `System.Text.Json` for the API call and `System.Security.Cryptography.HMACSHA256` for verification. This keeps the dependency footprint minimal.
+
+### 8.5 Payment Edge-Case Validations
+- **Duplicate Payment Guard**: Before creating a subscription, the server checks `_context.OwnerSubscriptions.AnyAsync(s => s.PaymentId == razorpay_payment_id)`. This prevents a browser refresh or replay attack from creating two subscriptions for the same payment.
+- **Double-Click Prevention**: A `isPaymentInProgress` JS flag disables all Buy buttons once clicked, preventing the user from accidentally creating multiple Razorpay orders.
+- **Modal Dismiss Handling**: Razorpay's `modal.ondismiss` callback re-enables buttons and hides the processing overlay, so the user can retry cleanly.
+- **Payment Failed Event**: Razorpay's `payment.failed` event is explicitly handled to show a user-friendly error message (not a generic crash) and confirms no amount was charged.
+- **Plan Staleness Check**: Both `create-order` and `verify-payment` re-check `plan.IsActive` from the database, guarding against the race condition where an admin deactivates a plan while a user has the checkout open.
+
+### 8.6 Subscription Cancellation & 24-Hour Refund Policy
+- **Decision**: Implemented an administrative cancellation verification workflow:
+  1. **24-Hour Purchase Window Policy**: An owner can only initiate a cancellation request within 24 hours of purchasing the subscription (`(DateTime.UtcNow - subscription.CreatedAt).TotalHours <= 24`). Attempts after 24 hours are blocked at both UI and server level.
+  2. **Mandatory Reason Verification**: The owner must supply a detailed reason (minimum 10 characters, capped at 500 characters).
+  3. **Two-Stage Status Transition**: The subscription moves to `CancellationPending` while under review.
+  4. **Admin Approval & Refund Mechanism**:
+     - Admins review cancellation requests in `/admin/subscription/cancellation-requests`.
+     - Upon Admin Approval: `Status = "Cancelled"`, stations are detached and downgraded to `"Approved"` (offline), `RefundAmount = AmountPaid` (100% refund), and an official notification email is dispatched to the owner.
+     - Upon Admin Rejection: `Status = "Active"`, stations stay active, and an explanation email is sent with the admin's remarks.
+- **Why**:
+  - **Loophole & Fraud Prevention**: Prevents malicious owners from using a high-tier plan (e.g., Enterprise 20 Stations) for weeks and then claiming a full refund right before expiration.
+  - **Accountability**: Real-world SaaS platforms enforce strict return/cancellation windows with audit logs.
+  - **Communication**: Automated email alerts keep owners informed about refund status and reasons.
+
+### 8.7 Accurate Financial & Subscription Metrics
+- **Decision**:
+  - **Total Invested Amount**: Dynamically calculated as the sum of `AmountPaid` across **non-cancelled** subscriptions (`Status != "Cancelled"`). If a plan is cancelled and refunded, its amount is immediately deducted from the owner's net invested capital.
+  - **Total Subscriptions Metric**: Represents the net valid subscriptions.
+  - **Separation of Concerns**: Active subscriptions (`Status == "Active"` / `CancellationPending`) reside in the primary dashboard, while past, cancelled, and expired plans are moved to `/owner/subscription/history`.
+
+### 8.8 Ultra-Realistic Razorpay Train-Convoy Payment Experience
+- **Decision**: Engineered a custom CSS keyframe locomotive convoy animation in both `Plans.cshtml` and `PlanDetails.cshtml`:
+  - **Convoy Composition**: Detailed train engine with smoke puffs, headlight, rotating wheels, track sleepers, and cargo wagons carrying 3D spinning golden Rupee (`₹`) coins.
+  - **3-Phase Flow**: (1) Gateway Initialization → (2) Train-Convoy Processing Simulation → (3) Success Checkmark & Auto-Redirect.
+- **Why**:
+  - Replaces generic spinners with a delightful, realistic payment gateway interaction identical to top-tier consumer apps.

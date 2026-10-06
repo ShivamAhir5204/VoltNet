@@ -32,7 +32,8 @@ public class HomeController : Controller
     {
         var activeStations = _context.Stations
             .Include(s => s.Chargers)
-            .Where(s => s.Status == "Active");
+            .Include(s => s.OwnerSubscription)
+            .Where(s => s.Status == "Active" && s.OwnerSubscription != null && s.OwnerSubscription.Status == "Active" && s.OwnerSubscription.EndDate >= DateTime.UtcNow);
 
         // Check if user is logged in
         var userIdStr = User.FindFirstValue("UserId");
@@ -141,7 +142,8 @@ public class HomeController : Controller
     {
         var query = _context.Stations
             .Include(s => s.Chargers)
-            .Where(s => s.Status == "Active")
+            .Include(s => s.OwnerSubscription)
+            .Where(s => s.Status == "Active" && s.OwnerSubscription != null && s.OwnerSubscription.Status == "Active" && s.OwnerSubscription.EndDate >= DateTime.UtcNow)
             .AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(q))
@@ -186,7 +188,8 @@ public class HomeController : Controller
 
         // Get unique cities for the dropdown
         ViewBag.Cities = await _context.Stations
-            .Where(s => s.Status == "Active")
+            .Include(s => s.OwnerSubscription)
+            .Where(s => s.Status == "Active" && s.OwnerSubscription != null && s.OwnerSubscription.Status == "Active" && s.OwnerSubscription.EndDate >= DateTime.UtcNow)
             .Select(s => s.City)
             .Distinct()
             .OrderBy(c => c)
@@ -194,7 +197,8 @@ public class HomeController : Controller
 
         // Get unique connector types for the dropdown
         ViewBag.Connectors = await _context.Chargers
-            .Where(c => c.Status == "Active" && c.Station!.Status == "Active")
+            .Include(c => c.Station!.OwnerSubscription)
+            .Where(c => c.Status == "Active" && c.Station!.Status == "Active" && c.Station.OwnerSubscription != null && c.Station.OwnerSubscription.Status == "Active" && c.Station.OwnerSubscription.EndDate >= DateTime.UtcNow)
             .Select(c => c.ConnectorType)
             .Distinct()
             .OrderBy(c => c)
@@ -208,9 +212,10 @@ public class HomeController : Controller
     {
         var station = await _context.Stations
             .Include(s => s.Chargers)
+            .Include(s => s.OwnerSubscription)
             .FirstOrDefaultAsync(s => s.Id == id);
 
-        if (station == null || station.Status != "Active")
+        if (station == null || station.Status != "Active" || station.OwnerSubscription == null || station.OwnerSubscription.Status != "Active" || station.OwnerSubscription.EndDate < DateTime.UtcNow)
         {
             return NotFound();
         }
@@ -262,7 +267,8 @@ public class HomeController : Controller
     public async Task<IActionResult> NearbyMapData()
     {
         var stations = await _context.Stations
-            .Where(s => s.Status == "Active" && (s.Latitude != 0 || s.Longitude != 0))
+            .Include(s => s.OwnerSubscription)
+            .Where(s => s.Status == "Active" && s.OwnerSubscription != null && s.OwnerSubscription.Status == "Active" && s.OwnerSubscription.EndDate >= DateTime.UtcNow && (s.Latitude != 0 || s.Longitude != 0))
             .Select(s => new
             {
                 s.Id,

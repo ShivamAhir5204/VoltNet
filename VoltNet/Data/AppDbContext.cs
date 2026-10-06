@@ -19,6 +19,8 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<StationManager> StationManagers { get; set; }
 
     public virtual DbSet<Charger> Chargers { get; set; }
+    public virtual DbSet<SubscriptionPlan> SubscriptionPlans { get; set; }
+    public virtual DbSet<OwnerSubscription> OwnerSubscriptions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -205,6 +207,11 @@ public partial class AppDbContext : DbContext
                 .HasForeignKey(e => e.OwnerUserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            entity.HasOne(e => e.OwnerSubscription)
+                .WithMany(s => s.Stations)
+                .HasForeignKey(e => e.OwnerSubscriptionId)
+                .OnDelete(DeleteBehavior.SetNull);
+
             entity.HasIndex(e => e.City).HasDatabaseName("IX_Stations_City");
             entity.HasIndex(e => e.Status).HasDatabaseName("IX_Stations_Status");
         });
@@ -291,6 +298,92 @@ public partial class AppDbContext : DbContext
                 .WithMany(s => s.Chargers)
                 .HasForeignKey(e => e.StationId)
                 .OnDelete(DeleteBehavior.Cascade); // If a station is deleted, chargers are deleted
+        });
+
+        // -- SubscriptionPlan ----------------------------------------
+        modelBuilder.Entity<SubscriptionPlan>(entity =>
+        {
+            entity.ToTable("SubscriptionPlans");
+
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnName("id");
+            entity.Property(e => e.Name)
+                .HasMaxLength(100)
+                .HasColumnName("name");
+            entity.Property(e => e.Description)
+                .HasMaxLength(500)
+                .HasColumnName("description");
+            entity.Property(e => e.PricePerMonth)
+                .HasColumnType("decimal(18,2)")
+                .HasColumnName("price_per_month");
+            entity.Property(e => e.MaxStations)
+                .HasColumnName("max_stations");
+            entity.Property(e => e.MaxManagersPerStation)
+                .HasColumnName("max_managers_per_station");
+            entity.Property(e => e.DurationDays)
+                .HasColumnName("duration_days");
+            entity.Property(e => e.IsActive)
+                .HasColumnName("is_active")
+                .HasDefaultValue(true);
+            entity.Property(e => e.CreatedAt)
+                .HasColumnName("created_at")
+                .HasDefaultValueSql("GETUTCDATE()");
+        });
+
+        // -- OwnerSubscription ---------------------------------------
+        modelBuilder.Entity<OwnerSubscription>(entity =>
+        {
+            entity.ToTable("OwnerSubscriptions");
+
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnName("id");
+            entity.Property(e => e.StationOwnerId)
+                .HasColumnName("station_owner_id");
+            entity.Property(e => e.PlanId)
+                .HasColumnName("plan_id");
+            entity.Property(e => e.StartDate)
+                .HasColumnName("start_date");
+            entity.Property(e => e.EndDate)
+                .HasColumnName("end_date");
+            entity.Property(e => e.Status)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasColumnName("status")
+                .HasDefaultValue("Active");
+            entity.Property(e => e.PaymentId)
+                .HasMaxLength(100)
+                .HasColumnName("payment_id");
+            entity.Property(e => e.AmountPaid)
+                .HasColumnType("decimal(18,2)")
+                .HasColumnName("amount_paid");
+            entity.Property(e => e.CancellationReason)
+                .HasMaxLength(500)
+                .HasColumnName("cancellation_reason");
+            entity.Property(e => e.CancellationRequestedAt)
+                .HasColumnName("cancellation_requested_at");
+            entity.Property(e => e.CancellationProcessedAt)
+                .HasColumnName("cancellation_processed_at");
+            entity.Property(e => e.CancellationAdminRemarks)
+                .HasMaxLength(500)
+                .HasColumnName("cancellation_admin_remarks");
+            entity.Property(e => e.RefundAmount)
+                .HasColumnType("decimal(18,2)")
+                .HasColumnName("refund_amount");
+            entity.Property(e => e.CreatedAt)
+                .HasColumnName("created_at")
+                .HasDefaultValueSql("GETUTCDATE()");
+
+            entity.HasOne(e => e.Owner)
+                .WithMany()
+                .HasForeignKey(e => e.StationOwnerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.Plan)
+                .WithMany()
+                .HasForeignKey(e => e.PlanId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         OnModelCreatingPartial(modelBuilder);

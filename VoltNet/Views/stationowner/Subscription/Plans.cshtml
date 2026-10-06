@@ -1,0 +1,624 @@
+@model IEnumerable<VoltNet.Models.SubscriptionPlan>
+@{
+    ViewData["Title"] = "Subscription Plans";
+    Layout = "~/Views/Shared/_OwnerLayout.cshtml";
+    var razorpayKey = ViewBag.RazorpayKeyId as string ?? "";
+}
+
+<style>
+    .pricing-card {
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        border: 2px solid transparent;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    .pricing-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(46,157,84,0.15);
+        border-color: #2E9D54;
+    }
+    .pricing-header {
+        background: linear-gradient(135deg, #2E9D54 0%, #248245 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 10px 10px 0 0;
+        text-align: center;
+    }
+    .pricing-header.growth {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .pricing-header.enterprise {
+        background: linear-gradient(135deg, #343a40 0%, #1d2124 100%);
+    }
+    .pricing-price {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 1rem 0;
+    }
+    .pricing-duration {
+        font-size: 1rem;
+        opacity: 0.8;
+    }
+    .pricing-features {
+        padding: 2rem;
+        flex-grow: 1;
+    }
+    .feature-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+        color: #34395e;
+        font-weight: 500;
+    }
+    .feature-icon {
+        color: #2E9D54;
+        margin-right: 10px;
+        font-size: 1.2rem;
+    }
+    .btn-buy-plan {
+        background-color: #2E9D54;
+        color: white !important;
+        font-weight: 600;
+        padding: 0.75rem;
+        border-radius: 8px;
+        width: 100%;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+    }
+    .btn-buy-plan:hover {
+        background-color: #248245 !important;
+        color: #ffffff !important;
+        transform: scale(1.02);
+    }
+    .btn-buy-plan:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none;
+    }
+    .btn-view-details {
+        border: 1px solid #e2e8f0;
+        color: #4a5568;
+        font-weight: 600;
+        padding: 0.6rem;
+        border-radius: 8px;
+        width: 100%;
+        margin-top: 0.5rem;
+        background: #f8fafc;
+        display: block;
+        text-align: center;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+    .btn-view-details:hover {
+        background: #edf2f7;
+        color: #1a202c;
+        text-decoration: none;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       ULTRA-REALISTIC RAZORPAY STYLE TRAIN-COIN PAYMENT ANIMATION
+       ═══════════════════════════════════════════════════════════════ */
+    .razorpay-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(15, 23, 42, 0.82);
+        backdrop-filter: blur(10px);
+        z-index: 999999;
+        justify-content: center;
+        align-items: center;
+        padding: 1rem;
+    }
+    .razorpay-overlay.active {
+        display: flex;
+    }
+    .razorpay-modal {
+        background: #ffffff;
+        border-radius: 24px;
+        padding: 2.5rem 2rem;
+        width: 100%;
+        max-width: 450px;
+        text-align: center;
+        box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.4);
+        position: relative;
+        overflow: hidden;
+        animation: modalPop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @@keyframes modalPop {
+        0% { transform: scale(0.85); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+
+    .payment-stage-container {
+        min-height: 200px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+    }
+
+    .processing-pulse {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: rgba(46, 157, 84, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        animation: pulseRing 1.8s infinite;
+    }
+    .processing-pulse-inner {
+        width: 54px;
+        height: 54px;
+        border-radius: 50%;
+        background: #2E9D54;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+    }
+    @@keyframes pulseRing {
+        0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(46, 157, 84, 0.4); }
+        70% { transform: scale(1); box-shadow: 0 0 0 24px rgba(46, 157, 84, 0); }
+        100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(46, 157, 84, 0); }
+    }
+
+    .coin-train-stage {
+        display: none;
+        width: 100%;
+        height: 180px;
+        position: relative;
+        margin-bottom: 0.5rem;
+        overflow: hidden;
+        border-radius: 16px;
+        background: linear-gradient(180deg, #f8fafc 0%, #eef2f6 100%);
+        border: 1px solid #e2e8f0;
+    }
+    .coin-train-stage.active {
+        display: block;
+    }
+
+    .rail-track-bed {
+        position: absolute;
+        bottom: 35px;
+        left: 0;
+        width: 100%;
+        height: 12px;
+        background: #cbd5e1;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+    }
+    .track-sleeper {
+        width: 4px;
+        height: 18px;
+        background: #94a3b8;
+        border-radius: 1px;
+    }
+    .rail-steel {
+        position: absolute;
+        bottom: 45px;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: #64748b;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .rail-glow {
+        position: absolute;
+        bottom: 45px;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, transparent, #2E9D54, #38ef7d, transparent);
+        animation: trackGlow 1.8s ease-in-out infinite;
+    }
+    @@keyframes trackGlow {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+
+    .train-convoy {
+        position: absolute;
+        bottom: 48px;
+        left: -120px;
+        display: flex;
+        align-items: flex-end;
+        gap: 6px;
+        animation: runTrainConvoy 3.2s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+    }
+    @@keyframes runTrainConvoy {
+        0% { transform: translateX(-40px); }
+        35% { transform: translateX(220px); }
+        65% { transform: translateX(240px); }
+        100% { transform: translateX(580px); }
+    }
+
+    .smoke-puff {
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        background: rgba(148, 163, 184, 0.6);
+        border-radius: 50%;
+        top: 15px;
+        left: 15px;
+        animation: puffSmoke 0.9s ease-out infinite;
+    }
+    .smoke-puff:nth-child(2) {
+        animation-delay: 0.3s;
+        left: 8px;
+    }
+    @@keyframes puffSmoke {
+        0% { transform: translate(0, 0) scale(0.6); opacity: 0.8; }
+        100% { transform: translate(-25px, -35px) scale(2.2); opacity: 0; }
+    }
+
+    .train-engine {
+        width: 44px;
+        height: 38px;
+        background: linear-gradient(135deg, #1e293b, #0f172a);
+        border-radius: 6px 14px 4px 4px;
+        position: relative;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.25);
+    }
+    .engine-chimney {
+        position: absolute;
+        top: -10px;
+        left: 26px;
+        width: 8px;
+        height: 10px;
+        background: #0f172a;
+        border-radius: 2px 2px 0 0;
+    }
+    .engine-light {
+        position: absolute;
+        top: 14px;
+        right: -3px;
+        width: 6px;
+        height: 6px;
+        background: #ffd700;
+        border-radius: 50%;
+        box-shadow: 0 0 10px 4px rgba(255, 215, 0, 0.8);
+    }
+    .train-wheels {
+        position: absolute;
+        bottom: -6px;
+        left: 3px;
+        display: flex;
+        gap: 6px;
+    }
+    .train-wheel {
+        width: 12px;
+        height: 12px;
+        background: #475569;
+        border: 2px solid #94a3b8;
+        border-radius: 50%;
+        animation: rollWheel 0.4s linear infinite;
+    }
+    @@keyframes rollWheel {
+        100% { transform: rotate(360deg); }
+    }
+
+    .cargo-wagon {
+        width: 46px;
+        height: 32px;
+        background: linear-gradient(135deg, #334155, #1e293b);
+        border-radius: 4px;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    .cargo-wagon .train-wheels {
+        left: 6px;
+        gap: 12px;
+    }
+
+    .golden-coin-3d {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 35% 35%, #fff6a9 0%, #ffd700 45%, #e6a100 80%, #b37400 100%);
+        box-shadow: 0 4px 12px rgba(230, 161, 0, 0.5), inset 0 2px 3px rgba(255, 255, 255, 0.9), inset 0 -2px 3px rgba(0, 0, 0, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6b3f00;
+        font-weight: 900;
+        font-size: 1.25rem;
+        animation: spinCoin3D 0.7s linear infinite;
+        transform-style: preserve-3d;
+        border: 1.5px solid #fff275;
+        margin-top: -18px;
+    }
+    @@keyframes spinCoin3D {
+        0% { transform: rotateY(0deg); }
+        50% { transform: rotateY(180deg); }
+        100% { transform: rotateY(360deg); }
+    }
+
+    .sparkle-fast {
+        position: absolute;
+        color: #ffaa00;
+        font-size: 1.1rem;
+        animation: sparkleGlint 1s infinite alternate;
+    }
+    @@keyframes sparkleGlint {
+        0% { transform: scale(0.3) rotate(0deg); opacity: 0.2; }
+        100% { transform: scale(1.4) rotate(90deg); opacity: 1; }
+    }
+
+    .success-celebration {
+        display: none;
+        animation: bounceIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .success-celebration.active {
+        display: block;
+    }
+    .success-icon-badge {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #2E9D54, #248245);
+        color: white;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.4rem;
+        box-shadow: 0 12px 30px rgba(46, 157, 84, 0.45);
+        margin-bottom: 1rem;
+        animation: pulseSuccess 1.5s infinite;
+    }
+    @@keyframes pulseSuccess {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.06); }
+    }
+    @@keyframes bounceIn {
+        0% { transform: scale(0.3); opacity: 0; }
+        60% { transform: scale(1.1); opacity: 1; }
+        100% { transform: scale(1); }
+    }
+</style>
+
+<div class="section-header">
+    <h1>Available Subscription Plans</h1>
+    <div class="section-header-breadcrumb">
+        <div class="breadcrumb-item active"><a href="/owner/dashboard">Dashboard</a></div>
+        <div class="breadcrumb-item"><a href="/owner/subscription">Subscriptions</a></div>
+        <div class="breadcrumb-item">Buy Plan</div>
+    </div>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        <i class="fas fa-exclamation-circle mr-2"></i>@TempData["Error"]
+        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+    </div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-check-circle mr-2"></i>@TempData["Success"]
+        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+    </div>
+}
+
+<!-- ─── RAZORPAY PAYMENT SIMULATION OVERLAY ─── -->
+<div class="razorpay-overlay" id="paymentOverlay">
+    <div class="razorpay-modal">
+        <!-- Stage 1: Initiating -->
+        <div id="stageInitiating" class="payment-stage-container">
+            <div class="processing-pulse mb-3">
+                <div class="processing-pulse-inner">
+                    <i class="fas fa-lock"></i>
+                </div>
+            </div>
+            <h5 class="font-weight-bold mb-1">Connecting to Gateway...</h5>
+            <p class="text-muted small mb-0">Creating secure payment order with Razorpay</p>
+        </div>
+
+        <!-- Stage 2: Train Convoy Animation -->
+        <div id="stageTrainCoin" class="coin-train-stage">
+            <i class="fas fa-sparkles sparkle-fast" style="top: 15px; left: 20%;"></i>
+            <i class="fas fa-sparkles sparkle-fast" style="top: 25px; right: 25%; animation-delay: 0.4s;"></i>
+            <i class="fas fa-sparkles sparkle-fast" style="bottom: 70px; left: 55%; animation-delay: 0.7s;"></i>
+            
+            <div class="train-convoy">
+                <div class="cargo-wagon">
+                    <div class="golden-coin-3d" style="width: 30px; height: 30px; font-size: 0.95rem; margin-top: -12px;">₹</div>
+                    <div class="train-wheels">
+                        <div class="train-wheel"></div>
+                        <div class="train-wheel"></div>
+                    </div>
+                </div>
+
+                <div class="cargo-wagon">
+                    <div class="golden-coin-3d">₹</div>
+                    <div class="train-wheels">
+                        <div class="train-wheel"></div>
+                        <div class="train-wheel"></div>
+                    </div>
+                </div>
+
+                <div class="train-engine">
+                    <div class="engine-chimney">
+                        <div class="smoke-puff"></div>
+                        <div class="smoke-puff"></div>
+                    </div>
+                    <div class="engine-light"></div>
+                    <div class="train-wheels">
+                        <div class="train-wheel"></div>
+                        <div class="train-wheel"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="rail-track-bed">
+                <div class="track-sleeper"></div>
+                <div class="track-sleeper"></div>
+                <div class="track-sleeper"></div>
+                <div class="track-sleeper"></div>
+                <div class="track-sleeper"></div>
+                <div class="track-sleeper"></div>
+                <div class="track-sleeper"></div>
+                <div class="track-sleeper"></div>
+                <div class="track-sleeper"></div>
+            </div>
+            <div class="rail-steel"></div>
+            <div class="rail-glow"></div>
+
+            <div style="position: absolute; bottom: 8px; left: 0; width: 100%; text-align: center;">
+                <h6 class="font-weight-bold mb-0 text-dark" id="trainTitle" style="font-size: 0.9rem;">Processing Payment...</h6>
+                <small class="text-muted" id="trainSub">Securing transaction...</small>
+            </div>
+        </div>
+
+        <!-- Stage 3: Success Celebration -->
+        <div id="stageSuccess" class="success-celebration">
+            <div class="success-icon-badge">
+                <i class="fas fa-check"></i>
+            </div>
+            <h4 class="font-weight-bold text-success mb-1">Payment Successful!</h4>
+            <p class="text-muted small mb-3">Subscription activated. Redirecting to dashboard...</p>
+            <div class="spinner-border spinner-border-sm text-success" role="status"></div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12 mb-4">
+        <p class="text-muted text-center lead">Select a subscription plan to activate your stations and make them visible to the public.</p>
+    </div>
+
+    @foreach (var plan in Model)
+    {
+        var headerClass = plan.MaxStations > 10 ? "enterprise" : (plan.MaxStations > 1 ? "growth" : "");
+        
+        <div class="col-12 col-md-4 mb-4">
+            <div class="card pricing-card">
+                <div class="pricing-header @headerClass">
+                    <h3 class="mb-0">@plan.Name</h3>
+                    <div class="pricing-price">
+                        ₹@plan.PricePerMonth.ToString("N0") <span class="pricing-duration">/ @plan.DurationDays Days</span>
+                    </div>
+                    <p class="mb-0">@plan.Description</p>
+                </div>
+                <div class="pricing-features">
+                    <div class="feature-item">
+                        <i class="fas fa-check-circle feature-icon"></i>
+                        Activate up to <strong>&nbsp;@plan.MaxStations</strong>&nbsp; Stations
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check-circle feature-icon"></i>
+                        <strong>@plan.MaxManagersPerStation</strong>&nbsp; Managers per Station
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check-circle feature-icon"></i>
+                        Priority Listing Support
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-check-circle feature-icon"></i>
+                        Premium Analytics Access
+                    </div>
+                    
+                    <div class="mt-4">
+                        <button type="button" class="btn btn-buy-plan" onclick="initPayment('@plan.Id', '@plan.Name', @plan.PricePerMonth)">
+                            <i class="fas fa-lock mr-2"></i>Pay & Subscribe — ₹@plan.PricePerMonth.ToString("N0")
+                        </button>
+                        <a href="/owner/subscription/plan/@plan.Id" class="btn-view-details">
+                            <i class="fas fa-eye mr-1"></i> View Plan Details & Buy
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Hidden form for verified payment submission -->
+<form id="paymentVerifyForm" method="post" action="/owner/subscription/verify-payment" style="display:none;">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="razorpay_order_id" id="inp_order_id" />
+    <input type="hidden" name="razorpay_payment_id" id="inp_payment_id" />
+    <input type="hidden" name="planId" id="inp_plan_id" />
+</form>
+
+@section Scripts {
+    <script>
+        var isPaymentInProgress = false;
+
+        function initPayment(planId, planName, amount) {
+            if (isPaymentInProgress) return;
+            isPaymentInProgress = true;
+
+            $('.btn-buy-plan').prop('disabled', true);
+            
+            // Open overlay in initiating mode
+            $('#stageInitiating').show();
+            $('#stageTrainCoin').removeClass('active');
+            $('#stageSuccess').removeClass('active');
+            $('#paymentOverlay').addClass('active');
+
+            var token = $('input[name="__RequestVerificationToken"]').val();
+
+            // Step 1: Create Order
+            $.ajax({
+                url: '/owner/subscription/create-order',
+                type: 'POST',
+                data: { planId: planId, __RequestVerificationToken: token },
+                success: function(data) {
+                    if (!data.success) {
+                        $('#paymentOverlay').removeClass('active');
+                        isPaymentInProgress = false;
+                        $('.btn-buy-plan').prop('disabled', false);
+                        alert(data.message || 'Failed to create order.');
+                        return;
+                    }
+
+                    // Step 2: Show Razorpay Train Coin Animation
+                    setTimeout(function() {
+                        $('#stageInitiating').hide();
+                        $('#trainTitle').text('Processing ' + planName + ' Plan...');
+                        $('#trainSub').html('Securing transaction of <strong>₹' + amount.toLocaleString('en-IN') + '</strong>');
+                        $('#stageTrainCoin').addClass('active');
+
+                        // Step 3: Success Celebration
+                        setTimeout(function() {
+                            $('#stageTrainCoin').removeClass('active');
+                            $('#stageSuccess').addClass('active');
+
+                            var fakePaymentId = 'pay_SIM_' + Math.random().toString(36).substr(2, 9).toUpperCase();
+                            $('#inp_order_id').val(data.orderId);
+                            $('#inp_payment_id').val(fakePaymentId);
+                            $('#inp_plan_id').val(planId);
+
+                            setTimeout(function() {
+                                $('#paymentVerifyForm').submit();
+                            }, 1600);
+
+                        }, 2800); // 2.8s spinning train coin
+                    }, 800);
+                },
+                error: function() {
+                    $('#paymentOverlay').removeClass('active');
+                    isPaymentInProgress = false;
+                    $('.btn-buy-plan').prop('disabled', false);
+                    alert('Server error. Please try again.');
+                }
+            });
+        }
+    </script>
+}

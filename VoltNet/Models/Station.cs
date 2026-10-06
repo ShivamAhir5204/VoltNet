@@ -39,5 +39,8 @@ public class Station
 
     public DateTime CreatedAt { get; set; }
 
+    public Guid? OwnerSubscriptionId { get; set; }
+    public virtual OwnerSubscription? OwnerSubscription { get; set; }
+
     public virtual ICollection<Charger> Chargers { get; set; } = new List<Charger>();
 }

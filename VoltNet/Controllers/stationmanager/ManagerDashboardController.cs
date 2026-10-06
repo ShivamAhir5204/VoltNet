@@ -46,6 +46,64 @@ public class ManagerDashboardController : Controller
         return View("~/Views/stationmanager/Dashboard.cshtml");
     }
 
+    [HttpGet("profile")]
+    public async Task<IActionResult> Profile()
+    {
+        var userId = GetUserId();
+        var manager = await _context.StationManagers
+            .Include(m => m.User)
+            .Include(m => m.Station)
+            .FirstOrDefaultAsync(m => m.UserId == userId);
+
+        if (manager == null)
+        {
+            return RedirectToAction("Error", "Home");
+        }
+
+        return View("~/Views/stationmanager/Profile.cshtml", manager);
+    }
+
+    [HttpPost("profile")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Profile(string fullname, string phone)
+    {
+        var userId = GetUserId();
+        var manager = await _context.StationManagers
+            .Include(m => m.User)
+            .Include(m => m.Station)
+            .FirstOrDefaultAsync(m => m.UserId == userId);
+
+        if (manager == null)
+        {
+            return RedirectToAction("Error", "Home");
+        }
+
+        var trimmedPhone = phone?.Trim();
+
+        // Check uniqueness for phone in UserMaster
+        if (await _context.UserMasters.AnyAsync(u => u.Mobile == trimmedPhone && u.Id != manager.UserId))
+        {
+            ViewBag.Error = "Mobile number is already in use.";
+            return View("~/Views/stationmanager/Profile.cshtml", manager);
+        }
+
+        // Update fields in StationManager
+        manager.FullName = fullname?.Trim() ?? "";
+        manager.Phone = trimmedPhone ?? "";
+
+        // Sync with UserMaster
+        if (manager.User != null)
+        {
+            manager.User.Fullname = manager.FullName;
+            manager.User.Mobile = manager.Phone;
+        }
+
+        await _context.SaveChangesAsync();
+
+        TempData["Success"] = "Profile updated successfully.";
+        return RedirectToAction(nameof(Profile));
+    }
+
     [HttpGet("change-password")]
     public IActionResult ChangePassword()
     {

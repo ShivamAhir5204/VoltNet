@@ -1,0 +1,244 @@
+@model IEnumerable<VoltNet.Models.OwnerSubscription>
+@{
+    ViewData["Title"] = "Subscription Cancellation Requests";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var pendingCount = Model.Count(r => r.Status == "CancellationPending");
+}
+
+<style>
+    /* Modal Stacking & Backdrop Fix for Admin Theme */
+    .modal {
+        z-index: 1050 !important;
+    }
+    .modal-backdrop {
+        z-index: 1040 !important;
+    }
+    .modal-dialog {
+        z-index: 1051 !important;
+    }
+</style>
+
+<div class="section-header">
+    <h1>Subscription Cancellation Requests</h1>
+    <div class="section-header-breadcrumb">
+        <div class="breadcrumb-item active"><a href="/admin/Dashboard">Dashboard</a></div>
+        <div class="breadcrumb-item"><a href="/admin/subscription">Subscriptions</a></div>
+        <div class="breadcrumb-item">Cancellation Requests</div>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-check-circle mr-2"></i>@TempData["Success"]
+        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        <i class="fas fa-exclamation-circle mr-2"></i>@TempData["Error"]
+        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+    </div>
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4>All Cancellation Requests</h4>
+                <span class="badge badge-warning">@pendingCount Pending Review</span>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Owner / Business</th>
+                                <th>Plan Details</th>
+                                <th>Amount & Payment ID</th>
+                                <th>Requested At</th>
+                                <th>Reason Provided</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var req in Model)
+                            {
+                                var isPending = req.Status == "CancellationPending";
+                                var isCancelled = req.Status == "Cancelled";
+                                var hoursSincePurchase = Math.Floor((req.CancellationRequestedAt.HasValue ? req.CancellationRequestedAt.Value - req.CreatedAt : DateTime.UtcNow - req.CreatedAt).TotalHours);
+                                
+                                <tr>
+                                    <td>
+                                        <strong>@(req.Owner?.FullName ?? req.Owner?.User?.Fullname ?? "N/A")</strong>
+                                        <small class="text-muted d-block">@(req.Owner?.BusinessName ?? "Individual Owner")</small>
+                                        <small class="text-muted d-block">@(req.Owner?.User?.Email ?? "N/A")</small>
+                                    </td>
+                                    <td>
+                                        <strong>@(req.Plan?.Name ?? "Plan")</strong>
+                                        <small class="text-muted d-block">@req.Stations.Count / @(req.Plan?.MaxStations ?? 0) Stations Used</small>
+                                        <small class="text-muted d-block">Purchased: @req.CreatedAt.ToString("dd MMM yyyy, hh:mm tt") UTC</small>
+                                    </td>
+                                    <td>
+                                        <span class="font-weight-bold text-success">₹@req.AmountPaid.ToString("N2")</span>
+                                        <small class="text-monospace d-block text-muted">@req.PaymentId</small>
+                                    </td>
+                                    <td>
+                                        @(req.CancellationRequestedAt?.ToString("dd MMM yyyy, hh:mm tt") ?? req.CreatedAt.ToString("dd MMM yyyy"))
+                                        <small class="d-block text-muted">(@hoursSincePurchase hrs after purchase)</small>
+                                    </td>
+                                    <td style="max-width: 250px;">
+                                        <span class="d-block text-truncate" title="@req.CancellationReason">
+                                            @(string.IsNullOrWhiteSpace(req.CancellationReason) ? "No reason specified" : req.CancellationReason)
+                                        </span>
+                                        @if (!string.IsNullOrWhiteSpace(req.CancellationAdminRemarks))
+                                        {
+                                            <small class="text-info d-block mt-1">
+                                                <strong>Admin:</strong> @req.CancellationAdminRemarks
+                                            </small>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (isPending)
+                                        {
+                                            <span class="badge badge-warning">Pending Review</span>
+                                        }
+                                        else if (isCancelled)
+                                        {
+                                            <span class="badge badge-danger">Approved & Cancelled</span>
+                                            @if (req.RefundAmount.HasValue)
+                                            {
+                                                <small class="d-block text-success font-weight-bold">Refund: ₹@req.RefundAmount.Value.ToString("N0")</small>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-success">Active (Rejected)</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (isPending)
+                                        {
+                                            <div class="d-flex" style="gap: 5px;">
+                                                <!-- Approve Button -->
+                                                <button type="button" class="btn btn-sm btn-success" onclick="openApproveModal('@req.Id', '@req.Plan?.Name', '@req.Owner?.FullName', @req.AmountPaid)">
+                                                    <i class="fas fa-check mr-1"></i> Approve
+                                                </button>
+                                                
+                                                <!-- Reject Button -->
+                                                <button type="button" class="btn btn-sm btn-danger" onclick="openRejectModal('@req.Id', '@req.Plan?.Name', '@req.Owner?.FullName')">
+                                                    <i class="fas fa-times mr-1"></i> Reject
+                                                </button>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <small class="text-muted">Processed on @(req.CancellationProcessedAt?.ToString("dd MMM yyyy") ?? "-")</small>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                            @if (!Model.Any())
+                            {
+                                <tr>
+                                    <td colspan="7" class="text-center py-5 text-muted">
+                                        <i class="fas fa-inbox fa-3x mb-3 text-secondary d-block"></i>
+                                        <h5>No Cancellation Requests</h5>
+                                        <p class="mb-0">There are currently no pending or processed subscription cancellation requests.</p>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ─── Approve Cancellation Modal ─── -->
+<div class="modal fade" id="approveModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <form id="approveForm" method="post" action="">
+                @Html.AntiForgeryToken()
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title text-white"><i class="fas fa-check-circle mr-2"></i>Approve Cancellation & Issue Refund</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to approve this subscription cancellation?</p>
+                    <div class="alert alert-warning">
+                        <strong>Impact:</strong>
+                        <ul class="mb-0 pl-3">
+                            <li>All assigned stations will be taken offline immediately.</li>
+                            <li>The owner will receive a full refund of <strong id="modalApproveAmount"></strong>.</li>
+                            <li>An official confirmation email will be dispatched to the owner.</li>
+                        </ul>
+                    </div>
+                    <div class="form-group">
+                        <label class="font-weight-bold">Admin Remarks / Notes to Owner</label>
+                        <textarea name="adminRemarks" class="form-control" rows="3" placeholder="e.g., Cancellation approved as request was placed within the 24h window. Refund processed."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success"><i class="fas fa-check mr-1"></i>Confirm & Approve</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ─── Reject Cancellation Modal ─── -->
+<div class="modal fade" id="rejectModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <form id="rejectForm" method="post" action="">
+                @Html.AntiForgeryToken()
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title text-white"><i class="fas fa-times-circle mr-2"></i>Reject Cancellation Request</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <p>You are rejecting the cancellation request for <strong id="modalRejectPlan"></strong> by <strong id="modalRejectOwner"></strong>.</p>
+                    <div class="form-group">
+                        <label class="font-weight-bold text-danger">Reason for Rejection (Mandatory) *</label>
+                        <textarea name="adminRemarks" class="form-control" rows="3" required placeholder="e.g., Request rejected because station was actively utilized or reason does not meet policy criteria."></textarea>
+                    </div>
+                    <p class="text-muted small">An email explaining the rejection decision will be dispatched to the owner.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Back</button>
+                    <button type="submit" class="btn btn-danger"><i class="fas fa-ban mr-1"></i>Confirm Rejection</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Move modals to body to prevent stacking context/dull backdrop lock issue
+            $('#approveModal').appendTo("body");
+            $('#rejectModal').appendTo("body");
+        });
+
+        function openApproveModal(id, planName, ownerName, amount) {
+            $('#approveForm').attr('action', '/admin/subscription/approve-cancellation/' + id);
+            $('#modalApproveAmount').text('₹' + Number(amount).toLocaleString('en-IN'));
+            $('#approveModal').modal('show');
+        }
+
+        function openRejectModal(id, planName, ownerName) {
+            $('#rejectForm').attr('action', '/admin/subscription/reject-cancellation/' + id);
+            $('#modalRejectPlan').text(planName);
+            $('#modalRejectOwner').text(ownerName);
+            $('#rejectModal').modal('show');
+        }
+    </script>
+}

@@ -1,0 +1,230 @@
+@model IEnumerable<VoltNet.Models.OwnerSubscription>
+@{
+    ViewData["Title"] = "Subscription History";
+    Layout = "~/Views/Shared/_OwnerLayout.cshtml";
+
+    var activeCount = (int)(ViewBag.ActiveCount ?? 0);
+    var historyCount = (int)(ViewBag.HistoryCount ?? 0);
+}
+
+<style>
+    .sub-card {
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        transition: all 0.2s ease;
+        overflow: hidden;
+    }
+    .sub-card:hover {
+        box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+    }
+    .sub-top-bar {
+        height: 5px;
+    }
+    .sub-top-bar.cancelled { background: linear-gradient(90deg, #ffc107, #fd7e14); }
+    .sub-top-bar.expired { background: linear-gradient(90deg, #dc3545, #c82333); }
+
+    .nav-tabs-custom {
+        border-bottom: 2px solid #eaedf2;
+    }
+    .nav-tabs-custom .nav-link {
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: #6c757d;
+        border: none;
+        padding: 0.75rem 1.25rem;
+        border-bottom: 3px solid transparent;
+        transition: all 0.2s;
+    }
+    .nav-tabs-custom .nav-link:hover {
+        color: #2E9D54;
+    }
+    .nav-tabs-custom .nav-link.active {
+        color: #2E9D54;
+        background: transparent;
+        border-bottom: 3px solid #2E9D54;
+    }
+
+    .btn-renew {
+        background-color: #2E9D54;
+        color: white !important;
+        font-weight: 600;
+        border: none;
+    }
+    .btn-renew:hover {
+        background-color: #248245 !important;
+        color: white !important;
+        transform: translateY(-1px);
+    }
+</style>
+
+<div class="section-header">
+    <h1>Subscription History</h1>
+    <div class="section-header-breadcrumb">
+        <div class="breadcrumb-item active"><a href="/owner/dashboard">Dashboard</a></div>
+        <div class="breadcrumb-item"><a href="/owner/subscription">Subscriptions</a></div>
+        <div class="breadcrumb-item">History</div>
+    </div>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-check-circle mr-2"></i>@TempData["Success"]
+        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show">
+        <i class="fas fa-exclamation-circle mr-2"></i>@TempData["Error"]
+        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+    </div>
+}
+
+<!-- ─── Navigation Tabs & Buy Button ─────────────────────────────── -->
+<div class="row mb-4 align-items-center">
+    <div class="col-12 col-md-7 mb-3 mb-md-0">
+        <ul class="nav nav-tabs-custom">
+            <li class="nav-item">
+                <a class="nav-link" href="/owner/subscription">
+                    <i class="fas fa-bolt mr-1"></i> Active Subscriptions (@activeCount)
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="/owner/subscription/history">
+                    <i class="fas fa-history mr-1"></i> Expired & Cancelled (@historyCount)
+                </a>
+            </li>
+        </ul>
+    </div>
+    <div class="col-12 col-md-5 text-md-right">
+        <a href="/owner/subscription/plans" class="btn btn-primary btn-lg shadow-sm">
+            <i class="fas fa-plus mr-2"></i> Buy New Plan
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    @if (!Model.Any())
+    {
+        <div class="col-12">
+            <div class="card p-5 text-center shadow-sm" style="border-radius: 12px;">
+                <div class="empty-state" style="padding: 2rem 0;">
+                    <i class="fas fa-history" style="font-size: 4.5rem; color: #ced4da; margin-bottom: 1.5rem;"></i>
+                    <h4 class="text-dark">No Past Subscriptions</h4>
+                    <p class="lead text-muted max-w-500 mx-auto">You have no cancelled or expired plans. All your active subscriptions are running smoothly.</p>
+                    <a href="/owner/subscription" class="btn btn-outline-primary btn-lg mt-3 px-4">
+                        <i class="fas fa-bolt mr-2"></i> View Active Subscriptions
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        @foreach (var sub in Model)
+        {
+            var isCancelled = sub.Status == "Cancelled";
+            var isExpired = sub.EndDate < DateTime.UtcNow && !isCancelled;
+            var topBarClass = isCancelled ? "cancelled" : "expired";
+            var statusText = isCancelled ? "Cancelled" : "Expired";
+            var badgeClass = isCancelled ? "badge-warning" : "badge-danger";
+
+            <div class="col-12 col-md-6 col-lg-4 mb-4">
+                <div class="card sub-card">
+                    <div class="sub-top-bar @topBarClass"></div>
+                    
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div>
+                            <h4 class="m-0" style="font-size: 1.15rem; font-weight: 600;">@(sub.Plan?.Name ?? "Plan")</h4>
+                            <small class="text-muted">₹@sub.AmountPaid.ToString("N0") / @(sub.Plan?.DurationDays ?? 30) days</small>
+                        </div>
+                        <span class="badge @badgeClass" style="font-size: 0.75rem; padding: 0.4rem 0.6rem;">@statusText</span>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <small class="text-muted d-block">Start Date</small>
+                                <strong>@sub.StartDate.ToString("dd MMM yyyy")</strong>
+                            </div>
+                            <div class="col-6 text-right">
+                                <small class="text-muted d-block">Ended Date</small>
+                                <strong>@sub.EndDate.ToString("dd MMM yyyy")</strong>
+                            </div>
+                        </div>
+
+                        <div class="p-3 bg-light rounded mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <small class="text-muted d-block">Plan Capacity</small>
+                                    <strong>@(sub.Plan?.MaxStations ?? 1) Station(s) Max</strong>
+                                </div>
+                                <div class="text-right">
+                                    <small class="text-muted d-block">Payment ID</small>
+                                    <span class="badge badge-secondary font-monospace" style="font-size: 0.7rem;">
+                                        @(sub.PaymentId?.Length > 14 ? sub.PaymentId[..14] + "..." : sub.PaymentId)
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="small mb-0">
+                            @if (isCancelled)
+                            {
+                                <div class="alert alert-secondary p-2 mb-0" style="font-size: 0.8rem; border-radius: 6px;">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <span class="text-danger font-weight-bold"><i class="fas fa-times-circle mr-1"></i>Cancelled</span>
+                                        @if (sub.RefundAmount.HasValue)
+                                        {
+                                            <span class="text-success font-weight-bold">Refund: ₹@sub.RefundAmount.Value.ToString("N0")</span>
+                                        }
+                                    </div>
+                                    @if (!string.IsNullOrWhiteSpace(sub.CancellationReason))
+                                    {
+                                        <div class="text-muted text-truncate" title="@sub.CancellationReason">
+                                            <strong>Reason:</strong> @sub.CancellationReason
+                                        </div>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(sub.CancellationAdminRemarks))
+                                    {
+                                        <div class="text-info mt-1">
+                                            <strong>Admin Note:</strong> @sub.CancellationAdminRemarks
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="text-muted"><i class="fas fa-clock mr-1 text-danger"></i> This subscription expired on @sub.EndDate.ToString("dd MMM yyyy").</div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="card-footer bg-white d-flex flex-wrap" style="border-top: 1px solid #f0f0f0; gap: 8px;">
+                        <a href="/owner/subscription/@sub.Id/details" class="btn btn-sm btn-outline-info flex-fill">
+                            <i class="fas fa-info-circle mr-1"></i> Details
+                        </a>
+
+                        <a href="/owner/subscription/@sub.Id/receipt" class="btn btn-sm btn-outline-secondary flex-fill">
+                            <i class="fas fa-download mr-1"></i> Receipt
+                        </a>
+
+                        @if (sub.PlanId != Guid.Empty && sub.Plan != null)
+                        {
+                            <a href="/owner/subscription/plan/@sub.PlanId" class="btn btn-sm btn-renew flex-fill text-center">
+                                <i class="fas fa-sync-alt mr-1"></i> Renew Plan
+                            </a>
+                        }
+                        else
+                        {
+                            <a href="/owner/subscription/plans" class="btn btn-sm btn-renew flex-fill text-center">
+                                <i class="fas fa-shopping-cart mr-1"></i> Choose Plan
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>

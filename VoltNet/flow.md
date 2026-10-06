@@ -177,3 +177,148 @@ This document details the end-to-end operational, request-response, and user int
        ▼
 [User interacts with Action buttons (Edit, View, Deactivate, Delete) directly from the card]
 ```
+
+---
+
+## 4. Authentication Flows (Phase 0)
+
+### 4.1 Forgot Password Flow
+```
+[User on /login]
+       │
+       ▼  Clicks "Forgot Password?"
+[GET: /forgot-password]
+       │
+       ▼  Submits Email Address
+[POST: /forgot-password]
+       │
+       ├──► Validates email exists in UserMaster
+       │        ├── No  ──► Returns success message anyway (security: prevents email enumeration)
+       │        └── Yes ──► Generates 6-digit OTP
+       │                    Saves OTP to IMemoryCache (15 min expiry)
+       │                    Calls MailApi HTTP Client to send email
+       │
+       └──► Redirects to [GET: /reset-password?email={email}]
+                   │
+                   ▼
+[User enters OTP and New Password]
+                   │
+[POST: /reset-password]
+       │
+       ├──► Verifies OTP matches IMemoryCache
+       ├──► Verifies Password == ConfirmPassword & Length >= 6
+       │        ├── Invalid ──► Show error messages on /reset-password
+       │        └── Valid   ──► Hash new password
+       │                        Save to UserMaster
+       │                        Clear cache for OTP
+       │                        Redirect to /login with Success message
+```
+
+---
+
+## 5. Subscription Management Flows (Phase 1)
+
+### 5.1 Purchase Plan Flow
+```
+[Station Owner on /owner/subscription/plans]
+       │
+       ▼  Clicks "Buy Plan" on a pricing card
+[POST: /owner/subscription/buy]
+       │
+       ├──► Verify PlanId is valid and IsActive == true
+       ├──► Generate new OwnerSubscription (Status = "Active")
+       ├──► Set StartDate = Today, EndDate = Today + Plan.DurationDays
+       ├──► Simulate Payment ID & save to database
+       │
+       └──► Redirects to [GET: /owner/subscription]
+```
+
+### 5.2 Assign Stations to Subscription Flow
+```
+[Station Owner on /owner/subscription]
+       │
+       ▼  Clicks "Manage Assigned Stations" on an active plan
+[GET: /owner/subscription/{id}/assign]
+       │
+       ├──► Query all stations owned by Current Owner
+       ├──► Render table with checkboxes for each station
+       │
+[Owner checks/unchecks stations]
+       │
+       ├──► Client-Side JS checks if (checked > Plan.MaxStations)
+       │        ├── Yes ──► Disables Submit button, shows error badge
+       │        └── No  ──► Enables Submit button
+       │
+       ▼  Clicks "Save Assignments"
+[POST: /owner/subscription/{id}/assign]
+       │
+       ├──► Server-Side validation: selected count <= Plan.MaxStations
+       ├──► For unselected stations currently on this plan:
+       │        └── station.OwnerSubscriptionId = null
+       │            if station.Status == "Active", fallback to "Approved"
+       ├──► For selected stations:
+       │        └── station.OwnerSubscriptionId = subscription.Id
+       │            if station.Status == "Approved", upgrade to "Active"
+       │
+       └──► Save changes & Redirect to /owner/subscription
+```
+
+### 5.3 Razorpay Payment Flow (Buy Plan)
+```
+[Station Owner on /owner/subscription/plans]
+       │
+       ▼  Clicks "Pay & Subscribe — {Plan Name}" button
+[JavaScript: initPayment()]
+       │
+       ├──► Disable all Buy buttons (prevent double-click)
+       ├──► Show "Creating your order..." overlay
+       ├──► AJAX POST to /owner/subscription/create-order
+       │
+[POST: /owner/subscription/create-order]
+       │
+       ├──► Validate Plan exists and IsActive == true
+       ├──► Calculate amount in paise (₹999 → 99900)
+       ├──► Call Razorpay API: POST https://api.razorpay.com/v1/orders
+       │    (with Basic Auth: KeyId:KeySecret)
+       │        ├── API Error ──► Return JSON { success: false } → Show error
+       │        └── API Success ──► Return JSON { orderId, amount, keyId, prefill }
+       │
+       ▼  JavaScript receives order data
+[Client: Opens Razorpay Checkout Modal]
+       │
+       ├── User Closes Modal ──► modal.ondismiss fires
+       │        └── Re-enable buttons, hide overlay, no charge
+       │
+       ├── Payment Failed ──► payment.failed event fires
+       │        └── Show error message: "No amount charged"
+       │            Re-enable buttons
+       │
+       └── Payment Success ──► handler() fires with:
+                razorpay_order_id, razorpay_payment_id, razorpay_signature
+                │
+                ├──► Show "Verifying your payment..." overlay
+                ├──► Fill hidden form fields
+                └──► Submit POST to /owner/subscription/verify-payment
+                         │
+[POST: /owner/subscription/verify-payment]
+       │
+       ├──► Validation 1: All 3 Razorpay params present
+       │        └── Missing ──► TempData["Error"] → Redirect to Plans
+       │
+       ├──► Validation 2: Plan still exists and IsActive
+       │        └── Invalid ──► TempData["Error"] → Redirect to Plans
+       │
+       ├──► Validation 3: HMAC-SHA256 Signature Verification
+       │        payload = "order_id|payment_id"
+       │        expected = HMAC-SHA256(payload, KeySecret)
+       │        └── Mismatch ──► TempData["Error"] → Redirect to Plans
+       │
+       ├──► Validation 4: Duplicate Payment Check
+       │        AnyAsync(s => s.PaymentId == razorpay_payment_id)
+       │        └── Duplicate ──► TempData["Error"] → Redirect to Index
+       │
+       └──► All checks passed:
+                Create OwnerSubscription (Active, with real PaymentId)
+                Save to DB
+                TempData["Success"] → Redirect to /owner/subscription
+```

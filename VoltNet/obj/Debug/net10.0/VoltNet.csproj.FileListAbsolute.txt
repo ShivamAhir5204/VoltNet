@@ -1827,8 +1827,6 @@ D:\Voltnet\VoltNet\obj\Debug\net10.0\compressed\ep7enzwjvf-{0}-ptw5ws4yhk-ptw5ws
 D:\Voltnet\VoltNet\obj\Debug\net10.0\compressed\pva2fjowiy-{0}-4thskpq66d-4thskpq66d.gz
 D:\Voltnet\VoltNet\obj\Debug\net10.0\compressed\vc7lsn4f2b-{0}-hhlbsm01z9-hhlbsm01z9.gz
 D:\Voltnet\VoltNet\obj\Debug\net10.0\compressed\d9g4euxysx-{0}-l2erj52yxo-l2erj52yxo.gz
-D:\Voltnet\VoltNet\obj\Debug\net10.0\compressed\wq2cnd114g-{0}-13j9pidxiu-13j9pidxiu.gz
-D:\Voltnet\VoltNet\obj\Debug\net10.0\compressed\m69wm164e3-{0}-hthbtquehr-hthbtquehr.gz
 D:\Voltnet\VoltNet\obj\Debug\net10.0\compressed\v7i5rgu5w6-{0}-pg451r13a0-pg451r13a0.gz
 D:\Voltnet\VoltNet\obj\Debug\net10.0\compressed\k3gz07csmk-{0}-pg451r13a0-pg451r13a0.gz
 D:\Voltnet\VoltNet\obj\Debug\net10.0\staticwebassets.build.json
@@ -2768,3 +2766,8 @@ C:\Users\SHIVAM\Documents\GitHub\VoltNet\VoltNet\obj\Debug\net10.0\compressed\24
 C:\Users\SHIVAM\Documents\GitHub\VoltNet\VoltNet\obj\Debug\net10.0\compressed\gi619v33kp-{0}-bul4zsttgr-bul4zsttgr.gz
 C:\Users\SHIVAM\Documents\GitHub\VoltNet\VoltNet\obj\Debug\net10.0\compressed\wq2cnd114g-{0}-u56ubpkgg5-u56ubpkgg5.gz
 C:\Users\SHIVAM\Documents\GitHub\VoltNet\VoltNet\obj\Debug\net10.0\staticwebassets.upToDateCheck.txt
+D:\Voltnet\VoltNet\obj\Debug\net10.0\compressed\bk31w1nqmg-{0}-docx0thsfg-docx0thsfg.gz
+D:\Voltnet\VoltNet\obj\Debug\net10.0\compressed\qflvcg7wu1-{0}-sc7gg5u911-sc7gg5u911.gz
+D:\Voltnet\VoltNet\obj\Debug\net10.0\compressed\gjt0hb7r4n-{0}-c18sjr1ndy-c18sjr1ndy.gz
+D:\Voltnet\VoltNet\obj\Debug\net10.0\compressed\wq2cnd114g-{0}-vokxd0db0x-vokxd0db0x.gz
+D:\Voltnet\VoltNet\obj\Debug\net10.0\compressed\m69wm164e3-{0}-lxyzpvn9r1-lxyzpvn9r1.gz
