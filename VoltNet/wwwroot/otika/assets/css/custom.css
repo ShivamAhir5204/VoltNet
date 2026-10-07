@@ -92,8 +92,24 @@
     table.table-responsive-cards td.col-action {
         display: none !important;
     }
-    table.table-responsive-cards tr.expanded td.col-secondary,
-    table.table-responsive-cards tr.expanded td.col-action {
+    table.table-responsive-cards tr.expanded td.col-secondary {
         display: flex !important;
     }
+    table.table-responsive-cards tr.expanded td.col-action {
+        display: flex !important;
+        justify-content: flex-end !important;
+        flex-wrap: wrap !important;
+        gap: 4px !important;
+    }
 }
+
+/* Desktop Table Action Cells */
+@media (min-width: 769px) {
+    table.table-responsive-cards td.col-action {
+        white-space: nowrap !important;
+    }
+    table.table-responsive-cards td.col-action .btn {
+        margin-bottom: 0 !important;
+    }
+}
+

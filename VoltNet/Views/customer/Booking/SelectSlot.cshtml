@@ -1,0 +1,268 @@
+@model IEnumerable<VoltNet.Controllers.customer.SlotViewModel>
+
+@{
+    var station = ViewBag.Station as VoltNet.Models.Station;
+    var charger = ViewBag.Charger as VoltNet.Models.Charger;
+    var selectedDate = (DateTime)ViewBag.SelectedDate;
+    var estimatedCost = (decimal)ViewBag.EstimatedCost;
+    var rate = ViewBag.Rate as VoltNet.Models.ChargingRate;
+    ViewData["Title"] = $"Choose Time Slot - {charger?.Name}";
+    Layout = "~/Views/Shared/_CustomerLayout.cshtml";
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle mr-2"></i> @TempData["Success"]
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span>&times;</span></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle mr-2"></i> @TempData["Error"]
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span>&times;</span></button>
+    </div>
+}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card bg-primary text-white border-0 shadow-sm">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center flex-wrap">
+                    <div>
+                        <span class="badge badge-light text-primary font-weight-bold mb-2">Step 2 of 3: Real-Time Slots & Queue</span>
+                        <h3 class="font-weight-bold mb-1"><i class="fas fa-calendar-alt mr-2"></i> @(charger?.Name) — @(station?.Name)</h3>
+                        <p class="mb-0 text-white-50">
+                            <span class="badge badge-info mr-2">@(charger?.ConnectorType)</span>
+                            <span class="badge badge-warning mr-2">@(charger?.CapacityKw) kW</span>
+                            <span>Operating Hours: @(station?.OpeningTime.ToString(@"hh\:mm")) - @(station?.ClosingTime.ToString(@"hh\:mm"))</span>
+                        </p>
+                    </div>
+                    <div class="mt-3 mt-md-0">
+                        <a href="/customer/book/@(station?.Id)" class="btn btn-outline-light btn-sm"><i class="fas fa-arrow-left mr-1"></i> Change Charger</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Left Column: Date Selector & Info -->
+    <div class="col-12 col-lg-4 mb-4">
+        <div class="card shadow-sm border-0 sticky-top" style="top: 20px;">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0 font-weight-bold text-dark"><i class="fas fa-calendar-day text-primary mr-2"></i> Select Date</h5>
+            </div>
+            <div class="card-body">
+                <form method="get" action="/customer/book/@(station?.Id)/slots" id="dateForm">
+                    <input type="hidden" name="chargerId" value="@(charger?.Id)" />
+                    <div class="form-group">
+                        <label class="font-weight-bold">Booking Date (Next 7 Days):</label>
+                        <input type="date" class="form-control form-control-lg font-weight-bold text-primary" 
+                               id="dateInput" name="date" 
+                               value="@(selectedDate.ToString("yyyy-MM-dd"))" 
+                               min="@(ViewBag.MinDate)" 
+                               max="@(ViewBag.MaxDate)" 
+                               onchange="document.getElementById('dateForm').submit();" />
+                        <small class="form-text text-muted mt-2">Pick any date within the next 7 days to view live slot availability.</small>
+                    </div>
+                </form>
+
+                <hr />
+
+                <div class="mb-3">
+                    <h6 class="font-weight-bold text-dark mb-2"><i class="fas fa-gas-pump text-success mr-2"></i> Meter Unit Rate (Petrol Pump Style)</h6>
+                    <div class="p-3 bg-light rounded">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-muted small">Power Rating:</span>
+                            <span class="font-weight-bold">@(charger?.CapacityKw) kW</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-muted small">Energy Unit Rate:</span>
+                            <span class="font-weight-bold text-success">@(rate != null ? $"₹{rate.RatePerKwh:F2} / kWh" : "₹15.00 / kWh")</span>
+                        </div>
+                        @if (rate?.RatePerHour.HasValue == true && rate.RatePerHour.Value > 0)
+                        {
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-muted small">Base Station Fee:</span>
+                                <span class="font-weight-bold text-primary">₹@rate.RatePerHour.Value.ToString("F2")</span>
+                            </div>
+                        }
+                        <div class="border-top pt-2 mt-2">
+                            <small class="text-muted d-block"><i class="fas fa-info-circle text-info mr-1"></i> You only pay for exact kWh units consumed by your vehicle at completion.</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="d-flex align-items-center mb-2 small text-muted">
+                        <span class="badge badge-success px-2 py-1 mr-2"><i class="fas fa-check"></i></span> Available to Book
+                    </div>
+                    <div class="d-flex align-items-center mb-2 small text-muted">
+                        <span class="badge badge-warning text-dark px-2 py-1 mr-2"><i class="fas fa-users"></i></span> Booked (Join Waitlist Queue)
+                    </div>
+                    <div class="d-flex align-items-center mb-2 small text-muted">
+                        <span class="badge badge-danger px-2 py-1 mr-2"><i class="fas fa-tools"></i></span> Station Maintenance / Break
+                    </div>
+                    <div class="d-flex align-items-center small text-muted">
+                        <span class="badge badge-secondary px-2 py-1 mr-2"><i class="fas fa-clock"></i></span> Past Slot / Closed
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Slots Grid & Real-time Waitlist -->
+    <div class="col-12 col-lg-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center flex-wrap">
+                <div>
+                    <h5 class="mb-1 font-weight-bold text-dark">
+                        <i class="fas fa-clock text-primary mr-2"></i> Live 1-Hour Time Slots
+                    </h5>
+                    <p class="text-muted mb-0 small">Schedule for @(selectedDate.ToString("dddd, dd MMMM yyyy"))</p>
+                </div>
+            </div>
+            <div class="card-body p-4">
+                @if (!Model.Any())
+                {
+                    <div class="text-center py-5">
+                        <i class="fas fa-store-slash fa-3x text-muted mb-3"></i>
+                        <h5>No operating hours slots found</h5>
+                        <p class="text-muted">This station has no slots configured during operating hours.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="row g-3">
+                        @foreach (var slot in Model)
+                        {
+                            <div class="col-12 col-sm-6 col-md-4 mb-3">
+                                @if (slot.IsAvailable)
+                                {
+                                    <a href="/customer/book/confirm?stationId=@(station?.Id)&chargerId=@(charger?.Id)&date=@(selectedDate.ToString("yyyy-MM-dd"))&startTime=@(slot.StartTime.ToString(@"hh\:mm"))&endTime=@(slot.EndTime.ToString(@"hh\:mm"))" 
+                                       class="card text-center p-3 text-decoration-none border border-success h-100 shadow-sm slot-card available">
+                                        <div class="text-success font-weight-bold h5 mb-1">
+                                            <i class="fas fa-bolt mr-1"></i> @slot.StartTime.ToString(@"hh\:mm") - @slot.EndTime.ToString(@"hh\:mm")
+                                        </div>
+                                        <div class="badge badge-success mt-1 py-1">Available to Book</div>
+                                    </a>
+                                }
+                                else if (slot.IsBlocked)
+                                {
+                                    <div class="card text-center p-3 border border-danger bg-light opacity-80 h-100 slot-card">
+                                        <div class="text-danger font-weight-bold h6 mb-1">
+                                            @slot.StartTime.ToString(@"hh\:mm") - @slot.EndTime.ToString(@"hh\:mm")
+                                        </div>
+                                        <div class="badge badge-danger mt-1 py-1">
+                                            <i class="fas fa-tools mr-1"></i> @(slot.BlockReason ?? "Station Maintenance")
+                                        </div>
+                                    </div>
+                                }
+                                else if (slot.IsBooked)
+                                {
+                                    <div class="card text-center p-3 border border-warning bg-light h-100 slot-card booked">
+                                        <div class="text-dark font-weight-bold h6 mb-1">
+                                            @slot.StartTime.ToString(@"hh\:mm") - @slot.EndTime.ToString(@"hh\:mm")
+                                        </div>
+                                        <div class="badge badge-warning text-dark mt-1 py-1 mb-2">
+                                            <i class="fas fa-user-lock mr-1"></i> Already Booked
+                                        </div>
+
+                                        @if (slot.IsUserInWaitlist)
+                                        {
+                                            <span class="badge badge-primary py-1"><i class="fas fa-check-circle mr-1"></i> You are in Queue</span>
+                                        }
+                                        else
+                                        {
+                                            <button type="button" class="btn btn-outline-warning btn-sm text-dark font-weight-bold" 
+                                                    onclick="openWaitlistModal('@(slot.StartTime.ToString(@"hh\:mm"))', '@(slot.EndTime.ToString(@"hh\:mm"))', '@(slot.WaitlistCount + 1)')">
+                                                <i class="fas fa-bell mr-1"></i> Join Waitlist (@(slot.WaitlistCount > 0 ? $"#{slot.WaitlistCount + 1}" : "#1"))
+                                            </button>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="card text-center p-3 border border-secondary bg-light opacity-50 h-100 slot-card past">
+                                        <div class="text-muted font-weight-bold h6 mb-1">
+                                            @slot.StartTime.ToString(@"hh\:mm") - @slot.EndTime.ToString(@"hh\:mm")
+                                        </div>
+                                        <div class="badge badge-secondary mt-1 py-1">Past Slot</div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Join Waitlist Queue -->
+<div class="modal fade" id="waitlistModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title font-weight-bold"><i class="fas fa-bell mr-2"></i> Join Slot Waitlist Queue</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="/customer/book/join-waitlist" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="stationId" value="@(station?.Id)" />
+                <input type="hidden" name="chargerId" value="@(charger?.Id)" />
+                <input type="hidden" name="bookingDate" value="@(selectedDate.ToString("yyyy-MM-dd"))" />
+                <input type="hidden" id="modalStartTime" name="startTime" />
+                <input type="hidden" id="modalEndTime" name="endTime" />
+
+                <div class="modal-body">
+                    <p>This slot is currently reserved. You will be added to the queue as <strong class="text-primary" id="modalQueuePos"></strong>.</p>
+                    <div class="alert alert-info py-2 small">
+                        <i class="fas fa-magic mr-1"></i> <strong>Automated Slot Transfer:</strong> If the current driver cancels their reservation, this slot will automatically be confirmed for you!
+                    </div>
+                    <div class="form-group">
+                        <label class="font-weight-bold">Vehicle Registration Number / Number Plate:</label>
+                        <input type="text" name="vehicleNumberPlate" class="form-control text-uppercase" placeholder="e.g. GJ01AB1234" />
+                        <small class="form-text text-muted">Helps the station manager identify your EV on arrival.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning font-weight-bold text-dark"><i class="fas fa-check mr-1"></i> Confirm & Join Queue</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function openWaitlistModal(startTime, endTime, queueNum) {
+            $('#modalStartTime').val(startTime);
+            $('#modalEndTime').val(endTime);
+            $('#modalQueuePos').text('Queue Position #' + queueNum);
+            $('#waitlistModal').modal('show');
+        }
+
+        $(document).ready(function() {
+            $('#waitlistModal').appendTo("body");
+        });
+    </script>
+}
+
+<style>
+    .slot-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+        border-radius: 8px;
+    }
+    .slot-card.available:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 6px 15px rgba(46, 213, 115, 0.25) !important;
+        background-color: #f6fffa;
+    }
+</style>

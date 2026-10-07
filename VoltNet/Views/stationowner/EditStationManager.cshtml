@@ -49,6 +49,14 @@
                 }
               }
             </select>
+          <div class="form-group">
+            <div class="custom-control custom-checkbox">
+              <input type="checkbox" class="custom-control-input" id="canManageRates" name="canManageRates" value="true" @(Model.CanManageRates ? "checked" : "")>
+              <label class="custom-control-label font-weight-bold" for="canManageRates">
+                Allow Manager to Set & Edit Charging Rates
+              </label>
+            </div>
+            <small class="form-text text-muted">Grant or revoke permission for this manager to set prices per kWh or hour.</small>
           </div>
 
           <div class="form-group mt-4">

@@ -251,3 +251,75 @@ This document details **why** and **which** technical, security, UX, and archite
   - **3-Phase Flow**: (1) Gateway Initialization → (2) Train-Convoy Processing Simulation → (3) Success Checkmark & Auto-Redirect.
 - **Why**:
   - Replaces generic spinners with a delightful, realistic payment gateway interaction identical to top-tier consumer apps.
+
+---
+
+## 9. Charging Rates System & Station Manager Permission Architecture
+
+### 9.1 Relational Architecture & Single-Active-Rate Guard
+- **Decision**: Implemented `ChargingRate` model linked to `Station` with fields: `ConnectorType`, `RatePerKwh` (mandatory, ₹0.01 - ₹150.00), `RatePerHour` (optional parking/session fee, ₹0.00 - ₹2000.00), and `IsActive`.
+- **Single Active Rate per Connector Rule**: A station can only have **one** active charging rate per connector type at any given time. Creating a duplicate active rate or activating a second rate for the same connector type is blocked on both client and server layers.
+- **Soft Deactivation**: Historical rates are marked `IsActive = false` rather than hard deleted, ensuring data integrity when historical bookings reference previous prices.
+
+### 9.2 Station Owner Permission Delegation (`CanManageRates`)
+- **Decision**: Added `CanManageRates` boolean flag to `StationManager`.
+- **Granular Control**:
+  - Station Owners can toggle rate management permissions per manager from the Station Managers page or during manager creation/edit.
+  - Station Managers with `CanManageRates = false` see a clean **Read-Only Mode** on `/manager/rates` with informative tooltips.
+  - Station Managers with `CanManageRates = true` can add, edit, and toggle charging rates directly from their portal for their assigned station.
+- **Security Check**: The controller strictly verifies `manager.CanManageRates` in `ManagerRatesController` before allowing any rate modifications.
+
+### 9.3 Public Integration & Dynamic Price Discovery
+- **Decision**: The public `/station/{id}` and `/Home/Stations` search results dynamically calculate and display:
+  - **"Starting From ₹X/kWh"** on station search cards.
+  - Per-connector badges (e.g. `⚡ CCS2 - ₹15.00/kWh (+ ₹50.00/hr)`) on the Station Detail page.
+- **Why**: Prepares the foundational pricing calculations required for Phase 2 (Booking Module).
+
+---
+
+## 10. Phase 2: Booking Module & Real-World Indian EV Charging Architecture
+
+### 10.1 Complete 3-Step Customer Booking Journey
+- **Decision**: Implemented an intuitive 3-step funnel:
+  1. `/customer/book/{stationId}`: Select active charger connector type, capacity (kW), and view charging rates.
+  2. `/customer/book/{stationId}/slots`: Interactive 1-hour slot generator bounded between station operating hours and the next 7 days in IST.
+  3. `/customer/book/confirm`: Review schedule, input optional vehicle plate & model, preview energy unit rate, and confirm.
+- **Why**: Eliminates user confusion, prevents race-condition collisions, and collects essential driver metadata for on-site station staff.
+
+### 10.2 Petrol-Pump Style Energy Meter Billing (`Units used (kWh) × Rate/kWh`)
+- **Decision**:
+  - Instead of forcing customers into rigid, overpriced pre-payments based on nominal capacity, online bookings only lock the slot with a transparent **Rate per kWh (e.g. ₹15/kWh)** and estimated range.
+  - At session completion, the **Station Manager** records the exact energy meter numbers (`StartMeterReading`, `EndMeterReading`, or `UnitsConsumedKwh`).
+  - **Final Bill Formula**:
+    $$\text{Final Total Bill} = (\text{Units Consumed (kWh)} \times \text{Rate per kWh}) + \text{Base Station Fee}$$
+- **Why**: Replicates the natural, trusted petrol-pump fueling experience in India. Drivers only pay for the exact kilowatt-hours pumped into their EV battery with zero wasted money.
+
+### 10.3 Energy Meter Display Photo Upload & OCR Digit Scanning
+- **Decision**:
+  - The Station Manager can snap/upload a photo of the charger meter display (`meterPhoto`).
+  - Built-in OCR parser (`/manager/bookings/read-meter-photo`) auto-detects and extracts the kWh digits directly from the meter image to speed up checkout.
+  - The photo is saved as an immutable audit record (`MeterPhotoUrl`) accessible on both the customer receipt and manager dashboard.
+- **Why**: Guarantees 100% dispute-free transparency between EV drivers and station staff.
+
+### 10.4 Walk-In / Spot Charging System for Offline Drivers
+- **Decision**:
+  - Station managers have a **`+ New Walk-In Driver`** portal action to record drivers who arrive directly without prior app reservations.
+  - Manager enters vehicle plate number, driver phone, duration, and assigns the charger bay.
+  - **Instant Slot Locking**: The system immediately reserves that charger bay in real-time so online drivers cannot book an already occupied charger.
+- **Why**: In India, many drivers arrive on critical low battery without prior planning. This allows stations to serve walk-ins while keeping digital slot schedules synchronized.
+
+### 10.5 Real-Time Waitlist Queue & Automated Slot Promotion
+- **Decision**:
+  - When an online driver views a slot that is already booked, they can click **`🔔 Join Waitlist (Queue #1)`**.
+  - **Automated Promotion Engine**: If the active driver **cancels** their booking outside the 30-minute window, the cancellation trigger automatically promotes the next person in line to `Confirmed`, generates their booking, re-indexes remaining queue positions, and fires an instant email alert to the promoted customer.
+- **Why**: Maximizes charger bay utilization for station owners and provides drivers a fair, automated backup opportunity.
+
+### 10.6 Strict 30-Minute Cancellation Policy
+- **Decision**: Customers can cancel reservations free of charge strictly up to 30 minutes before the slot start time ($t_{\text{slot}} - t_{\text{now}} \ge 30\text{ min}$). Within 30 minutes, cancellation is locked.
+- **Why**: Protects station owners against last-minute ghost cancellations that leave chargers idle.
+
+### 10.7 Station Maintenance, Breaks & Grid Outage Controls
+- **Decision**: Created `/manager/station-blocks` allowing managers to temporarily block specific chargers or the entire station for maintenance, grid power cuts, or staff breaks. Blocked slots are visually indicated to customers and locked from reservations.
+- **Why**: Prevents frustrated drivers from arriving at a station undergoing emergency electrical work or power outages.
+
+

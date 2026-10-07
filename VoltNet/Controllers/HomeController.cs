@@ -142,6 +142,7 @@ public class HomeController : Controller
     {
         var query = _context.Stations
             .Include(s => s.Chargers)
+            .Include(s => s.ChargingRates)
             .Include(s => s.OwnerSubscription)
             .Where(s => s.Status == "Active" && s.OwnerSubscription != null && s.OwnerSubscription.Status == "Active" && s.OwnerSubscription.EndDate >= DateTime.UtcNow)
             .AsQueryable();
@@ -176,6 +177,7 @@ public class HomeController : Controller
             s.State,
             ChargerCount = s.Chargers.Count,
             MaxPower = s.Chargers.Any() ? s.Chargers.Max(c => c.CapacityKw) : 0,
+            MinRate = s.ChargingRates.Any(r => r.IsActive) ? s.ChargingRates.Where(r => r.IsActive).Min(r => r.RatePerKwh) : (decimal?)null,
             Opening = s.OpeningTime.ToString(@"hh\:mm"),
             Closing = s.ClosingTime.ToString(@"hh\:mm"),
             IsOpen = IsStationOpen(s.OpeningTime, s.ClosingTime)
@@ -212,6 +214,7 @@ public class HomeController : Controller
     {
         var station = await _context.Stations
             .Include(s => s.Chargers)
+            .Include(s => s.ChargingRates)
             .Include(s => s.OwnerSubscription)
             .FirstOrDefaultAsync(s => s.Id == id);
 

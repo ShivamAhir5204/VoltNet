@@ -1,0 +1,314 @@
+@model IEnumerable<VoltNet.Models.Booking>
+
+@{
+    ViewData["Title"] = "My Bookings";
+    Layout = "~/Views/Shared/_CustomerLayout.cshtml";
+    var ist = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
+    var nowIst = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ist);
+
+    var upcomingBookings = Model.Where(b => b.Status == "Confirmed" && (b.BookingDate.Date + b.EndTime) >= nowIst).ToList();
+    var pastBookings = Model.Where(b => !upcomingBookings.Contains(b)).ToList();
+    var waitlist = ViewBag.Waitlist as List<VoltNet.Models.WaitlistEntry> ?? new List<VoltNet.Models.WaitlistEntry>();
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle mr-2"></i> @TempData["Success"]
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span>&times;</span></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle mr-2"></i> @TempData["Error"]
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span>&times;</span></button>
+    </div>
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+                <div>
+                    <h4 class="mb-1"><i class="fas fa-calendar-check text-primary mr-2"></i> My EV Charging Reservations</h4>
+                    <p class="text-muted mb-0 small">Track upcoming charging reservations, live waitlist queue spots, and transparent billing receipts.</p>
+                </div>
+                <div class="mt-2 mt-sm-0">
+                    <a href="/Home/Stations" class="btn btn-primary">
+                        <i class="fas fa-plus mr-1"></i> Book New Slot
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                
+                <!-- ACTIVE WAITLIST QUEUES SECTION -->
+                @if (waitlist.Any())
+                {
+                    <div class="alert alert-warning border-warning shadow-sm mb-4">
+                        <h6 class="font-weight-bold mb-2 text-dark"><i class="fas fa-bell mr-2"></i> Active Waitlist Queues (@waitlist.Count)</h6>
+                        <p class="small text-muted mb-3">If any driver cancels their booking for these slots, your reservation will be automatically confirmed.</p>
+                        
+                        <div class="row">
+                            @foreach (var w in waitlist)
+                            {
+                                <div class="col-12 col-md-6 mb-2">
+                                    <div class="bg-white p-3 rounded border d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                        <div>
+                                            <strong class="text-dark">@w.Station?.Name</strong>
+                                            <div class="small text-muted">@w.BookingDate.ToString("dd MMM yyyy") (@w.StartTime.ToString(@"hh\:mm") - @w.EndTime.ToString(@"hh\:mm"))</div>
+                                            <span class="badge badge-warning text-dark mt-1">Queue Position #@w.QueuePosition</span>
+                                        </div>
+                                        <form asp-action="CancelWaitlist" method="post" class="mb-0">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@w.Id" />
+                                            <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Leave waitlist queue?');">
+                                                Leave Queue
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <!-- UPCOMING BOOKINGS SECTION -->
+                <h5 class="font-weight-bold text-dark mb-3">
+                    <i class="fas fa-clock text-success mr-2"></i> Upcoming Reservations (@upcomingBookings.Count)
+                </h5>
+
+                @if (!upcomingBookings.Any())
+                {
+                    <div class="p-4 bg-light text-center rounded mb-4">
+                        <i class="fas fa-calendar-times fa-3x text-muted mb-2"></i>
+                        <h6>No upcoming bookings</h6>
+                        <p class="text-muted small mb-3">Reserve an EV charger slot in advance to avoid waiting in queues.</p>
+                        <a href="/Home/Stations" class="btn btn-sm btn-outline-primary">Find Nearby Stations</a>
+                    </div>
+                }
+                else
+                {
+                    <div class="row mb-4">
+                        @foreach (var booking in upcomingBookings)
+                        {
+                            var slotStart = booking.BookingDate.Date + booking.StartTime;
+                            var canCancel = (slotStart - nowIst).TotalMinutes >= 30;
+
+                            <div class="col-12 col-md-6 mb-3">
+                                <div class="card border-primary h-100 shadow-sm">
+                                    <div class="card-body p-4">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <div>
+                                                <h5 class="font-weight-bold text-dark mb-1">@booking.Station?.Name</h5>
+                                                <p class="text-muted small mb-0"><i class="fas fa-map-marker-alt text-danger mr-1"></i> @booking.Station?.Address, @booking.Station?.City</p>
+                                            </div>
+                                            <span class="badge badge-success px-3 py-2">Confirmed</span>
+                                        </div>
+
+                                        <div class="p-3 bg-light rounded my-3">
+                                            <div class="row">
+                                                <div class="col-6 mb-2">
+                                                    <span class="text-muted small">Charger</span>
+                                                    <div class="font-weight-bold">@booking.Charger?.Name</div>
+                                                    <small class="text-info">@booking.Charger?.ConnectorType (@(booking.Charger?.CapacityKw)kW)</small>
+                                                </div>
+                                                <div class="col-6 mb-2">
+                                                    <span class="text-muted small">Vehicle Plate</span>
+                                                    <div class="font-weight-bold text-dark">@(string.IsNullOrEmpty(booking.VehicleNumberPlate) ? "—" : booking.VehicleNumberPlate)</div>
+                                                    <small class="text-muted">@(booking.VehicleModel ?? "EV Car")</small>
+                                                </div>
+                                                <div class="col-6">
+                                                    <span class="text-muted small">Date</span>
+                                                    <div class="font-weight-bold text-dark">@booking.BookingDate.ToString("dd MMM yyyy")</div>
+                                                </div>
+                                                <div class="col-6">
+                                                    <span class="text-muted small">Time Slot</span>
+                                                    <div class="font-weight-bold text-primary">@booking.StartTime.ToString(@"hh\:mm") - @booking.EndTime.ToString(@"hh\:mm")</div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <small class="text-muted">ID: #@booking.Id.ToString().Substring(0, 8).ToUpper()</small>
+                                            <div>
+                                                @if (canCancel)
+                                                {
+                                                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="openCancelModal('@booking.Id', '@booking.Station?.Name', '@booking.BookingDate.ToString("dd MMM yyyy")', '@booking.StartTime.ToString(@"hh\:mm")')">
+                                                        <i class="fas fa-times mr-1"></i> Cancel Booking
+                                                    </button>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted small" title="Cancellation locked within 30 mins of slot start">
+                                                        <i class="fas fa-lock mr-1"></i> Cancellation Closed (&lt;30m)
+                                                    </span>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+
+                <hr />
+
+                <!-- PAST / CANCELLED BOOKINGS TABLE -->
+                <h5 class="font-weight-bold text-dark mb-3 mt-4">
+                    <i class="fas fa-history text-muted mr-2"></i> Charging History & Meter Receipts
+                </h5>
+
+                @if (!pastBookings.Any())
+                {
+                    <p class="text-muted small">No past bookings found.</p>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-striped align-middle table-responsive-cards" id="table-1">
+                            <thead>
+                                <tr>
+                                    <th>Booking ID</th>
+                                    <th>Station & Charger</th>
+                                    <th>Vehicle</th>
+                                    <th>Units (kWh)</th>
+                                    <th>Final Cost</th>
+                                    <th>Status</th>
+                                    <th>Meter Proof</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var b in pastBookings)
+                                {
+                                    <tr>
+                                        <td class="col-primary" data-label="Booking ID">
+                                            <div class="d-flex align-items-center justify-content-between">
+                                                <strong class="text-dark">#@b.Id.ToString().Substring(0, 8).ToUpper()</strong>
+                                                <button type="button" class="mobile-expand-btn ml-2" title="Show details">
+                                                    <i data-feather="chevron-down"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                        <td class="col-secondary" data-label="Station & Charger">
+                                            <div>
+                                                <strong>@b.Station?.Name</strong>
+                                                <div class="small text-muted">@b.Charger?.Name (@b.Charger?.ConnectorType)</div>
+                                            </div>
+                                        </td>
+                                        <td class="col-secondary" data-label="Vehicle">
+                                            <div>
+                                                <strong>@(b.VehicleNumberPlate ?? "—")</strong>
+                                                <div class="small text-muted">@b.BookingDate.ToString("dd MMM yyyy")</div>
+                                            </div>
+                                        </td>
+                                        <td class="col-secondary" data-label="Units (kWh)">
+                                            <div>
+                                                @if (b.UnitsConsumedKwh.HasValue)
+                                                {
+                                                    <span class="badge badge-light border text-dark font-weight-bold">@b.UnitsConsumedKwh.Value.ToString("F2") kWh</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">—</span>
+                                                }
+                                            </div>
+                                        </td>
+                                        <td class="col-secondary" data-label="Final Cost">
+                                            <div>
+                                                <strong class="text-success">₹@(b.ActualCost?.ToString("F2") ?? b.EstimatedCost.ToString("F2"))</strong>
+                                            </div>
+                                        </td>
+                                        <td class="col-secondary" data-label="Status">
+                                            <div>
+                                                @if (b.Status == "Completed")
+                                                {
+                                                    <span class="badge bg-success">Completed</span>
+                                                }
+                                                else if (b.Status == "Cancelled")
+                                                {
+                                                    <span class="badge bg-danger" title="@b.CancellationReason">Cancelled</span>
+                                                }
+                                                else if (b.Status == "NoShow")
+                                                {
+                                                    <span class="badge bg-warning text-dark">No Show</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-info">@b.Status</span>
+                                                }
+                                            </div>
+                                        </td>
+                                        <td class="col-secondary" data-label="Meter Proof">
+                                            @if (!string.IsNullOrEmpty(b.MeterPhotoUrl))
+                                            {
+                                                <a href="@b.MeterPhotoUrl" target="_blank" class="btn btn-outline-info btn-sm">
+                                                    <i class="fas fa-image mr-1"></i> View Photo
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted small">—</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Cancel Booking -->
+<div class="modal fade" id="cancelBookingModal" tabindex="-1" role="dialog" aria-labelledby="cancelBookingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="cancelBookingModalLabel"><i class="fas fa-ban mr-2"></i> Cancel EV Charging Slot</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-action="Cancel" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="cancelBookingId" name="id" />
+                <div class="modal-body">
+                    <p class="text-dark">Are you sure you want to cancel your reservation for <strong id="cancelStationName"></strong> on <strong id="cancelDateTime"></strong>?</p>
+                    
+                    <div class="form-group">
+                        <label for="cancellationReason" class="font-weight-bold">Reason for Cancellation <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="cancellationReason" name="cancellationReason" rows="3" required placeholder="Please let us know why you are cancelling (e.g., plan changed, charged elsewhere, etc.)"></textarea>
+                    </div>
+
+                    <div class="alert alert-warning small mb-0">
+                        <i class="fas fa-info-circle mr-1"></i> Cancelling releases your reserved charging slot immediately for drivers waiting in the queue.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Keep Booking</button>
+                    <button type="submit" class="btn btn-danger"><i class="fas fa-times mr-1"></i> Confirm Cancellation</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function openCancelModal(id, station, date, time) {
+            $('#cancelBookingId').val(id);
+            $('#cancelStationName').text(station);
+            $('#cancelDateTime').text(date + ' at ' + time);
+            $('#cancelBookingModal').modal('show');
+        }
+
+        $(document).ready(function() {
+            $('#cancelBookingModal').appendTo("body");
+        });
+    </script>
+}

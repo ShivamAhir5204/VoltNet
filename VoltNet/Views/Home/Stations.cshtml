@@ -109,8 +109,10 @@
                                                 <div class="station-spec-label">Max Power</div>
                                             </div>
                                             <div class="station-spec">
-                                                <div class="station-spec-value">@station.Opening</div>
-                                                <div class="station-spec-label">Opens At</div>
+                                                <div class="station-spec-value text-success">
+                                                    @(station.MinRate != null ? $"₹{station.MinRate:F2}" : "Standard")
+                                                </div>
+                                                <div class="station-spec-label">From / kWh</div>
                                             </div>
                                         </div>
                                     </div>

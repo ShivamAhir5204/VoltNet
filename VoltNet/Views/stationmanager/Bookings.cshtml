@@ -1,0 +1,466 @@
+@model IEnumerable<VoltNet.Models.Booking>
+
+@{
+    var station = ViewBag.Station as VoltNet.Models.Station;
+    var activeChargers = ViewBag.ActiveChargers as List<VoltNet.Models.Charger> ?? new List<VoltNet.Models.Charger>();
+    ViewData["Title"] = $"Station Bookings - {station?.Name}";
+    Layout = "~/Views/Shared/_ManagerLayout.cshtml";
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle mr-2"></i> @TempData["Success"]
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span>&times;</span></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle mr-2"></i> @TempData["Error"]
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span>&times;</span></button>
+    </div>
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+                <div>
+                    <h4 class="mb-1"><i class="fas fa-charging-station text-primary mr-2"></i> Charging Operations — @(station?.Name)</h4>
+                    <p class="text-muted mb-0 small">Petrol-pump style meter billing, walk-in offline entries, meter photo OCR reading, and session completion.</p>
+                </div>
+                <div class="d-flex gap-2 flex-wrap mt-2 mt-md-0">
+                    <button type="button" class="btn btn-warning font-weight-bold text-dark" data-toggle="modal" data-target="#walkInModal">
+                        <i class="fas fa-bolt mr-1"></i> + New Walk-In Driver
+                    </button>
+                    <a href="/manager/station-blocks" class="btn btn-outline-secondary">
+                        <i class="fas fa-tools mr-1"></i> Maintenance & Breaks
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Filters Form -->
+                <form method="get" class="mb-4 bg-light p-3 rounded">
+                    <div class="row align-items-end">
+                        <div class="col-12 col-md-4 mb-2 mb-md-0">
+                            <label class="font-weight-bold small">Filter by Date:</label>
+                            <input type="date" name="date" class="form-control" value="@ViewBag.SelectedDate" />
+                        </div>
+                        <div class="col-12 col-md-4 mb-2 mb-md-0">
+                            <label class="font-weight-bold small">Filter by Status:</label>
+                            <select name="status" class="form-control">
+                                <option value="">-- All Statuses --</option>
+                                <option value="Confirmed" selected="@(ViewBag.SelectedStatus == "Confirmed")">Confirmed / Active</option>
+                                <option value="Completed" selected="@(ViewBag.SelectedStatus == "Completed")">Completed</option>
+                                <option value="Cancelled" selected="@(ViewBag.SelectedStatus == "Cancelled")">Cancelled</option>
+                                <option value="NoShow" selected="@(ViewBag.SelectedStatus == "NoShow")">No-Show</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <button type="submit" class="btn btn-primary mr-1"><i class="fas fa-filter mr-1"></i> Filter</button>
+                            <a href="/manager/bookings" class="btn btn-outline-secondary">Reset</a>
+                        </div>
+                    </div>
+                </form>
+
+                @if (!Model.Any())
+                {
+                    <div class="text-center py-5">
+                        <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                        <h5>No Bookings Found</h5>
+                        <p class="text-muted">No reservations match your filter criteria for this station.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-striped align-middle table-responsive-cards" id="table-1">
+                            <thead>
+                                <tr>
+                                    <th>Driver / Customer</th>
+                                    <th>Vehicle & Charger</th>
+                                    <th>Date & Slot</th>
+                                    <th>Type</th>
+                                    <th>Energy Used</th>
+                                    <th>Final Cost</th>
+                                    <th>Status</th>
+                                    <th class="text-center" style="min-width: 220px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var b in Model)
+                                {
+                                    <tr>
+                                        <td class="col-primary" data-label="Driver / Customer">
+                                            <div class="d-flex align-items-center justify-content-between">
+                                                <div>
+                                                    <span class="font-weight-bold text-dark">@(b.CustomerName ?? b.Customer?.Fullname ?? "Customer")</span>
+                                                    <div class="small text-muted"><i class="fas fa-phone mr-1"></i> @(b.CustomerPhone ?? b.Customer?.Mobile ?? "—")</div>
+                                                </div>
+                                                <button type="button" class="mobile-expand-btn ml-2" title="Show details">
+                                                    <i data-feather="chevron-down"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                        <td class="col-secondary" data-label="Vehicle & Charger">
+                                            <div>
+                                                <strong class="text-primary">@(string.IsNullOrEmpty(b.VehicleNumberPlate) ? "Plate: —" : b.VehicleNumberPlate)</strong>
+                                                <div class="small text-dark font-weight-bold">@b.Charger?.Name (@b.Charger?.ConnectorType)</div>
+                                            </div>
+                                        </td>
+                                        <td class="col-secondary" data-label="Date & Slot">
+                                            <div>@b.BookingDate.ToString("dd MMM yyyy")</div>
+                                            <div class="small text-muted">@b.StartTime.ToString(@"hh\:mm") - @b.EndTime.ToString(@"hh\:mm")</div>
+                                        </td>
+                                        <td class="col-secondary" data-label="Type">
+                                            @if (b.IsWalkIn)
+                                            {
+                                                <span class="badge badge-warning text-dark font-weight-bold">⚡ Walk-In</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge badge-info font-weight-bold">📱 App Booking</span>
+                                            }
+                                        </td>
+                                        <td class="col-secondary" data-label="Energy Used">
+                                            @if (b.UnitsConsumedKwh.HasValue)
+                                            {
+                                                <strong class="text-dark">@b.UnitsConsumedKwh.Value.ToString("F2") kWh</strong>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">—</span>
+                                            }
+                                        </td>
+                                        <td class="col-secondary" data-label="Final Cost">
+                                            <div>
+                                                @if (b.ActualCost.HasValue)
+                                                {
+                                                    <strong class="text-success">₹@b.ActualCost.Value.ToString("F2")</strong>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">Est. ₹@b.EstimatedCost.ToString("F2")</span>
+                                                }
+                                            </div>
+                                        </td>
+                                        <td class="col-secondary" data-label="Status">
+                                            <div>
+                                                @if (b.Status == "Confirmed")
+                                                {
+                                                    <span class="badge bg-primary">Active</span>
+                                                }
+                                                else if (b.Status == "Completed")
+                                                {
+                                                    <span class="badge bg-success">Completed</span>
+                                                }
+                                                else if (b.Status == "Cancelled")
+                                                {
+                                                    <span class="badge bg-danger" title="@b.CancellationReason">Cancelled</span>
+                                                }
+                                                else if (b.Status == "NoShow")
+                                                {
+                                                    <span class="badge bg-warning text-dark">No Show</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-info">@b.Status</span>
+                                                }
+                                            </div>
+                                        </td>
+                                        <td class="text-center col-action" data-label="Actions">
+                                            @if (b.Status == "Confirmed")
+                                            {
+                                                <div class="d-inline-flex align-items-center justify-content-center flex-nowrap" style="white-space: nowrap;">
+                                                    <button type="button" class="btn btn-success btn-sm mr-1 font-weight-bold" 
+                                                            onclick="openCompleteModal('@b.Id', '@(b.CustomerName ?? b.Customer?.Fullname)', '@(b.VehicleNumberPlate ?? "")', '@(b.AppliedRatePerKwh ?? 15.00m)', '@(b.StartMeterReading ?? 0)')" 
+                                                            title="Complete with Meter Reading">
+                                                        <i class="fas fa-gas-pump mr-1"></i> Bill & Complete
+                                                    </button>
+                                                    <form asp-action="NoShow" method="post" class="d-inline mb-0">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="id" value="@b.Id" />
+                                                        <button type="submit" class="btn btn-outline-warning btn-sm" onclick="return confirm('Mark booking as No-Show?');" title="No Show">
+                                                            <i class="fas fa-user-slash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                @if (!string.IsNullOrEmpty(b.MeterPhotoUrl))
+                                                {
+                                                    <a href="@b.MeterPhotoUrl" target="_blank" class="btn btn-outline-info btn-sm">
+                                                        <i class="fas fa-image mr-1"></i> Meter Photo
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted small"><i class="fas fa-check mr-1"></i> Closed</span>
+                                                }
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 1: Walk-In / Spot Entry -->
+<div class="modal fade" id="walkInModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title font-weight-bold"><i class="fas fa-bolt mr-2"></i> Spot Charging / Walk-In Driver Entry</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-action="CreateWalkIn" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <p class="small text-muted mb-3">Create an instant spot session for drivers arriving directly without prior online booking. This will lock the charger bay immediately.</p>
+                    <div class="form-group">
+                        <label class="font-weight-bold">Select Charger Bay <span class="text-danger">*</span></label>
+                        <select name="chargerId" class="form-control" required>
+                            @foreach (var c in activeChargers)
+                            {
+                                <option value="@c.Id">@c.Name (@c.ConnectorType, @c.CapacityKw kW)</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label class="font-weight-bold">Vehicle Plate <span class="text-danger">*</span></label>
+                                <input type="text" name="vehicleNumberPlate" class="form-control text-uppercase" placeholder="e.g. GJ01AB1234" required />
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label class="font-weight-bold">Driver Phone <span class="text-danger">*</span></label>
+                                <input type="tel" name="customerPhone" class="form-control" placeholder="10-digit mobile" required />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label class="font-weight-bold">Driver Name:</label>
+                                <input type="text" name="customerName" class="form-control" placeholder="e.g. Rahul Sharma" />
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label class="font-weight-bold">Vehicle Model:</label>
+                                <input type="text" name="vehicleModel" class="form-control" placeholder="e.g. Tata Nexon EV" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label class="font-weight-bold">Estimated Duration:</label>
+                                <select name="durationMinutes" class="form-control">
+                                    <option value="30">30 Minutes</option>
+                                    <option value="60" selected>1 Hour</option>
+                                    <option value="90">1.5 Hours</option>
+                                    <option value="120">2 Hours</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label class="font-weight-bold">Initial Meter (kWh):</label>
+                                <input type="number" step="0.01" name="initialMeterReading" class="form-control" placeholder="0.00" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning font-weight-bold text-dark"><i class="fas fa-play mr-1"></i> Start Spot Charging Session</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 2: Petrol-Pump Meter Billing & OCR Photo Complete -->
+<div class="modal fade" id="completeBookingModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title font-weight-bold"><i class="fas fa-gas-pump mr-2"></i> Petrol-Pump Meter Billing & Session Complete</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-action="Complete" method="post" enctype="multipart/form-data" id="completeBillingForm">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="completeBookingId" name="id" />
+                <div class="modal-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3 p-3 bg-light rounded">
+                        <div>
+                            <strong id="completeCustomerName" class="h6 text-dark mb-0"></strong>
+                            <div id="completeVehiclePlate" class="small text-muted font-weight-bold"></div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-muted small">Applicable Rate:</span>
+                            <div class="h6 mb-0 text-success font-weight-bold" id="completeRateDisplay"></div>
+                        </div>
+                    </div>
+
+                    <!-- OCR Meter Photo Upload Box -->
+                    <div class="card border-info mb-3">
+                        <div class="card-header bg-info text-white font-weight-bold py-2">
+                            <i class="fas fa-camera mr-2"></i> Step 1: Upload Meter Display Photo (Optional OCR Auto-Read)
+                        </div>
+                        <div class="card-body p-3">
+                            <div class="row align-items-center">
+                                <div class="col-12 col-md-8 mb-2 mb-md-0">
+                                    <input type="file" name="meterPhoto" id="meterPhotoInput" class="form-control-file" accept="image/*" />
+                                    <small class="form-text text-muted">Take a photo of the charger screen showing total kWh units consumed.</small>
+                                </div>
+                                <div class="col-12 col-md-4">
+                                    <button type="button" class="btn btn-outline-info btn-block btn-sm font-weight-bold" id="btnScanOcr" onclick="scanMeterPhoto()">
+                                        <i class="fas fa-magic mr-1"></i> Scan & Read Digits
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="ocrStatusMessage" class="small font-weight-bold mt-2" style="display:none;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Meter Reading Calculation -->
+                    <div class="row">
+                        <div class="col-12 col-md-4">
+                            <div class="form-group">
+                                <label class="font-weight-bold">Start Reading (kWh):</label>
+                                <input type="number" step="0.01" min="0" class="form-control" id="startMeter" name="startMeterReading" oninput="recalcBill()" />
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <div class="form-group">
+                                <label class="font-weight-bold">End Reading (kWh):</label>
+                                <input type="number" step="0.01" min="0" class="form-control" id="endMeter" name="endMeterReading" oninput="recalcBill()" />
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <div class="form-group">
+                                <label class="font-weight-bold text-success">Total Units Used (kWh):</label>
+                                <input type="number" step="0.01" min="0" class="form-control font-weight-bold text-success border-success" id="unitsConsumed" name="unitsConsumedKwh" oninput="recalcBillFromUnits()" required />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-light rounded border-top border-success mt-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="text-muted font-weight-bold">Calculated Total Bill:</span>
+                                <div class="small text-muted" id="billFormulaDisplay">0.00 kWh × ₹15.00/kWh</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="input-group" style="max-width: 180px;">
+                                    <div class="input-group-prepend"><span class="input-group-text font-weight-bold">₹</span></div>
+                                    <input type="number" step="0.01" min="0" class="form-control form-control-lg font-weight-bold text-success text-right" id="actualCost" name="actualCost" required />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success font-weight-bold"><i class="fas fa-check-circle mr-1"></i> Confirm & Finalize Billing</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var currentRatePerKwh = 15.00;
+
+        function openCompleteModal(id, customer, plate, rate, startReading) {
+            $('#completeBookingId').val(id);
+            $('#completeCustomerName').text(customer || 'Customer');
+            $('#completeVehiclePlate').text(plate ? 'Vehicle: ' + plate : 'Vehicle: Standard EV');
+            currentRatePerKwh = parseFloat(rate) || 15.00;
+            $('#completeRateDisplay').text('₹' + currentRatePerKwh.toFixed(2) + ' / kWh');
+            $('#startMeter').val(parseFloat(startReading) || 0);
+            $('#endMeter').val('');
+            $('#unitsConsumed').val('');
+            $('#actualCost').val('');
+            $('#ocrStatusMessage').hide();
+            $('#completeBookingModal').modal('show');
+        }
+
+        function recalcBill() {
+            var start = parseFloat($('#startMeter').val()) || 0;
+            var end = parseFloat($('#endMeter').val()) || 0;
+            if (end >= start) {
+                var units = (end - start).toFixed(2);
+                $('#unitsConsumed').val(units);
+                var total = (units * currentRatePerKwh).toFixed(2);
+                $('#actualCost').val(total);
+                $('#billFormulaDisplay').text(units + ' kWh × ₹' + currentRatePerKwh.toFixed(2) + '/kWh');
+            }
+        }
+
+        function recalcBillFromUnits() {
+            var units = parseFloat($('#unitsConsumed').val()) || 0;
+            var total = (units * currentRatePerKwh).toFixed(2);
+            $('#actualCost').val(total);
+            $('#billFormulaDisplay').text(units.toFixed(2) + ' kWh × ₹' + currentRatePerKwh.toFixed(2) + '/kWh');
+        }
+
+        function scanMeterPhoto() {
+            var fileInput = document.getElementById('meterPhotoInput');
+            if (!fileInput.files || fileInput.files.length === 0) {
+                alert('Please select or capture a meter photo first.');
+                return;
+            }
+
+            var formData = new FormData();
+            formData.append('photo', fileInput.files[0]);
+
+            $('#btnScanOcr').prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Reading...');
+            $('#ocrStatusMessage').removeClass('text-danger text-success').addClass('text-info').text('Processing meter digits...').show();
+
+            $.ajax({
+                url: '/manager/bookings/read-meter-photo',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(res) {
+                    $('#btnScanOcr').prop('disabled', false).html('<i class="fas fa-magic mr-1"></i> Scan & Read Digits');
+                    if (res.success) {
+                        $('#unitsConsumed').val(res.detectedUnits);
+                        recalcBillFromUnits();
+                        $('#ocrStatusMessage').removeClass('text-info').addClass('text-success').text('✓ Auto-detected ' + res.detectedUnits + ' kWh from meter display.');
+                    } else {
+                        $('#ocrStatusMessage').removeClass('text-info').addClass('text-danger').text(res.message || 'Could not auto-read. Please type units manually.');
+                    }
+                },
+                error: function() {
+                    $('#btnScanOcr').prop('disabled', false).html('<i class="fas fa-magic mr-1"></i> Scan & Read Digits');
+                    $('#ocrStatusMessage').removeClass('text-info').addClass('text-danger').text('OCR service busy. Please type units manually.');
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            $('#walkInModal').appendTo("body");
+            $('#completeBookingModal').appendTo("body");
+        });
+    </script>
+}

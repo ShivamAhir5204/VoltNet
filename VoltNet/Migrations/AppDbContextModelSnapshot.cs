@@ -74,6 +74,138 @@ namespace VoltNet.Migrations
                     b.ToTable("AdminUsers", (string)null);
                 });
 
+            modelBuilder.Entity("VoltNet.Models.Booking", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("id");
+
+                    b.Property<decimal?>("ActualCost")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("actual_cost");
+
+                    b.Property<decimal?>("AppliedRatePerKwh")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("applied_rate_per_kwh");
+
+                    b.Property<DateTime>("BookingDate")
+                        .HasColumnType("date")
+                        .HasColumnName("booking_date");
+
+                    b.Property<string>("CancellationReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("cancellation_reason");
+
+                    b.Property<DateTime?>("CancelledAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("cancelled_at");
+
+                    b.Property<Guid>("ChargerId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("charger_id");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("completed_at");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("customer_id");
+
+                    b.Property<string>("CustomerName")
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)")
+                        .HasColumnName("customer_name");
+
+                    b.Property<string>("CustomerPhone")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasColumnName("customer_phone");
+
+                    b.Property<decimal?>("EndMeterReading")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("end_meter_reading");
+
+                    b.Property<TimeSpan>("EndTime")
+                        .HasColumnType("time")
+                        .HasColumnName("end_time");
+
+                    b.Property<decimal>("EstimatedCost")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("estimated_cost");
+
+                    b.Property<bool>("IsWalkIn")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_walk_in");
+
+                    b.Property<string>("MeterPhotoUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("meter_photo_url");
+
+                    b.Property<string>("PaymentId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("payment_id");
+
+                    b.Property<decimal?>("StartMeterReading")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("start_meter_reading");
+
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("time")
+                        .HasColumnName("start_time");
+
+                    b.Property<Guid>("StationId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("station_id");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(30)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(30)")
+                        .HasDefaultValue("Confirmed")
+                        .HasColumnName("status");
+
+                    b.Property<decimal?>("UnitsConsumedKwh")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("units_consumed_kwh");
+
+                    b.Property<string>("VehicleModel")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("vehicle_model");
+
+                    b.Property<string>("VehicleNumberPlate")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("vehicle_number_plate");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId")
+                        .HasDatabaseName("IX_Bookings_CustomerId");
+
+                    b.HasIndex("StationId")
+                        .HasDatabaseName("IX_Bookings_StationId");
+
+                    b.HasIndex("ChargerId", "BookingDate", "Status")
+                        .HasDatabaseName("IX_Bookings_Charger_Date_Status");
+
+                    b.ToTable("Bookings", (string)null);
+                });
+
             modelBuilder.Entity("VoltNet.Models.Charger", b =>
                 {
                     b.Property<Guid>("Id")
@@ -119,6 +251,54 @@ namespace VoltNet.Migrations
                     b.HasIndex("StationId");
 
                     b.ToTable("Chargers", (string)null);
+                });
+
+            modelBuilder.Entity("VoltNet.Models.ChargingRate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ConnectorType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("connector_type");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true)
+                        .HasColumnName("is_active");
+
+                    b.Property<decimal?>("RatePerHour")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("rate_per_hour");
+
+                    b.Property<decimal>("RatePerKwh")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("rate_per_kwh");
+
+                    b.Property<Guid>("StationId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("station_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StationId")
+                        .HasDatabaseName("IX_ChargingRates_StationId");
+
+                    b.ToTable("ChargingRates", (string)null);
                 });
 
             modelBuilder.Entity("VoltNet.Models.OwnerSubscription", b =>
@@ -284,11 +464,76 @@ namespace VoltNet.Migrations
                     b.ToTable("Stations", (string)null);
                 });
 
+            modelBuilder.Entity("VoltNet.Models.StationBlockSlot", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("BlockDate")
+                        .HasColumnType("date")
+                        .HasColumnName("block_date");
+
+                    b.Property<Guid?>("ChargerId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("charger_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<Guid>("CreatedByManagerId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("created_by_manager_id");
+
+                    b.Property<TimeSpan>("EndTime")
+                        .HasColumnType("time")
+                        .HasColumnName("end_time");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("reason");
+
+                    b.Property<string>("Remarks")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)")
+                        .HasColumnName("remarks");
+
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("time")
+                        .HasColumnName("start_time");
+
+                    b.Property<Guid>("StationId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("station_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChargerId");
+
+                    b.HasIndex("CreatedByManagerId");
+
+                    b.HasIndex("StationId", "BlockDate")
+                        .HasDatabaseName("IX_StationBlockSlots_Date");
+
+                    b.ToTable("StationBlockSlots", (string)null);
+                });
+
             modelBuilder.Entity("VoltNet.Models.StationManager", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("id");
+
+                    b.Property<bool>("CanManageRates")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("can_manage_rates");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -543,10 +788,120 @@ namespace VoltNet.Migrations
                     b.ToTable("UserMaster", (string)null);
                 });
 
+            modelBuilder.Entity("VoltNet.Models.WaitlistEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("BookingDate")
+                        .HasColumnType("date")
+                        .HasColumnName("booking_date");
+
+                    b.Property<Guid>("ChargerId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("charger_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("customer_id");
+
+                    b.Property<TimeSpan>("EndTime")
+                        .HasColumnType("time")
+                        .HasColumnName("end_time");
+
+                    b.Property<DateTime?>("PromotedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("promoted_at");
+
+                    b.Property<int>("QueuePosition")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(1)
+                        .HasColumnName("queue_position");
+
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("time")
+                        .HasColumnName("start_time");
+
+                    b.Property<Guid>("StationId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("station_id");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(30)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(30)")
+                        .HasDefaultValue("Waiting")
+                        .HasColumnName("status");
+
+                    b.Property<string>("VehicleNumberPlate")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("vehicle_number_plate");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("StationId");
+
+                    b.HasIndex("ChargerId", "BookingDate", "StartTime", "Status")
+                        .HasDatabaseName("IX_Waitlist_Charger_Slot");
+
+                    b.ToTable("WaitlistEntries", (string)null);
+                });
+
+            modelBuilder.Entity("VoltNet.Models.Booking", b =>
+                {
+                    b.HasOne("VoltNet.Models.Charger", "Charger")
+                        .WithMany()
+                        .HasForeignKey("ChargerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("VoltNet.Models.UserMaster", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("VoltNet.Models.Station", "Station")
+                        .WithMany()
+                        .HasForeignKey("StationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Charger");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Station");
+                });
+
             modelBuilder.Entity("VoltNet.Models.Charger", b =>
                 {
                     b.HasOne("VoltNet.Models.Station", "Station")
                         .WithMany("Chargers")
+                        .HasForeignKey("StationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Station");
+                });
+
+            modelBuilder.Entity("VoltNet.Models.ChargingRate", b =>
+                {
+                    b.HasOne("VoltNet.Models.Station", "Station")
+                        .WithMany("ChargingRates")
                         .HasForeignKey("StationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -588,6 +943,32 @@ namespace VoltNet.Migrations
                     b.Navigation("OwnerSubscription");
 
                     b.Navigation("OwnerUser");
+                });
+
+            modelBuilder.Entity("VoltNet.Models.StationBlockSlot", b =>
+                {
+                    b.HasOne("VoltNet.Models.Charger", "Charger")
+                        .WithMany()
+                        .HasForeignKey("ChargerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("VoltNet.Models.UserMaster", "CreatedByManager")
+                        .WithMany()
+                        .HasForeignKey("CreatedByManagerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("VoltNet.Models.Station", "Station")
+                        .WithMany()
+                        .HasForeignKey("StationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Charger");
+
+                    b.Navigation("CreatedByManager");
+
+                    b.Navigation("Station");
                 });
 
             modelBuilder.Entity("VoltNet.Models.StationManager", b =>
@@ -635,6 +1016,33 @@ namespace VoltNet.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("VoltNet.Models.WaitlistEntry", b =>
+                {
+                    b.HasOne("VoltNet.Models.Charger", "Charger")
+                        .WithMany()
+                        .HasForeignKey("ChargerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("VoltNet.Models.UserMaster", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("VoltNet.Models.Station", "Station")
+                        .WithMany()
+                        .HasForeignKey("StationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Charger");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Station");
+                });
+
             modelBuilder.Entity("VoltNet.Models.OwnerSubscription", b =>
                 {
                     b.Navigation("Stations");
@@ -643,6 +1051,8 @@ namespace VoltNet.Migrations
             modelBuilder.Entity("VoltNet.Models.Station", b =>
                 {
                     b.Navigation("Chargers");
+
+                    b.Navigation("ChargingRates");
                 });
 #pragma warning restore 612, 618
         }

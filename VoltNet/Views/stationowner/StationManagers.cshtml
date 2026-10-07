@@ -38,9 +38,10 @@
                 <th>Email</th>
                 <th>Phone</th>
                 <th>Station</th>
+                <th>Rate Edit Permission</th>
                 <th>Status</th>
                 <th>Created</th>
-                <th class="text-center" style="width:230px">Actions</th>
+                <th class="text-center" style="min-width: 320px;">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -58,6 +59,18 @@
                   <td class="col-secondary" data-label="Email"><div>@(mgr.User?.Email ?? "—")</div></td>
                   <td class="col-secondary" data-label="Phone"><div>@mgr.Phone</div></td>
                   <td class="col-secondary" data-label="Station"><div>@(mgr.Station?.Name ?? "—")</div></td>
+                  <td class="col-secondary" data-label="Rate Edit Permission">
+                    <div>
+                      @if (mgr.CanManageRates)
+                      {
+                        <span class="badge badge-success"><i class="fas fa-check-circle"></i> Allowed</span>
+                      }
+                      else
+                      {
+                        <span class="badge badge-light text-muted"><i class="fas fa-lock"></i> Restricted</span>
+                      }
+                    </div>
+                  </td>
                   <td class="col-secondary" data-label="Status">
                     <div>
                       @if (mgr.IsActive)
@@ -72,13 +85,20 @@
                   </td>
                   <td class="col-secondary" data-label="Created"><div>@mgr.CreatedAt.ToString("dd MMM yyyy")</div></td>
                   <td class="text-center col-action" data-label="Actions">
-                    <div class="d-flex justify-content-center flex-wrap gap-1">
+                    <div class="d-inline-flex align-items-center justify-content-center flex-nowrap" style="white-space: nowrap;">
                       <a href="/owner/station-managers/Edit/@mgr.Id" class="btn btn-warning btn-sm mr-1" title="Edit Manager">
                         <i class="fas fa-edit"></i> Edit
                       </a>
+                      <form asp-action="ToggleRatePermission" method="post" class="d-inline mr-1 mb-0">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@mgr.Id" />
+                        <button type="submit" class="btn @(mgr.CanManageRates ? "btn-outline-danger" : "btn-outline-success") btn-sm" title="@(mgr.CanManageRates ? "Revoke rate permission" : "Grant rate permission")">
+                          <i class="fas @(mgr.CanManageRates ? "fa-lock" : "fa-unlock")"></i> @(mgr.CanManageRates ? "Lock Rates" : "Allow Rates")
+                        </button>
+                      </form>
                       @if (mgr.IsActive)
                       {
-                        <form asp-action="Deactivate" method="post" class="d-inline-block mr-1">
+                        <form asp-action="Deactivate" method="post" class="d-inline mr-1 mb-0">
                           @Html.AntiForgeryToken()
                           <input type="hidden" name="id" value="@mgr.Id" />
                           <button type="submit" class="btn btn-secondary btn-sm" onclick="return confirm('Deactivate this manager?');" title="Deactivate">
@@ -88,7 +108,7 @@
                       }
                       else
                       {
-                        <form asp-action="Activate" method="post" class="d-inline-block mr-1">
+                        <form asp-action="Activate" method="post" class="d-inline mr-1 mb-0">
                           @Html.AntiForgeryToken()
                           <input type="hidden" name="id" value="@mgr.Id" />
                           <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Activate this manager?');" title="Activate">
@@ -96,7 +116,7 @@
                           </button>
                         </form>
                       }
-                      <form asp-action="Delete" method="post" class="d-inline-block">
+                      <form asp-action="Delete" method="post" class="d-inline mb-0">
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="id" value="@mgr.Id" />
                         <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to permanently delete manager \'@mgr.FullName\'?');" title="Delete">

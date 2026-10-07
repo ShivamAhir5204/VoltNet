@@ -82,10 +82,33 @@
                                             <span style="font-weight: 600; color: var(--vn-text-muted);">Connector:</span>
                                             <span class="ms-2" style="font-weight: 700;">@charger.ConnectorType</span>
                                         </div>
-                                        <div class="d-flex align-items-center">
+                                        <div class="d-flex align-items-center mb-2">
                                             <i class="bi bi-lightning-charge" style="font-size: 1.2rem; color: var(--vn-green); margin-right: 10px;"></i>
                                             <span style="font-weight: 600; color: var(--vn-text-muted);">Power:</span>
                                             <span class="ms-2" style="font-weight: 700;">@(charger.CapacityKw)kW</span>
+                                        </div>
+                                        @{
+                                            var rate = Model.ChargingRates?.FirstOrDefault(r => r.ConnectorType == charger.ConnectorType && r.IsActive);
+                                        }
+                                        <div class="d-flex align-items-center mt-3 pt-2 border-top">
+                                            <i class="bi bi-tag-fill" style="font-size: 1.1rem; color: #f59e0b; margin-right: 10px;"></i>
+                                            <span style="font-weight: 600; color: var(--vn-text-muted);">Rate:</span>
+                                            @if (rate != null)
+                                            {
+                                                <span class="ms-2 fw-bold text-success" style="font-size: 1.05rem;">
+                                                    ₹@rate.RatePerKwh.ToString("F2")<span style="font-size: 0.8rem; font-weight: normal; color: var(--vn-text-muted);">/kWh</span>
+                                                </span>
+                                                @if (rate.RatePerHour.HasValue && rate.RatePerHour.Value > 0)
+                                                {
+                                                    <span class="ms-2 badge bg-light text-dark border" style="font-size: 0.75rem;">
+                                                        + ₹@rate.RatePerHour.Value.ToString("F2")/hr
+                                                    </span>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <span class="ms-2 text-warning small font-weight-bold">Standard Rates</span>
+                                            }
                                         </div>
                                     </div>
                                 </div>
@@ -108,8 +131,9 @@
                     <div class="card-body p-4 text-center">
                         <i class="bi bi-calendar-check" style="font-size: 3rem; color: var(--vn-green); margin-bottom: 15px; display: block;"></i>
                         <h4 style="font-weight: 700; margin-bottom: 15px;">Book a Slot</h4>
-                        <p style="color: var(--vn-text-muted); font-size: 0.95rem; margin-bottom: 25px;">Reserve a charger in advance and skip the waiting queue.</p>
-                        <button class="btn-vn-primary w-100" style="padding: 14px; font-size: 1.1rem;" onclick="alert('Booking functionality coming soon!')">Book Now</button>
+                        <a href="/customer/book/@Model.Id" class="btn-vn-primary w-100 d-block text-center text-decoration-none" style="padding: 14px; font-size: 1.1rem;">
+                            <i class="bi bi-lightning-charge-fill me-1"></i> Book a Charger Now
+                        </a>
                     </div>
                 </div>
 

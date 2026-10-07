@@ -45,7 +45,16 @@
                 }
               }
             </select>
+          <div class="form-group">
+            <div class="custom-control custom-checkbox">
+              <input type="checkbox" class="custom-control-input" id="canManageRates" name="canManageRates" value="true">
+              <label class="custom-control-label font-weight-bold" for="canManageRates">
+                Allow Manager to Set & Edit Charging Rates
+              </label>
+            </div>
+            <small class="form-text text-muted">If checked, this manager will have permission to configure connector rates and pricing for this station.</small>
           </div>
+
           <div class="form-group mt-4">
             <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Create Manager</button>
             <a href="/owner/station-managers" class="btn btn-light ml-2">Cancel</a>

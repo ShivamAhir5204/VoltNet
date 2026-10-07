@@ -23,6 +23,8 @@ public class StationManager
 
     public bool IsActive { get; set; } = true;
 
+    public bool CanManageRates { get; set; } = false;
+
     public DateTime CreatedAt { get; set; }
 
     // Navigation properties

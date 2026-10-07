@@ -41,7 +41,7 @@
                 <th>Status</th>
                 <th>Opening</th>
                 <th>Closing</th>
-                <th class="text-center" style="width: 180px;">Actions</th>
+                <th class="text-center" style="min-width: 290px;">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -86,16 +86,19 @@
                   <td class="col-secondary" data-label="Opening"><div>@item.OpeningTime.ToString(@"hh\:mm")</div></td>
                   <td class="col-secondary" data-label="Closing"><div>@item.ClosingTime.ToString(@"hh\:mm")</div></td>
                   <td class="text-center col-action" data-label="Actions">
-                    <div class="d-flex justify-content-center flex-wrap gap-1">
+                    <div class="d-inline-flex align-items-center justify-content-center flex-nowrap" style="white-space: nowrap;">
+                      <a href="/owner/rates/@item.Id" class="btn btn-primary btn-sm mr-1" title="Manage Charging Rates">
+                        <i class="fas fa-bolt"></i> Rates
+                      </a>
                       <a href="/owner/stations/Edit/@item.Id" class="btn btn-warning btn-sm mr-1" title="Edit Station">
                         <i class="fas fa-edit"></i> Edit
                       </a>
-                      <form asp-action="Details" method="post" class="d-inline-block mr-1">
+                      <form asp-action="Details" method="post" class="d-inline mr-1 mb-0">
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="id" value="@item.Id" />
                         <button type="submit" class="btn btn-info btn-sm" title="Details"><i class="fas fa-info-circle"></i> View</button>
                       </form>
-                      <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline-block">
+                      <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline mb-0">
                         @Html.AntiForgeryToken()
                         <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete station \'@item.Name\'?');" title="Delete">
                           <i class="fas fa-trash"></i> Delete

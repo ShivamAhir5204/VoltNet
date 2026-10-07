@@ -1,19 +1,230 @@
 @{
     ViewData["Title"] = "Customer Dashboard";
     Layout = "~/Views/Shared/_CustomerLayout.cshtml";
+    var nextBooking = ViewBag.NextBooking as VoltNet.Models.Booking;
+    var recentBookings = ViewBag.RecentBookings as List<VoltNet.Models.Booking> ?? new List<VoltNet.Models.Booking>();
 }
 
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h4>Welcome to your Dashboard!</h4>
-            </div>
-            <div class="card-body">
-                <p>Welcome, @(User.Identity?.Name ?? "Customer"). Your EV charging journey starts here.</p>
-                <div class="alert alert-info">
-                    <strong>Note:</strong> We are constantly adding new features to improve your experience. Stay tuned!
+<div class="page-header mb-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <div>
+            <h3 class="fw-bold mb-1"><i class="fas fa-charging-station text-success me-2"></i>Welcome, @(User.Identity?.Name ?? "Customer")!</h3>
+            <p class="text-muted mb-0">Track your charging reservations, upcoming slots, and vehicle power sessions.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="/Home/Stations" class="btn btn-success px-3 py-2 shadow-sm rounded-pill fw-semibold">
+                <i class="fas fa-search-location me-1"></i> Find & Book Station
+            </a>
+            <a href="/customer/bookings" class="btn btn-outline-primary px-3 py-2 rounded-pill fw-semibold">
+                <i class="fas fa-calendar-check me-1"></i> My Bookings
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Row -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 h-100 bg-white">
+            <div class="card-body p-3 p-md-4 d-flex align-items-center">
+                <div class="rounded-circle bg-primary bg-opacity-10 text-primary p-3 me-3">
+                    <i class="fas fa-calendar-alt fa-lg"></i>
                 </div>
+                <div>
+                    <h6 class="text-muted text-uppercase fs-7 mb-1">Total Bookings</h6>
+                    <h3 class="fw-bold mb-0 text-dark">@(ViewBag.TotalBookings ?? 0)</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 h-100 bg-white">
+            <div class="card-body p-3 p-md-4 d-flex align-items-center">
+                <div class="rounded-circle bg-success bg-opacity-10 text-success p-3 me-3">
+                    <i class="fas fa-clock fa-lg"></i>
+                </div>
+                <div>
+                    <h6 class="text-muted text-uppercase fs-7 mb-1">Upcoming</h6>
+                    <h3 class="fw-bold mb-0 text-success">@(ViewBag.UpcomingBookings ?? 0)</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 h-100 bg-white">
+            <div class="card-body p-3 p-md-4 d-flex align-items-center">
+                <div class="rounded-circle bg-info bg-opacity-10 text-info p-3 me-3">
+                    <i class="fas fa-bolt fa-lg"></i>
+                </div>
+                <div>
+                    <h6 class="text-muted text-uppercase fs-7 mb-1">Completed</h6>
+                    <h3 class="fw-bold mb-0 text-dark">@(ViewBag.CompletedBookings ?? 0)</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 h-100 bg-white">
+            <div class="card-body p-3 p-md-4 d-flex align-items-center">
+                <div class="rounded-circle bg-danger bg-opacity-10 text-danger p-3 me-3">
+                    <i class="fas fa-ban fa-lg"></i>
+                </div>
+                <div>
+                    <h6 class="text-muted text-uppercase fs-7 mb-1">Cancelled</h6>
+                    <h3 class="fw-bold mb-0 text-muted">@(ViewBag.CancelledBookings ?? 0)</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Next Upcoming Reservation Banner / Quick Status -->
+@if (nextBooking != null)
+{
+    <div class="card border-0 shadow-sm rounded-4 mb-4 bg-gradient" style="background: linear-gradient(135deg, #0d6efd 0%, #0099ff 100%); color: white;">
+        <div class="card-body p-4">
+            <div class="row align-items-center">
+                <div class="col-lg-8 mb-3 mb-lg-0">
+                    <span class="badge bg-white text-primary px-3 py-1 rounded-pill mb-2 fw-semibold">Next Upcoming Slot</span>
+                    <h4 class="fw-bold mb-1">@nextBooking.Station?.Name</h4>
+                    <p class="mb-2 opacity-90">
+                        <i class="fas fa-map-marker-alt me-1"></i> @nextBooking.Station?.Address, @nextBooking.Station?.City
+                    </p>
+                    <div class="d-flex flex-wrap gap-3 mt-3">
+                        <div class="bg-white bg-opacity-20 px-3 py-2 rounded-3">
+                            <small class="d-block opacity-75">Date</small>
+                            <strong>@nextBooking.BookingDate.ToString("dddd, dd MMM yyyy")</strong>
+                        </div>
+                        <div class="bg-white bg-opacity-20 px-3 py-2 rounded-3">
+                            <small class="d-block opacity-75">Time Slot</small>
+                            <strong>@DateTime.Today.Add(nextBooking.StartTime).ToString("hh:mm tt") - @DateTime.Today.Add(nextBooking.EndTime).ToString("hh:mm tt")</strong>
+                        </div>
+                        <div class="bg-white bg-opacity-20 px-3 py-2 rounded-3">
+                            <small class="d-block opacity-75">Charger Port</small>
+                            <strong>@(nextBooking.Charger?.ConnectorType ?? "Standard") (@(nextBooking.Charger?.CapacityKw ?? 0) kW)</strong>
+                        </div>
+                        <div class="bg-white bg-opacity-20 px-3 py-2 rounded-3">
+                            <small class="d-block opacity-75">Est. Cost</small>
+                            <strong>₹@nextBooking.EstimatedCost.ToString("N2")</strong>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 text-lg-end">
+                    <a href="/customer/bookings" class="btn btn-light text-primary fw-bold px-4 py-2 rounded-pill shadow-sm">
+                        Manage Reservation <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Recent Activity / Quick Actions -->
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0 text-dark">Recent Bookings</h5>
+                <a href="/customer/bookings" class="text-decoration-none small fw-semibold">View All <i class="fas fa-angle-right"></i></a>
+            </div>
+            <div class="card-body p-4">
+                @if (recentBookings.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light text-muted fs-7 text-uppercase">
+                                <tr>
+                                    <th>Station</th>
+                                    <th>Date & Slot</th>
+                                    <th>Status</th>
+                                    <th>Est. Cost</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var b in recentBookings)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="fw-semibold text-dark">@b.Station?.Name</div>
+                                            <small class="text-muted">@b.Station?.City</small>
+                                        </td>
+                                        <td>
+                                            <div>@b.BookingDate.ToString("dd MMM yyyy")</div>
+                                            <small class="text-muted">@DateTime.Today.Add(b.StartTime).ToString("hh:mm tt") - @DateTime.Today.Add(b.EndTime).ToString("hh:mm tt")</small>
+                                        </td>
+                                        <td>
+                                            @if (b.Status == "Confirmed" || b.Status == "Pending")
+                                            {
+                                                <span class="badge bg-success-subtle text-success border border-success px-2 py-1 rounded-pill">@b.Status</span>
+                                            }
+                                            else if (b.Status == "Completed")
+                                            {
+                                                <span class="badge bg-primary-subtle text-primary border border-primary px-2 py-1 rounded-pill">Completed</span>
+                                            }
+                                            else if (b.Status == "Cancelled")
+                                            {
+                                                <span class="badge bg-danger-subtle text-danger border border-danger px-2 py-1 rounded-pill">Cancelled</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary px-2 py-1 rounded-pill">@b.Status</span>
+                                            }
+                                        </td>
+                                        <td class="fw-semibold">₹@b.EstimatedCost.ToString("N2")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5 text-muted">
+                        <i class="fas fa-calendar-times fa-3x mb-3 text-secondary opacity-50"></i>
+                        <p class="mb-3">You haven't made any bookings yet.</p>
+                        <a href="/Home/Stations" class="btn btn-outline-success rounded-pill px-4">Book Your First Charger</a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Shortcuts Card -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-header bg-transparent border-0 pt-4 px-4 pb-0">
+                <h5 class="fw-bold mb-0 text-dark">Quick Shortcuts</h5>
+            </div>
+            <div class="card-body p-4 d-flex flex-column gap-3">
+                <a href="/Home/Stations" class="d-flex align-items-center p-3 rounded-3 text-decoration-none border hover-bg-light transition">
+                    <div class="rounded-circle bg-success text-white p-3 me-3">
+                        <i class="fas fa-map-marked-alt"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold text-dark">Explore EV Stations</div>
+                        <small class="text-muted">Find nearest chargers and view live slots</small>
+                    </div>
+                </a>
+
+                <a href="/customer/bookings" class="d-flex align-items-center p-3 rounded-3 text-decoration-none border hover-bg-light transition">
+                    <div class="rounded-circle bg-primary text-white p-3 me-3">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold text-dark">Booking History</div>
+                        <small class="text-muted">View past charging receipts and status</small>
+                    </div>
+                </a>
+
+                <a href="/customer/profile" class="d-flex align-items-center p-3 rounded-3 text-decoration-none border hover-bg-light transition">
+                    <div class="rounded-circle bg-secondary text-white p-3 me-3">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold text-dark">Profile Settings</div>
+                        <small class="text-muted">Update contact details and vehicle info</small>
+                    </div>
+                </a>
             </div>
         </div>
     </div>

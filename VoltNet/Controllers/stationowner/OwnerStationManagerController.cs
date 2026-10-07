@@ -60,7 +60,7 @@ public class OwnerStationManagerController : Controller
     // POST: owner/station-managers/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(string fullName, string email, string phone, string password, Guid stationId)
+    public async Task<IActionResult> Create(string fullName, string email, string phone, string password, Guid stationId, bool canManageRates)
     {
         var ownerId = GetStationOwnerId();
         var userId = GetUserId();
@@ -123,6 +123,7 @@ public class OwnerStationManagerController : Controller
             Phone = phone.Trim(),
             CreatedBy = ownerId.Value,
             IsActive = true,
+            CanManageRates = canManageRates,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -130,6 +131,28 @@ public class OwnerStationManagerController : Controller
         await _context.SaveChangesAsync();
 
         TempData["Success"] = $"Station Manager '{fullName.Trim()}' created successfully.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    // POST: owner/station-managers/ToggleRatePermission
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ToggleRatePermission(Guid id)
+    {
+        var ownerId = GetStationOwnerId();
+        if (ownerId == null) return Unauthorized();
+
+        var manager = await _context.StationManagers
+            .FirstOrDefaultAsync(m => m.Id == id && m.CreatedBy == ownerId.Value);
+
+        if (manager == null)
+            return NotFound();
+
+        manager.CanManageRates = !manager.CanManageRates;
+        await _context.SaveChangesAsync();
+
+        var statusText = manager.CanManageRates ? "granted" : "revoked";
+        TempData["Success"] = $"Rate management permission {statusText} for manager '{manager.FullName}'.";
         return RedirectToAction(nameof(Index));
     }
 
@@ -205,7 +228,7 @@ public class OwnerStationManagerController : Controller
     // POST: owner/station-managers/Edit
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(Guid id, string fullName, string phone, Guid stationId)
+    public async Task<IActionResult> Edit(Guid id, string fullName, string phone, Guid stationId, bool canManageRates)
     {
         var ownerId = GetStationOwnerId();
         var userId = GetUserId();
@@ -246,6 +269,7 @@ public class OwnerStationManagerController : Controller
         manager.FullName = fullName.Trim();
         manager.Phone = phone.Trim();
         manager.StationId = stationId;
+        manager.CanManageRates = canManageRates;
 
         if (manager.User != null)
         {

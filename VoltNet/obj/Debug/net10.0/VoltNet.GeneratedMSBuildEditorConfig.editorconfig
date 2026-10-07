@@ -151,6 +151,22 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQXV0aFxWZXJpZnlPdHAuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/Voltnet/VoltNet/Views/customer/Booking/Confirm.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcY3VzdG9tZXJcQm9va2luZ1xDb25maXJtLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Voltnet/VoltNet/Views/customer/Booking/MyBookings.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcY3VzdG9tZXJcQm9va2luZ1xNeUJvb2tpbmdzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Voltnet/VoltNet/Views/customer/Booking/SelectCharger.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcY3VzdG9tZXJcQm9va2luZ1xTZWxlY3RDaGFyZ2VyLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Voltnet/VoltNet/Views/customer/Booking/SelectSlot.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcY3VzdG9tZXJcQm9va2luZ1xTZWxlY3RTbG90LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/Voltnet/VoltNet/Views/customer/ChangePassword.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcY3VzdG9tZXJcQ2hhbmdlUGFzc3dvcmQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
@@ -243,6 +259,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/Voltnet/VoltNet/Views/stationmanager/Bookings.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3Ncc3RhdGlvbm1hbmFnZXJcQm9va2luZ3MuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/Voltnet/VoltNet/Views/stationmanager/ChangePassword.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3Ncc3RhdGlvbm1hbmFnZXJcQ2hhbmdlUGFzc3dvcmQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
@@ -267,8 +287,20 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3Ncc3RhdGlvbm1hbmFnZXJcUHJvZmlsZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[D:/Voltnet/VoltNet/Views/stationmanager/Rates.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3Ncc3RhdGlvbm1hbmFnZXJcUmF0ZXMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Voltnet/VoltNet/Views/stationmanager/StationBlocks.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3Ncc3RhdGlvbm1hbmFnZXJcU3RhdGlvbkJsb2Nrcy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [D:/Voltnet/VoltNet/Views/stationmanager/StationDetails.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3Ncc3RhdGlvbm1hbmFnZXJcU3RhdGlvbkRldGFpbHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Voltnet/VoltNet/Views/stationowner/Bookings.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3Ncc3RhdGlvbm93bmVyXEJvb2tpbmdzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/Voltnet/VoltNet/Views/stationowner/ChangePassword.cshtml]
@@ -301,6 +333,14 @@ build_metadata.AdditionalFiles.CssScope =
 
 [D:/Voltnet/VoltNet/Views/stationowner/Profile.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3Ncc3RhdGlvbm93bmVyXFByb2ZpbGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Voltnet/VoltNet/Views/stationowner/Rates/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3Ncc3RhdGlvbm93bmVyXFJhdGVzXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[D:/Voltnet/VoltNet/Views/stationowner/Rates/StationsList.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3Ncc3RhdGlvbm93bmVyXFJhdGVzXFN0YXRpb25zTGlzdC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [D:/Voltnet/VoltNet/Views/stationowner/StationDetails.cshtml]

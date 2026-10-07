@@ -1,0 +1,148 @@
+@model IEnumerable<VoltNet.Models.Booking>
+
+@{
+    var ownerStations = ViewBag.OwnerStations as List<VoltNet.Models.Station> ?? new List<VoltNet.Models.Station>();
+    ViewData["Title"] = "Station Bookings Overview";
+    Layout = "~/Views/Shared/_OwnerLayout.cshtml";
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+                <div>
+                    <h4 class="mb-1"><i class="fas fa-calendar-check text-primary mr-2"></i> Bookings Overview Across Your Stations</h4>
+                    <p class="text-muted mb-0 small">Monitor all customer reservations, operational traffic, and charging throughput across all your EV stations.</p>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Filters Form -->
+                <form method="get" class="mb-4 bg-light p-3 rounded">
+                    <div class="row align-items-end">
+                        <div class="col-12 col-md-3 mb-2 mb-md-0">
+                            <label class="font-weight-bold small">Station:</label>
+                            <select name="stationId" class="form-control">
+                                <option value="">-- All Owned Stations --</option>
+                                @foreach (var stn in ownerStations)
+                                {
+                                    <option value="@stn.Id" selected="@(ViewBag.SelectedStationId == stn.Id)">@stn.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-3 mb-2 mb-md-0">
+                            <label class="font-weight-bold small">Date:</label>
+                            <input type="date" name="date" class="form-control" value="@ViewBag.SelectedDate" />
+                        </div>
+                        <div class="col-12 col-md-3 mb-2 mb-md-0">
+                            <label class="font-weight-bold small">Status:</label>
+                            <select name="status" class="form-control">
+                                <option value="">-- All Statuses --</option>
+                                <option value="Confirmed" selected="@(ViewBag.SelectedStatus == "Confirmed")">Confirmed</option>
+                                <option value="Completed" selected="@(ViewBag.SelectedStatus == "Completed")">Completed</option>
+                                <option value="Cancelled" selected="@(ViewBag.SelectedStatus == "Cancelled")">Cancelled</option>
+                                <option value="NoShow" selected="@(ViewBag.SelectedStatus == "NoShow")">No-Show</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <button type="submit" class="btn btn-primary mr-1"><i class="fas fa-filter mr-1"></i> Filter</button>
+                            <a href="/owner/bookings" class="btn btn-outline-secondary">Reset</a>
+                        </div>
+                    </div>
+                </form>
+
+                @if (!Model.Any())
+                {
+                    <div class="text-center py-5">
+                        <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                        <h5>No Bookings Found</h5>
+                        <p class="text-muted">No reservations found matching the selected filters across your stations.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-striped align-middle table-responsive-cards" id="table-1">
+                            <thead>
+                                <tr>
+                                    <th>Station</th>
+                                    <th>Customer</th>
+                                    <th>Charger</th>
+                                    <th>Date</th>
+                                    <th>Time Slot</th>
+                                    <th>Billed Cost</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var b in Model)
+                                {
+                                    <tr>
+                                        <td class="col-primary" data-label="Station">
+                                            <div class="d-flex align-items-center justify-content-between">
+                                                <span class="font-weight-bold text-dark">@b.Station?.Name</span>
+                                                <button type="button" class="mobile-expand-btn ml-2" title="Show details">
+                                                    <i data-feather="chevron-down"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                        <td class="col-secondary" data-label="Customer">
+                                            <div>
+                                                <strong>@(b.Customer?.Fullname ?? "Customer")</strong>
+                                                <div class="small text-muted"><i class="fas fa-envelope mr-1"></i> @(b.Customer?.Email ?? "—")</div>
+                                            </div>
+                                        </td>
+                                        <td class="col-secondary" data-label="Charger">
+                                            <div>
+                                                <strong>@b.Charger?.Name</strong>
+                                                <div class="small text-muted">@b.Charger?.ConnectorType (@(b.Charger?.CapacityKw)kW)</div>
+                                            </div>
+                                        </td>
+                                        <td class="col-secondary" data-label="Date">
+                                            <div>@b.BookingDate.ToString("dd MMM yyyy")</div>
+                                        </td>
+                                        <td class="col-secondary" data-label="Time Slot">
+                                            <div>
+                                                <span class="badge badge-light border font-weight-bold text-primary">
+                                                    @b.StartTime.ToString(@"hh\:mm") - @b.EndTime.ToString(@"hh\:mm")
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td class="col-secondary" data-label="Billed Cost">
+                                            <div>
+                                                <strong class="text-success">₹@(b.ActualCost?.ToString("F2") ?? b.EstimatedCost.ToString("F2"))</strong>
+                                            </div>
+                                        </td>
+                                        <td class="col-secondary" data-label="Status">
+                                            <div>
+                                                @if (b.Status == "Confirmed")
+                                                {
+                                                    <span class="badge bg-primary">Confirmed</span>
+                                                }
+                                                else if (b.Status == "Completed")
+                                                {
+                                                    <span class="badge bg-success">Completed</span>
+                                                }
+                                                else if (b.Status == "Cancelled")
+                                                {
+                                                    <span class="badge bg-danger" title="@b.CancellationReason">Cancelled</span>
+                                                }
+                                                else if (b.Status == "NoShow")
+                                                {
+                                                    <span class="badge bg-warning text-dark">No Show</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-info">@b.Status</span>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

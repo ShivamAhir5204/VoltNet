@@ -43,4 +43,5 @@ public class Station
     public virtual OwnerSubscription? OwnerSubscription { get; set; }
 
     public virtual ICollection<Charger> Chargers { get; set; } = new List<Charger>();
+    public virtual ICollection<ChargingRate> ChargingRates { get; set; } = new List<ChargingRate>();
 }

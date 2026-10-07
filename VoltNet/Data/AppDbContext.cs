@@ -21,6 +21,10 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<Charger> Chargers { get; set; }
     public virtual DbSet<SubscriptionPlan> SubscriptionPlans { get; set; }
     public virtual DbSet<OwnerSubscription> OwnerSubscriptions { get; set; }
+    public virtual DbSet<ChargingRate> ChargingRates { get; set; }
+    public virtual DbSet<Booking> Bookings { get; set; }
+    public virtual DbSet<WaitlistEntry> WaitlistEntries { get; set; }
+    public virtual DbSet<StationBlockSlot> StationBlockSlots { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -239,6 +243,9 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.IsActive)
                 .HasColumnName("is_active")
                 .HasDefaultValue(true);
+            entity.Property(e => e.CanManageRates)
+                .HasColumnName("can_manage_rates")
+                .HasDefaultValue(false);
             entity.Property(e => e.CreatedAt)
                 .HasColumnName("created_at")
                 .HasDefaultValueSql("GETUTCDATE()");
@@ -265,6 +272,42 @@ public partial class AppDbContext : DbContext
             entity.HasIndex(e => e.UserId)
                 .IsUnique()
                 .HasDatabaseName("IX_StationManagers_UserId");
+        });
+
+        // -- ChargingRates -------------------------------------------
+        modelBuilder.Entity<ChargingRate>(entity =>
+        {
+            entity.ToTable("ChargingRates");
+
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnName("id");
+            entity.Property(e => e.StationId)
+                .HasColumnName("station_id");
+            entity.Property(e => e.ConnectorType)
+                .HasMaxLength(50)
+                .HasColumnName("connector_type");
+            entity.Property(e => e.RatePerKwh)
+                .HasColumnType("decimal(18,2)")
+                .HasColumnName("rate_per_kwh");
+            entity.Property(e => e.RatePerHour)
+                .HasColumnType("decimal(18,2)")
+                .HasColumnName("rate_per_hour");
+            entity.Property(e => e.IsActive)
+                .HasColumnName("is_active")
+                .HasDefaultValue(true);
+            entity.Property(e => e.CreatedAt)
+                .HasColumnName("created_at")
+                .HasDefaultValueSql("GETUTCDATE()");
+            entity.Property(e => e.UpdatedAt)
+                .HasColumnName("updated_at");
+
+            entity.HasOne(e => e.Station)
+                .WithMany(s => s.ChargingRates)
+                .HasForeignKey(e => e.StationId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(e => e.StationId).HasDatabaseName("IX_ChargingRates_StationId");
         });
 
         // -- Chargers ------------------------------------------------
@@ -384,6 +427,155 @@ public partial class AppDbContext : DbContext
                 .WithMany()
                 .HasForeignKey(e => e.PlanId)
                 .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // -- Bookings ------------------------------------------------
+        modelBuilder.Entity<Booking>(entity =>
+        {
+            entity.ToTable("Bookings");
+
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnName("id");
+            entity.Property(e => e.CustomerId)
+                .HasColumnName("customer_id");
+            entity.Property(e => e.StationId)
+                .HasColumnName("station_id");
+            entity.Property(e => e.ChargerId)
+                .HasColumnName("charger_id");
+            entity.Property(e => e.BookingDate)
+                .HasColumnType("date")
+                .HasColumnName("booking_date");
+            entity.Property(e => e.StartTime)
+                .HasColumnName("start_time");
+            entity.Property(e => e.EndTime)
+                .HasColumnName("end_time");
+            entity.Property(e => e.Status)
+                .HasMaxLength(30)
+                .IsUnicode(false)
+                .HasColumnName("status")
+                .HasDefaultValue("Confirmed");
+            entity.Property(e => e.EstimatedCost)
+                .HasColumnType("decimal(18,2)")
+                .HasColumnName("estimated_cost");
+            entity.Property(e => e.ActualCost)
+                .HasColumnType("decimal(18,2)")
+                .HasColumnName("actual_cost");
+            entity.Property(e => e.CancellationReason)
+                .HasMaxLength(500)
+                .HasColumnName("cancellation_reason");
+            entity.Property(e => e.CancelledAt)
+                .HasColumnName("cancelled_at");
+            entity.Property(e => e.CompletedAt)
+                .HasColumnName("completed_at");
+            entity.Property(e => e.PaymentId)
+                .HasMaxLength(100)
+                .HasColumnName("payment_id");
+            entity.Property(e => e.CreatedAt)
+                .HasColumnName("created_at")
+                .HasDefaultValueSql("GETUTCDATE()");
+
+            entity.Property(e => e.UnitsConsumedKwh)
+                .HasColumnType("decimal(18,2)")
+                .HasColumnName("units_consumed_kwh");
+            entity.Property(e => e.StartMeterReading)
+                .HasColumnType("decimal(18,2)")
+                .HasColumnName("start_meter_reading");
+            entity.Property(e => e.EndMeterReading)
+                .HasColumnType("decimal(18,2)")
+                .HasColumnName("end_meter_reading");
+            entity.Property(e => e.AppliedRatePerKwh)
+                .HasColumnType("decimal(18,2)")
+                .HasColumnName("applied_rate_per_kwh");
+            entity.Property(e => e.MeterPhotoUrl)
+                .HasMaxLength(500)
+                .HasColumnName("meter_photo_url");
+            entity.Property(e => e.VehicleNumberPlate)
+                .HasMaxLength(30)
+                .HasColumnName("vehicle_number_plate");
+            entity.Property(e => e.VehicleModel)
+                .HasMaxLength(100)
+                .HasColumnName("vehicle_model");
+            entity.Property(e => e.CustomerPhone)
+                .HasMaxLength(20)
+                .HasColumnName("customer_phone");
+            entity.Property(e => e.CustomerName)
+                .HasMaxLength(150)
+                .HasColumnName("customer_name");
+            entity.Property(e => e.IsWalkIn)
+                .HasColumnName("is_walk_in")
+                .HasDefaultValue(false);
+
+            entity.HasOne(e => e.Customer)
+                .WithMany()
+                .HasForeignKey(e => e.CustomerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.Station)
+                .WithMany()
+                .HasForeignKey(e => e.StationId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.Charger)
+                .WithMany()
+                .HasForeignKey(e => e.ChargerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasIndex(e => new { e.ChargerId, e.BookingDate, e.Status }).HasDatabaseName("IX_Bookings_Charger_Date_Status");
+            entity.HasIndex(e => e.CustomerId).HasDatabaseName("IX_Bookings_CustomerId");
+            entity.HasIndex(e => e.StationId).HasDatabaseName("IX_Bookings_StationId");
+        });
+
+        // -- WaitlistEntry -------------------------------------------
+        modelBuilder.Entity<WaitlistEntry>(entity =>
+        {
+            entity.ToTable("WaitlistEntries");
+
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnName("id");
+            entity.Property(e => e.StationId).HasColumnName("station_id");
+            entity.Property(e => e.ChargerId).HasColumnName("charger_id");
+            entity.Property(e => e.CustomerId).HasColumnName("customer_id");
+            entity.Property(e => e.BookingDate).HasColumnType("date").HasColumnName("booking_date");
+            entity.Property(e => e.StartTime).HasColumnName("start_time");
+            entity.Property(e => e.EndTime).HasColumnName("end_time");
+            entity.Property(e => e.QueuePosition).HasColumnName("queue_position").HasDefaultValue(1);
+            entity.Property(e => e.Status).HasMaxLength(30).IsUnicode(false).HasColumnName("status").HasDefaultValue("Waiting");
+            entity.Property(e => e.VehicleNumberPlate).HasMaxLength(50).HasColumnName("vehicle_number_plate");
+            entity.Property(e => e.CreatedAt).HasColumnName("created_at").HasDefaultValueSql("GETUTCDATE()");
+            entity.Property(e => e.PromotedAt).HasColumnName("promoted_at");
+
+            entity.HasOne(e => e.Station).WithMany().HasForeignKey(e => e.StationId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(e => e.Charger).WithMany().HasForeignKey(e => e.ChargerId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(e => e.Customer).WithMany().HasForeignKey(e => e.CustomerId).OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasIndex(e => new { e.ChargerId, e.BookingDate, e.StartTime, e.Status }).HasDatabaseName("IX_Waitlist_Charger_Slot");
+        });
+
+        // -- StationBlockSlot ----------------------------------------
+        modelBuilder.Entity<StationBlockSlot>(entity =>
+        {
+            entity.ToTable("StationBlockSlots");
+
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnName("id");
+            entity.Property(e => e.StationId).HasColumnName("station_id");
+            entity.Property(e => e.ChargerId).HasColumnName("charger_id");
+            entity.Property(e => e.BlockDate).HasColumnType("date").HasColumnName("block_date");
+            entity.Property(e => e.StartTime).HasColumnName("start_time");
+            entity.Property(e => e.EndTime).HasColumnName("end_time");
+            entity.Property(e => e.Reason).HasMaxLength(100).HasColumnName("reason");
+            entity.Property(e => e.Remarks).HasMaxLength(300).HasColumnName("remarks");
+            entity.Property(e => e.CreatedByManagerId).HasColumnName("created_by_manager_id");
+            entity.Property(e => e.CreatedAt).HasColumnName("created_at").HasDefaultValueSql("GETUTCDATE()");
+
+            entity.HasOne(e => e.Station).WithMany().HasForeignKey(e => e.StationId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(e => e.Charger).WithMany().HasForeignKey(e => e.ChargerId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(e => e.CreatedByManager).WithMany().HasForeignKey(e => e.CreatedByManagerId).OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasIndex(e => new { e.StationId, e.BlockDate }).HasDatabaseName("IX_StationBlockSlots_Date");
         });
 
         OnModelCreatingPartial(modelBuilder);

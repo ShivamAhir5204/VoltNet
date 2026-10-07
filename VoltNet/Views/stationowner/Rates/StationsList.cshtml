@@ -1,0 +1,114 @@
+@model IEnumerable<VoltNet.Models.Station>
+
+@{
+    ViewData["Title"] = "Charging Rates Overview";
+    Layout = "~/Views/Shared/_OwnerLayout.cshtml";
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle mr-2"></i> @TempData["Success"]
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span>&times;</span></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle mr-2"></i> @TempData["Error"]
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span>&times;</span></button>
+    </div>
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+                <div>
+                    <h4 class="mb-1"><i class="fas fa-bolt text-warning mr-2"></i> Station Charging Rates</h4>
+                    <p class="text-muted mb-0 small">Select any station to configure energy pricing (₹/kWh) and hourly session fees.</p>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped align-middle table-responsive-cards" id="table-1">
+                        <thead>
+                            <tr>
+                                <th>Station Name</th>
+                                <th>Location</th>
+                                <th>Chargers Installed</th>
+                                <th>Configured Rates</th>
+                                <th>Starting Price</th>
+                                <th>Station Status</th>
+                                <th class="text-center" style="min-width: 150px;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var stn in Model)
+                            {
+                                var activeRates = stn.ChargingRates.Where(r => r.IsActive).ToList();
+                                <tr>
+                                    <td class="col-primary" data-label="Station Name">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <span class="font-weight-bold text-dark">@stn.Name</span>
+                                            <button type="button" class="mobile-expand-btn ml-2" title="Show details">
+                                                <i data-feather="chevron-down"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                    <td class="col-secondary" data-label="Location">
+                                        <div><i class="fas fa-map-marker-alt text-danger mr-1"></i> @stn.City, @stn.State</div>
+                                    </td>
+                                    <td class="col-secondary" data-label="Chargers Installed">
+                                        <div><span class="badge badge-light">@stn.Chargers.Count Chargers</span></div>
+                                    </td>
+                                    <td class="col-secondary" data-label="Configured Rates">
+                                        <div>
+                                            @if (activeRates.Any())
+                                            {
+                                                <span class="badge badge-success">@activeRates.Count Active Rates</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge badge-warning text-dark">No Rates Set</span>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td class="col-secondary" data-label="Starting Price">
+                                        <div>
+                                            @if (activeRates.Any())
+                                            {
+                                                <strong class="text-success font-weight-bold">₹@activeRates.Min(r => r.RatePerKwh).ToString("F2")/kWh</strong>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">—</span>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td class="col-secondary" data-label="Station Status">
+                                        <div>
+                                            @if (stn.Status == "Active")
+                                            {
+                                                <span class="badge bg-success">Active</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">@stn.Status</span>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td class="text-center col-action" data-label="Action">
+                                        <a href="/owner/rates/@stn.Id" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-sliders-h mr-1"></i> Configure Rates
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

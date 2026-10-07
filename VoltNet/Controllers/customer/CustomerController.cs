@@ -24,8 +24,32 @@ public class CustomerController : Controller
     }
 
     [HttpGet("customer/dashboard")]
-    public IActionResult Dashboard()
+    public async Task<IActionResult> Dashboard()
     {
+        var userId = GetUserId();
+        var today = DateTime.UtcNow.Date;
+
+        var allBookings = await _context.Bookings
+            .Include(b => b.Station)
+            .Include(b => b.Charger)
+            .Where(b => b.CustomerId == userId)
+            .OrderByDescending(b => b.CreatedAt)
+            .ToListAsync();
+
+        ViewBag.TotalBookings = allBookings.Count;
+        ViewBag.UpcomingBookings = allBookings.Count(b => b.BookingDate >= today && (b.Status == "Pending" || b.Status == "Confirmed"));
+        ViewBag.CompletedBookings = allBookings.Count(b => b.Status == "Completed");
+        ViewBag.CancelledBookings = allBookings.Count(b => b.Status == "Cancelled");
+
+        var nextBooking = allBookings
+            .Where(b => b.BookingDate >= today && (b.Status == "Pending" || b.Status == "Confirmed"))
+            .OrderBy(b => b.BookingDate)
+            .ThenBy(b => b.StartTime)
+            .FirstOrDefault();
+
+        ViewBag.NextBooking = nextBooking;
+        ViewBag.RecentBookings = allBookings.Take(5).ToList();
+
         return View("~/Views/customer/Dashboard.cshtml");
     }
 
