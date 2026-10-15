@@ -130,6 +130,115 @@ public class AdminSubscriptionController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    // ─── All Owner Subscriptions (Admin) ────────────────────────────
+    [HttpGet("subscribers")]
+    [HttpGet("owner-subscriptions")]
+    public async Task<IActionResult> OwnerSubscriptions(string? status = null, Guid? planId = null)
+    {
+        var query = _context.OwnerSubscriptions
+            .Include(s => s.Plan)
+            .Include(s => s.Owner)
+                .ThenInclude(o => o!.User)
+            .Include(s => s.Stations)
+            .AsQueryable();
+
+        if (planId.HasValue && planId.Value != Guid.Empty)
+        {
+            query = query.Where(s => s.PlanId == planId.Value);
+            var selectedPlan = await _context.SubscriptionPlans.FindAsync(planId.Value);
+            ViewBag.SelectedPlanName = selectedPlan?.Name;
+        }
+
+        if (!string.IsNullOrWhiteSpace(status) && status != "All")
+        {
+            if (status == "Active")
+            {
+                query = query.Where(s => s.Status == "Active" && s.EndDate >= DateTime.UtcNow);
+            }
+            else if (status == "Expired")
+            {
+                query = query.Where(s => s.EndDate < DateTime.UtcNow && s.Status != "Cancelled");
+            }
+            else
+            {
+                query = query.Where(s => s.Status == status);
+            }
+        }
+
+        var subscriptions = await query
+            .OrderByDescending(s => s.CreatedAt)
+            .ToListAsync();
+
+        var allSubs = await _context.OwnerSubscriptions.ToListAsync();
+
+        ViewBag.CurrentFilter = status ?? "All";
+        ViewBag.SelectedPlanId = planId;
+        ViewBag.TotalCount = allSubs.Count;
+        ViewBag.ActiveCount = allSubs.Count(s => s.Status == "Active" && s.EndDate >= DateTime.UtcNow);
+        ViewBag.ExpiredCount = allSubs.Count(s => s.EndDate < DateTime.UtcNow && s.Status != "Cancelled");
+        ViewBag.PendingCancelCount = allSubs.Count(s => s.Status == "CancellationPending");
+        ViewBag.CancelledCount = allSubs.Count(s => s.Status == "Cancelled");
+        ViewBag.TotalRevenue = allSubs.Where(s => s.Status != "Cancelled").Sum(s => s.AmountPaid);
+
+        return View("~/Views/admin/Subscription/OwnerSubscriptions.cshtml", subscriptions);
+    }
+
+    // ─── Plan Full Details (Admin) ─────────────────────────────────
+    [HttpGet("plan-details/{id}")]
+    [HttpGet("details/{id}")]
+    public async Task<IActionResult> PlanDetails(Guid id)
+    {
+        var plan = await _context.SubscriptionPlans.FindAsync(id);
+        if (plan == null) return NotFound();
+
+        var subscribers = await _context.OwnerSubscriptions
+            .Include(s => s.Owner)
+                .ThenInclude(o => o!.User)
+            .Include(s => s.Stations)
+            .Where(s => s.PlanId == id)
+            .OrderByDescending(s => s.CreatedAt)
+            .ToListAsync();
+
+        ViewBag.Subscribers = subscribers;
+        ViewBag.ActiveCount = subscribers.Count(s => s.Status == "Active" && s.EndDate >= DateTime.UtcNow);
+        ViewBag.TotalRevenue = subscribers.Where(s => s.Status != "Cancelled").Sum(s => s.AmountPaid);
+
+        return View("~/Views/admin/Subscription/PlanDetails.cshtml", plan);
+    }
+
+    // ─── Subscription Full Details (Admin) ──────────────────────────
+    [HttpGet("subscription-details/{id}")]
+    [HttpGet("subscribers/details/{id}")]
+    public async Task<IActionResult> SubscriptionDetails(Guid id)
+    {
+        var subscription = await _context.OwnerSubscriptions
+            .Include(s => s.Plan)
+            .Include(s => s.Owner)
+                .ThenInclude(o => o!.User)
+            .Include(s => s.Stations)
+            .FirstOrDefaultAsync(s => s.Id == id);
+
+        if (subscription == null) return NotFound();
+
+        return View("~/Views/admin/Subscription/SubscriptionDetails.cshtml", subscription);
+    }
+
+    // ─── Cancellation Request Full Details (Admin) ──────────────────
+    [HttpGet("cancellation-details/{id}")]
+    public async Task<IActionResult> CancellationDetails(Guid id)
+    {
+        var request = await _context.OwnerSubscriptions
+            .Include(s => s.Plan)
+            .Include(s => s.Owner)
+                .ThenInclude(o => o!.User)
+            .Include(s => s.Stations)
+            .FirstOrDefaultAsync(s => s.Id == id);
+
+        if (request == null) return NotFound();
+
+        return View("~/Views/admin/Subscription/CancellationDetails.cshtml", request);
+    }
+
     // ─── Cancellation Requests Management (Admin) ────────────────────
     [HttpGet("cancellation-requests")]
     public async Task<IActionResult> CancellationRequests()

@@ -81,6 +81,9 @@
             <li class="dropdown @(Context.Request.Path == "/admin/subscription" ? "active" : "")">
               <a href="/admin/subscription" class="nav-link"><i data-feather="dollar-sign"></i><span>Subscription Plans</span></a>
             </li>
+            <li class="dropdown @(Context.Request.Path.StartsWithSegments("/admin/subscription/subscribers") || Context.Request.Path.StartsWithSegments("/admin/subscription/owner-subscriptions") ? "active" : "")">
+              <a href="/admin/subscription/subscribers" class="nav-link"><i data-feather="shopping-bag"></i><span>Owner Subscriptions</span></a>
+            </li>
             <li class="dropdown @(Context.Request.Path.StartsWithSegments("/admin/subscription/cancellation-requests") ? "active" : "")">
               <a href="/admin/subscription/cancellation-requests" class="nav-link"><i data-feather="slash"></i><span>Cancellation Requests</span></a>
             </li>

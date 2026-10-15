@@ -1,57 +1,54 @@
 @model VoltNet.Models.SubscriptionPlan
 @{
     ViewData["Title"] = "Create Subscription Plan";
-    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    Layout = "_AdminLayout";
 }
-
-<div class="section-header">
-    <div class="section-header-back">
-        <a href="/admin/subscription" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
-    </div>
-    <h1>Create Subscription Plan</h1>
-</div>
 
 <div class="row">
     <div class="col-12 col-md-8 offset-md-2">
         <div class="card">
-            <div class="card-header">
-                <h4>Plan Details</h4>
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4>Create Subscription Plan</h4>
+                <a href="/admin/subscription" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-arrow-left mr-1"></i> Back to Plans
+                </a>
             </div>
             <div class="card-body">
                 <form method="post" action="/admin/subscription/create">
                     @Html.AntiForgeryToken()
                     
                     <div class="form-group">
-                        <label>Plan Name <span class="text-danger">*</span></label>
+                        <label class="font-weight-600">Plan Name <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" name="Name" value="@Model?.Name" required placeholder="e.g. Starter, Growth, Enterprise" />
                         <span class="text-danger">@Html.ValidationMessageFor(m => m.Name)</span>
                     </div>
 
                     <div class="form-group">
-                        <label>Description <span class="text-danger">*</span></label>
+                        <label class="font-weight-600">Description <span class="text-danger">*</span></label>
                         <textarea class="form-control" name="Description" required rows="3" placeholder="Briefly describe the plan features...">@Model?.Description</textarea>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6 form-group">
-                            <label>Price (₹) <span class="text-danger">*</span></label>
+                            <label class="font-weight-600">Price (₹) <span class="text-danger">*</span></label>
                             <input type="number" step="0.01" min="0" class="form-control" name="PricePerMonth" value="@(Model?.PricePerMonth ?? 0)" required />
                         </div>
                         <div class="col-md-6 form-group">
-                            <label>Duration (Days) <span class="text-danger">*</span></label>
+                            <label class="font-weight-600">Duration (Days) <span class="text-danger">*</span></label>
                             <input type="number" min="1" class="form-control" name="DurationDays" value="@(Model?.DurationDays ?? 30)" required />
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6 form-group">
-                            <label>Max Stations Allowed <span class="text-danger">*</span></label>
+                            <label class="font-weight-600">Max Stations Allowed <span class="text-danger">*</span></label>
                             <input type="number" min="1" class="form-control" name="MaxStations" value="@(Model?.MaxStations ?? 1)" required />
-                            <small class="text-muted">How many stations the owner can activate.</small>
+                            <small class="text-muted">How many stations the owner can activate with this plan.</small>
                         </div>
                         <div class="col-md-6 form-group">
-                            <label>Max Managers per Station <span class="text-danger">*</span></label>
+                            <label class="font-weight-600">Max Managers per Station <span class="text-danger">*</span></label>
                             <input type="number" min="1" class="form-control" name="MaxManagersPerStation" value="@(Model?.MaxManagersPerStation ?? 1)" required />
+                            <small class="text-muted">Maximum station managers allowed per station.</small>
                         </div>
                     </div>
 
@@ -62,8 +59,9 @@
                         </div>
                     </div>
 
-                    <div class="card-footer text-right px-0 mt-4">
-                        <button type="submit" class="btn btn-primary btn-lg">Create Plan</button>
+                    <div class="mt-4 pt-3 border-top d-flex align-items-center">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-check mr-1"></i> Create Plan</button>
+                        <a href="/admin/subscription" class="btn btn-outline-secondary ml-2"><i class="fas fa-times mr-1"></i> Cancel</a>
                     </div>
                 </form>
             </div>

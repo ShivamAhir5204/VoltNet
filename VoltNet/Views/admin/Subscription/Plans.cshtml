@@ -1,53 +1,69 @@
 @model IEnumerable<VoltNet.Models.SubscriptionPlan>
 @{
-    ViewData["Title"] = "Manage Subscription Plans";
-    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["Title"] = "Subscription Plans";
+    Layout = "_AdminLayout";
     var activeSubs = ViewBag.ActiveSubs as Dictionary<Guid, int> ?? new Dictionary<Guid, int>();
-}
-
-<div class="section-header">
-    <h1>Subscription Plans</h1>
-    <div class="section-header-breadcrumb">
-        <div class="breadcrumb-item active"><a href="/admin/Dashboard">Dashboard</a></div>
-        <div class="breadcrumb-item">Subscription Plans</div>
-    </div>
-</div>
-
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success alert-dismissible fade show">
-        <i class="fas fa-check-circle mr-2"></i>@TempData["Success"]
-        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
-    </div>
-}
-
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger alert-dismissible fade show">
-        <i class="fas fa-exclamation-circle mr-2"></i>@TempData["Error"]
-        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
-    </div>
 }
 
 <div class="row">
     <div class="col-12">
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible show fade">
+                <div class="alert-body">
+                    <button class="close" data-dismiss="alert"><span>&times;</span></button>
+                    <i class="fas fa-check-circle mr-2"></i>@TempData["Success"]
+                </div>
+            </div>
+        }
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible show fade">
+                <div class="alert-body">
+                    <button class="close" data-dismiss="alert"><span>&times;</span></button>
+                    <i class="fas fa-exclamation-circle mr-2"></i>@TempData["Error"]
+                </div>
+            </div>
+        }
+
         <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4>All Plans</h4>
-                <a href="/admin/subscription/create" class="btn btn-primary"><i class="fas fa-plus"></i> Create New Plan</a>
+            <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+                <div class="d-flex align-items-center flex-wrap">
+                    <h4 class="mb-0 mr-3">Subscription Plans</h4>
+                    <span class="badge badge-primary font-weight-600 mr-2">@Model.Count() Plans</span>
+                    <span class="badge badge-success font-weight-600 mr-2">@Model.Count(p => p.IsActive) Active</span>
+                    @if (activeSubs.Values.Sum() > 0)
+                    {
+                        <span class="badge badge-info font-weight-600">
+                            <i class="fas fa-users mr-1"></i>@activeSubs.Values.Sum() Subscribers
+                        </span>
+                    }
+                </div>
+                <div class="card-header-action mt-2 mt-sm-0 d-flex align-items-center">
+                    <a href="/admin/subscription/subscribers" class="btn btn-outline-info mr-2" title="View all owners bought subscriptions">
+                        <i class="fas fa-users mr-1"></i> Owner Subscriptions
+                    </a>
+                    <a href="/admin/subscription/cancellation-requests" class="btn btn-outline-danger mr-2" title="Manage Owner Cancellation Requests">
+                        <i class="fas fa-undo-alt mr-1"></i> Cancellation Requests
+                    </a>
+                    <a href="/admin/subscription/create" class="btn btn-primary">
+                        <i class="fas fa-plus mr-1"></i> Create New Plan
+                    </a>
+                </div>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-striped table-hover">
+                    <table class="table table-striped align-middle table-responsive-cards" id="table-1">
                         <thead>
                             <tr>
-                                <th>Name</th>
-                                <th>Price (Monthly)</th>
+                                <th>Plan Name</th>
+                                <th>Price</th>
                                 <th>Max Stations</th>
-                                <th>Max Managers/Station</th>
+                                <th>Managers / Station</th>
                                 <th>Active Subscribers</th>
                                 <th>Status</th>
-                                <th>Action</th>
+                                <th class="text-center" data-orderable="false" style="width: 170px;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -55,50 +71,97 @@
                             {
                                 var activeCount = activeSubs.ContainsKey(plan.Id) ? activeSubs[plan.Id] : 0;
                                 <tr>
-                                    <td><strong>@plan.Name</strong></td>
-                                    <td>₹@plan.PricePerMonth.ToString("N0")</td>
-                                    <td>@plan.MaxStations</td>
-                                    <td>@plan.MaxManagersPerStation</td>
-                                    <td><span class="badge badge-info">@activeCount</span></td>
-                                    <td>
-                                        @if (plan.IsActive)
-                                        {
-                                            <span class="badge badge-success">Active</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge badge-danger">Inactive</span>
-                                        }
+                                    <td class="col-primary" data-label="Plan Name">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <span class="font-weight-600 text-dark font-15">@plan.Name</span>
+                                            <button type="button" class="mobile-expand-btn ml-2" title="Show details">
+                                                <i data-feather="chevron-down"></i>
+                                            </button>
+                                        </div>
                                     </td>
-                                    <td>
-                                        <div class="d-flex" style="gap: 5px;">
-                                            <a href="/admin/subscription/edit/@plan.Id" class="btn btn-sm btn-outline-primary" title="Edit Plan"><i class="fas fa-edit"></i></a>
-                                            
-                                            <form method="post" action="/admin/subscription/toggle-status" style="display:inline;">
+                                    <td class="col-secondary" data-label="Price">
+                                        <div>
+                                            <span class="font-weight-600 text-dark font-15">₹@plan.PricePerMonth.ToString("N0")</span>
+                                        </div>
+                                    </td>
+                                    <td class="col-secondary" data-label="Max Stations">
+                                        <div>
+                                            <span class="font-weight-600 text-dark">
+                                                <i class="fas fa-charging-station text-primary mr-1"></i>@plan.MaxStations
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td class="col-secondary" data-label="Managers / Station">
+                                        <div>
+                                            <span class="font-weight-600 text-dark">
+                                                <i class="fas fa-user-shield text-muted mr-1"></i>@plan.MaxManagersPerStation
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td class="col-secondary" data-label="Active Subscribers">
+                                        <div>
+                                            @if (activeCount > 0)
+                                            {
+                                                <a href="/admin/subscription/subscribers?planId=@plan.Id" class="badge badge-info font-weight-600" title="Click to view subscribers">
+                                                    <i class="fas fa-users mr-1"></i>@activeCount
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge badge-light text-muted font-weight-normal">
+                                                    0
+                                                </span>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td class="col-secondary" data-label="Status">
+                                        <div>
+                                            @if (plan.IsActive)
+                                            {
+                                                <span class="badge badge-success font-weight-600">
+                                                    <i class="fas fa-check-circle mr-1"></i> Active
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge badge-danger font-weight-600">
+                                                    <i class="fas fa-ban mr-1"></i> Inactive
+                                                </span>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td class="text-center col-action" data-label="Actions">
+                                        <div class="d-flex justify-content-center align-items-center">
+                                            <a href="/admin/subscription/plan-details/@plan.Id" class="btn btn-info mr-1" title="View Plan Details">
+                                                <i class="fas fa-info-circle"></i>
+                                            </a>
+                                            <a href="/admin/subscription/edit/@plan.Id" class="btn btn-warning mr-1" title="Edit Plan">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <form method="post" action="/admin/subscription/toggle-status" class="d-inline-block mr-1">
                                                 @Html.AntiForgeryToken()
                                                 <input type="hidden" name="id" value="@plan.Id" />
                                                 @if (plan.IsActive)
                                                 {
-                                                    <button type="submit" class="btn btn-sm btn-outline-warning" title="Deactivate" onclick="return confirm('Deactivate this plan? No new owners can buy this.');"><i class="fas fa-pause"></i></button>
+                                                    <button type="submit" class="btn btn-secondary" title="Deactivate Plan" onclick="return confirm('Deactivate this plan? New owners will not be able to purchase it.');">
+                                                        <i class="fas fa-pause"></i>
+                                                    </button>
                                                 }
                                                 else
                                                 {
-                                                    <button type="submit" class="btn btn-sm btn-outline-success" title="Activate"><i class="fas fa-play"></i></button>
+                                                    <button type="submit" class="btn btn-success" title="Activate Plan">
+                                                        <i class="fas fa-play"></i>
+                                                    </button>
                                                 }
                                             </form>
-
-                                            <form method="post" action="/admin/subscription/delete/@plan.Id" style="display:inline;">
+                                            <form method="post" action="/admin/subscription/delete/@plan.Id" class="d-inline-block">
                                                 @Html.AntiForgeryToken()
-                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete" onclick="return confirm('Are you sure you want to permanently delete this plan?');"><i class="fas fa-trash"></i></button>
+                                                <button type="submit" class="btn btn-danger" title="Delete Plan" onclick="return confirm('Are you sure you want to permanently delete this plan?');">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
                                             </form>
                                         </div>
                                     </td>
-                                </tr>
-                            }
-                            @if (!Model.Any())
-                            {
-                                <tr>
-                                    <td colspan="7" class="text-center">No subscription plans found. Create one to get started.</td>
                                 </tr>
                             }
                         </tbody>
@@ -108,3 +171,20 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            if (typeof feather !== 'undefined') {
+                feather.replace();
+            }
+            if ($.fn.DataTable) {
+                $('#table-1').on('draw.dt', function() {
+                    if (typeof feather !== 'undefined') {
+                        feather.replace();
+                    }
+                });
+            }
+        });
+    </script>
+}

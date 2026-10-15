@@ -1,7 +1,7 @@
 @model IEnumerable<VoltNet.Models.OwnerSubscription>
 @{
     ViewData["Title"] = "Subscription Cancellation Requests";
-    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    Layout = "_AdminLayout";
     var pendingCount = Model.Count(r => r.Status == "CancellationPending");
 }
 
@@ -18,50 +18,57 @@
     }
 </style>
 
-<div class="section-header">
-    <h1>Subscription Cancellation Requests</h1>
-    <div class="section-header-breadcrumb">
-        <div class="breadcrumb-item active"><a href="/admin/Dashboard">Dashboard</a></div>
-        <div class="breadcrumb-item"><a href="/admin/subscription">Subscriptions</a></div>
-        <div class="breadcrumb-item">Cancellation Requests</div>
-    </div>
-</div>
-
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success alert-dismissible fade show">
-        <i class="fas fa-check-circle mr-2"></i>@TempData["Success"]
-        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
-    </div>
-}
-
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger alert-dismissible fade show">
-        <i class="fas fa-exclamation-circle mr-2"></i>@TempData["Error"]
-        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
-    </div>
-}
-
 <div class="row">
     <div class="col-12">
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible show fade">
+                <div class="alert-body">
+                    <button class="close" data-dismiss="alert"><span>&times;</span></button>
+                    <i class="fas fa-check-circle mr-2"></i>@TempData["Success"]
+                </div>
+            </div>
+        }
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible show fade">
+                <div class="alert-body">
+                    <button class="close" data-dismiss="alert"><span>&times;</span></button>
+                    <i class="fas fa-exclamation-circle mr-2"></i>@TempData["Error"]
+                </div>
+            </div>
+        }
+
         <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4>All Cancellation Requests</h4>
-                <span class="badge badge-warning">@pendingCount Pending Review</span>
+            <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+                <div class="d-flex align-items-center flex-wrap">
+                    <h4 class="mb-0 mr-3">Cancellation Requests</h4>
+                    <span class="badge badge-warning font-weight-600 mr-2">@pendingCount Pending</span>
+                    <span class="badge badge-secondary font-weight-600 mr-2">@Model.Count(r => r.Status == "Cancelled") Approved</span>
+                    <span class="badge badge-light font-weight-600">@Model.Count() Total</span>
+                </div>
+                <div class="card-header-action mt-2 mt-sm-0 d-flex align-items-center">
+                    <a href="/admin/subscription/subscribers" class="btn btn-outline-info btn-sm mr-2" title="View all owner subscriptions">
+                        <i class="fas fa-users mr-1"></i> Owner Subscriptions
+                    </a>
+                    <a href="/admin/subscription" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-arrow-left mr-1"></i> Back to Plans
+                    </a>
+                </div>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-striped table-hover">
+                    <table class="table table-striped align-middle table-responsive-cards" id="table-1">
                         <thead>
                             <tr>
                                 <th>Owner / Business</th>
                                 <th>Plan Details</th>
-                                <th>Amount & Payment ID</th>
+                                <th>Amount & Payment</th>
                                 <th>Requested At</th>
-                                <th>Reason Provided</th>
+                                <th>Reason</th>
                                 <th>Status</th>
-                                <th>Actions</th>
+                                <th class="text-center" data-orderable="false" style="width: 170px;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -72,72 +79,75 @@
                                 var hoursSincePurchase = Math.Floor((req.CancellationRequestedAt.HasValue ? req.CancellationRequestedAt.Value - req.CreatedAt : DateTime.UtcNow - req.CreatedAt).TotalHours);
                                 
                                 <tr>
-                                    <td>
-                                        <strong>@(req.Owner?.FullName ?? req.Owner?.User?.Fullname ?? "N/A")</strong>
-                                        <small class="text-muted d-block">@(req.Owner?.BusinessName ?? "Individual Owner")</small>
-                                        <small class="text-muted d-block">@(req.Owner?.User?.Email ?? "N/A")</small>
+                                    <td class="col-primary" data-label="Owner">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <span class="font-weight-600 text-dark font-15">@(req.Owner?.FullName ?? req.Owner?.User?.Fullname ?? "N/A")</span>
+                                            <button type="button" class="mobile-expand-btn ml-2" title="Show details">
+                                                <i data-feather="chevron-down"></i>
+                                            </button>
+                                        </div>
                                     </td>
-                                    <td>
-                                        <strong>@(req.Plan?.Name ?? "Plan")</strong>
-                                        <small class="text-muted d-block">@req.Stations.Count / @(req.Plan?.MaxStations ?? 0) Stations Used</small>
-                                        <small class="text-muted d-block">Purchased: @req.CreatedAt.ToString("dd MMM yyyy, hh:mm tt") UTC</small>
+                                    <td class="col-secondary" data-label="Plan Details">
+                                        <div>
+                                            <span class="badge badge-light text-dark font-weight-600">@(req.Plan?.Name ?? "Plan")</span>
+                                        </div>
                                     </td>
-                                    <td>
-                                        <span class="font-weight-bold text-success">₹@req.AmountPaid.ToString("N2")</span>
-                                        <small class="text-monospace d-block text-muted">@req.PaymentId</small>
+                                    <td class="col-secondary" data-label="Amount & Payment">
+                                        <div>
+                                            <span class="font-weight-bold text-success font-15">₹@req.AmountPaid.ToString("N2")</span>
+                                        </div>
                                     </td>
-                                    <td>
-                                        @(req.CancellationRequestedAt?.ToString("dd MMM yyyy, hh:mm tt") ?? req.CreatedAt.ToString("dd MMM yyyy"))
-                                        <small class="d-block text-muted">(@hoursSincePurchase hrs after purchase)</small>
+                                    <td class="col-secondary" data-label="Requested At">
+                                        <div>
+                                            <span class="text-dark font-weight-600">
+                                                @(req.CancellationRequestedAt?.ToString("dd MMM yyyy") ?? req.CreatedAt.ToString("dd MMM yyyy"))
+                                            </span>
+                                        </div>
                                     </td>
-                                    <td style="max-width: 250px;">
-                                        <span class="d-block text-truncate" title="@req.CancellationReason">
-                                            @(string.IsNullOrWhiteSpace(req.CancellationReason) ? "No reason specified" : req.CancellationReason)
-                                        </span>
-                                        @if (!string.IsNullOrWhiteSpace(req.CancellationAdminRemarks))
-                                        {
-                                            <small class="text-info d-block mt-1">
-                                                <strong>Admin:</strong> @req.CancellationAdminRemarks
-                                            </small>
-                                        }
+                                    <td class="col-secondary" data-label="Reason" style="max-width: 250px;">
+                                        <div>
+                                            <span class="text-dark" title="@req.CancellationReason">
+                                                @(string.IsNullOrWhiteSpace(req.CancellationReason) ? "No reason specified" : (req.CancellationReason.Length > 35 ? req.CancellationReason.Substring(0, 32) + "..." : req.CancellationReason))
+                                            </span>
+                                        </div>
                                     </td>
-                                    <td>
-                                        @if (isPending)
-                                        {
-                                            <span class="badge badge-warning">Pending Review</span>
-                                        }
-                                        else if (isCancelled)
-                                        {
-                                            <span class="badge badge-danger">Approved & Cancelled</span>
-                                            @if (req.RefundAmount.HasValue)
+                                    <td class="col-secondary" data-label="Status">
+                                        <div>
+                                            @if (isPending)
                                             {
-                                                <small class="d-block text-success font-weight-bold">Refund: ₹@req.RefundAmount.Value.ToString("N0")</small>
+                                                <span class="badge badge-warning font-weight-600">
+                                                    <i class="fas fa-clock mr-1"></i> Pending Review
+                                                </span>
                                             }
-                                        }
-                                        else
-                                        {
-                                            <span class="badge badge-success">Active (Rejected)</span>
-                                        }
+                                            else if (isCancelled)
+                                            {
+                                                <span class="badge badge-danger font-weight-600">
+                                                    <i class="fas fa-check-circle mr-1"></i> Approved & Cancelled
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge badge-success font-weight-600">
+                                                    <i class="fas fa-shield-alt mr-1"></i> Active (Rejected)
+                                                </span>
+                                            }
+                                        </div>
                                     </td>
-                                    <td>
-                                        @if (isPending)
-                                        {
-                                            <div class="d-flex" style="gap: 5px;">
-                                                <!-- Approve Button -->
-                                                <button type="button" class="btn btn-sm btn-success" onclick="openApproveModal('@req.Id', '@req.Plan?.Name', '@req.Owner?.FullName', @req.AmountPaid)">
-                                                    <i class="fas fa-check mr-1"></i> Approve
+                                    <td class="text-center col-action" data-label="Actions">
+                                        <div class="d-flex justify-content-center align-items-center flex-wrap">
+                                            <a href="/admin/subscription/cancellation-details/@req.Id" class="btn btn-info btn-sm mr-1 mb-1" title="View Full Details">
+                                                <i class="fas fa-info-circle mr-1"></i> Details
+                                            </a>
+                                            @if (isPending)
+                                            {
+                                                <button type="button" class="btn btn-success btn-sm mr-1 mb-1" title="Approve Cancellation & Refund" onclick="openApproveModal('@req.Id', '@req.Plan?.Name', '@req.Owner?.FullName', @req.AmountPaid)">
+                                                    <i class="fas fa-check"></i>
                                                 </button>
-                                                
-                                                <!-- Reject Button -->
-                                                <button type="button" class="btn btn-sm btn-danger" onclick="openRejectModal('@req.Id', '@req.Plan?.Name', '@req.Owner?.FullName')">
-                                                    <i class="fas fa-times mr-1"></i> Reject
+                                                <button type="button" class="btn btn-danger btn-sm mb-1" title="Reject Cancellation" onclick="openRejectModal('@req.Id', '@req.Plan?.Name', '@req.Owner?.FullName')">
+                                                    <i class="fas fa-times"></i>
                                                 </button>
-                                            </div>
-                                        }
-                                        else
-                                        {
-                                            <small class="text-muted">Processed on @(req.CancellationProcessedAt?.ToString("dd MMM yyyy") ?? "-")</small>
-                                        }
+                                            }
+                                        </div>
                                     </td>
                                 </tr>
                             }
@@ -226,6 +236,18 @@
             // Move modals to body to prevent stacking context/dull backdrop lock issue
             $('#approveModal').appendTo("body");
             $('#rejectModal').appendTo("body");
+
+            if (typeof feather !== 'undefined') {
+                feather.replace();
+            }
+
+            if ($.fn.DataTable) {
+                $('#table-1').on('draw.dt', function() {
+                    if (typeof feather !== 'undefined') {
+                        feather.replace();
+                    }
+                });
+            }
         });
 
         function openApproveModal(id, planName, ownerName, amount) {

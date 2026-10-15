@@ -1,0 +1,225 @@
+@model IEnumerable<VoltNet.Models.OwnerSubscription>
+@{
+    ViewData["Title"] = "Owner Subscriptions";
+    Layout = "_AdminLayout";
+    var currentFilter = ViewBag.CurrentFilter as string ?? "All";
+    var selectedPlanId = ViewBag.SelectedPlanId as Guid?;
+    var selectedPlanName = ViewBag.SelectedPlanName as string;
+}
+
+<style>
+    .filter-pill {
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none !important;
+    }
+    .filter-pill:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+    }
+    .filter-pill.active {
+        box-shadow: 0 2px 6px rgba(103, 119, 239, 0.4);
+    }
+</style>
+
+<div class="row">
+    <div class="col-12">
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible show fade">
+                <div class="alert-body">
+                    <button class="close" data-dismiss="alert"><span>&times;</span></button>
+                    <i class="fas fa-check-circle mr-2"></i>@TempData["Success"]
+                </div>
+            </div>
+        }
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible show fade">
+                <div class="alert-body">
+                    <button class="close" data-dismiss="alert"><span>&times;</span></button>
+                    <i class="fas fa-exclamation-circle mr-2"></i>@TempData["Error"]
+                </div>
+            </div>
+        }
+
+        <!-- Filter & Revenue Metric Strip -->
+        <div class="mb-3 d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <div class="d-flex flex-wrap align-items-center" style="gap: 8px;">
+                <a href="/admin/subscription/subscribers" class="badge badge-light px-3 py-2 filter-pill @(currentFilter == "All" && !selectedPlanId.HasValue ? "badge-primary active" : "")">
+                    All (@ViewBag.TotalCount)
+                </a>
+                <a href="/admin/subscription/subscribers?status=Active" class="badge badge-light px-3 py-2 filter-pill @(currentFilter == "Active" ? "badge-success active text-white" : "")">
+                    <i class="fas fa-check-circle mr-1"></i> Active (@ViewBag.ActiveCount)
+                </a>
+                <a href="/admin/subscription/subscribers?status=CancellationPending" class="badge badge-light px-3 py-2 filter-pill @(currentFilter == "CancellationPending" ? "badge-warning active text-white" : "")">
+                    <i class="fas fa-clock mr-1"></i> Pending Cancel (@ViewBag.PendingCancelCount)
+                </a>
+                <a href="/admin/subscription/subscribers?status=Cancelled" class="badge badge-light px-3 py-2 filter-pill @(currentFilter == "Cancelled" ? "badge-danger active text-white" : "")">
+                    <i class="fas fa-ban mr-1"></i> Cancelled (@ViewBag.CancelledCount)
+                </a>
+                <a href="/admin/subscription/subscribers?status=Expired" class="badge badge-light px-3 py-2 filter-pill @(currentFilter == "Expired" ? "badge-secondary active text-white" : "")">
+                    <i class="fas fa-hourglass-end mr-1"></i> Expired (@ViewBag.ExpiredCount)
+                </a>
+            </div>
+
+            <div class="text-right mt-2 mt-md-0">
+                <span class="badge badge-success px-3 py-2 font-weight-600">
+                    <i class="fas fa-rupee-sign mr-1"></i> Total Revenue: ₹@(((decimal)ViewBag.TotalRevenue).ToString("N0"))
+                </span>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+                <div class="d-flex align-items-center flex-wrap">
+                    <h4 class="mb-0 mr-3">Owner Subscriptions</h4>
+                    @if (!string.IsNullOrWhiteSpace(selectedPlanName))
+                    {
+                        <span class="badge badge-info mr-2">
+                            Plan: @selectedPlanName
+                            <a href="/admin/subscription/subscribers" class="text-white ml-1" title="Clear plan filter">&times;</a>
+                        </span>
+                    }
+                </div>
+                <div class="card-header-action mt-2 mt-sm-0 d-flex align-items-center">
+                    <a href="/admin/subscription" class="btn btn-outline-primary btn-sm mr-2" title="Manage Subscription Plans">
+                        <i class="fas fa-layer-group mr-1"></i> Plans Master
+                    </a>
+                    <a href="/admin/subscription/cancellation-requests" class="btn btn-outline-danger btn-sm" title="Manage Cancellation Requests">
+                        <i class="fas fa-undo-alt mr-1"></i> Cancellation Requests
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped align-middle table-responsive-cards" id="table-1">
+                        <thead>
+                            <tr>
+                                <th>Owner</th>
+                                <th>Plan</th>
+                                <th>Stations</th>
+                                <th>Amount</th>
+                                <th>Validity Period</th>
+                                <th>Status</th>
+                                <th class="text-center" data-orderable="false" style="width: 140px;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var sub in Model)
+                            {
+                                var isNowExpired = sub.EndDate < DateTime.UtcNow && sub.Status != "Cancelled";
+                                var isPending = sub.Status == "CancellationPending";
+                                var isCancelled = sub.Status == "Cancelled";
+                                var isActive = sub.Status == "Active" && !isNowExpired;
+                                
+                                <tr>
+                                    <td class="col-primary" data-label="Owner">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <span class="font-weight-600 text-dark font-15">
+                                                @(sub.Owner?.FullName ?? sub.Owner?.User?.Fullname ?? "N/A")
+                                            </span>
+                                            <button type="button" class="mobile-expand-btn ml-2" title="Show details">
+                                                <i data-feather="chevron-down"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                    <td class="col-secondary" data-label="Plan">
+                                        <div>
+                                            <span class="badge badge-light text-dark font-weight-600 font-14">
+                                                @(sub.Plan?.Name ?? "Plan")
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td class="col-secondary" data-label="Stations">
+                                        <div>
+                                            <span class="font-weight-600 text-dark">
+                                                <i class="fas fa-charging-station text-primary mr-1"></i>@sub.Stations.Count / @(sub.Plan?.MaxStations ?? 0)
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td class="col-secondary" data-label="Amount">
+                                        <div>
+                                            <span class="font-weight-bold text-success font-15">₹@sub.AmountPaid.ToString("N2")</span>
+                                        </div>
+                                    </td>
+                                    <td class="col-secondary" data-label="Validity">
+                                        <div>
+                                            <span class="font-weight-600 text-dark">
+                                                @sub.StartDate.ToString("dd MMM yyyy") - @sub.EndDate.ToString("dd MMM yyyy")
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td class="col-secondary" data-label="Status">
+                                        <div>
+                                            @if (isActive)
+                                            {
+                                                <span class="badge badge-success font-weight-600">
+                                                    <i class="fas fa-check-circle mr-1"></i> Active
+                                                </span>
+                                            }
+                                            else if (isPending)
+                                            {
+                                                <span class="badge badge-warning font-weight-600">
+                                                    <i class="fas fa-clock mr-1"></i> Cancel Pending
+                                                </span>
+                                            }
+                                            else if (isCancelled)
+                                            {
+                                                <span class="badge badge-danger font-weight-600">
+                                                    <i class="fas fa-ban mr-1"></i> Cancelled
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge badge-secondary font-weight-600">
+                                                    <i class="fas fa-hourglass-end mr-1"></i> Expired
+                                                </span>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td class="text-center col-action" data-label="Action">
+                                        <div class="d-flex justify-content-center align-items-center">
+                                            <a href="/admin/subscription/subscription-details/@sub.Id" class="btn btn-info btn-sm" title="View Full Details">
+                                                <i class="fas fa-info-circle mr-1"></i> Details
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                            @if (!Model.Any())
+                            {
+                                <tr>
+                                    <td colspan="7" class="text-center py-5 text-muted">
+                                        <i class="fas fa-receipt fa-3x mb-3 text-secondary d-block"></i>
+                                        <h5>No Subscriptions Found</h5>
+                                        <p class="mb-0">There are currently no owner subscription purchases matching your filter.</p>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            if (typeof feather !== 'undefined') {
+                feather.replace();
+            }
+
+            if ($.fn.DataTable) {
+                $('#table-1').on('draw.dt', function() {
+                    if (typeof feather !== 'undefined') {
+                        feather.replace();
+                    }
+                });
+            }
+        });
+    </script>
+}

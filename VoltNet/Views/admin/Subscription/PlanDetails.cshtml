@@ -1,0 +1,252 @@
+@model VoltNet.Models.SubscriptionPlan
+@{
+    ViewData["Title"] = $"{Model.Name} Plan Details";
+    Layout = "_AdminLayout";
+    var subscribers = ViewBag.Subscribers as List<VoltNet.Models.OwnerSubscription> ?? new List<VoltNet.Models.OwnerSubscription>();
+    var activeCount = ViewBag.ActiveCount as int? ?? 0;
+    var totalRevenue = ViewBag.TotalRevenue as decimal? ?? 0;
+}
+
+<style>
+    .detail-card {
+        background: #ffffff;
+        border: 1px solid #e4e6fc;
+        border-radius: 8px;
+        padding: 24px;
+        margin-bottom: 24px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+        height: 100%;
+    }
+    .detail-card-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: #34395e;
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #f2f2f2;
+        display: flex;
+        align-items: center;
+    }
+    .detail-card-title i {
+        font-size: 16px;
+        margin-right: 8px;
+    }
+    .detail-row {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 18px;
+    }
+    .detail-row:last-child {
+        margin-bottom: 0;
+    }
+    .detail-label {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #78828a;
+        margin-bottom: 4px;
+    }
+    .detail-value {
+        font-size: 15px;
+        font-weight: 600;
+        color: #191d21;
+        word-break: break-word;
+    }
+    @@media (min-width: 576px) {
+        .detail-row-inline {
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px dashed #f0f2f5;
+            padding-bottom: 12px;
+        }
+        .detail-row-inline:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        .detail-row-inline .detail-label {
+            margin-bottom: 0;
+            flex-shrink: 0;
+            margin-right: 15px;
+        }
+        .detail-row-inline .detail-value {
+            text-align: right;
+        }
+    }
+</style>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+                <div class="d-flex align-items-center flex-wrap">
+                    <h4 class="mb-0 mr-3">@Model.Name Plan Details</h4>
+                    @if (Model.IsActive)
+                    {
+                        <span class="badge badge-success font-weight-600 font-13 px-3 py-2">
+                            <i class="fas fa-check-circle mr-1"></i> Active
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge badge-danger font-weight-600 font-13 px-3 py-2">
+                            <i class="fas fa-ban mr-1"></i> Inactive
+                        </span>
+                    }
+                </div>
+                <div class="card-header-action mt-2 mt-sm-0">
+                    <a href="/admin/subscription" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-arrow-left mr-1"></i> Back to Plans
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- Pricing & Duration Card -->
+                    <div class="col-12 col-md-4 mb-4">
+                        <div class="detail-card">
+                            <div class="detail-card-title text-primary">
+                                <i class="fas fa-tag"></i> Pricing & Duration
+                            </div>
+                            <div class="detail-row detail-row-inline">
+                                <span class="detail-label">Monthly Price</span>
+                                <span class="detail-value font-weight-bold text-dark font-20">
+                                    ₹@Model.PricePerMonth.ToString("N0")
+                                </span>
+                            </div>
+                            <div class="detail-row detail-row-inline">
+                                <span class="detail-label">Duration</span>
+                                <span class="detail-value text-dark font-16">
+                                    @Model.DurationDays Days
+                                </span>
+                            </div>
+                            <div class="detail-row detail-row-inline">
+                                <span class="detail-label">Billing Cycle</span>
+                                <span class="detail-value text-muted font-14">
+                                    @(Model.DurationDays == 30 ? "Monthly Recurring" : $"{Model.DurationDays} Days Fixed")
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quota Limits Card -->
+                    <div class="col-12 col-md-4 mb-4">
+                        <div class="detail-card">
+                            <div class="detail-card-title text-info">
+                                <i class="fas fa-charging-station"></i> Station Quotas
+                            </div>
+                            <div class="detail-row detail-row-inline">
+                                <span class="detail-label">Max Stations</span>
+                                <span class="detail-value font-weight-bold text-dark font-18">
+                                    <i class="fas fa-charging-station text-primary mr-1"></i> @Model.MaxStations @(Model.MaxStations == 1 ? "Station" : "Stations")
+                                </span>
+                            </div>
+                            <div class="detail-row detail-row-inline">
+                                <span class="detail-label">Managers / Station</span>
+                                <span class="detail-value text-dark font-16">
+                                    <i class="fas fa-user-shield text-muted mr-1"></i> @Model.MaxManagersPerStation Max
+                                </span>
+                            </div>
+                            <div class="detail-row detail-row-inline">
+                                <span class="detail-label">Status</span>
+                                <span class="detail-value">
+                                    @(Model.IsActive ? "Available for Purchase" : "Disabled")
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Performance & Subscribers Summary Card -->
+                    <div class="col-12 col-md-4 mb-4">
+                        <div class="detail-card">
+                            <div class="detail-card-title text-success">
+                                <i class="fas fa-chart-line"></i> Performance
+                            </div>
+                            <div class="detail-row detail-row-inline">
+                                <span class="detail-label">Total Revenue</span>
+                                <span class="detail-value font-weight-bold text-success font-20">
+                                    ₹@totalRevenue.ToString("N0")
+                                </span>
+                            </div>
+                            <div class="detail-row detail-row-inline">
+                                <span class="detail-label">Active Subscribers</span>
+                                <span class="detail-value text-dark font-16">
+                                    <i class="fas fa-users text-primary mr-1"></i> @activeCount Active
+                                </span>
+                            </div>
+                            <div class="detail-row detail-row-inline">
+                                <span class="detail-label">Total Purchases</span>
+                                <span class="detail-value text-muted font-14">
+                                    @subscribers.Count All-time
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Description & Quick Action Card -->
+                <div class="row">
+                    <div class="col-12 mb-3">
+                        <div class="detail-card">
+                            <div class="detail-card-title text-primary justify-content-between flex-wrap">
+                                <span><i class="fas fa-align-left"></i> Description & Subscriber Access</span>
+                                @if (subscribers.Any())
+                                {
+                                    <a href="/admin/subscription/subscribers?planId=@Model.Id" class="btn btn-outline-primary btn-sm mt-2 mt-sm-0">
+                                        <i class="fas fa-users mr-1"></i> View All @subscribers.Count Subscribers in Grid
+                                    </a>
+                                }
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(Model.Description))
+                            {
+                                <p class="text-dark font-15 mb-3" style="line-height: 1.6;">
+                                    @Model.Description
+                                </p>
+                            }
+                            else
+                            {
+                                <p class="text-muted font-14 mb-3">No description provided for this plan.</p>
+                            }
+
+                            <div class="pt-3 border-top d-flex align-items-center justify-content-between flex-wrap">
+                                <div class="text-muted small">
+                                    Plan ID: <span class="text-monospace text-dark">@Model.Id</span>
+                                </div>
+                                <div class="text-muted small">
+                                    Created on: <span class="text-dark font-weight-600">@Model.CreatedAt.ToString("dd MMM yyyy, hh:mm tt") UTC</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-white border-top d-flex justify-content-between align-items-center flex-wrap">
+                <a href="/admin/subscription" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left mr-1"></i> Back to Plans
+                </a>
+                <div class="mt-2 mt-sm-0">
+                    <a href="/admin/subscription/edit/@Model.Id" class="btn btn-warning mr-2">
+                        <i class="fas fa-edit mr-1"></i> Edit Plan
+                    </a>
+                    <form method="post" action="/admin/subscription/toggle-status" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        @if (Model.IsActive)
+                        {
+                            <button type="submit" class="btn btn-secondary" onclick="return confirm('Deactivate this plan?');">
+                                <i class="fas fa-pause mr-1"></i> Deactivate Plan
+                            </button>
+                        }
+                        else
+                        {
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-play mr-1"></i> Activate Plan
+                            </button>
+                        }
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
