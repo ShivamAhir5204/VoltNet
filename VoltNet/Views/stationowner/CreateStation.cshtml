@@ -6,71 +6,71 @@
 }
 
 <div class="row">
-  <div class="col-12 col-lg-8">
+  <div class="col-12 col-lg-10 col-xl-8 mx-auto">
     <div class="card">
-      <div class="card-header d-flex justify-content-between align-items-center">
+      <div class="card-header d-flex flex-column flex-sm-row justify-content-between align-items-sm-center">
         <h4>Create New Station</h4>
-        <a href="/owner/stations" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left"></i> Back</a>
+        <a href="/owner/stations" class="btn btn-outline-secondary btn-sm mt-2 mt-sm-0"><i class="fas fa-arrow-left mr-1"></i> Back</a>
       </div>
       <div class="card-body">
         <form method="post" asp-action="Create">
           <div class="form-group">
-            <label for="Name">Station Name <span class="text-danger">*</span></label>
-            <input asp-for="Name" class="form-control" required />
+            <label for="Name" class="font-weight-bold">Station Name <span class="text-danger">*</span></label>
+            <input asp-for="Name" class="form-control" placeholder="e.g. VoltNet Hub - SG Highway" required />
             <span asp-validation-for="Name" class="text-danger"></span>
           </div>
           <div class="form-group">
-            <label for="Address">Address <span class="text-danger">*</span></label>
-            <input asp-for="Address" class="form-control" required />
+            <label for="Address" class="font-weight-bold">Address <span class="text-danger">*</span></label>
+            <input asp-for="Address" class="form-control" placeholder="Complete street address or landmark" required />
             <span asp-validation-for="Address" class="text-danger"></span>
           </div>
           <div class="row">
-            <div class="col-md-6 form-group">
-              <label for="City">City <span class="text-danger">*</span></label>
-              <input asp-for="City" class="form-control" required />
+            <div class="col-12 col-md-6 form-group">
+              <label for="City" class="font-weight-bold">City <span class="text-danger">*</span></label>
+              <input asp-for="City" class="form-control" placeholder="e.g. Ahmedabad" required />
               <span asp-validation-for="City" class="text-danger"></span>
             </div>
-            <div class="col-md-6 form-group">
-              <label for="State">State <span class="text-danger">*</span></label>
+            <div class="col-12 col-md-6 form-group">
+              <label for="State" class="font-weight-bold">State <span class="text-danger">*</span></label>
               <select asp-for="State" class="form-control" id="State" required>
                 <option value="">-- Select State --</option>
               </select>
               <span asp-validation-for="State" class="text-danger"></span>
             </div>
           </div>
-          <div class="row">
-            <div class="col-12 col-md-5 form-group">
-              <label for="Latitude">Latitude <span class="text-danger">*</span></label>
-              <input asp-for="Latitude" id="Latitude" type="number" step="any" class="form-control" required />
+          <div class="row align-items-end">
+            <div class="col-12 col-sm-6 col-md-4 form-group">
+              <label for="Latitude" class="font-weight-bold">Latitude <span class="text-danger">*</span></label>
+              <input asp-for="Latitude" id="Latitude" type="number" step="any" class="form-control" placeholder="e.g. 23.0225" required />
               <span asp-validation-for="Latitude" class="text-danger"></span>
             </div>
-            <div class="col-12 col-md-5 form-group">
-              <label for="Longitude">Longitude <span class="text-danger">*</span></label>
-              <input asp-for="Longitude" id="Longitude" type="number" step="any" class="form-control" required />
+            <div class="col-12 col-sm-6 col-md-4 form-group">
+              <label for="Longitude" class="font-weight-bold">Longitude <span class="text-danger">*</span></label>
+              <input asp-for="Longitude" id="Longitude" type="number" step="any" class="form-control" placeholder="e.g. 72.5714" required />
               <span asp-validation-for="Longitude" class="text-danger"></span>
             </div>
-            <div class="col-12 col-md-2 form-group d-flex align-items-end">
-              <button type="button" id="btnPickMap" class="btn btn-info btn-block mb-1">
-                <i class="fas fa-map-marker-alt"></i> Pick from Map
+            <div class="col-12 col-md-4 form-group">
+              <button type="button" id="btnPickMap" class="btn btn-info btn-block">
+                <i class="fas fa-map-marker-alt mr-1"></i> Pick from Map
               </button>
             </div>
           </div>
           <div class="row">
-            <div class="col-md-6 form-group">
+            <div class="col-12 col-md-6 form-group">
               <label for="OpeningTime">Opening Time <span class="text-danger">*</span></label>
               <input asp-for="OpeningTime" type="time" class="form-control" required />
               <span asp-validation-for="OpeningTime" class="text-danger"></span>
             </div>
-            <div class="col-md-6 form-group">
+            <div class="col-12 col-md-6 form-group">
               <label for="ClosingTime">Closing Time <span class="text-danger">*</span></label>
               <input asp-for="ClosingTime" type="time" class="form-control" required />
               <span asp-validation-for="ClosingTime" class="text-danger"></span>
             </div>
           </div>
 
-          <div class="form-group mt-4">
-            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Submit for Verification</button>
-            <a href="/owner/stations" class="btn btn-outline-secondary ml-2">Cancel</a>
+          <div class="form-group mt-4 d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center">
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save mr-1"></i> Submit for Verification</button>
+            <a href="/owner/stations" class="btn btn-outline-secondary ml-0 ml-sm-2 mt-2 mt-sm-0">Cancel</a>
           </div>
         </form>
       </div>

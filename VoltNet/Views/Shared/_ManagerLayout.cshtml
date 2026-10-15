@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
+  <meta name="description" content="VoltNet Station Manager Portal - Monitor chargers, manage bookings, walk-ins, and maintenance.">
   <title>@ViewData["Title"] - Station Manager Portal</title>
   <!-- General CSS Files -->
   <link rel="stylesheet" href="~/otika/assets/css/app.min.css">
@@ -17,7 +18,7 @@
   <link rel='shortcut icon' type='image/x-icon' href='~/otika/assets/img/voltnet.ico' />
 </head>
 
-<body>
+<body style="overflow-x: hidden;">
   <div class="loader"></div>
   <div id="app">
     <div class="main-wrapper main-wrapper-1">
@@ -81,6 +82,9 @@
             <li class="dropdown @(Context.Request.Path.StartsWithSegments("/manager/station-blocks") ? "active" : "")">
               <a href="/manager/station-blocks" class="nav-link"><i data-feather="tool"></i><span>Maintenance & Breaks</span></a>
             </li>
+            <li class="dropdown @(Context.Request.Path.StartsWithSegments("/manager/maintenance") ? "active" : "")">
+              <a href="/manager/maintenance" class="nav-link"><i data-feather="alert-circle"></i><span>Equipment Tickets</span></a>
+            </li>
             <li class="menu-header">Account</li>
             <li class="dropdown @(Context.Request.Path.StartsWithSegments("/manager/dashboard/profile") ? "active" : "")">
               <a href="/manager/dashboard/profile" class="nav-link"><i data-feather="user"></i><span>Profile</span></a>
@@ -95,6 +99,28 @@
       <div class="main-content">
         <section class="section">
           <div class="section-body">
+            @if (TempData["SuccessMessage"] != null)
+            {
+              <div class="alert alert-success alert-has-icon alert-dismissible show fade mb-4">
+                <div class="alert-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="alert-body">
+                  <button class="close" data-dismiss="alert"><span>&times;</span></button>
+                  <div class="alert-title">Success</div>
+                  @TempData["SuccessMessage"]
+                </div>
+              </div>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+              <div class="alert alert-danger alert-has-icon alert-dismissible show fade mb-4">
+                <div class="alert-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                <div class="alert-body">
+                  <button class="close" data-dismiss="alert"><span>&times;</span></button>
+                  <div class="alert-title">Error</div>
+                  @TempData["ErrorMessage"]
+                </div>
+              </div>
+            }
             @RenderBody()
           </div>
         </section>

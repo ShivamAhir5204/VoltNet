@@ -226,4 +226,45 @@ VoltNet Team";
             // Email failure won't fail transaction
         }
     }
+
+    // GET: /customer/invoices
+    [HttpGet("/customer/invoices")]
+    public async Task<IActionResult> Invoices()
+    {
+        var customerId = GetUserId();
+
+        var completedBookings = await _context.Bookings
+            .Include(b => b.Station)
+            .Include(b => b.Charger)
+            .Where(b => b.CustomerId == customerId && (b.Status == "Completed" || (b.Status == "Confirmed" && b.ActualCost.HasValue)))
+            .OrderByDescending(b => b.BookingDate)
+            .ThenByDescending(b => b.StartTime)
+            .ToListAsync();
+
+        ViewBag.TotalSpent = completedBookings.Sum(b => b.ActualCost ?? b.EstimatedCost);
+        ViewBag.TotalKwh = completedBookings.Sum(b => b.UnitsConsumedKwh ?? 0);
+        ViewBag.InvoiceCount = completedBookings.Count;
+
+        return View("~/Views/customer/Booking/Invoices.cshtml", completedBookings);
+    }
+
+    // GET: /customer/bookings/invoice/{id} or /customer/invoices/view/{id}
+    [HttpGet("invoice/{id}")]
+    [HttpGet("/customer/invoices/view/{id}")]
+    public async Task<IActionResult> Invoice(Guid id)
+    {
+        var customerId = GetUserId();
+
+        var booking = await _context.Bookings
+            .Include(b => b.Station)
+            .Include(b => b.Charger)
+            .Include(b => b.Customer)
+            .FirstOrDefaultAsync(b => b.Id == id && b.CustomerId == customerId);
+
+        if (booking == null)
+            return NotFound();
+
+        return View("~/Views/customer/Booking/Invoice.cshtml", booking);
+    }
 }
+

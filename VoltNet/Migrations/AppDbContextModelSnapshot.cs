@@ -301,6 +301,78 @@ namespace VoltNet.Migrations
                     b.ToTable("ChargingRates", (string)null);
                 });
 
+            modelBuilder.Entity("VoltNet.Models.MaintenanceTicket", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("id");
+
+                    b.Property<Guid?>("ChargerId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("charger_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)")
+                        .HasColumnName("description");
+
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("priority");
+
+                    b.Property<Guid>("ReportedById")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("reported_by_id");
+
+                    b.Property<string>("ResolutionNotes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)")
+                        .HasColumnName("resolution_notes");
+
+                    b.Property<DateTime?>("ResolvedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("resolved_at");
+
+                    b.Property<Guid>("StationId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("station_id");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("status");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)")
+                        .HasColumnName("title");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChargerId");
+
+                    b.HasIndex("ReportedById");
+
+                    b.HasIndex("StationId")
+                        .HasDatabaseName("IX_MaintenanceTickets_StationId");
+
+                    b.HasIndex("Status")
+                        .HasDatabaseName("IX_MaintenanceTickets_Status");
+
+                    b.ToTable("MaintenanceTickets", (string)null);
+                });
+
             modelBuilder.Entity("VoltNet.Models.OwnerSubscription", b =>
                 {
                     b.Property<Guid>("Id")
@@ -788,6 +860,62 @@ namespace VoltNet.Migrations
                     b.ToTable("UserMaster", (string)null);
                 });
 
+            modelBuilder.Entity("VoltNet.Models.Vehicle", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("id");
+
+                    b.Property<decimal?>("BatteryCapacityKwh")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("battery_capacity_kwh");
+
+                    b.Property<string>("Brand")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("brand");
+
+                    b.Property<string>("ConnectorType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("connector_type");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("customer_id");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_default");
+
+                    b.Property<string>("Model")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("model");
+
+                    b.Property<string>("VehicleNumberPlate")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("vehicle_number_plate");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId")
+                        .HasDatabaseName("IX_Vehicles_CustomerId");
+
+                    b.ToTable("Vehicles", (string)null);
+                });
+
             modelBuilder.Entity("VoltNet.Models.WaitlistEntry", b =>
                 {
                     b.Property<Guid>("Id")
@@ -909,6 +1037,32 @@ namespace VoltNet.Migrations
                     b.Navigation("Station");
                 });
 
+            modelBuilder.Entity("VoltNet.Models.MaintenanceTicket", b =>
+                {
+                    b.HasOne("VoltNet.Models.Charger", "Charger")
+                        .WithMany()
+                        .HasForeignKey("ChargerId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("VoltNet.Models.UserMaster", "ReportedBy")
+                        .WithMany()
+                        .HasForeignKey("ReportedById")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("VoltNet.Models.Station", "Station")
+                        .WithMany()
+                        .HasForeignKey("StationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Charger");
+
+                    b.Navigation("ReportedBy");
+
+                    b.Navigation("Station");
+                });
+
             modelBuilder.Entity("VoltNet.Models.OwnerSubscription", b =>
                 {
                     b.HasOne("VoltNet.Models.SubscriptionPlan", "Plan")
@@ -1014,6 +1168,17 @@ namespace VoltNet.Migrations
                     b.Navigation("ApprovedByUser");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("VoltNet.Models.Vehicle", b =>
+                {
+                    b.HasOne("VoltNet.Models.UserMaster", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
                 });
 
             modelBuilder.Entity("VoltNet.Models.WaitlistEntry", b =>

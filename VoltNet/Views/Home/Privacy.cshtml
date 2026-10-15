@@ -1,6 +1,87 @@
-﻿@{
+@{
     ViewData["Title"] = "Privacy Policy";
+    ViewData["MetaDescription"] = "Learn how VoltNet collects, protects, and handles your personal data, vehicle information, and charging session details.";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<!-- Page Hero -->
+<section class="vn-inner-hero" style="padding: 160px 0 60px 0; background: var(--vn-bg); border-bottom: 1px solid var(--vn-border);">
+    <div class="container text-center">
+        <span class="badge-vn vn-reveal">Legal & Trust</span>
+        <h1 class="section-title vn-reveal" style="font-size: 3rem; transition-delay: 100ms;">Privacy <span style="color: var(--vn-green);">Policy</span></h1>
+        <p class="section-subtitle mx-auto vn-reveal" style="max-width: 600px; transition-delay: 200ms;">Last updated: January @DateTime.Now.Year. We are committed to safeguarding your privacy and protecting your personal data.</p>
+    </div>
+</section>
+
+<!-- Policy Content -->
+<section style="padding: 80px 0; background: var(--vn-white);">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="vn-card p-4 p-md-5" style="border: 1px solid var(--vn-border); border-radius: var(--vn-radius-lg); background: var(--vn-white); box-shadow: var(--vn-shadow-sm);">
+                    
+                    <div class="mb-5">
+                        <h3 class="fw-bold mb-3" style="color: var(--vn-dark);"><i class="bi bi-shield-check text-success me-2"></i>1. Information We Collect</h3>
+                        <p class="text-secondary" style="line-height: 1.8;">
+                            VoltNet collects necessary information to provide seamless EV charging services, station discovery, and booking management. This includes:
+                        </p>
+                        <ul class="text-secondary ps-4" style="line-height: 1.8;">
+                            <li><strong>Account Information:</strong> Name, email address, phone number, city, and state provided during registration.</li>
+                            <li><strong>Vehicle Data:</strong> EV model, battery capacity, connector type, and vehicle registration number for booking and charging compatibility.</li>
+                            <li><strong>Session & Transaction Details:</strong> Booking time, charger slot, energy units consumed (kWh), meter readings, and invoice records.</li>
+                            <li><strong>Location Data:</strong> Geolocation coordinates when using our Nearby Map or search to find nearby charging stations.</li>
+                        </ul>
+                    </div>
+
+                    <hr style="border-color: var(--vn-border); margin: 2rem 0;">
+
+                    <div class="mb-5">
+                        <h3 class="fw-bold mb-3" style="color: var(--vn-dark);"><i class="bi bi-gear-wide-connected text-success me-2"></i>2. How We Use Your Information</h3>
+                        <p class="text-secondary" style="line-height: 1.8;">
+                            We utilize collected data strictly for operational, support, and platform improvement purposes:
+                        </p>
+                        <ul class="text-secondary ps-4" style="line-height: 1.8;">
+                            <li>Facilitating EV charger slot reservations and walk-in charging sessions.</li>
+                            <li>Verifying charging station owners and station listings for customer safety.</li>
+                            <li>Sending automated booking confirmations, slot reminders, and OTP verifications.</li>
+                            <li>Enhancing station search algorithms to display the most relevant stations based on your city and vehicle requirements.</li>
+                        </ul>
+                    </div>
+
+                    <hr style="border-color: var(--vn-border); margin: 2rem 0;">
+
+                    <div class="mb-5">
+                        <h3 class="fw-bold mb-3" style="color: var(--vn-dark);"><i class="bi bi-lock-fill text-success me-2"></i>3. Data Security & Protection</h3>
+                        <p class="text-secondary" style="line-height: 1.8;">
+                            VoltNet employs industry-standard encryption protocols (TLS/SSL) for all data transmitted across our networks. Passwords and sensitive credentials are encrypted using secure cryptographic hashing algorithms. We do not sell or rent your personal information to third parties.
+                        </p>
+                    </div>
+
+                    <hr style="border-color: var(--vn-border); margin: 2rem 0;">
+
+                    <div class="mb-5">
+                        <h3 class="fw-bold mb-3" style="color: var(--vn-dark);"><i class="bi bi-person-x-fill text-success me-2"></i>4. Your Rights & Data Retention</h3>
+                        <p class="text-secondary" style="line-height: 1.8;">
+                            You have full control over your personal information. You can review, update, or request deletion of your account profile at any time through your Customer Dashboard or by contacting our Data Protection Officer.
+                        </p>
+                    </div>
+
+                    <hr style="border-color: var(--vn-border); margin: 2rem 0;">
+
+                    <div>
+                        <h3 class="fw-bold mb-3" style="color: var(--vn-dark);"><i class="bi bi-envelope-at text-success me-2"></i>5. Contact Us Regarding Privacy</h3>
+                        <p class="text-secondary" style="line-height: 1.8;">
+                            If you have questions, feedback, or concerns about our Privacy Policy, please contact our privacy team:
+                        </p>
+                        <p class="mb-0 text-secondary">
+                            <strong>Email:</strong> <a href="mailto:privacy@voltnet.com" class="text-success text-decoration-none">privacy@voltnet.com</a><br>
+                            <strong>Phone:</strong> <a href="tel:+919876543210" class="text-success text-decoration-none">+91 98765 43210</a><br>
+                            <strong>Address:</strong> VoltNet HQ, Innovation Hub, Phase 1, Hinjewadi, Pune, Maharashtra 411057, India
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

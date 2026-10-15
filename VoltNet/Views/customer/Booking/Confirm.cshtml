@@ -101,20 +101,41 @@
                     <input type="hidden" name="startTime" value="@startTime" />
                     <input type="hidden" name="endTime" value="@endTime" />
 
-                    <!-- Optional Vehicle Info -->
+                    <!-- Vehicle Info -->
+                    @{
+                        var savedVehicles = ViewBag.SavedVehicles as List<VoltNet.Models.Vehicle>;
+                        var defaultVehicle = savedVehicles?.FirstOrDefault(v => v.IsDefault) ?? savedVehicles?.FirstOrDefault();
+                    }
                     <div class="card border mb-4">
-                        <div class="card-header bg-white font-weight-bold text-dark">
-                            <i class="fas fa-car text-primary mr-2"></i> Vehicle Details (Optional)
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <span class="font-weight-bold text-dark"><i class="fas fa-car text-primary mr-2"></i> Vehicle Details</span>
+                            <a href="/customer/vehicles/create" target="_blank" class="small text-primary"><i class="fas fa-plus"></i> Add New Vehicle</a>
                         </div>
                         <div class="card-body">
+                            @if (savedVehicles != null && savedVehicles.Any())
+                            {
+                                <div class="form-group mb-3">
+                                    <label class="font-weight-bold small">Select from Your Saved Vehicles:</label>
+                                    <select id="savedVehicleSelect" class="form-control" onchange="applySelectedVehicle(this)">
+                                        <option value="">-- Choose a vehicle or enter manually below --</option>
+                                        @foreach (var v in savedVehicles)
+                                        {
+                                            <option value="@v.VehicleNumberPlate" data-model="@v.Brand @v.Model" selected="@(v == defaultVehicle)">
+                                                @v.Brand @v.Model (@v.VehicleNumberPlate) @(v.IsDefault ? "★ Default" : "")
+                                            </option>
+                                        }
+                                    </select>
+                                </div>
+                            }
+
                             <div class="row">
                                 <div class="col-12 col-md-6 mb-3 mb-md-0">
                                     <label class="font-weight-bold small">Vehicle Number Plate:</label>
-                                    <input type="text" name="vehicleNumberPlate" class="form-control text-uppercase" placeholder="e.g. MH02DW4589" />
+                                    <input type="text" id="vehicleNumberPlate" name="vehicleNumberPlate" class="form-control text-uppercase" placeholder="e.g. MH02DW4589" value="@(defaultVehicle?.VehicleNumberPlate ?? "")" />
                                 </div>
                                 <div class="col-12 col-md-6">
                                     <label class="font-weight-bold small">Vehicle Model:</label>
-                                    <input type="text" name="vehicleModel" class="form-control" placeholder="e.g. Tata Nexon EV, MG ZS EV" />
+                                    <input type="text" id="vehicleModel" name="vehicleModel" class="form-control" placeholder="e.g. Tata Nexon EV, MG ZS EV" value="@(defaultVehicle != null ? $"{defaultVehicle.Brand} {defaultVehicle.Model}" : "")" />
                                 </div>
                             </div>
                         </div>
@@ -135,6 +156,14 @@
 </div>
 
 <script>
+    function applySelectedVehicle(select) {
+        var opt = select.options[select.selectedIndex];
+        if (opt && opt.value) {
+            document.getElementById('vehicleNumberPlate').value = opt.value;
+            document.getElementById('vehicleModel').value = opt.getAttribute('data-model') || '';
+        }
+    }
+
     document.getElementById('confirmBookingForm').addEventListener('submit', function() {
         var btn = document.getElementById('btnConfirmBooking');
         btn.disabled = true;

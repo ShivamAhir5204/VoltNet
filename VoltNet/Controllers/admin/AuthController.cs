@@ -115,8 +115,8 @@ public class AuthController : Controller
         var cookieOptions = new CookieOptions
         {
             HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
+            Secure = Request.IsHttps,
+            SameSite = SameSiteMode.Lax,
         };
 
         if (isRememberMe)

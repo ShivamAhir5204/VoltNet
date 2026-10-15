@@ -87,6 +87,29 @@
     </div>
   </nav>
 
+  <!-- ═══════════════ GLOBAL NOTIFICATIONS ═══════════════ -->
+  @if (TempData["SuccessMessage"] != null || TempData["ErrorMessage"] != null)
+  {
+      <div class="container" style="margin-top: 100px; margin-bottom: -70px; position: relative; z-index: 1020;">
+          @if (TempData["SuccessMessage"] != null)
+          {
+              <div class="alert alert-success alert-dismissible fade show shadow-sm d-flex align-items-center" role="alert" style="border-radius: var(--vn-radius-md); border: 1px solid rgba(46, 157, 84, 0.3); background: #E8F7EC; color: #155724;">
+                  <i class="bi bi-check-circle-fill me-2 fs-5 text-success"></i>
+                  <div>@TempData["SuccessMessage"]</div>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+          }
+          @if (TempData["ErrorMessage"] != null)
+          {
+              <div class="alert alert-danger alert-dismissible fade show shadow-sm d-flex align-items-center" role="alert" style="border-radius: var(--vn-radius-md); border: 1px solid rgba(239, 68, 68, 0.3); background: #FEE2E2; color: #991B1B;">
+                  <i class="bi bi-exclamation-triangle-fill me-2 fs-5 text-danger"></i>
+                  <div>@TempData["ErrorMessage"]</div>
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+          }
+      </div>
+  }
+
   <!-- ═══════════════ MAIN CONTENT ═══════════════ -->
   @RenderBody()
 
@@ -96,14 +119,16 @@
       <div class="row g-4">
         <div class="col-lg-4 col-md-6">
           <div class="footer-brand">
-            <img src="~/logo.png" alt="VoltNet Logo" style="height: 40px; width: auto;" />
+            <a asp-controller="Home" asp-action="Index">
+              <img src="~/logo.png" alt="VoltNet Logo" style="height: 40px; width: auto;" />
+            </a>
           </div>
           <p class="footer-desc mt-3">India's fastest-growing EV charging network. Powering the future of sustainable mobility with smart, reliable charging solutions.</p>
           <div class="footer-social mt-4">
-            <a href="#"><i class="bi bi-twitter-x"></i></a>
-            <a href="#"><i class="bi bi-instagram"></i></a>
-            <a href="#"><i class="bi bi-linkedin"></i></a>
-            <a href="#"><i class="bi bi-youtube"></i></a>
+            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter"><i class="bi bi-twitter-x"></i></a>
+            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+            <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="bi bi-youtube"></i></a>
           </div>
         </div>
         <div class="col-lg-2 col-md-6">
@@ -121,15 +146,15 @@
             <li><a asp-controller="Home" asp-action="Faq">FAQs</a></li>
             <li><a asp-controller="Home" asp-action="Contact">Contact Us</a></li>
             <li><a asp-controller="Home" asp-action="Privacy">Privacy Policy</a></li>
-            <li><a href="#">Terms of Service</a></li>
+            <li><a asp-controller="Home" asp-action="Terms">Terms of Service</a></li>
           </ul>
         </div>
         <div class="col-lg-4 col-md-6">
           <h6 class="footer-title">Get In Touch</h6>
           <ul class="footer-links">
             <li><i class="bi bi-geo-alt me-2" style="color: var(--vn-green);"></i>VoltNet HQ, Innovation Hub, Pune, India</li>
-            <li><i class="bi bi-envelope me-2" style="color: var(--vn-green);"></i>support@voltnet.com</li>
-            <li><i class="bi bi-telephone me-2" style="color: var(--vn-green);"></i>+91 98765 43210</li>
+            <li><a href="mailto:support@voltnet.com" style="color: inherit; text-decoration: none;"><i class="bi bi-envelope me-2" style="color: var(--vn-green);"></i>support@voltnet.com</a></li>
+            <li><a href="tel:+919876543210" style="color: inherit; text-decoration: none;"><i class="bi bi-telephone me-2" style="color: var(--vn-green);"></i>+91 98765 43210</a></li>
             <li><i class="bi bi-clock me-2" style="color: var(--vn-green);"></i>24/7 Customer Support</li>
           </ul>
         </div>
@@ -141,7 +166,7 @@
   </footer>
 
   <!-- ═══════════════ SCROLL TO TOP ═══════════════ -->
-  <a href="#" class="vn-scroll-top shadow-sm" aria-label="Scroll to top">
+  <a href="javascript:void(0)" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="vn-scroll-top shadow-sm" aria-label="Scroll to top">
     <i class="bi bi-arrow-up"></i>
   </a>
 

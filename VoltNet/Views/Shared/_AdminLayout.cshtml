@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
+  <meta name="description" content="VoltNet Admin Dashboard - Manage EV charging stations, users, subscriptions, and platform operations.">
   <title>@ViewData["Title"] - Admin Dashboard</title>
   <!-- General CSS Files -->
   <link rel="stylesheet" href="~/otika/assets/css/app.min.css">
@@ -18,7 +19,7 @@
   <link rel='shortcut icon' type='image/x-icon' href='~/otika/assets/img/voltnet.ico' />
 </head>
 
-<body>
+<body style="overflow-x: hidden;">
   <div class="loader"></div>
   <div id="app">
     <div class="main-wrapper main-wrapper-1">
@@ -64,11 +65,17 @@
             <li class="dropdown @(Context.Request.Path.StartsWithSegments("/admin/Dashboard") ? "active" : "")">
               <a href="/admin/Dashboard" class="nav-link"><i data-feather="monitor"></i><span>Dashboard</span></a>
             </li>
+            <li class="dropdown @(Context.Request.Path.StartsWithSegments("/admin/reports") ? "active" : "")">
+              <a href="/admin/reports" class="nav-link"><i data-feather="bar-chart-2"></i><span>Reports &amp; Analytics</span></a>
+            </li>
             <li class="dropdown @(Context.Request.Path.StartsWithSegments("/admin/UserMaster") ? "active" : "")">
               <a href="/admin/UserMaster" class="nav-link"><i data-feather="users"></i><span>Users</span></a>
             </li>
             <li class="dropdown @(Context.Request.Path.StartsWithSegments("/admin/Station") && !Context.Request.Path.StartsWithSegments("/admin/VerifyStations") ? "active" : "")">
               <a href="/admin/Station" class="nav-link"><i data-feather="map-pin"></i><span>Stations</span></a>
+            </li>
+            <li class="dropdown @(Context.Request.Path.StartsWithSegments("/admin/maintenance") ? "active" : "")">
+              <a href="/admin/maintenance" class="nav-link"><i data-feather="tool"></i><span>Maintenance</span></a>
             </li>
             <li class="menu-header">Verification</li>
             <li class="dropdown @(Context.Request.Path.StartsWithSegments("/admin/VerifyStations") ? "active" : "")">
@@ -97,6 +104,28 @@
       <div class="main-content">
         <section class="section">
           <div class="section-body">
+            @if (TempData["SuccessMessage"] != null)
+            {
+              <div class="alert alert-success alert-has-icon alert-dismissible show fade mb-4">
+                <div class="alert-icon"><i class="fas fa-check-circle"></i></div>
+                <div class="alert-body">
+                  <button class="close" data-dismiss="alert"><span>&times;</span></button>
+                  <div class="alert-title">Success</div>
+                  @TempData["SuccessMessage"]
+                </div>
+              </div>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+              <div class="alert alert-danger alert-has-icon alert-dismissible show fade mb-4">
+                <div class="alert-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                <div class="alert-body">
+                  <button class="close" data-dismiss="alert"><span>&times;</span></button>
+                  <div class="alert-title">Error</div>
+                  @TempData["ErrorMessage"]
+                </div>
+              </div>
+            }
             @RenderBody()
           </div>
         </section>

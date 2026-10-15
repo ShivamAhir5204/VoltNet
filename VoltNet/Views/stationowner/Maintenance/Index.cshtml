@@ -1,0 +1,210 @@
+@model IEnumerable<VoltNet.Models.MaintenanceTicket>
+
+@{
+    ViewData["Title"] = "Station Maintenance";
+    Layout = "~/Views/Shared/_OwnerLayout.cshtml";
+
+    var totalTickets = ViewBag.TotalTickets != null ? (int)ViewBag.TotalTickets : Model.Count();
+    var openTickets = ViewBag.OpenTickets != null ? (int)ViewBag.OpenTickets : 0;
+    var inProgressTickets = ViewBag.InProgressTickets != null ? (int)ViewBag.InProgressTickets : 0;
+    var resolvedTickets = ViewBag.ResolvedTickets != null ? (int)ViewBag.ResolvedTickets : 0;
+    var stations = ViewBag.Stations as List<VoltNet.Models.Station> ?? new List<VoltNet.Models.Station>();
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header d-flex flex-column flex-sm-row justify-content-between align-items-sm-center">
+                <div>
+                    <h4 class="mb-1"><i class="fas fa-tools text-primary mr-2"></i> Station Maintenance &amp; Equipment Health</h4>
+                    <p class="text-muted mb-0 small">Overview of reported hardware issues, active repairs, and maintenance status across all your charging stations.</p>
+                </div>
+            </div>
+            <div class="card-body">
+
+                <!-- KPI Cards -->
+                <div class="row">
+                    <div class="col-12 col-sm-6 col-lg-3 mb-3">
+                        <div class="card card-statistic-1 border mb-0 h-100">
+                            <div class="card-icon bg-primary text-white d-flex align-items-center justify-content-center">
+                                <i class="fas fa-clipboard-list fa-2x"></i>
+                            </div>
+                            <div class="card-wrap">
+                                <div class="card-header py-0"><h4 class="text-muted">Total Tickets</h4></div>
+                                <div class="card-body font-weight-bold">@totalTickets</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-lg-3 mb-3">
+                        <div class="card card-statistic-1 border mb-0 h-100">
+                            <div class="card-icon bg-danger text-white d-flex align-items-center justify-content-center">
+                                <i class="fas fa-exclamation-triangle fa-2x"></i>
+                            </div>
+                            <div class="card-wrap">
+                                <div class="card-header py-0"><h4 class="text-muted">Open Issues</h4></div>
+                                <div class="card-body font-weight-bold text-danger">@openTickets</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-lg-3 mb-3">
+                        <div class="card card-statistic-1 border mb-0 h-100">
+                            <div class="card-icon bg-warning text-white d-flex align-items-center justify-content-center">
+                                <i class="fas fa-wrench fa-2x"></i>
+                            </div>
+                            <div class="card-wrap">
+                                <div class="card-header py-0"><h4 class="text-muted">In Progress</h4></div>
+                                <div class="card-body font-weight-bold text-warning">@inProgressTickets</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-lg-3 mb-3">
+                        <div class="card card-statistic-1 border mb-0 h-100">
+                            <div class="card-icon bg-success text-white d-flex align-items-center justify-content-center">
+                                <i class="fas fa-check-circle fa-2x"></i>
+                            </div>
+                            <div class="card-wrap">
+                                <div class="card-header py-0"><h4 class="text-muted">Resolved</h4></div>
+                                <div class="card-body font-weight-bold text-success">@resolvedTickets</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <form method="get" action="/owner/maintenance" class="mb-4 bg-light p-3 rounded">
+                    <div class="row align-items-end">
+                        <div class="col-12 col-md-4 mb-2 mb-md-0">
+                            <label class="font-weight-bold small text-muted">Station</label>
+                            <select name="stationId" class="form-control form-control-sm">
+                                <option value="">All Stations</option>
+                                @foreach (var s in stations)
+                                {
+                                    <option value="@s.Id" selected="@(ViewBag.SelectedStationId?.ToString() == s.Id.ToString())">@s.Name (@s.City)</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-3 mb-2 mb-md-0">
+                            <label class="font-weight-bold small text-muted">Status</label>
+                            <select name="status" class="form-control form-control-sm">
+                                <option value="">All Statuses</option>
+                                <option value="Open" selected="@(ViewBag.SelectedStatus == "Open")">Open</option>
+                                <option value="InProgress" selected="@(ViewBag.SelectedStatus == "InProgress")">In Progress</option>
+                                <option value="Resolved" selected="@(ViewBag.SelectedStatus == "Resolved")">Resolved</option>
+                                <option value="Closed" selected="@(ViewBag.SelectedStatus == "Closed")">Closed</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-3 mb-2 mb-md-0">
+                            <label class="font-weight-bold small text-muted">Priority</label>
+                            <select name="priority" class="form-control form-control-sm">
+                                <option value="">All Priorities</option>
+                                <option value="Low" selected="@(ViewBag.SelectedPriority == "Low")">Low</option>
+                                <option value="Medium" selected="@(ViewBag.SelectedPriority == "Medium")">Medium</option>
+                                <option value="High" selected="@(ViewBag.SelectedPriority == "High")">High</option>
+                                <option value="Critical" selected="@(ViewBag.SelectedPriority == "Critical")">Critical</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-2">
+                            <button type="submit" class="btn btn-sm btn-primary btn-block"><i class="fas fa-filter mr-1"></i> Filter</button>
+                        </div>
+                    </div>
+                </form>
+
+                @if (!Model.Any())
+                {
+                    <div class="text-center py-5 bg-light rounded">
+                        <i class="fas fa-shield-alt fa-3x text-success mb-3"></i>
+                        <h5 class="text-dark">All Stations Operational</h5>
+                        <p class="text-muted small mb-0">No active maintenance tickets logged by station managers.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover align-middle" id="table-1">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Ticket #</th>
+                                    <th>Station</th>
+                                    <th>Equipment</th>
+                                    <th>Issue Title</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Reported On</th>
+                                    <th>Resolution</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var ticket in Model)
+                                {
+                                    var priorityClass = ticket.Priority switch
+                                    {
+                                        "Critical" => "badge-danger",
+                                        "High" => "badge-warning",
+                                        "Medium" => "badge-primary",
+                                        _ => "badge-info"
+                                    };
+
+                                    var statusClass = ticket.Status switch
+                                    {
+                                        "Open" => "badge-danger",
+                                        "InProgress" => "badge-warning text-dark",
+                                        "Resolved" => "badge-success",
+                                        _ => "badge-secondary"
+                                    };
+
+                                    <tr>
+                                        <td>
+                                            <strong class="text-primary font-weight-bold">#@ticket.Id.ToString().Substring(0, 8).ToUpper()</strong>
+                                        </td>
+                                        <td>
+                                            <strong>@ticket.Station?.Name</strong>
+                                            <div class="small text-muted">@ticket.Station?.City, @ticket.Station?.State</div>
+                                        </td>
+                                        <td>
+                                            @if (ticket.Charger != null)
+                                            {
+                                                <strong>@ticket.Charger.Name</strong>
+                                                <div class="small text-muted">@ticket.Charger.ConnectorType (@(ticket.Charger.CapacityKw)kW)</div>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge badge-light border">General Station</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <strong class="text-dark">@ticket.Title</strong>
+                                            <div class="small text-muted" style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                                @ticket.Description
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge @priorityClass font-weight-bold">@ticket.Priority</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge @statusClass font-weight-bold">@ticket.Status</span>
+                                        </td>
+                                        <td>
+                                            @ticket.CreatedAt.ToString("dd MMM yyyy")
+                                            <div class="small text-muted">@ticket.CreatedAt.ToString("hh:mm tt")</div>
+                                        </td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(ticket.ResolutionNotes))
+                                            {
+                                                <span class="small text-success"><i class="fas fa-check mr-1"></i> @ticket.ResolutionNotes</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted small">—</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+
+            </div>
+        </div>
+    </div>
+</div>

@@ -35,7 +35,11 @@
                     <div class="feature-icon" style="width: 50px; height: 50px; font-size: 1.2rem; margin-right: 15px; margin-bottom: 0; flex-shrink: 0;"><i class="bi bi-envelope"></i></div>
                     <div>
                         <h5 class="mb-1" style="font-weight: 700; color: var(--vn-dark);">Email Us</h5>
-                        <p class="text-muted small mb-0">General: hello@voltnet.com<br>Support: support@voltnet.com<br>Partners: partners@voltnet.com</p>
+                        <p class="text-muted small mb-0">
+                            General: <a href="mailto:hello@voltnet.com" class="text-success text-decoration-none">hello@voltnet.com</a><br>
+                            Support: <a href="mailto:support@voltnet.com" class="text-success text-decoration-none">support@voltnet.com</a><br>
+                            Partners: <a href="mailto:partners@voltnet.com" class="text-success text-decoration-none">partners@voltnet.com</a>
+                        </p>
                     </div>
                 </div>
                 
@@ -43,28 +47,37 @@
                     <div class="feature-icon" style="width: 50px; height: 50px; font-size: 1.2rem; margin-right: 15px; margin-bottom: 0; flex-shrink: 0;"><i class="bi bi-telephone"></i></div>
                     <div>
                         <h5 class="mb-1" style="font-weight: 700; color: var(--vn-dark);">Call Us (24/7)</h5>
-                        <p class="text-muted small mb-0">Toll-Free: 1800-123-VOLT<br>Support: +91 98765 43210</p>
+                        <p class="text-muted small mb-0">
+                            Toll-Free: <a href="tel:18001238658" class="text-success text-decoration-none">1800-123-VOLT</a><br>
+                            Support: <a href="tel:+919876543210" class="text-success text-decoration-none">+91 98765 43210</a>
+                        </p>
                     </div>
                 </div>
             </div>
             
             <!-- Form -->
             <div class="col-lg-7 vn-reveal" style="transition-delay: 200ms;">
-                <div class="vn-card p-5" style="background: var(--vn-bg); border: 1px solid var(--vn-border); border-radius: var(--vn-radius-lg);">
+                <div class="vn-card p-4 p-md-5" style="background: var(--vn-bg); border: 1px solid var(--vn-border); border-radius: var(--vn-radius-lg);">
                     <h4 class="mb-4" style="font-weight: 700; color: var(--vn-dark);">Send a Message</h4>
-                    <form>
+                    
+                    <div id="contactSuccessAlert" class="alert alert-success d-none mb-4" role="alert" style="border-radius: var(--vn-radius-md);">
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                        <strong>Message Sent!</strong> Thank you for contacting VoltNet. Our support team will get back to you within 24 hours.
+                    </div>
+                    
+                    <form id="contactForm" onsubmit="handleContactSubmit(event)">
                         <div class="row g-4">
                             <div class="col-md-6">
                                 <label class="form-label text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Your Name</label>
-                                <input type="text" class="form-control vn-form-control" placeholder="John Doe" style="border-color: var(--vn-border); background: var(--vn-white);" required>
+                                <input type="text" id="contactName" class="form-control vn-form-control" placeholder="John Doe" style="border-color: var(--vn-border); background: var(--vn-white);" required>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Email Address</label>
-                                <input type="email" class="form-control vn-form-control" placeholder="john@example.com" style="border-color: var(--vn-border); background: var(--vn-white);" required>
+                                <input type="email" id="contactEmail" class="form-control vn-form-control" placeholder="john@example.com" style="border-color: var(--vn-border); background: var(--vn-white);" required>
                             </div>
                             <div class="col-12">
                                 <label class="form-label text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Subject</label>
-                                <select class="form-select vn-form-control" style="border-color: var(--vn-border); background: var(--vn-white);" required>
+                                <select id="contactSubject" class="form-select vn-form-control" style="border-color: var(--vn-border); background: var(--vn-white);" required>
                                     <option value="">Select a topic...</option>
                                     <option value="support">Charging Station Support</option>
                                     <option value="billing">Billing Inquiry</option>
@@ -74,10 +87,12 @@
                             </div>
                             <div class="col-12">
                                 <label class="form-label text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Message</label>
-                                <textarea class="form-control vn-form-control" rows="5" placeholder="How can we help you?" style="border-color: var(--vn-border); background: var(--vn-white);" required></textarea>
+                                <textarea id="contactMessage" class="form-control vn-form-control" rows="5" placeholder="How can we help you?" style="border-color: var(--vn-border); background: var(--vn-white);" required></textarea>
                             </div>
                             <div class="col-12 mt-4">
-                                <button type="button" class="btn-vn-primary w-100" style="padding: 14px 0;">Send Message</button>
+                                <button type="submit" id="contactSubmitBtn" class="btn-vn-primary w-100" style="padding: 14px 0;">
+                                    <span id="contactBtnText">Send Message</span>
+                                </button>
                             </div>
                         </div>
                     </form>
@@ -87,3 +102,25 @@
         </div>
     </div>
 </section>
+
+@section Scripts {
+<script>
+    function handleContactSubmit(e) {
+        e.preventDefault();
+        var btn = document.getElementById('contactSubmitBtn');
+        var btnText = document.getElementById('contactBtnText');
+        var alert = document.getElementById('contactSuccessAlert');
+        
+        btn.disabled = true;
+        btnText.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Sending...';
+        
+        setTimeout(function() {
+            btn.disabled = false;
+            btnText.innerHTML = 'Send Message';
+            alert.classList.remove('d-none');
+            document.getElementById('contactForm').reset();
+            alert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 800);
+    }
+</script>
+}

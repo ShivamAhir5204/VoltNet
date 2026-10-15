@@ -25,6 +25,8 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<Booking> Bookings { get; set; }
     public virtual DbSet<WaitlistEntry> WaitlistEntries { get; set; }
     public virtual DbSet<StationBlockSlot> StationBlockSlots { get; set; }
+    public virtual DbSet<Vehicle> Vehicles { get; set; }
+    public virtual DbSet<MaintenanceTicket> MaintenanceTickets { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -576,6 +578,54 @@ public partial class AppDbContext : DbContext
             entity.HasOne(e => e.CreatedByManager).WithMany().HasForeignKey(e => e.CreatedByManagerId).OnDelete(DeleteBehavior.Restrict);
 
             entity.HasIndex(e => new { e.StationId, e.BlockDate }).HasDatabaseName("IX_StationBlockSlots_Date");
+        });
+
+        // -- Vehicle -------------------------------------------------
+        modelBuilder.Entity<Vehicle>(entity =>
+        {
+            entity.ToTable("Vehicles");
+
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnName("id");
+            entity.Property(e => e.CustomerId).HasColumnName("customer_id");
+            entity.Property(e => e.VehicleNumberPlate).HasMaxLength(30).HasColumnName("vehicle_number_plate");
+            entity.Property(e => e.Brand).HasMaxLength(50).HasColumnName("brand");
+            entity.Property(e => e.Model).HasMaxLength(100).HasColumnName("model");
+            entity.Property(e => e.BatteryCapacityKwh).HasColumnType("decimal(18,2)").HasColumnName("battery_capacity_kwh");
+            entity.Property(e => e.ConnectorType).HasMaxLength(50).HasColumnName("connector_type");
+            entity.Property(e => e.IsDefault).HasColumnName("is_default");
+            entity.Property(e => e.CreatedAt).HasColumnName("created_at").HasDefaultValueSql("GETUTCDATE()");
+
+            entity.HasOne(e => e.Customer).WithMany().HasForeignKey(e => e.CustomerId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasIndex(e => e.CustomerId).HasDatabaseName("IX_Vehicles_CustomerId");
+        });
+
+        // -- MaintenanceTicket ---------------------------------------
+        modelBuilder.Entity<MaintenanceTicket>(entity =>
+        {
+            entity.ToTable("MaintenanceTickets");
+
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnName("id");
+            entity.Property(e => e.StationId).HasColumnName("station_id");
+            entity.Property(e => e.ChargerId).HasColumnName("charger_id");
+            entity.Property(e => e.ReportedById).HasColumnName("reported_by_id");
+            entity.Property(e => e.Title).HasMaxLength(150).HasColumnName("title");
+            entity.Property(e => e.Description).HasMaxLength(1000).HasColumnName("description");
+            entity.Property(e => e.Priority).HasMaxLength(30).HasColumnName("priority");
+            entity.Property(e => e.Status).HasMaxLength(30).HasColumnName("status");
+            entity.Property(e => e.ResolutionNotes).HasMaxLength(1000).HasColumnName("resolution_notes");
+            entity.Property(e => e.CreatedAt).HasColumnName("created_at").HasDefaultValueSql("GETUTCDATE()");
+            entity.Property(e => e.ResolvedAt).HasColumnName("resolved_at");
+
+            entity.HasOne(e => e.Station).WithMany().HasForeignKey(e => e.StationId).OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(e => e.Charger).WithMany().HasForeignKey(e => e.ChargerId).OnDelete(DeleteBehavior.SetNull);
+            entity.HasOne(e => e.ReportedBy).WithMany().HasForeignKey(e => e.ReportedById).OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasIndex(e => e.StationId).HasDatabaseName("IX_MaintenanceTickets_StationId");
+            entity.HasIndex(e => e.Status).HasDatabaseName("IX_MaintenanceTickets_Status");
         });
 
         OnModelCreatingPartial(modelBuilder);

@@ -23,7 +23,7 @@
 <div class="row">
   <div class="col-12">
     <div class="card">
-      <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+      <div class="card-header d-flex flex-column flex-sm-row justify-content-between align-items-sm-center">
         <h4 class="mb-0">Station Managers</h4>
         <a href="/owner/station-managers/Create" class="btn btn-primary mt-2 mt-sm-0">
           <i class="fas fa-plus"></i> Create New Manager
@@ -31,7 +31,7 @@
       </div>
       <div class="card-body">
         <div class="table-responsive">
-          <table class="table table-striped align-middle table-responsive-cards" id="table-1">
+          <table class="table table-striped table-hover align-middle" id="table-1">
             <thead>
               <tr>
                 <th>Name</th>
@@ -48,79 +48,68 @@
               @foreach (var mgr in Model)
               {
                 <tr>
-                  <td class="col-primary" data-label="Name">
-                    <div class="d-flex align-items-center justify-content-between">
-                      <span class="font-weight-bold">@mgr.FullName</span>
-                      <button type="button" class="mobile-expand-btn ml-2" title="Show details">
-                        <i data-feather="chevron-down"></i>
-                      </button>
-                    </div>
+                  <td class="font-weight-bold">@mgr.FullName</td>
+                  <td>@(mgr.User?.Email ?? "—")</td>
+                  <td>@mgr.Phone</td>
+                  <td>@(mgr.Station?.Name ?? "—")</td>
+                  <td>
+                    @if (mgr.CanManageRates)
+                    {
+                      <span class="badge badge-success"><i class="fas fa-check-circle mr-1"></i> Allowed</span>
+                    }
+                    else
+                    {
+                      <span class="badge badge-light border text-muted"><i class="fas fa-lock mr-1"></i> Restricted</span>
+                    }
                   </td>
-                  <td class="col-secondary" data-label="Email"><div>@(mgr.User?.Email ?? "—")</div></td>
-                  <td class="col-secondary" data-label="Phone"><div>@mgr.Phone</div></td>
-                  <td class="col-secondary" data-label="Station"><div>@(mgr.Station?.Name ?? "—")</div></td>
-                  <td class="col-secondary" data-label="Rate Edit Permission">
-                    <div>
-                      @if (mgr.CanManageRates)
-                      {
-                        <span class="badge badge-success"><i class="fas fa-check-circle"></i> Allowed</span>
-                      }
-                      else
-                      {
-                        <span class="badge badge-light text-muted"><i class="fas fa-lock"></i> Restricted</span>
-                      }
-                    </div>
+                  <td>
+                    @if (mgr.IsActive)
+                    {
+                      <span class="badge badge-success">Active</span>
+                    }
+                    else
+                    {
+                      <span class="badge badge-danger">Inactive</span>
+                    }
                   </td>
-                  <td class="col-secondary" data-label="Status">
-                    <div>
-                      @if (mgr.IsActive)
-                      {
-                        <span class="badge bg-success">Active</span>
-                      }
-                      else
-                      {
-                        <span class="badge bg-danger">Inactive</span>
-                      }
-                    </div>
-                  </td>
-                  <td class="col-secondary" data-label="Created"><div>@mgr.CreatedAt.ToString("dd MMM yyyy")</div></td>
-                  <td class="text-center col-action" data-label="Actions">
-                    <div class="d-inline-flex align-items-center justify-content-center flex-nowrap" style="white-space: nowrap;">
-                      <a href="/owner/station-managers/Edit/@mgr.Id" class="btn btn-warning btn-sm mr-1" title="Edit Manager">
-                        <i class="fas fa-edit"></i> Edit
+                  <td>@mgr.CreatedAt.ToString("dd MMM yyyy")</td>
+                  <td class="text-center">
+                    <div class="d-inline-flex align-items-center justify-content-center flex-wrap">
+                      <a href="/owner/station-managers/Edit/@mgr.Id" class="btn btn-warning btn-sm mr-1 mb-1" title="Edit Manager">
+                        <i class="fas fa-edit mr-1"></i> Edit
                       </a>
-                      <form asp-action="ToggleRatePermission" method="post" class="d-inline mr-1 mb-0">
+                      <form asp-action="ToggleRatePermission" method="post" class="d-inline mr-1 mb-1">
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="id" value="@mgr.Id" />
                         <button type="submit" class="btn @(mgr.CanManageRates ? "btn-outline-danger" : "btn-outline-success") btn-sm" title="@(mgr.CanManageRates ? "Revoke rate permission" : "Grant rate permission")">
-                          <i class="fas @(mgr.CanManageRates ? "fa-lock" : "fa-unlock")"></i> @(mgr.CanManageRates ? "Lock Rates" : "Allow Rates")
+                          <i class="fas @(mgr.CanManageRates ? "fa-lock" : "fa-unlock") mr-1"></i> @(mgr.CanManageRates ? "Lock Rates" : "Allow Rates")
                         </button>
                       </form>
                       @if (mgr.IsActive)
                       {
-                        <form asp-action="Deactivate" method="post" class="d-inline mr-1 mb-0">
+                        <form asp-action="Deactivate" method="post" class="d-inline mr-1 mb-1">
                           @Html.AntiForgeryToken()
                           <input type="hidden" name="id" value="@mgr.Id" />
                           <button type="submit" class="btn btn-secondary btn-sm" onclick="return confirm('Deactivate this manager?');" title="Deactivate">
-                            <i class="fas fa-ban"></i> Deactivate
+                            <i class="fas fa-ban mr-1"></i> Deactivate
                           </button>
                         </form>
                       }
                       else
                       {
-                        <form asp-action="Activate" method="post" class="d-inline mr-1 mb-0">
+                        <form asp-action="Activate" method="post" class="d-inline mr-1 mb-1">
                           @Html.AntiForgeryToken()
                           <input type="hidden" name="id" value="@mgr.Id" />
                           <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Activate this manager?');" title="Activate">
-                            <i class="fas fa-check"></i> Activate
+                            <i class="fas fa-check mr-1"></i> Activate
                           </button>
                         </form>
                       }
-                      <form asp-action="Delete" method="post" class="d-inline mb-0">
+                      <form asp-action="Delete" method="post" class="d-inline mb-1">
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="id" value="@mgr.Id" />
                         <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to permanently delete manager \'@mgr.FullName\'?');" title="Delete">
-                          <i class="fas fa-trash"></i> Delete
+                          <i class="fas fa-trash mr-1"></i> Delete
                         </button>
                       </form>
                     </div>
