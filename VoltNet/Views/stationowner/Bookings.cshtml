@@ -9,7 +9,7 @@
 <div class="row">
     <div class="col-12">
         <div class="card">
-            <div class="card-header d-flex flex-column flex-sm-row justify-content-between align-items-sm-center">
+            <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                 <div>
                     <h4 class="mb-1"><i class="fas fa-calendar-check text-primary mr-2"></i> Bookings Overview Across Your Stations</h4>
                     <p class="text-muted mb-0 small">Monitor all customer reservations, operational traffic, and charging throughput across all your EV stations.</p>
@@ -61,7 +61,7 @@
                 else
                 {
                     <div class="table-responsive">
-                        <table class="table table-striped table-hover align-middle" id="table-1">
+                        <table class="table table-striped align-middle table-responsive-cards" id="table-1">
                             <thead>
                                 <tr>
                                     <th>Station</th>
@@ -77,49 +77,64 @@
                                 @foreach (var b in Model)
                                 {
                                     <tr>
-                                        <td>
-                                            <strong class="text-dark">@b.Station?.Name</strong>
+                                        <td class="col-primary" data-label="Station">
+                                            <div class="d-flex align-items-center justify-content-between">
+                                                <span class="font-weight-bold text-dark">@b.Station?.Name</span>
+                                                <button type="button" class="mobile-expand-btn ml-2" title="Show details">
+                                                    <i data-feather="chevron-down"></i>
+                                                </button>
+                                            </div>
                                         </td>
-                                        <td>
-                                            <div><strong>@(b.Customer?.Fullname ?? "Customer")</strong></div>
-                                            <div class="small text-muted"><i class="fas fa-envelope mr-1"></i> @(b.Customer?.Email ?? "—")</div>
+                                        <td class="col-secondary" data-label="Customer">
+                                            <div>
+                                                <strong>@(b.Customer?.Fullname ?? "Customer")</strong>
+                                                <div class="small text-muted"><i class="fas fa-envelope mr-1"></i> @(b.Customer?.Email ?? "—")</div>
+                                            </div>
                                         </td>
-                                        <td>
-                                            <div><strong>@b.Charger?.Name</strong></div>
-                                            <div class="small text-muted">@b.Charger?.ConnectorType (@(b.Charger?.CapacityKw)kW)</div>
+                                        <td class="col-secondary" data-label="Charger">
+                                            <div>
+                                                <strong>@b.Charger?.Name</strong>
+                                                <div class="small text-muted">@b.Charger?.ConnectorType (@(b.Charger?.CapacityKw)kW)</div>
+                                            </div>
                                         </td>
-                                        <td>
-                                            @b.BookingDate.ToString("dd MMM yyyy")
+                                        <td class="col-secondary" data-label="Date">
+                                            <div>@b.BookingDate.ToString("dd MMM yyyy")</div>
                                         </td>
-                                        <td>
-                                            <span class="badge badge-light border font-weight-bold text-primary">
-                                                @b.StartTime.ToString(@"hh\:mm") - @b.EndTime.ToString(@"hh\:mm")
-                                            </span>
+                                        <td class="col-secondary" data-label="Time Slot">
+                                            <div>
+                                                <span class="badge badge-light border font-weight-bold text-primary">
+                                                    @b.StartTime.ToString(@"hh\:mm") - @b.EndTime.ToString(@"hh\:mm")
+                                                </span>
+                                            </div>
                                         </td>
-                                        <td>
-                                            <strong class="text-success">₹@(b.ActualCost?.ToString("F2") ?? b.EstimatedCost.ToString("F2"))</strong>
+                                        <td class="col-secondary" data-label="Billed Cost">
+                                            <div>
+                                                <strong class="text-success">₹@(b.ActualCost?.ToString("F2") ?? b.EstimatedCost.ToString("F2"))</strong>
+                                            </div>
                                         </td>
-                                        <td>
-                                            @if (b.Status == "Confirmed")
-                                            {
-                                                <span class="badge badge-primary">Confirmed</span>
-                                            }
-                                            else if (b.Status == "Completed")
-                                            {
-                                                <span class="badge badge-success">Completed</span>
-                                            }
-                                            else if (b.Status == "Cancelled")
-                                            {
-                                                <span class="badge badge-danger" title="@b.CancellationReason">Cancelled</span>
-                                            }
-                                            else if (b.Status == "NoShow")
-                                            {
-                                                <span class="badge badge-warning text-dark">No Show</span>
-                                            }
-                                            else
-                                            {
-                                                <span class="badge badge-info">@b.Status</span>
-                                            }
+                                        <td class="col-secondary" data-label="Status">
+                                            <div>
+                                                @if (b.Status == "Confirmed")
+                                                {
+                                                    <span class="badge bg-primary">Confirmed</span>
+                                                }
+                                                else if (b.Status == "Completed")
+                                                {
+                                                    <span class="badge bg-success">Completed</span>
+                                                }
+                                                else if (b.Status == "Cancelled")
+                                                {
+                                                    <span class="badge bg-danger" title="@b.CancellationReason">Cancelled</span>
+                                                }
+                                                else if (b.Status == "NoShow")
+                                                {
+                                                    <span class="badge bg-warning text-dark">No Show</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-info">@b.Status</span>
+                                                }
+                                            </div>
                                         </td>
                                     </tr>
                                 }

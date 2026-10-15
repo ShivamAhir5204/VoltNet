@@ -4,40 +4,67 @@
 }
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    #pickMap {
+        height: calc(100vh - 260px);
+        min-height: 450px;
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+        z-index: 1;
+    }
+    .pick-info-bar {
+        background: #1a2236;
+        color: #e2e8f0;
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 8px;
+        padding: 10px 18px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+    .pick-info-bar .coord-display {
+        font-family: monospace;
+        font-size: 1rem;
+        color: #00d4aa;
+        font-weight: 600;
+    }
+    .pick-info-bar small { color: #94a3b8; }
+</style>
 
 <div class="row">
   <div class="col-12">
     <div class="card">
-      <div class="card-header d-flex flex-column flex-sm-row justify-content-between align-items-sm-center">
-        <h4 class="mb-0"><i class="fas fa-map-marker-alt text-primary mr-2"></i> Select Station Location</h4>
-        <div class="d-flex flex-wrap align-items-center mt-2 mt-sm-0">
-            <button id="btnMyLocation" class="btn btn-sm btn-outline-info mr-2 mb-2 mb-sm-0">
-                <i class="fas fa-crosshairs mr-1"></i> My Location
+      <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h4 class="mb-0"><i class="fas fa-map-marker-alt"></i> Select Station Location</h4>
+        <div class="d-flex gap-2">
+            <button id="btnMyLocation" class="btn btn-sm btn-outline-info">
+                <i class="fas fa-crosshairs"></i> My Location
             </button>
-            <button id="btnConfirm" class="btn btn-sm btn-success mr-2 mb-2 mb-sm-0" disabled>
-                <i class="fas fa-check mr-1"></i> Confirm Location
+            <button id="btnConfirm" class="btn btn-sm btn-success" disabled>
+                <i class="fas fa-check"></i> Confirm Location
             </button>
             <button id="btnCancel" class="btn btn-sm btn-outline-secondary">
-                <i class="fas fa-times mr-1"></i> Cancel
+                <i class="fas fa-times"></i> Cancel
             </button>
         </div>
       </div>
-      <div class="card-body p-3">
-        <div class="bg-light p-3 rounded mb-3 border d-flex justify-content-between align-items-center flex-wrap">
-            <div class="mr-4 mb-2 mb-sm-0">
-                <small class="text-muted d-block font-weight-bold">Latitude</small>
-                <div class="font-weight-bold text-primary font-monospace" style="font-size: 1.1rem;" id="displayLat">—</div>
+      <div class="card-body p-2">
+        <div class="pick-info-bar mb-2">
+            <div>
+                <small>Latitude</small>
+                <div class="coord-display" id="displayLat">—</div>
             </div>
-            <div class="mr-4 mb-2 mb-sm-0">
-                <small class="text-muted d-block font-weight-bold">Longitude</small>
-                <div class="font-weight-bold text-primary font-monospace" style="font-size: 1.1rem;" id="displayLng">—</div>
+            <div>
+                <small>Longitude</small>
+                <div class="coord-display" id="displayLng">—</div>
             </div>
-            <div class="text-muted small">
-                <i class="fas fa-info-circle mr-1"></i> Click on the map to place a pin marker
+            <div class="ms-auto text-secondary" style="font-size: 0.85rem;">
+                <i class="fas fa-info-circle"></i> Click on the map to place a marker
             </div>
         </div>
 
-        <div id="pickMap" style="height: calc(100vh - 280px); min-height: 450px; border-radius: 8px; border: 1px solid #dee2e6; z-index: 1;"></div>
+        <div id="pickMap"></div>
       </div>
     </div>
   </div>

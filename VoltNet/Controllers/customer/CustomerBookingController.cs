@@ -180,13 +180,6 @@ public class CustomerBookingController : Controller
             estimatedCost = ((decimal)charger.CapacityKw * rate.RatePerKwh) + (rate.RatePerHour ?? 0);
         }
 
-        var customerId = GetUserId();
-        var savedVehicles = await _context.Vehicles
-            .Where(v => v.CustomerId == customerId)
-            .OrderByDescending(v => v.IsDefault)
-            .ThenBy(v => v.Brand)
-            .ToListAsync();
-
         ViewBag.Station = station;
         ViewBag.Charger = charger;
         ViewBag.BookingDate = date;
@@ -194,7 +187,6 @@ public class CustomerBookingController : Controller
         ViewBag.EndTime = endTime;
         ViewBag.EstimatedCost = estimatedCost;
         ViewBag.Rate = rate;
-        ViewBag.SavedVehicles = savedVehicles;
 
         return View("~/Views/customer/Booking/Confirm.cshtml");
     }

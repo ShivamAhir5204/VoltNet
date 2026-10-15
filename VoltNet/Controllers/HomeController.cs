@@ -133,13 +133,11 @@ public class HomeController : Controller
             : now >= opening || now <= closing; // handles overnight hours
     }
 
-    [HttpGet("about")]
     public IActionResult About()
     {
         return View();
     }
 
-    [HttpGet("stations")]
     public async Task<IActionResult> Stations(string? q, string? city, string? connector)
     {
         var query = _context.Stations
@@ -230,43 +228,31 @@ public class HomeController : Controller
         return View("~/Views/Home/StationDetail.cshtml", station);
     }
 
-    [HttpGet("services")]
     public IActionResult Services()
     {
         return View();
     }
 
-    [HttpGet("pricing")]
     public IActionResult Pricing()
     {
         return View();
     }
 
-    [HttpGet("faq")]
     public IActionResult Faq()
     {
         return View();
     }
 
-    [HttpGet("contact")]
     public IActionResult Contact()
     {
         return View();
     }
 
-    [HttpGet("privacy")]
     public IActionResult Privacy()
     {
         return View();
     }
 
-    [HttpGet("terms")]
-    public IActionResult Terms()
-    {
-        return View();
-    }
-
-    [HttpGet("become-partner")]
     public IActionResult BecomePartner()
     {
         return View();
@@ -301,16 +287,6 @@ public class HomeController : Controller
             .ToListAsync();
 
         return Json(stations);
-    }
-
-    [HttpGet("error/{statusCode}")]
-    public IActionResult HttpStatusCodeHandler(int statusCode)
-    {
-        if (statusCode == 404)
-        {
-            return View("NotFound");
-        }
-        return View("Error", new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

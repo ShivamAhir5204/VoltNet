@@ -11,96 +11,186 @@
     var historyCount = (int)(ViewBag.HistoryCount ?? 0);
 }
 
+<style>
+    .stat-card {
+        border-radius: 12px;
+        padding: 1.5rem;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .stat-card .stat-icon {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        font-size: 3rem;
+        opacity: 0.2;
+    }
+    .stat-card .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        line-height: 1;
+    }
+    .stat-card .stat-label {
+        font-size: 0.85rem;
+        opacity: 0.85;
+        margin-top: 0.25rem;
+    }
+    .stat-green  { background: linear-gradient(135deg, #2E9D54, #248245); }
+    .stat-blue   { background: linear-gradient(135deg, #667eea, #764ba2); }
+    .stat-orange { background: linear-gradient(135deg, #f6d365, #fda085); color: #333 !important; }
+    .stat-dark   { background: linear-gradient(135deg, #343a40, #1d2124); }
+
+    .sub-card {
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        transition: all 0.2s ease;
+        overflow: hidden;
+    }
+    .sub-card:hover {
+        box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+    }
+    .sub-top-bar {
+        height: 5px;
+    }
+    .sub-top-bar.active { background: linear-gradient(90deg, #2E9D54, #47d176); }
+    .sub-top-bar.expiring { background: linear-gradient(90deg, #ffc107, #e0a800); }
+
+    .progress-usage {
+        height: 8px;
+        border-radius: 4px;
+        background-color: #e9ecef;
+    }
+    .progress-usage .progress-bar {
+        border-radius: 4px;
+    }
+
+    .expiry-warning {
+        background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+        border-left: 4px solid #ffc107;
+        padding: 0.75rem 1rem;
+        border-radius: 0 8px 8px 0;
+        font-size: 0.875rem;
+        margin-bottom: 1rem;
+    }
+
+    .btn-cancel-sub {
+        color: #dc3545;
+        border-color: #dc3545;
+    }
+    .btn-cancel-sub:hover {
+        background-color: #dc3545 !important;
+        color: white !important;
+    }
+
+    .nav-tabs-custom {
+        border-bottom: 2px solid #eaedf2;
+    }
+    .nav-tabs-custom .nav-link {
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: #6c757d;
+        border: none;
+        padding: 0.75rem 1.25rem;
+        border-bottom: 3px solid transparent;
+        transition: all 0.2s;
+    }
+    .nav-tabs-custom .nav-link:hover {
+        color: #2E9D54;
+    }
+    .nav-tabs-custom .nav-link.active {
+        color: #2E9D54;
+        background: transparent;
+        border-bottom: 3px solid #2E9D54;
+    }
+
+    /* Modal Stacking & Backdrop Fix for Otika Theme */
+    .modal {
+        z-index: 1050 !important;
+    }
+    .modal-backdrop {
+        z-index: 1040 !important;
+    }
+    .modal-dialog {
+        z-index: 1051 !important;
+    }
+</style>
+
+<div class="section-header">
+    <h1>My Subscriptions</h1>
+    <div class="section-header-breadcrumb">
+        <div class="breadcrumb-item active"><a href="/owner/dashboard">Dashboard</a></div>
+        <div class="breadcrumb-item">Subscriptions</div>
+    </div>
+</div>
+
 @if (TempData["Success"] != null)
 {
-    <div class="alert alert-success alert-has-icon alert-dismissible show fade">
-        <div class="alert-icon"><i class="fas fa-check-circle"></i></div>
-        <div class="alert-body">
-            <button class="close" data-dismiss="alert"><span>&times;</span></button>
-            <div class="alert-title">Success</div>
-            @TempData["Success"]
-        </div>
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-check-circle mr-2"></i>@TempData["Success"]
+        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
     </div>
 }
 @if (TempData["Error"] != null)
 {
-    <div class="alert alert-danger alert-has-icon alert-dismissible show fade">
-        <div class="alert-icon"><i class="fas fa-exclamation-triangle"></i></div>
-        <div class="alert-body">
-            <button class="close" data-dismiss="alert"><span>&times;</span></button>
-            <div class="alert-title">Error</div>
-            @TempData["Error"]
-        </div>
+    <div class="alert alert-danger alert-dismissible fade show">
+        <i class="fas fa-exclamation-circle mr-2"></i>@TempData["Error"]
+        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
     </div>
 }
 
-<!-- Summary Stats -->
-<div class="row">
-    <div class="col-12 col-sm-6 col-lg-3 mb-3">
-        <div class="card card-statistic-1 border mb-0 h-100">
-            <div class="card-icon bg-success text-white d-flex align-items-center justify-content-center">
-                <i class="fas fa-check-circle fa-2x"></i>
-            </div>
-            <div class="card-wrap">
-                <div class="card-header py-0"><h4 class="text-muted">Active Plans</h4></div>
-                <div class="card-body font-weight-bold text-success">@activeCount</div>
-            </div>
+<!-- ─── Summary Stats ─────────────────────────────────────────────── -->
+<div class="row mb-4">
+    <div class="col-12 col-sm-6 col-md-3 mb-3">
+        <div class="stat-card stat-green">
+            <i class="fas fa-check-circle stat-icon"></i>
+            <div class="stat-value">@activeCount</div>
+            <div class="stat-label">Active Plans</div>
         </div>
     </div>
-    <div class="col-12 col-sm-6 col-lg-3 mb-3">
-        <div class="card card-statistic-1 border mb-0 h-100">
-            <div class="card-icon bg-primary text-white d-flex align-items-center justify-content-center">
-                <i class="fas fa-charging-station fa-2x"></i>
-            </div>
-            <div class="card-wrap">
-                <div class="card-header py-0"><h4 class="text-muted">Stations Used</h4></div>
-                <div class="card-body font-weight-bold text-primary">@totalStationsUsed / @totalStationsAllowed</div>
-            </div>
+    <div class="col-12 col-sm-6 col-md-3 mb-3">
+        <div class="stat-card stat-blue">
+            <i class="fas fa-charging-station stat-icon"></i>
+            <div class="stat-value">@totalStationsUsed / @totalStationsAllowed</div>
+            <div class="stat-label">Stations Used</div>
         </div>
     </div>
-    <div class="col-12 col-sm-6 col-lg-3 mb-3">
-        <div class="card card-statistic-1 border mb-0 h-100">
-            <div class="card-icon bg-warning text-white d-flex align-items-center justify-content-center">
-                <i class="fas fa-rupee-sign fa-2x"></i>
-            </div>
-            <div class="card-wrap">
-                <div class="card-header py-0"><h4 class="text-muted">Total Invested</h4></div>
-                <div class="card-body font-weight-bold text-warning">₹@totalSpent.ToString("N0")</div>
-            </div>
+    <div class="col-12 col-sm-6 col-md-3 mb-3">
+        <div class="stat-card stat-orange">
+            <i class="fas fa-rupee-sign stat-icon"></i>
+            <div class="stat-value">₹@totalSpent.ToString("N0")</div>
+            <div class="stat-label">Total Invested</div>
         </div>
     </div>
-    <div class="col-12 col-sm-6 col-lg-3 mb-3">
-        <div class="card card-statistic-1 border mb-0 h-100">
-            <div class="card-icon bg-info text-white d-flex align-items-center justify-content-center">
-                <i class="fas fa-history fa-2x"></i>
-            </div>
-            <div class="card-wrap">
-                <div class="card-header py-0"><h4 class="text-muted">Total Subscriptions</h4></div>
-                <div class="card-body font-weight-bold text-info">@totalCount</div>
-            </div>
+    <div class="col-12 col-sm-6 col-md-3 mb-3">
+        <div class="stat-card stat-dark">
+            <i class="fas fa-history stat-icon"></i>
+            <div class="stat-value">@totalCount</div>
+            <div class="stat-label">Total Subscriptions</div>
         </div>
     </div>
 </div>
 
-<!-- Navigation Tabs & Actions -->
-<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center my-4">
-    <div class="mb-3 mb-md-0">
-        <ul class="nav nav-pills">
+<!-- ─── Navigation Tabs & Buy Button ─────────────────────────────── -->
+<div class="row mb-4 align-items-center">
+    <div class="col-12 col-md-7 mb-3 mb-md-0">
+        <ul class="nav nav-tabs-custom">
             <li class="nav-item">
                 <a class="nav-link active" href="/owner/subscription">
-                    <i class="fas fa-bolt mr-1"></i> Active Subscriptions <span class="badge badge-white text-primary ml-1">@activeCount</span>
+                    <i class="fas fa-bolt mr-1"></i> Active Subscriptions (@activeCount)
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="/owner/subscription/history">
-                    <i class="fas fa-history mr-1"></i> Expired &amp; Cancelled <span class="badge badge-secondary ml-1">@historyCount</span>
+                    <i class="fas fa-history mr-1"></i> Expired & Cancelled (@historyCount)
                 </a>
             </li>
         </ul>
     </div>
-    <div>
+    <div class="col-12 col-md-5 text-md-right">
         <a href="/owner/subscription/plans" class="btn btn-primary btn-lg shadow-sm">
-            <i class="fas fa-plus mr-1"></i> Buy New Plan
+            <i class="fas fa-plus mr-2"></i> Buy New Plan
         </a>
     </div>
 </div>
@@ -109,27 +199,21 @@
     @if (!Model.Any())
     {
         <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <div class="empty-state">
-                        <div class="empty-state-icon">
-                            <i class="fas fa-bolt"></i>
-                        </div>
-                        <h2>No Active Subscriptions</h2>
-                        <p class="lead text-muted">
-                            You currently have no active subscription plans running. Purchase a plan to make your EV stations live and visible to drivers.
-                        </p>
-                        <div class="mt-4">
-                            <a href="/owner/subscription/plans" class="btn btn-primary btn-lg mr-2">
-                                <i class="fas fa-shopping-cart mr-1"></i> Browse &amp; Buy Plans
+            <div class="card p-5 text-center shadow-sm" style="border-radius: 12px;">
+                <div class="empty-state" style="padding: 2rem 0;">
+                    <i class="fas fa-bolt" style="font-size: 4.5rem; color: #ced4da; margin-bottom: 1.5rem;"></i>
+                    <h4 class="text-dark">No Active Subscriptions</h4>
+                    <p class="lead text-muted max-w-500 mx-auto">You currently have no active subscription plans running. Purchase a plan to make your EV stations live and visible to drivers.</p>
+                    <div class="mt-4">
+                        <a href="/owner/subscription/plans" class="btn btn-primary btn-lg px-4 mr-2">
+                            <i class="fas fa-shopping-cart mr-2"></i> Browse & Buy Plans
+                        </a>
+                        @if (historyCount > 0)
+                        {
+                            <a href="/owner/subscription/history" class="btn btn-outline-secondary btn-lg px-4">
+                                <i class="fas fa-history mr-2"></i> View Past Plans (@historyCount)
                             </a>
-                            @if (historyCount > 0)
-                            {
-                                <a href="/owner/subscription/history" class="btn btn-outline-secondary btn-lg">
-                                    <i class="fas fa-history mr-1"></i> View Past Plans (@historyCount)
-                                </a>
-                            }
-                        </div>
+                        }
                     </div>
                 </div>
             </div>
@@ -151,106 +235,107 @@
             var isWithin24Hours = hoursSincePurchase <= 24;
             var remainingHours = isWithin24Hours ? (int)Math.Ceiling(24 - hoursSincePurchase) : 0;
             
-            var cardBorderClass = isCancelled ? "card-secondary" : (isCancellationPending ? "card-warning" : (isExpired ? "card-danger" : (isExpiringSoon ? "card-warning" : "card-success")));
+            var topBarClass = isCancelled ? "cancelled" : (isCancellationPending ? "expiring" : (isExpired ? "expired" : (isExpiringSoon ? "expiring" : "active")));
             var statusText = isCancelled ? "Cancelled" : (isCancellationPending ? "Cancellation Review" : (isExpired ? "Expired" : (isExpiringSoon ? "Expiring Soon" : "Active")));
-            var badgeClass = isCancelled ? "badge-secondary" : (isCancellationPending ? "badge-warning text-dark" : (isExpired ? "badge-danger" : (isExpiringSoon ? "badge-warning text-dark" : "badge-success")));
+            var badgeClass = isCancelled ? "badge-secondary" : (isCancellationPending ? "badge-warning" : (isExpired ? "badge-danger" : (isExpiringSoon ? "badge-warning" : "badge-success")));
             
             var assignedCount = sub.Stations?.Count ?? 0;
             var maxStations = sub.Plan?.MaxStations ?? 0;
             var usagePercent = maxStations > 0 ? (int)((double)assignedCount / maxStations * 100) : 0;
             var progressColor = usagePercent >= 100 ? "bg-danger" : (usagePercent >= 75 ? "bg-warning" : "bg-success");
-            var planCost = sub.AmountPaid > 0 ? sub.AmountPaid : (sub.Plan?.PricePerMonth ?? 0m);
 
             <div class="col-12 col-md-6 col-lg-4 mb-4">
-                <div class="card @cardBorderClass shadow-sm h-100">
+                <div class="card sub-card">
+                    <div class="sub-top-bar @topBarClass"></div>
+                    
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h4 class="text-dark font-weight-bold mb-0">@(sub.Plan?.Name ?? "Plan")</h4>
-                        <span class="badge @badgeClass">@statusText</span>
+                        <h4 class="m-0" style="font-size: 1.2rem; font-weight: 600;">@(sub.Plan?.Name ?? "Plan")</h4>
+                        <span class="badge @badgeClass" style="font-size: 0.75rem;">@statusText</span>
                     </div>
 
                     <div class="card-body">
                         @if (isCancellationPending)
                         {
-                            <div class="alert alert-warning alert-has-icon mb-3">
-                                <div class="alert-icon"><i class="fas fa-clock"></i></div>
-                                <div class="alert-body">
-                                    <div class="alert-title">Pending Review</div>
-                                    <small class="d-block text-truncate">Reason: @sub.CancellationReason</small>
-                                </div>
+                            <div class="alert alert-warning p-2 mb-3" style="font-size: 0.8rem; border-radius: 6px;">
+                                <i class="fas fa-clock mr-1"></i>
+                                <strong>Cancellation Pending Review:</strong>
+                                <span class="d-block text-truncate">Reason: @sub.CancellationReason</span>
                             </div>
                         }
                         else if (isExpiringSoon)
                         {
-                            <div class="alert alert-warning alert-has-icon mb-3">
-                                <div class="alert-icon"><i class="fas fa-exclamation-triangle"></i></div>
-                                <div class="alert-body">
-                                    <div class="alert-title">Expiring Soon</div>
-                                    <strong>@daysLeft day(s) left!</strong> Renew soon to keep your stations online.
-                                </div>
+                            <div class="expiry-warning">
+                                <i class="fas fa-exclamation-triangle mr-1"></i>
+                                <strong>@daysLeft day(s) left!</strong> Renew soon to keep your stations online.
                             </div>
                         }
 
                         <div class="row mb-3">
                             <div class="col-6">
-                                <span class="text-muted small d-block">Start Date</span>
-                                <strong class="text-dark">@sub.StartDate.ToString("dd MMM yyyy")</strong>
+                                <small class="text-muted d-block">Start Date</small>
+                                <strong>@sub.StartDate.ToString("dd MMM yyyy")</strong>
                             </div>
                             <div class="col-6 text-right">
-                                <span class="text-muted small d-block">End Date</span>
-                                <strong class="text-dark">@sub.EndDate.ToString("dd MMM yyyy")</strong>
+                                <small class="text-muted d-block">End Date</small>
+                                <strong>@sub.EndDate.ToString("dd MMM yyyy")</strong>
                             </div>
                         </div>
 
                         <!-- Usage Bar -->
                         <div class="mb-3">
                             <div class="d-flex justify-content-between mb-1">
-                                <span class="text-muted small font-weight-bold">Station Usage</span>
-                                <span class="text-dark small font-weight-bold">@assignedCount / @maxStations</span>
+                                <small class="text-muted">Station Usage</small>
+                                <small class="font-weight-bold">@assignedCount / @maxStations</small>
                             </div>
-                            <div class="progress" style="height: 8px;">
-                                <div class="progress-bar @progressColor" role="progressbar" style="width: @usagePercent%" aria-valuenow="@usagePercent" aria-valuemin="0" aria-valuemax="100"></div>
+                            <div class="progress progress-usage">
+                                <div class="progress-bar @progressColor" style="width: @usagePercent%"></div>
                             </div>
                         </div>
 
-                        <div class="mb-2">
-                            <span class="text-muted small d-block font-weight-bold text-uppercase">Amount Paid</span>
-                            <div class="h3 font-weight-bold text-primary mb-0">₹@planCost.ToString("N0")</div>
+                        <div class="row">
+                            <div class="col-12">
+                                <small class="text-muted d-block">Amount Paid</small>
+                                @{
+                                    var planCost = sub.AmountPaid > 0 ? sub.AmountPaid : (sub.Plan?.PricePerMonth ?? 0m);
+                                }
+                                <strong class="text-primary font-weight-bold" style="font-size: 1.25rem;">₹@planCost.ToString("N0")</strong>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="card-footer bg-light border-top">
-                        <div class="btn-group btn-group-sm w-100 flex-wrap" role="group">
+                    <div class="card-footer bg-white" style="border-top: 1px solid #f0f0f0;">
+                        <div class="d-flex flex-wrap" style="gap: 8px;">
                             @if (isActive)
                             {
-                                <a href="/owner/subscription/@sub.Id/assign" class="btn btn-outline-primary">
-                                    <i class="fas fa-tasks mr-1"></i> Stations
+                                <a href="/owner/subscription/@sub.Id/assign" class="btn btn-sm btn-outline-primary flex-fill">
+                                    <i class="fas fa-tasks mr-1"></i> Manage Stations
                                 </a>
                             }
 
-                            <a href="/owner/subscription/@sub.Id/details" class="btn btn-outline-info">
+                            <a href="/owner/subscription/@sub.Id/details" class="btn btn-sm btn-outline-info flex-fill">
                                 <i class="fas fa-info-circle mr-1"></i> Details
                             </a>
 
-                            <a href="/owner/subscription/@sub.Id/receipt" class="btn btn-outline-secondary">
+                            <a href="/owner/subscription/@sub.Id/receipt" class="btn btn-sm btn-outline-secondary flex-fill">
                                 <i class="fas fa-download mr-1"></i> Receipt
                             </a>
 
                             @if (isActive)
                             {
-                                <button type="button" class="btn btn-outline-danger" 
+                                <button type="button" class="btn btn-sm btn-cancel-sub flex-fill" 
                                         onclick="openCancelModal('@sub.Id', '@sub.Plan?.Name', @planCost, @(isWithin24Hours ? "true" : "false"), @remainingHours)">
                                     <i class="fas fa-times-circle mr-1"></i> Cancel
                                 </button>
                             }
                             else if (isCancellationPending)
                             {
-                                <button type="button" class="btn btn-warning" disabled title="Cancellation request submitted">
+                                <button type="button" class="btn btn-sm btn-warning flex-fill" disabled title="Cancellation request submitted">
                                     <i class="fas fa-hourglass-half mr-1"></i> Reviewing
                                 </button>
                             }
                             else if (isExpired || isCancelled)
                             {
-                                <a href="/owner/subscription/plan/@sub.PlanId" class="btn btn-outline-success">
+                                <a href="/owner/subscription/plan/@sub.PlanId" class="btn btn-sm btn-outline-success flex-fill">
                                     <i class="fas fa-sync-alt mr-1"></i> Renew
                                 </a>
                             }

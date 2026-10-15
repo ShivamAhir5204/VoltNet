@@ -177,7 +177,6 @@
                                     <th>Final Cost</th>
                                     <th>Status</th>
                                     <th>Meter Proof</th>
-                                    <th>Invoice</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -246,18 +245,6 @@
                                             {
                                                 <a href="@b.MeterPhotoUrl" target="_blank" class="btn btn-outline-info btn-sm">
                                                     <i class="fas fa-image mr-1"></i> View Photo
-                                                </a>
-                                            }
-                                            else
-                                            {
-                                                <span class="text-muted small">—</span>
-                                            }
-                                        </td>
-                                        <td class="col-secondary" data-label="Invoice">
-                                            @if (b.Status == "Completed" || b.ActualCost.HasValue)
-                                            {
-                                                <a href="/customer/bookings/invoice/@b.Id" class="btn btn-outline-primary btn-sm">
-                                                    <i class="fas fa-file-invoice mr-1"></i> Invoice
                                                 </a>
                                             }
                                             else
