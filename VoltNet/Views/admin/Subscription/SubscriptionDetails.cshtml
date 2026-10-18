@@ -11,65 +11,66 @@
 <style>
     .detail-card {
         background: #ffffff;
-        border: 1px solid #e4e6fc;
+        border: 1px solid #dce2eb;
         border-radius: 8px;
         padding: 24px;
         margin-bottom: 24px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         height: 100%;
     }
     .detail-card-title {
-        font-size: 15px;
+        font-size: 17px;
         font-weight: 700;
-        color: #34395e;
-        margin-bottom: 20px;
+        color: #212529;
+        margin-bottom: 18px;
         padding-bottom: 12px;
-        border-bottom: 1px solid #f2f2f2;
+        border-bottom: 1px solid #edf0f5;
         display: flex;
         align-items: center;
+        letter-spacing: -0.2px;
     }
     .detail-card-title i {
-        font-size: 16px;
-        margin-right: 8px;
+        font-size: 17px;
+        margin-right: 10px;
     }
     .detail-row {
         display: flex;
         flex-direction: column;
-        margin-bottom: 18px;
+        margin-bottom: 16px;
     }
     .detail-row:last-child {
         margin-bottom: 0;
     }
     .detail-label {
-        font-size: 12px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        color: #78828a;
+        font-size: 14px;
+        font-weight: 700;
+        color: #34395e;
         margin-bottom: 4px;
+        display: inline-block;
     }
     .detail-value {
         font-size: 15px;
         font-weight: 600;
-        color: #191d21;
+        color: #212529;
         word-break: break-word;
     }
     .station-chip {
         background: #ffffff;
-        border: 1px solid #e4e6fc;
+        border: 1px solid #dce2eb;
         border-radius: 6px;
-        padding: 12px 16px;
-        margin-bottom: 10px;
+        padding: 14px 18px;
+        margin-bottom: 12px;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.03);
     }
     @@media (min-width: 576px) {
         .detail-row-inline {
             flex-direction: row;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px dashed #f0f2f5;
+            border-bottom: 1px dashed #e8ebf1;
             padding-bottom: 12px;
         }
         .detail-row-inline:last-child {
@@ -79,7 +80,7 @@
         .detail-row-inline .detail-label {
             margin-bottom: 0;
             flex-shrink: 0;
-            margin-right: 15px;
+            margin-right: 18px;
         }
         .detail-row-inline .detail-value {
             text-align: right;
@@ -92,34 +93,34 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                 <div class="d-flex align-items-center flex-wrap">
-                    <h4 class="mb-0 mr-3">Subscription Details</h4>
+                    <h4 class="mb-0 mr-3 font-weight-bold" style="color: #212529; font-size: 20px;">Subscription Details</h4>
                     @if (isActive)
                     {
-                        <span class="badge badge-success font-weight-600 font-13 px-3 py-2">
+                        <span class="badge badge-success font-weight-700 font-14 px-3 py-2">
                             <i class="fas fa-check-circle mr-1"></i> Active
                         </span>
                     }
                     else if (isPending)
                     {
-                        <span class="badge badge-warning font-weight-600 font-13 px-3 py-2">
+                        <span class="badge badge-warning font-weight-700 font-14 px-3 py-2">
                             <i class="fas fa-clock mr-1"></i> Cancellation Pending
                         </span>
                     }
                     else if (isCancelled)
                     {
-                        <span class="badge badge-danger font-weight-600 font-13 px-3 py-2">
+                        <span class="badge badge-danger font-weight-700 font-14 px-3 py-2">
                             <i class="fas fa-ban mr-1"></i> Cancelled
                         </span>
                     }
                     else
                     {
-                        <span class="badge badge-secondary font-weight-600 font-13 px-3 py-2">
+                        <span class="badge badge-secondary font-weight-700 font-14 px-3 py-2">
                             <i class="fas fa-hourglass-end mr-1"></i> Expired
                         </span>
                     }
                 </div>
                 <div class="card-header-action mt-2 mt-sm-0">
-                    <a href="/admin/subscription/subscribers" class="btn btn-outline-secondary btn-sm">
+                    <a href="/admin/subscription/subscribers" class="btn btn-outline-secondary font-weight-600">
                         <i class="fas fa-arrow-left mr-1"></i> Back to Subscriptions
                     </a>
                 </div>
@@ -134,31 +135,31 @@
                             </div>
                             <div class="detail-row detail-row-inline">
                                 <span class="detail-label">Full Name</span>
-                                <span class="detail-value text-dark font-16">
+                                <span class="detail-value font-weight-bold text-dark font-16">
                                     @(Model.Owner?.FullName ?? Model.Owner?.User?.Fullname ?? "N/A")
                                 </span>
                             </div>
                             <div class="detail-row detail-row-inline">
                                 <span class="detail-label">Business Name</span>
-                                <span class="detail-value text-dark">
+                                <span class="detail-value font-weight-600 text-dark">
                                     @(Model.Owner?.BusinessName ?? "Individual Owner")
                                 </span>
                             </div>
                             <div class="detail-row detail-row-inline">
                                 <span class="detail-label">Email Address</span>
-                                <span class="detail-value text-primary">
+                                <span class="detail-value font-weight-600 text-primary">
                                     @(Model.Owner?.User?.Email ?? "N/A")
                                 </span>
                             </div>
                             <div class="detail-row detail-row-inline">
                                 <span class="detail-label">Phone</span>
-                                <span class="detail-value text-dark">
+                                <span class="detail-value font-weight-600 text-dark">
                                     @(Model.Owner?.Phone ?? Model.Owner?.User?.Mobile ?? "N/A")
                                 </span>
                             </div>
                             <div class="detail-row detail-row-inline">
                                 <span class="detail-label">Location</span>
-                                <span class="detail-value text-dark">
+                                <span class="detail-value font-weight-600 text-dark">
                                     @(Model.Owner?.City ?? "—"), @(Model.Owner?.State ?? "—")
                                 </span>
                             </div>
@@ -166,7 +167,7 @@
                             {
                                 <div class="detail-row detail-row-inline">
                                     <span class="detail-label">GST Number</span>
-                                    <span class="detail-value text-monospace">
+                                    <span class="detail-value font-weight-700 text-monospace text-dark">
                                         @Model.Owner.GSTNumber
                                     </span>
                                 </div>
@@ -183,38 +184,38 @@
                             <div class="detail-row detail-row-inline">
                                 <span class="detail-label">Plan Tier</span>
                                 <span class="detail-value">
-                                    <span class="badge badge-light text-dark font-weight-600 font-14">@(Model.Plan?.Name ?? "Plan")</span>
+                                    <span class="badge badge-primary font-weight-700 font-14 px-3 py-1">@(Model.Plan?.Name ?? "Plan")</span>
                                 </span>
                             </div>
                             <div class="detail-row detail-row-inline">
                                 <span class="detail-label">Plan Price</span>
-                                <span class="detail-value font-weight-bold text-dark font-16">
+                                <span class="detail-value font-weight-bold text-dark font-18">
                                     ₹@(Model.Plan?.PricePerMonth.ToString("N0") ?? "0")
                                 </span>
                             </div>
                             <div class="detail-row detail-row-inline">
                                 <span class="detail-label">Plan Duration</span>
-                                <span class="detail-value text-dark">
+                                <span class="detail-value font-weight-bold text-dark font-15">
                                     @(Model.Plan?.DurationDays ?? 30) Days
                                 </span>
                             </div>
                             <div class="detail-row detail-row-inline">
                                 <span class="detail-label">Max Stations Allowed</span>
-                                <span class="detail-value text-dark">
+                                <span class="detail-value font-weight-bold text-dark font-15">
                                     <i class="fas fa-charging-station text-primary mr-1"></i> @(Model.Plan?.MaxStations ?? 0) Stations
                                 </span>
                             </div>
                             <div class="detail-row detail-row-inline">
                                 <span class="detail-label">Max Managers / Station</span>
-                                <span class="detail-value text-dark">
-                                    <i class="fas fa-user-shield text-muted mr-1"></i> @(Model.Plan?.MaxManagersPerStation ?? 0) Managers
+                                <span class="detail-value font-weight-bold text-dark font-15">
+                                    <i class="fas fa-user-shield text-info mr-1"></i> @(Model.Plan?.MaxManagersPerStation ?? 0) Managers
                                 </span>
                             </div>
                             @if (!string.IsNullOrWhiteSpace(Model.Plan?.Description))
                             {
                                 <div class="detail-row mt-2">
                                     <span class="detail-label">Description</span>
-                                    <span class="detail-value text-muted font-weight-normal font-13">
+                                    <span class="detail-value font-weight-500 font-14" style="color: #212529; line-height: 1.6;">
                                         @Model.Plan.Description
                                     </span>
                                 </div>
@@ -230,31 +231,31 @@
                             </div>
                             <div class="detail-row detail-row-inline">
                                 <span class="detail-label">Amount Paid</span>
-                                <span class="detail-value font-weight-bold text-success font-18">
+                                <span class="detail-value font-weight-bold text-success font-22">
                                     ₹@Model.AmountPaid.ToString("N2")
                                 </span>
                             </div>
                             <div class="detail-row detail-row-inline">
                                 <span class="detail-label">Payment ID</span>
-                                <span class="detail-value text-monospace font-13">
+                                <span class="detail-value text-monospace font-weight-700 text-dark font-14">
                                     @(Model.PaymentId ?? "N/A")
                                 </span>
                             </div>
                             <div class="detail-row detail-row-inline">
                                 <span class="detail-label">Purchased On</span>
-                                <span class="detail-value text-dark">
+                                <span class="detail-value font-weight-600 text-dark font-15">
                                     @Model.CreatedAt.ToString("dd MMM yyyy, hh:mm tt") UTC
                                 </span>
                             </div>
                             <div class="detail-row detail-row-inline">
                                 <span class="detail-label">Start Date</span>
-                                <span class="detail-value text-dark">
+                                <span class="detail-value font-weight-600 text-dark font-15">
                                     @Model.StartDate.ToString("dd MMM yyyy")
                                 </span>
                             </div>
                             <div class="detail-row detail-row-inline">
                                 <span class="detail-label">End Date</span>
-                                <span class="detail-value text-dark">
+                                <span class="detail-value font-weight-600 text-dark font-15">
                                     @Model.EndDate.ToString("dd MMM yyyy")
                                 </span>
                             </div>
@@ -264,17 +265,17 @@
                                     @if (isActive)
                                     {
                                         var daysLeft = Math.Ceiling((Model.EndDate - DateTime.UtcNow).TotalDays);
-                                        <span class="badge badge-success font-weight-600">
+                                        <span class="badge badge-success font-weight-700 font-14 px-3 py-1">
                                             @(daysLeft <= 0 ? "Expires today" : $"{daysLeft} days remaining")
                                         </span>
                                     }
                                     else if (isNowExpired)
                                     {
-                                        <span class="badge badge-secondary font-weight-600">Expired</span>
+                                        <span class="badge badge-secondary font-weight-700 font-14 px-3 py-1">Expired</span>
                                     }
                                     else
                                     {
-                                        <span class="badge badge-light text-dark font-weight-600">@Model.Status</span>
+                                        <span class="badge badge-danger font-weight-700 font-14 px-3 py-1">@Model.Status</span>
                                     }
                                 </span>
                             </div>
@@ -286,7 +287,7 @@
                         <div class="detail-card">
                             <div class="detail-card-title text-primary justify-content-between">
                                 <span><i class="fas fa-charging-station"></i> Assigned Stations</span>
-                                <span class="badge badge-light text-dark font-weight-600">
+                                <span class="badge badge-info font-weight-700 font-13 px-3 py-1">
                                     @Model.Stations.Count / @(Model.Plan?.MaxStations ?? 0) Allowed
                                 </span>
                             </div>
@@ -298,17 +299,17 @@
                                         <div class="station-chip">
                                             <div>
                                                 <i class="fas fa-charging-station text-primary mr-2"></i>
-                                                <strong class="text-dark">@station.Name</strong>
-                                                <span class="text-muted small ml-2">(@station.City, @station.State)</span>
+                                                <strong class="text-dark font-15 font-weight-700">@station.Name</strong>
+                                                <span class="font-weight-600 ml-2" style="color: #34395e;">(@station.City, @station.State)</span>
                                             </div>
                                             <div>
                                                 @if (station.Status == "Active")
                                                 {
-                                                    <span class="badge badge-success font-weight-600">Active</span>
+                                                    <span class="badge badge-success font-weight-700">Active</span>
                                                 }
                                                 else
                                                 {
-                                                    <span class="badge badge-secondary font-weight-600">@station.Status</span>
+                                                    <span class="badge badge-secondary font-weight-700">@station.Status</span>
                                                 }
                                             </div>
                                         </div>
@@ -317,8 +318,8 @@
                             }
                             else
                             {
-                                <div class="py-4 text-center text-muted">
-                                    <i class="fas fa-info-circle mr-1"></i> No stations have been assigned to this subscription yet.
+                                <div class="py-4 text-center font-weight-600 font-15" style="color: #495057;">
+                                    <i class="fas fa-info-circle mr-1 text-primary"></i> No stations have been assigned to this subscription yet.
                                 </div>
                             }
                         </div>
@@ -328,13 +329,13 @@
                     @if (isPending || isCancelled || !string.IsNullOrWhiteSpace(Model.CancellationReason))
                     {
                         <div class="col-12 mb-4">
-                            <div class="detail-card" style="border-left: 4px solid #fc544b;">
+                            <div class="detail-card" style="border-left: 5px solid #fc544b;">
                                 <div class="detail-card-title text-danger">
                                     <i class="fas fa-undo-alt"></i> Cancellation & Refund Information
                                 </div>
                                 <div class="detail-row detail-row-inline">
                                     <span class="detail-label">Reason Stated</span>
-                                    <span class="detail-value text-dark font-weight-normal">
+                                    <span class="detail-value text-dark font-weight-600">
                                         @(string.IsNullOrWhiteSpace(Model.CancellationReason) ? "No reason specified" : Model.CancellationReason)
                                     </span>
                                 </div>
@@ -342,7 +343,7 @@
                                 {
                                     <div class="detail-row detail-row-inline">
                                         <span class="detail-label">Requested At</span>
-                                        <span class="detail-value text-dark">
+                                        <span class="detail-value text-dark font-weight-600">
                                             @Model.CancellationRequestedAt.Value.ToString("dd MMM yyyy, hh:mm tt") UTC
                                         </span>
                                     </div>
@@ -351,7 +352,7 @@
                                 {
                                     <div class="detail-row detail-row-inline">
                                         <span class="detail-label">Admin Remarks</span>
-                                        <span class="detail-value text-info font-weight-600">
+                                        <span class="detail-value text-dark font-weight-700" style="color: #0b5ed7;">
                                             @Model.CancellationAdminRemarks
                                         </span>
                                     </div>
@@ -360,7 +361,7 @@
                                 {
                                     <div class="detail-row detail-row-inline">
                                         <span class="detail-label">Refund Amount</span>
-                                        <span class="detail-value font-weight-bold text-success font-18">
+                                        <span class="detail-value font-weight-bold text-success font-22">
                                             ₹@Model.RefundAmount.Value.ToString("N2")
                                         </span>
                                     </div>
@@ -369,7 +370,7 @@
                                 {
                                     <div class="detail-row detail-row-inline">
                                         <span class="detail-label">Processed At</span>
-                                        <span class="detail-value text-dark">
+                                        <span class="detail-value text-dark font-weight-600">
                                             @Model.CancellationProcessedAt.Value.ToString("dd MMM yyyy, hh:mm tt") UTC
                                         </span>
                                     </div>
@@ -380,12 +381,12 @@
                 </div>
             </div>
             <div class="card-footer bg-white border-top d-flex justify-content-between align-items-center flex-wrap">
-                <a href="/admin/subscription/subscribers" class="btn btn-outline-secondary">
+                <a href="/admin/subscription/subscribers" class="btn btn-outline-secondary font-weight-600">
                     <i class="fas fa-arrow-left mr-1"></i> Back to Subscriptions List
                 </a>
                 @if (isPending)
                 {
-                    <a href="/admin/subscription/cancellation-details/@Model.Id" class="btn btn-warning">
+                    <a href="/admin/subscription/cancellation-details/@Model.Id" class="btn btn-warning font-weight-600">
                         <i class="fas fa-undo-alt mr-1"></i> Review Cancellation Request
                     </a>
                 }

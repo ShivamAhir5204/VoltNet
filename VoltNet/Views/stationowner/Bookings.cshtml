@@ -17,11 +17,11 @@
             </div>
             <div class="card-body">
                 <!-- Filters Form -->
-                <form method="get" class="mb-4 bg-light p-3 rounded">
+                <form method="get" class="mb-4 p-3 rounded" style="background: #ffffff; border: 1px solid #dce2eb; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
                     <div class="row align-items-end">
                         <div class="col-12 col-md-3 mb-2 mb-md-0">
-                            <label class="font-weight-bold small">Station:</label>
-                            <select name="stationId" class="form-control">
+                            <label class="font-weight-bold" style="color: #34395e; font-size: 13px;">Station:</label>
+                            <select name="stationId" class="form-control" style="border: 1px solid #dce2eb; border-radius: 6px;">
                                 <option value="">-- All Owned Stations --</option>
                                 @foreach (var stn in ownerStations)
                                 {
@@ -30,12 +30,12 @@
                             </select>
                         </div>
                         <div class="col-12 col-md-3 mb-2 mb-md-0">
-                            <label class="font-weight-bold small">Date:</label>
-                            <input type="date" name="date" class="form-control" value="@ViewBag.SelectedDate" />
+                            <label class="font-weight-bold" style="color: #34395e; font-size: 13px;">Date:</label>
+                            <input type="date" name="date" class="form-control" value="@ViewBag.SelectedDate" style="border: 1px solid #dce2eb; border-radius: 6px;" />
                         </div>
                         <div class="col-12 col-md-3 mb-2 mb-md-0">
-                            <label class="font-weight-bold small">Status:</label>
-                            <select name="status" class="form-control">
+                            <label class="font-weight-bold" style="color: #34395e; font-size: 13px;">Status:</label>
+                            <select name="status" class="form-control" style="border: 1px solid #dce2eb; border-radius: 6px;">
                                 <option value="">-- All Statuses --</option>
                                 <option value="Confirmed" selected="@(ViewBag.SelectedStatus == "Confirmed")">Confirmed</option>
                                 <option value="Completed" selected="@(ViewBag.SelectedStatus == "Completed")">Completed</option>
@@ -44,18 +44,18 @@
                             </select>
                         </div>
                         <div class="col-12 col-md-3">
-                            <button type="submit" class="btn btn-primary mr-1"><i class="fas fa-filter mr-1"></i> Filter</button>
-                            <a href="/owner/bookings" class="btn btn-outline-secondary">Reset</a>
+                            <button type="submit" class="btn btn-primary font-weight-600 mr-1"><i class="fas fa-filter mr-1"></i> Filter</button>
+                            <a href="/owner/bookings" class="btn btn-outline-secondary font-weight-600">Reset</a>
                         </div>
                     </div>
                 </form>
 
                 @if (!Model.Any())
                 {
-                    <div class="text-center py-5">
-                        <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
-                        <h5>No Bookings Found</h5>
-                        <p class="text-muted">No reservations found matching the selected filters across your stations.</p>
+                    <div class="text-center py-5" style="background: #ffffff; border: 1px dashed #dce2eb; border-radius: 8px;">
+                        <i class="fas fa-calendar-times text-muted mb-3" style="font-size: 42px;"></i>
+                        <h5 class="font-weight-bold text-dark mb-1">No Bookings Found</h5>
+                        <p class="font-weight-500 mb-0" style="color: #34395e; font-size: 14px;">No reservations found matching the selected filters across your stations.</p>
                     </div>
                 }
                 else

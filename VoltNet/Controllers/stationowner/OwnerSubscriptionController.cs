@@ -105,6 +105,19 @@ public class OwnerSubscriptionController : Controller
     [HttpGet("plan/{id}")]
     public async Task<IActionResult> PlanDetails(Guid id)
     {
+        var ownerId = GetOwnerId();
+        var activeSub = await _context.OwnerSubscriptions
+            .Include(s => s.Plan)
+            .FirstOrDefaultAsync(s => s.StationOwnerId == ownerId 
+                && (s.Status == "Active" || s.Status == "CancellationPending") 
+                && s.EndDate >= DateTime.UtcNow);
+
+        if (activeSub != null)
+        {
+            TempData["Error"] = $"You already have an active subscription ({activeSub.Plan?.Name ?? "Plan"}). Station owners can only have one active subscription at a time.";
+            return RedirectToAction(nameof(Index));
+        }
+
         var plan = await _context.SubscriptionPlans.FindAsync(id);
         if (plan == null)
         {
@@ -119,6 +132,16 @@ public class OwnerSubscriptionController : Controller
     [HttpGet("plans")]
     public async Task<IActionResult> Plans()
     {
+        var ownerId = GetOwnerId();
+        var activeSub = await _context.OwnerSubscriptions
+            .Include(s => s.Plan)
+            .FirstOrDefaultAsync(s => s.StationOwnerId == ownerId 
+                && (s.Status == "Active" || s.Status == "CancellationPending") 
+                && s.EndDate >= DateTime.UtcNow);
+
+        ViewBag.ActiveSubscription = activeSub;
+        ViewBag.HasActiveSubscription = (activeSub != null);
+
         var plans = await _context.SubscriptionPlans
             .Where(p => p.IsActive)
             .OrderBy(p => p.PricePerMonth)
@@ -147,6 +170,20 @@ public class OwnerSubscriptionController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> CreateOrder([FromForm] Guid planId)
     {
+        var ownerId = GetOwnerId();
+
+        // ── Validation 1: Prevent multiple active subscriptions per owner ──
+        var activeSub = await _context.OwnerSubscriptions
+            .Include(s => s.Plan)
+            .FirstOrDefaultAsync(s => s.StationOwnerId == ownerId 
+                && (s.Status == "Active" || s.Status == "CancellationPending") 
+                && s.EndDate >= DateTime.UtcNow);
+
+        if (activeSub != null)
+        {
+            return Json(new { success = false, message = $"You already have an active subscription ({activeSub.Plan?.Name ?? "Plan"}). An owner can only hold one active subscription at a time." });
+        }
+
         var plan = await _context.SubscriptionPlans.FindAsync(planId);
         if (plan == null || !plan.IsActive)
         {
@@ -188,6 +225,8 @@ public class OwnerSubscriptionController : Controller
         [FromForm] string razorpay_payment_id,
         [FromForm] Guid planId)
     {
+        var ownerId = GetOwnerId();
+
         // ── Validation 1: Check parameters ──
         if (string.IsNullOrWhiteSpace(razorpay_order_id) || string.IsNullOrWhiteSpace(razorpay_payment_id))
         {
@@ -195,7 +234,20 @@ public class OwnerSubscriptionController : Controller
             return RedirectToAction(nameof(Plans));
         }
 
-        // ── Validation 2: Plan must still be valid ──
+        // ── Validation 2: Prevent multiple active subscriptions per owner ──
+        var activeSub = await _context.OwnerSubscriptions
+            .Include(s => s.Plan)
+            .FirstOrDefaultAsync(s => s.StationOwnerId == ownerId 
+                && (s.Status == "Active" || s.Status == "CancellationPending") 
+                && s.EndDate >= DateTime.UtcNow);
+
+        if (activeSub != null)
+        {
+            TempData["Error"] = $"You already have an active subscription ({activeSub.Plan?.Name ?? "Plan"}). An owner can only hold one active subscription at a time.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        // ── Validation 3: Plan must still be valid ──
         var plan = await _context.SubscriptionPlans.FindAsync(planId);
         if (plan == null || !plan.IsActive)
         {
@@ -203,8 +255,7 @@ public class OwnerSubscriptionController : Controller
             return RedirectToAction(nameof(Plans));
         }
 
-        // ── Validation 3: Prevent duplicate subscription for same payment ──
-        var ownerId = GetOwnerId();
+        // ── Validation 4: Prevent duplicate subscription for same payment ──
         var alreadyExists = await _context.OwnerSubscriptions
             .AnyAsync(s => s.PaymentId == razorpay_payment_id);
 

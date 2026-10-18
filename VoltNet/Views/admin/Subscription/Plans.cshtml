@@ -30,9 +30,9 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                 <div class="d-flex align-items-center flex-wrap">
-                    <h4 class="mb-0 mr-3">Subscription Plans</h4>
-                    <span class="badge badge-primary font-weight-600 mr-2">@Model.Count() Plans</span>
-                    <span class="badge badge-success font-weight-600 mr-2">@Model.Count(p => p.IsActive) Active</span>
+                    <h4 class="mb-0 mr-3 font-weight-bold" style="color: #212529; font-size: 20px;">Subscription Plans</h4>
+                    <span class="badge badge-primary font-weight-700 mr-2">@Model.Count() Plans</span>
+                    <span class="badge badge-success font-weight-700 mr-2">@Model.Count(p => p.IsActive) Active</span>
                     @if (activeSubs.Values.Sum() > 0)
                     {
                         <span class="badge badge-info font-weight-600">
@@ -108,7 +108,7 @@
                                             }
                                             else
                                             {
-                                                <span class="badge badge-light text-muted font-weight-normal">
+                                                <span class="badge badge-light text-dark font-weight-700">
                                                     0
                                                 </span>
                                             }

@@ -776,6 +776,7 @@ wwwroot\otika\assets\fonts\webfonts\fa-solid-900.ttf
 wwwroot\otika\assets\fonts\webfonts\fa-solid-900.woff
 wwwroot\otika\assets\fonts\webfonts\fa-solid-900.woff2
 wwwroot\otika\assets\fonts\webfonts\fa-solid-900d41d.eot
+wwwroot\otika\assets\img\admin-login-bg.jpg
 wwwroot\otika\assets\img\admin.png
 wwwroot\otika\assets\img\banner\1.png
 wwwroot\otika\assets\img\banner\2.png

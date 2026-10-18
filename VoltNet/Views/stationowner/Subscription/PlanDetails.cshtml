@@ -5,87 +5,40 @@
     var razorpayKey = ViewBag.RazorpayKeyId as string ?? "";
     var isEnterprise = Model.MaxStations > 10;
     var isGrowth = Model.MaxStations > 1 && !isEnterprise;
-    var badgeTheme = isEnterprise ? "badge-dark" : (isGrowth ? "badge-primary" : "badge-success");
-    var headerGradient = isEnterprise 
-        ? "linear-gradient(135deg, #1d2124 0%, #343a40 100%)" 
-        : (isGrowth ? "linear-gradient(135deg, #4e54c8 0%, #8f94fb 100%)" : "linear-gradient(135deg, #11998e 0%, #38ef7d 100%)");
+    var badgeText = isEnterprise ? "Enterprise Tier" : (isGrowth ? "Growth Tier" : "Starter Tier");
+    var badgeClass = isEnterprise ? "badge-dark" : (isGrowth ? "badge-primary" : "badge-info");
 }
 
 <style>
-    .plan-detail-card {
-        border-radius: 16px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-        border: none;
-        overflow: hidden;
-    }
-    .plan-hero-header {
-        background: @headerGradient;
-        color: white;
-        padding: 3rem 2rem;
-        position: relative;
-    }
-    .plan-hero-header::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        right: 0;
-        width: 180px;
-        height: 180px;
-        background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 70%);
-        border-radius: 50%;
-        pointer-events: none;
-    }
-    .plan-price-tag {
-        font-size: 3rem;
-        font-weight: 800;
-        letter-spacing: -1px;
-    }
-    .feature-check-icon {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        background-color: #e8f5e9;
-        color: #2E9D54;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.9rem;
-        margin-right: 12px;
-        flex-shrink: 0;
-    }
-    .summary-box {
-        background: #f8f9fa;
-        border-radius: 12px;
-        border: 1px dashed #dee2e6;
-        padding: 1.5rem;
-    }
     .btn-pay-now {
-        background: linear-gradient(135deg, #2E9D54 0%, #248245 100%);
-        color: white !important;
-        font-size: 1.15rem;
+        background-color: #6777ef;
+        border-color: #6777ef;
+        color: #ffffff !important;
+        font-size: 16px;
         font-weight: 700;
-        padding: 1rem 1.5rem;
-        border-radius: 10px;
+        padding: 14px 20px;
+        border-radius: 6px;
         border: none;
-        box-shadow: 0 4px 15px rgba(46,157,84,0.3);
-        transition: all 0.25s ease;
+        box-shadow: 0 4px 12px rgba(103, 119, 239, 0.3);
+        transition: all 0.2s ease;
         display: block;
         width: 100%;
         text-align: center;
         cursor: pointer;
     }
     .btn-pay-now:hover {
+        background-color: #5a67d8 !important;
         transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(46,157,84,0.4);
+        box-shadow: 0 6px 18px rgba(103, 119, 239, 0.4);
     }
     .btn-pay-now:disabled {
-        opacity: 0.7;
+        opacity: 0.65;
         cursor: not-allowed;
         transform: none;
     }
 
     /* ═══════════════════════════════════════════════════════════════
-       ULTRA-REALISTIC RAZORPAY STYLE TRAIN-COIN PAYMENT ANIMATION
+       RAZORPAY STYLE PAYMENT ANIMATION MODAL
        ═══════════════════════════════════════════════════════════════ */
     .razorpay-overlay {
         display: none;
@@ -94,8 +47,8 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(15, 23, 42, 0.82);
-        backdrop-filter: blur(10px);
+        background: rgba(15, 23, 42, 0.75);
+        backdrop-filter: blur(8px);
         z-index: 999999;
         justify-content: center;
         align-items: center;
@@ -106,36 +59,34 @@
     }
     .razorpay-modal {
         background: #ffffff;
-        border-radius: 24px;
-        padding: 2.5rem 2rem;
+        border-radius: 16px;
+        padding: 2.2rem 2rem;
         width: 100%;
-        max-width: 450px;
+        max-width: 440px;
         text-align: center;
-        box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.4);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
         position: relative;
         overflow: hidden;
-        animation: modalPop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        animation: modalPop 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     }
     @@keyframes modalPop {
-        0% { transform: scale(0.85); opacity: 0; }
+        0% { transform: scale(0.9); opacity: 0; }
         100% { transform: scale(1); opacity: 1; }
     }
 
     .payment-stage-container {
-        min-height: 200px;
+        min-height: 180px;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        position: relative;
     }
 
-    /* Processing Spinner stage */
     .processing-pulse {
-        width: 80px;
-        height: 80px;
+        width: 72px;
+        height: 72px;
         border-radius: 50%;
-        background: rgba(46, 157, 84, 0.1);
+        background: rgba(103, 119, 239, 0.12);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -143,39 +94,37 @@
         animation: pulseRing 1.8s infinite;
     }
     .processing-pulse-inner {
-        width: 54px;
-        height: 54px;
+        width: 48px;
+        height: 48px;
         border-radius: 50%;
-        background: #2E9D54;
+        background: #6777ef;
         display: flex;
         align-items: center;
         justify-content: center;
         color: white;
-        font-size: 1.5rem;
+        font-size: 1.3rem;
     }
     @@keyframes pulseRing {
-        0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(46, 157, 84, 0.4); }
-        70% { transform: scale(1); box-shadow: 0 0 0 24px rgba(46, 157, 84, 0); }
-        100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(46, 157, 84, 0); }
+        0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(103, 119, 239, 0.4); }
+        70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(103, 119, 239, 0); }
+        100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(103, 119, 239, 0); }
     }
 
-    /* Train Coin Running Track stage */
     .coin-train-stage {
         display: none;
         width: 100%;
-        height: 180px;
+        height: 170px;
         position: relative;
         margin-bottom: 0.5rem;
         overflow: hidden;
-        border-radius: 16px;
-        background: linear-gradient(180deg, #f8fafc 0%, #eef2f6 100%);
+        border-radius: 12px;
+        background: #f8fafc;
         border: 1px solid #e2e8f0;
     }
     .coin-train-stage.active {
         display: block;
     }
 
-    /* Realistic Railway Track with Sleepers */
     .rail-track-bed {
         position: absolute;
         bottom: 35px;
@@ -200,7 +149,6 @@
         width: 100%;
         height: 4px;
         background: #64748b;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     .rail-glow {
         position: absolute;
@@ -208,7 +156,7 @@
         left: 0;
         width: 100%;
         height: 4px;
-        background: linear-gradient(90deg, transparent, #2E9D54, #38ef7d, transparent);
+        background: linear-gradient(90deg, transparent, #6777ef, #8292fd, transparent);
         animation: trackGlow 1.8s ease-in-out infinite;
     }
     @@keyframes trackGlow {
@@ -216,7 +164,6 @@
         100% { transform: translateX(100%); }
     }
 
-    /* Train Locomotive + Coin Cargo Unit */
     .train-convoy {
         position: absolute;
         bottom: 48px;
@@ -233,7 +180,6 @@
         100% { transform: translateX(580px); }
     }
 
-    /* Smoke Puffs */
     .smoke-puff {
         position: absolute;
         width: 12px;
@@ -253,14 +199,12 @@
         100% { transform: translate(-25px, -35px) scale(2.2); opacity: 0; }
     }
 
-    /* Engine */
     .train-engine {
         width: 44px;
         height: 38px;
         background: linear-gradient(135deg, #1e293b, #0f172a);
         border-radius: 6px 14px 4px 4px;
         position: relative;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.25);
     }
     .engine-chimney {
         position: absolute;
@@ -300,7 +244,6 @@
         100% { transform: rotate(360deg); }
     }
 
-    /* 3D Spinning Golden Rupee Coins */
     .cargo-wagon {
         width: 46px;
         height: 32px;
@@ -310,7 +253,6 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
     .cargo-wagon .train-wheels {
         left: 6px;
@@ -318,21 +260,20 @@
     }
 
     .golden-coin-3d {
-        width: 38px;
-        height: 38px;
+        width: 36px;
+        height: 36px;
         border-radius: 50%;
         background: radial-gradient(circle at 35% 35%, #fff6a9 0%, #ffd700 45%, #e6a100 80%, #b37400 100%);
-        box-shadow: 0 4px 12px rgba(230, 161, 0, 0.5), inset 0 2px 3px rgba(255, 255, 255, 0.9), inset 0 -2px 3px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 4px 10px rgba(230, 161, 0, 0.45);
         display: flex;
         align-items: center;
         justify-content: center;
         color: #6b3f00;
         font-weight: 900;
-        font-size: 1.25rem;
+        font-size: 1.2rem;
         animation: spinCoin3D 0.7s linear infinite;
-        transform-style: preserve-3d;
         border: 1.5px solid #fff275;
-        margin-top: -18px;
+        margin-top: -16px;
     }
     @@keyframes spinCoin3D {
         0% { transform: rotateY(0deg); }
@@ -340,192 +281,197 @@
         100% { transform: rotateY(360deg); }
     }
 
-    .sparkle-fast {
-        position: absolute;
-        color: #ffaa00;
-        font-size: 1.1rem;
-        animation: sparkleGlint 1s infinite alternate;
-    }
-    @@keyframes sparkleGlint {
-        0% { transform: scale(0.3) rotate(0deg); opacity: 0.2; }
-        100% { transform: scale(1.4) rotate(90deg); opacity: 1; }
-    }
-
-    /* Final Success Badge with Confetti */
     .success-celebration {
         display: none;
-        animation: bounceIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        padding: 1.5rem 0.5rem;
     }
     .success-celebration.active {
         display: block;
     }
     .success-icon-badge {
-        width: 80px;
-        height: 80px;
+        width: 64px;
+        height: 64px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #2E9D54, #248245);
+        background: #47c363;
         color: white;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        font-size: 2.4rem;
-        box-shadow: 0 12px 30px rgba(46, 157, 84, 0.45);
+        font-size: 1.8rem;
         margin-bottom: 1rem;
-        animation: pulseSuccess 1.5s infinite;
-    }
-    @@keyframes pulseSuccess {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.06); }
-    }
-    @@keyframes bounceIn {
-        0% { transform: scale(0.3); opacity: 0; }
-        60% { transform: scale(1.1); opacity: 1; }
-        100% { transform: scale(1); }
+        box-shadow: 0 8px 20px rgba(71, 195, 99, 0.35);
     }
 </style>
 
 <div class="section-header">
-    <h1>Plan Checkout & Confirmation</h1>
+    <div class="section-header-back">
+        <a href="/owner/subscription/plans" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
+    </div>
+    <h1>Subscribe to @Model.Name</h1>
     <div class="section-header-breadcrumb">
         <div class="breadcrumb-item active"><a href="/owner/dashboard">Dashboard</a></div>
         <div class="breadcrumb-item"><a href="/owner/subscription">Subscriptions</a></div>
-        <div class="breadcrumb-item">Subscribe</div>
+        <div class="breadcrumb-item"><a href="/owner/subscription/plans">Plans</a></div>
+        <div class="breadcrumb-item">@Model.Name</div>
     </div>
 </div>
 
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger alert-dismissible fade show">
-        <i class="fas fa-exclamation-circle mr-2"></i>@TempData["Error"]
-        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
-    </div>
-}
+<div class="row">
+    <!-- ─── Left Column: Plan Specs & Features ───────────────────────── -->
+    <div class="col-12 col-lg-7 mb-4">
+        <!-- Plan Specifications -->
+        <div class="detail-card mb-4">
+            <div class="detail-card-title text-primary d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-layer-group"></i> Plan Specifications
+                </div>
+                <span class="badge @badgeClass font-weight-700 font-12 px-3 py-1">@badgeText</span>
+            </div>
 
-<div class="row justify-content-center">
-    <div class="col-12 col-lg-10 col-xl-9">
-        <div class="card plan-detail-card mb-4">
-            <!-- Hero Header -->
-            <div class="plan-hero-header">
-                <div class="row align-items-center">
-                    <div class="col-12 col-md-8">
-                        <span class="badge badge-light text-dark font-weight-bold mb-2 px-3 py-2" style="border-radius: 20px;">
-                            <i class="fas fa-crown text-warning mr-1"></i> Selected Plan
-                        </span>
-                        <h2 class="font-weight-bold text-white mb-2">@Model.Name Plan</h2>
-                        <p class="mb-0 text-white-50 lead" style="font-size: 1.05rem;">@Model.Description</p>
+            <div class="detail-row detail-row-inline">
+                <span class="detail-label">Plan Name</span>
+                <span class="detail-value font-weight-bold text-dark font-18">@Model.Name</span>
+            </div>
+
+            <div class="detail-row detail-row-inline">
+                <span class="detail-label">Monthly Rate</span>
+                <span class="detail-value font-weight-bold text-dark font-20">
+                    ₹@Model.PricePerMonth.ToString("N0")
+                </span>
+            </div>
+
+            <div class="detail-row detail-row-inline">
+                <span class="detail-label">Billing Duration</span>
+                <span class="detail-value font-weight-bold text-dark font-15">
+                    @Model.DurationDays Days
+                </span>
+            </div>
+
+            <div class="detail-row detail-row-inline">
+                <span class="detail-label">Maximum Stations Allowed</span>
+                <span class="detail-value font-weight-bold text-primary font-16">
+                    <i class="fas fa-charging-station mr-1"></i> @Model.MaxStations Stations
+                </span>
+            </div>
+
+            <div class="detail-row detail-row-inline">
+                <span class="detail-label">Station Managers per Station</span>
+                <span class="detail-value font-weight-bold text-dark font-15">
+                    <i class="fas fa-user-shield text-info mr-1"></i> @Model.MaxManagersPerStation Managers
+                </span>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Description))
+            {
+                <div class="detail-row mt-3">
+                    <span class="detail-label">Plan Overview</span>
+                    <div class="detail-box mt-1">
+                        @Model.Description
                     </div>
-                    <div class="col-12 col-md-4 text-md-right mt-3 mt-md-0">
-                        <div class="plan-price-tag text-white">₹@Model.PricePerMonth.ToString("N0")</div>
-                        <small class="text-white-50">per @Model.DurationDays Days Billing Cycle</small>
+                </div>
+            }
+        </div>
+
+        <!-- Included Network Benefits -->
+        <div class="detail-card">
+            <div class="detail-card-title text-success">
+                <i class="fas fa-check-circle"></i> Included Network Benefits
+            </div>
+
+            <div class="station-chip mb-2">
+                <div class="d-flex align-items-center" style="gap: 12px;">
+                    <i class="fas fa-satellite-dish text-primary font-18"></i>
+                    <div>
+                        <strong class="font-14">Live Navigation & Discovery</strong>
+                        <div class="font-weight-500 font-13" style="color: #34395e;">Stations appear instantly in the VoltNet EV driver mobile map & search engine.</div>
                     </div>
                 </div>
             </div>
 
-            <div class="card-body p-4 p-md-5">
-                <div class="row">
-                    <!-- Left: Features list -->
-                    <div class="col-12 col-md-7 pr-md-4 mb-4 mb-md-0">
-                        <h5 class="font-weight-bold text-dark mb-4">
-                            <i class="fas fa-layer-group mr-2 text-primary"></i>What's Included in This Plan
-                        </h5>
-
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="feature-check-icon"><i class="fas fa-check"></i></div>
-                            <div>
-                                <strong class="text-dark">Activate up to @Model.MaxStations EV Station(s)</strong>
-                                <small class="text-muted d-block">Make them publicly accessible to drivers across the network</small>
-                            </div>
-                        </div>
-
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="feature-check-icon"><i class="fas fa-check"></i></div>
-                            <div>
-                                <strong class="text-dark">@Model.MaxManagersPerStation Station Manager(s) per Station</strong>
-                                <small class="text-muted d-block">Assign dedicated managers for day-to-day station operations</small>
-                            </div>
-                        </div>
-
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="feature-check-icon"><i class="fas fa-check"></i></div>
-                            <div>
-                                <strong class="text-dark">Valid for @Model.DurationDays Days</strong>
-                                <small class="text-muted d-block">Instant activation from the second payment is authorized</small>
-                            </div>
-                        </div>
-
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="feature-check-icon"><i class="fas fa-check"></i></div>
-                            <div>
-                                <strong class="text-dark">Real-Time Tariff & Slot Booking Control</strong>
-                                <small class="text-muted d-block">Full management access from your owner dashboard</small>
-                            </div>
-                        </div>
-
-                        <div class="d-flex align-items-center">
-                            <div class="feature-check-icon"><i class="fas fa-check"></i></div>
-                            <div>
-                                <strong class="text-dark">Official Invoices & Tax Receipts</strong>
-                                <small class="text-muted d-block">Download instant PDF/text receipts for business accounting</small>
-                            </div>
-                        </div>
+            <div class="station-chip mb-2">
+                <div class="d-flex align-items-center" style="gap: 12px;">
+                    <i class="fas fa-calendar-check text-info font-18"></i>
+                    <div>
+                        <strong class="font-14">Customer Booking & Scheduling</strong>
+                        <div class="font-weight-500 font-13" style="color: #34395e;">Drivers can reserve charging slots and pay online directly at your stations.</div>
                     </div>
+                </div>
+            </div>
 
-                    <!-- Right: Order Summary & Checkout Action -->
-                    <div class="col-12 col-md-5">
-                        <div class="summary-box">
-                            <h6 class="font-weight-bold text-dark mb-3">Order Summary</h6>
+            <div class="station-chip mb-2">
+                <div class="d-flex align-items-center" style="gap: 12px;">
+                    <i class="fas fa-shield-alt text-success font-18"></i>
+                    <div>
+                        <strong class="font-14">24-Hour Purchase Refund Policy</strong>
+                        <div class="font-weight-500 font-13" style="color: #34395e;">Full refund guarantee if cancellation is requested within 24 hours of purchase.</div>
+                    </div>
+                </div>
+            </div>
 
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="text-muted">Plan Name</span>
-                                <span class="font-weight-bold">@Model.Name</span>
-                            </div>
-
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="text-muted">Duration</span>
-                                <span>@Model.DurationDays Days</span>
-                            </div>
-
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="text-muted">Station Capacity</span>
-                                <span>@Model.MaxStations Station(s)</span>
-                            </div>
-
-                            <div class="d-flex justify-content-between mb-3">
-                                <span class="text-muted">GST (Included)</span>
-                                <span>₹0.00</span>
-                            </div>
-
-                            <hr style="border-top: 1px dashed #ccc;">
-
-                            <div class="d-flex justify-content-between align-items-center mb-4">
-                                <span class="font-weight-bold text-dark" style="font-size: 1.1rem;">Total Payable</span>
-                                <span class="font-weight-bold text-success" style="font-size: 1.4rem;">₹@Model.PricePerMonth.ToString("N0")</span>
-                            </div>
-
-                            <button type="button" class="btn btn-pay-now" id="btnPay" onclick="startRazorpayPayment('@Model.Id', '@Model.Name', @Model.PricePerMonth)">
-                                <i class="fas fa-shield-alt mr-2"></i> Pay ₹@Model.PricePerMonth.ToString("N0") Now
-                            </button>
-
-                            <div class="text-center mt-3">
-                                <small class="text-muted">
-                                    <i class="fas fa-lock mr-1 text-success"></i> 256-bit SSL Encrypted & Razorpay Secure
-                                </small>
-                            </div>
-
-                            <div class="mt-3 text-center">
-                                <a href="/owner/subscription/plans" class="text-muted small">
-                                    <i class="fas fa-arrow-left mr-1"></i> Choose a different plan
-                                </a>
-                            </div>
-                        </div>
+            <div class="station-chip">
+                <div class="d-flex align-items-center" style="gap: 12px;">
+                    <i class="fas fa-headset text-warning font-18"></i>
+                    <div>
+                        <strong class="font-14">Priority Partner Support</strong>
+                        <div class="font-weight-500 font-13" style="color: #34395e;">Dedicated technical assistance for hardware, tariffs, and manager accounts.</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- ─── Right Column: Order Checkout Summary ─────────────────────── -->
+    <div class="col-12 col-lg-5 mb-4">
+        <div class="detail-card">
+            <div class="detail-card-title text-primary">
+                <i class="fas fa-receipt"></i> Order & Billing Summary
+            </div>
+
+            <div class="detail-row detail-row-inline">
+                <span class="detail-label">Subscription Tier</span>
+                <span class="detail-value font-weight-bold text-dark font-15">@Model.Name</span>
+            </div>
+
+            <div class="detail-row detail-row-inline">
+                <span class="detail-label">Billing Cycle</span>
+                <span class="detail-value font-weight-600 text-dark font-14">@Model.DurationDays Days</span>
+            </div>
+
+            <div class="detail-row detail-row-inline">
+                <span class="detail-label">Subtotal</span>
+                <span class="detail-value font-weight-600 text-dark font-15">₹@Model.PricePerMonth.ToString("N2")</span>
+            </div>
+
+            <div class="detail-row detail-row-inline">
+                <span class="detail-label">GST / Platform Taxes</span>
+                <span class="detail-value font-weight-bold text-success font-14">Included</span>
+            </div>
+
+            <div class="my-3 py-3 border-top border-bottom d-flex justify-content-between align-items-center">
+                <span class="font-weight-bold text-dark font-17">Total Payable</span>
+                <span class="font-weight-bold text-dark" style="font-size: 26px;">
+                    ₹@Model.PricePerMonth.ToString("N0")
+                </span>
+            </div>
+
+            <button type="button" class="btn btn-pay-now mb-3" id="btnPay" onclick="startRazorpayPayment('@Model.Id', '@Model.Name', @Model.PricePerMonth)">
+                <i class="fas fa-lock mr-2"></i> Pay ₹@Model.PricePerMonth.ToString("N0") & Activate
+            </button>
+
+            <div class="text-center font-weight-600 font-12" style="color: #34395e;">
+                <i class="fas fa-shield-alt text-success mr-1"></i> 256-Bit SSL Encrypted & Razorpay Secured
+            </div>
+
+            <div class="mt-4 pt-3 border-top text-center">
+                <a href="/owner/subscription/plans" class="font-weight-600 font-14 text-muted">
+                    <i class="fas fa-arrow-left mr-1"></i> Choose a different plan
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
 
-<!-- ─── RAZORPAY PAYMENT SIMULATION OVERLAY WITH TRAIN COIN ANIMATION ─── -->
+<!-- ─── RAZORPAY PAYMENT SIMULATION OVERLAY ────────────────────────── -->
 <div class="razorpay-overlay" id="paymentOverlay">
     <div class="razorpay-modal">
         <!-- Stage 1: Initiating/Connecting -->
@@ -535,28 +481,20 @@
                     <i class="fas fa-lock"></i>
                 </div>
             </div>
-            <h5 class="font-weight-bold mb-1">Connecting to Gateway...</h5>
-            <p class="text-muted small mb-0">Creating secure payment order with Razorpay</p>
+            <h5 class="font-weight-bold mb-1" style="color: #212529;">Connecting to Payment Gateway...</h5>
+            <p class="font-weight-600 small mb-0" style="color: #34395e;">Initializing encrypted order with Razorpay</p>
         </div>
 
-        <!-- Stage 2: Train Coin Animation (Razorpay Realistic Motion) -->
+        <!-- Stage 2: Train Coin Animation -->
         <div id="stageTrainCoin" class="coin-train-stage">
-            <i class="fas fa-sparkles sparkle-fast" style="top: 15px; left: 20%;"></i>
-            <i class="fas fa-sparkles sparkle-fast" style="top: 25px; right: 25%; animation-delay: 0.4s;"></i>
-            <i class="fas fa-sparkles sparkle-fast" style="bottom: 70px; left: 55%; animation-delay: 0.7s;"></i>
-            
-            <!-- Moving Train Convoy -->
             <div class="train-convoy">
-                <!-- Cargo Wagon 2 with Spinning Coin -->
                 <div class="cargo-wagon">
-                    <div class="golden-coin-3d" style="width: 30px; height: 30px; font-size: 0.95rem; margin-top: -12px;">₹</div>
+                    <div class="golden-coin-3d" style="width: 28px; height: 28px; font-size: 0.9rem; margin-top: -12px;">₹</div>
                     <div class="train-wheels">
                         <div class="train-wheel"></div>
                         <div class="train-wheel"></div>
                     </div>
                 </div>
-
-                <!-- Cargo Wagon 1 with Main Spinning Coin -->
                 <div class="cargo-wagon">
                     <div class="golden-coin-3d">₹</div>
                     <div class="train-wheels">
@@ -564,8 +502,6 @@
                         <div class="train-wheel"></div>
                     </div>
                 </div>
-
-                <!-- Train Engine -->
                 <div class="train-engine">
                     <div class="engine-chimney">
                         <div class="smoke-puff"></div>
@@ -579,7 +515,6 @@
                 </div>
             </div>
 
-            <!-- Railway Track with Sleepers & Steel Rails -->
             <div class="rail-track-bed">
                 <div class="track-sleeper"></div>
                 <div class="track-sleeper"></div>
@@ -596,7 +531,7 @@
 
             <div style="position: absolute; bottom: 8px; left: 0; width: 100%; text-align: center;">
                 <h6 class="font-weight-bold mb-0 text-dark" style="font-size: 0.9rem;">Processing Payment...</h6>
-                <small class="text-muted">Transferring <strong>₹@Model.PricePerMonth.ToString("N0")</strong> securely</small>
+                <small class="font-weight-600" style="color: #34395e;">Transferring <strong>₹@Model.PricePerMonth.ToString("N0")</strong> securely</small>
             </div>
         </div>
 
@@ -606,7 +541,7 @@
                 <i class="fas fa-check"></i>
             </div>
             <h4 class="font-weight-bold text-success mb-1">Payment Successful!</h4>
-            <p class="text-muted small mb-3">Subscription activated. Finalizing your dashboard...</p>
+            <p class="font-weight-600 small mb-3" style="color: #34395e;">Subscription activated. Finalizing your dashboard...</p>
             <div class="spinner-border spinner-border-sm text-success" role="status"></div>
         </div>
     </div>
@@ -629,7 +564,6 @@
             isProcessing = true;
             $('#btnPay').prop('disabled', true);
 
-            // Open overlay in initiating mode
             $('#stageInitiating').show();
             $('#stageTrainCoin').removeClass('active');
             $('#stageSuccess').removeClass('active');
@@ -637,7 +571,6 @@
 
             var token = $('input[name="__RequestVerificationToken"]').val();
 
-            // Step 1: Create Order
             $.ajax({
                 url: '/owner/subscription/create-order',
                 type: 'POST',
@@ -651,12 +584,10 @@
                         return;
                     }
 
-                    // Step 2: Show Razorpay Train Coin Animation
                     setTimeout(function() {
                         $('#stageInitiating').hide();
                         $('#stageTrainCoin').addClass('active');
 
-                        // Step 3: Success Celebration
                         setTimeout(function() {
                             $('#stageTrainCoin').removeClass('active');
                             $('#stageSuccess').addClass('active');
@@ -666,12 +597,11 @@
                             $('#inp_payment_id').val(fakePaymentId);
                             $('#inp_plan_id').val(planId);
 
-                            // Auto submit after showing success checkmark
                             setTimeout(function() {
                                 $('#paymentVerifyForm').submit();
                             }, 1600);
 
-                        }, 2800); // 2.8s spinning train-coin motion
+                        }, 2800);
                     }, 800);
                 },
                 error: function() {

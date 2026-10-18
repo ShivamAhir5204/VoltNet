@@ -3,135 +3,261 @@
     ViewData["Title"] = "Assign Stations";
     Layout = "~/Views/Shared/_OwnerLayout.cshtml";
     var allStations = ViewBag.AllStations as List<VoltNet.Models.Station> ?? new List<VoltNet.Models.Station>();
+    var maxStations = Model.Plan?.MaxStations ?? 0;
+    var currentAssignedCount = Model.Stations?.Count ?? 0;
+    var currentQuotaPercent = maxStations > 0 ? Math.Min(100, (int)((double)currentAssignedCount / maxStations * 100)) : 0;
 }
 
 <div class="section-header">
     <div class="section-header-back">
-        <a href="/owner/subscription" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
+        <a href="/owner/subscription/@Model.Id/details" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
     </div>
-    <h1>Assign Stations to Plan</h1>
+    <h1>Assign Stations to Subscription</h1>
     <div class="section-header-breadcrumb">
         <div class="breadcrumb-item active"><a href="/owner/dashboard">Dashboard</a></div>
         <div class="breadcrumb-item"><a href="/owner/subscription">Subscriptions</a></div>
+        <div class="breadcrumb-item"><a href="/owner/subscription/@Model.Id/details">Details</a></div>
         <div class="breadcrumb-item">Assign</div>
     </div>
 </div>
 
 @if (TempData["Error"] != null)
 {
-    <div class="alert alert-danger alert-dismissible fade show">
-        <i class="fas fa-exclamation-circle mr-2"></i>@TempData["Error"]
-        <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-exclamation-circle mr-2 font-18"></i>
+            <div>@TempData["Error"]</div>
+        </div>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
     </div>
 }
 
 <div class="row">
-    <div class="col-12 col-md-4">
-        <div class="card card-primary">
-            <div class="card-header">
-                <h4>Plan Details</h4>
+    <!-- ─── Plan Quota Information Card ──────────────────────────────── -->
+    <div class="col-12 col-lg-4 mb-4">
+        <div class="detail-card">
+            <div class="detail-card-title text-primary">
+                <i class="fas fa-layer-group"></i> Plan Quota & Limits
             </div>
-            <div class="card-body">
-                <h5 class="text-primary">@(Model.Plan?.Name)</h5>
-                <p class="text-muted">@(Model.Plan?.Description)</p>
-                <hr>
-                <div class="d-flex justify-content-between mb-2">
-                    <span class="font-weight-bold">Expires On:</span>
-                    <span>@Model.EndDate.ToString("dd MMM yyyy")</span>
+
+            <div class="detail-row detail-row-inline">
+                <span class="detail-label">Plan Tier</span>
+                <span class="detail-value">
+                    <span class="badge badge-primary font-weight-700 font-14 px-3 py-1">@(Model.Plan?.Name ?? "Plan")</span>
+                </span>
+            </div>
+
+            <div class="detail-row detail-row-inline">
+                <span class="detail-label">Monthly Rate</span>
+                <span class="detail-value font-weight-bold text-dark font-16">
+                    ₹@(Model.Plan?.PricePerMonth.ToString("N0") ?? Model.AmountPaid.ToString("N0"))
+                </span>
+            </div>
+
+            <div class="detail-row detail-row-inline">
+                <span class="detail-label">Expires On</span>
+                <span class="detail-value font-weight-600 text-dark font-14">
+                    @Model.EndDate.ToString("dd MMM yyyy")
+                </span>
+            </div>
+
+            <div class="detail-row detail-row-inline">
+                <span class="detail-label">Max Stations Allowed</span>
+                <span class="detail-value font-weight-bold text-primary font-16">
+                    <i class="fas fa-charging-station mr-1"></i> @maxStations Stations
+                </span>
+            </div>
+
+            <div class="detail-row detail-row-inline">
+                <span class="detail-label">Managers / Station</span>
+                <span class="detail-value font-weight-bold text-dark font-15">
+                    @(Model.Plan?.MaxManagersPerStation ?? 0) Managers
+                </span>
+            </div>
+
+            <div class="detail-row detail-row-inline">
+                <span class="detail-label">Currently Selected</span>
+                <span class="detail-value">
+                    <span class="badge badge-success font-weight-700 font-14 px-3 py-1" id="assignedCountBadge">
+                        @currentAssignedCount / @maxStations
+                    </span>
+                </span>
+            </div>
+
+            <!-- Visual Quota Bar -->
+            <div class="mt-4 pt-2 border-top">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="font-weight-700" style="font-size: 13px; color: #34395e;">Quota Allocation</span>
+                    <span class="font-weight-700 font-13 text-dark" id="quotaPercentText">@currentQuotaPercent%</span>
                 </div>
-                <div class="d-flex justify-content-between mb-2">
-                    <span class="font-weight-bold">Max Stations:</span>
-                    <span class="badge badge-info">@(Model.Plan?.MaxStations ?? 0)</span>
+                <div class="progress" style="height: 10px; border-radius: 5px; background-color: #e9ecef;">
+                    <div class="progress-bar bg-primary" id="quotaProgressBar" role="progressbar" 
+                         style="width: @currentQuotaPercent%; transition: width 0.3s ease;" 
+                         aria-valuenow="@currentQuotaPercent" aria-valuemin="0" aria-valuemax="100">
+                    </div>
                 </div>
-                <div class="d-flex justify-content-between">
-                    <span class="font-weight-bold">Currently Assigned:</span>
-                    <span class="badge badge-warning" id="assignedCountBadge">@(Model.Stations?.Count ?? 0)</span>
-                </div>
+            </div>
+
+            <div class="alert alert-light mt-4 mb-0 py-2 px-3" style="background: #ffffff; border: 1px dashed #dce2eb; border-radius: 6px;">
+                <small class="font-weight-600" style="color: #34395e; line-height: 1.5; display: block;">
+                    <i class="fas fa-info-circle text-primary mr-1"></i>
+                    Only stations assigned to an active subscription are published online for EV driver navigation and instant booking.
+                </small>
             </div>
         </div>
     </div>
 
-    <div class="col-12 col-md-8">
-        <div class="card">
-            <div class="card-header">
-                <h4>Select Stations to Activate</h4>
+    <!-- ─── Station Selection Card ────────────────────────────────────── -->
+    <div class="col-12 col-lg-8 mb-4">
+        <div class="detail-card">
+            <div class="detail-card-title text-primary d-flex justify-content-between align-items-center flex-wrap">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-tasks"></i>
+                    <span>Select Stations to Link</span>
+                </div>
+                <a href="/owner/stations/Create" class="btn btn-sm btn-outline-primary font-weight-600 mt-2 mt-sm-0">
+                    <i class="fas fa-plus mr-1"></i> Add New Station
+                </a>
             </div>
-            <div class="card-body">
-                <form method="post" action="/owner/subscription/@Model.Id/assign" id="assignForm">
-                    @Html.AntiForgeryToken()
-                    
-                    @if (!allStations.Any())
-                    {
-                        <div class="alert alert-warning">
-                            You don't have any stations yet. <a href="/owner/stations/Create">Create one first</a>.
-                        </div>
-                    }
-                    else
-                    {
-                        <p class="text-muted">Select up to @(Model.Plan?.MaxStations ?? 0) stations below to link them to this active plan. Stations not linked to an active plan will not be visible to the public.</p>
-                        
-                        <div id="quotaWarning" class="alert alert-danger" style="display: none; border-left: 5px solid #dc3545;">
-                            <i class="fas fa-exclamation-triangle mr-2"></i> You have selected more stations than your plan allows (Max @(Model.Plan?.MaxStations ?? 0)). Please uncheck some stations to continue.
-                        </div>
 
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 50px;">Assign</th>
-                                        <th>Station Name</th>
-                                        <th>City</th>
-                                        <th>Current Status</th>
-                                        <th>Subscription Status</th>
+            <form method="post" action="/owner/subscription/@Model.Id/assign" id="assignForm">
+                @Html.AntiForgeryToken()
+
+                @if (!allStations.Any())
+                {
+                    <div class="text-center py-5" style="background: #ffffff; border: 1px dashed #dce2eb; border-radius: 8px;">
+                        <i class="fas fa-charging-station text-muted mb-3" style="font-size: 42px;"></i>
+                        <h5 class="font-weight-bold text-dark mb-2">No Charging Stations Found</h5>
+                        <p class="font-weight-500 mb-4" style="color: #34395e; font-size: 15px;">
+                            You have not registered any EV charging stations under your account yet.
+                        </p>
+                        <a href="/owner/stations/Create" class="btn btn-primary font-weight-600 px-4">
+                            <i class="fas fa-plus mr-2"></i> Register First Station
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <p class="font-weight-600 mb-3" style="color: #34395e; font-size: 14px;">
+                        Check up to <strong class="text-primary font-weight-bold">@maxStations</strong> station(s) below to activate them under this plan tier.
+                    </p>
+
+                    <!-- Quota Error Alert -->
+                    <div id="quotaWarning" class="alert alert-danger mb-3" style="display: none; border-left: 4px solid #dc3545; border-radius: 6px;">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-exclamation-triangle mr-2 font-18"></i>
+                            <div>
+                                <strong>Quota Limit Exceeded!</strong> You have selected more stations than your plan allows (Max @maxStations). Please uncheck some stations to continue.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle" style="border: 1px solid #dce2eb; border-radius: 6px;">
+                            <thead style="background: #ffffff; border-bottom: 2px solid #edf0f5;">
+                                <tr>
+                                    <th style="width: 60px; text-align: center; color: #212529; font-weight: 700;">Assign</th>
+                                    <th style="color: #212529; font-weight: 700;">Station Name</th>
+                                    <th style="color: #212529; font-weight: 700;">Location</th>
+                                    <th style="color: #212529; font-weight: 700;">Station Status</th>
+                                    <th style="color: #212529; font-weight: 700;">Subscription Link</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var station in allStations)
+                                {
+                                    var isAssignedToThis = station.OwnerSubscriptionId == Model.Id;
+                                    var isAssignedToOther = station.OwnerSubscriptionId != null && station.OwnerSubscriptionId != Model.Id;
+
+                                    <tr style="@(isAssignedToThis ? "background-color: #fafbfc;" : "")">
+                                        <td class="text-center" style="vertical-align: middle;">
+                                            <div class="custom-control custom-checkbox d-inline-block">
+                                                <input type="checkbox" class="custom-control-input station-checkbox" 
+                                                       name="stationIds" value="@station.Id" id="chk_@station.Id"
+                                                       @(isAssignedToThis ? "checked" : "")
+                                                       @(isAssignedToOther ? "disabled" : "")>
+                                                <label class="custom-control-label" for="chk_@station.Id"></label>
+                                            </div>
+                                        </td>
+                                        <td style="vertical-align: middle;">
+                                            <label for="chk_@station.Id" class="mb-0 font-weight-bold text-dark font-15" style="cursor: pointer;">
+                                                @station.Name
+                                            </label>
+                                            @if (isAssignedToOther)
+                                            {
+                                                <div><small class="text-danger font-weight-bold"><i class="fas fa-lock mr-1"></i> Linked to another active plan</small></div>
+                                            }
+                                        </td>
+                                        <td style="vertical-align: middle;">
+                                            <div class="font-weight-600 text-dark font-14">
+                                                <i class="fas fa-map-marker-alt text-danger mr-1"></i> @station.City
+                                            </div>
+                                            <small class="font-weight-500" style="color: #34395e;">@station.State</small>
+                                        </td>
+                                        <td style="vertical-align: middle;">
+                                            @if (station.Status == "Active")
+                                            {
+                                                <span class="badge badge-success font-weight-700 font-12">
+                                                    <i class="fas fa-check-circle mr-1"></i> Active
+                                                </span>
+                                            }
+                                            else if (station.Status == "Approved")
+                                            {
+                                                <span class="badge badge-primary font-weight-700 font-12">
+                                                    Approved
+                                                </span>
+                                            }
+                                            else if (station.Status == "PendingVerification")
+                                            {
+                                                <span class="badge badge-warning font-weight-700 font-12">
+                                                    Pending Verification
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge badge-secondary font-weight-700 font-12">
+                                                    @station.Status
+                                                </span>
+                                            }
+                                        </td>
+                                        <td style="vertical-align: middle;">
+                                            @if (isAssignedToThis)
+                                            {
+                                                <span class="font-weight-bold text-success font-13">
+                                                    <i class="fas fa-check-circle mr-1"></i> Linked Here
+                                                </span>
+                                            }
+                                            else if (isAssignedToOther)
+                                            {
+                                                <span class="font-weight-600 text-danger font-13">
+                                                    <i class="fas fa-times-circle mr-1"></i> In Other Plan
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="font-weight-600 text-muted font-13">
+                                                    <i class="fas fa-minus-circle mr-1"></i> Unassigned
+                                                </span>
+                                            }
+                                        </td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var station in allStations)
-                                    {
-                                        var isAssignedToThis = station.OwnerSubscriptionId == Model.Id;
-                                        var isAssignedToOther = station.OwnerSubscriptionId != null && station.OwnerSubscriptionId != Model.Id;
-                                        
-                                        <tr>
-                                            <td>
-                                                <div class="custom-control custom-checkbox">
-                                                    <input type="checkbox" class="custom-control-input station-checkbox" 
-                                                           name="stationIds" value="@station.Id" id="chk_@station.Id"
-                                                           @(isAssignedToThis ? "checked" : "")
-                                                           @(isAssignedToOther ? "disabled" : "")>
-                                                    <label class="custom-control-label" for="chk_@station.Id"></label>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <strong>@station.Name</strong>
-                                                @if (isAssignedToOther)
-                                                {
-                                                    <br><small class="text-danger">Used in another plan</small>
-                                                }
-                                            </td>
-                                            <td>@station.City</td>
-                                            <td>
-                                                @if(station.Status == "Active") { <span class="badge badge-success">Active Public</span> }
-                                                else if(station.Status == "Approved") { <span class="badge badge-primary">Approved (Offline)</span> }
-                                                else { <span class="badge badge-warning">@station.Status</span> }
-                                            </td>
-                                            <td>
-                                                @if (isAssignedToThis) { <span class="text-success"><i class="fas fa-check-circle"></i> Linked Here</span> }
-                                                else { <span class="text-muted">Not Linked</span> }
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                        
-                        <div class="mt-4 text-right">
-                            <button type="submit" class="btn btn-primary btn-lg" id="btnSave">
-                                <i class="fas fa-save mr-2"></i> Save Assignments
-                            </button>
-                        </div>
-                    }
-                </form>
-            </div>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center flex-wrap mt-4 pt-3 border-top">
+                        <a href="/owner/subscription/@Model.Id/details" class="btn btn-outline-secondary font-weight-600">
+                            <i class="fas fa-arrow-left mr-1"></i> Back to Details
+                        </a>
+                        <button type="submit" class="btn btn-primary btn-lg font-weight-700 px-4" id="btnSave">
+                            <i class="fas fa-save mr-2"></i> Save Assignments
+                        </button>
+                    </div>
+                }
+            </form>
         </div>
     </div>
 </div>
@@ -139,45 +265,46 @@
 @section Scripts {
     <script>
         $(document).ready(function() {
-            var maxAllowed = parseInt('@(Model.Plan?.MaxStations ?? 0)');
-            
+            var maxAllowed = parseInt('@maxStations');
+
             function updateCount() {
                 var checkedCount = $('.station-checkbox:checked').length;
-                $('#assignedCountBadge').text(checkedCount);
-                
+                var badge = $('#assignedCountBadge');
+                var warning = $('#quotaWarning');
+                var btnSave = $('#btnSave');
+                var progressBar = $('#quotaProgressBar');
+                var percentText = $('#quotaPercentText');
+
+                badge.text(checkedCount + ' / ' + maxAllowed);
+
+                var pct = maxAllowed > 0 ? Math.min(100, Math.round((checkedCount / maxAllowed) * 100)) : 0;
+                progressBar.css('width', pct + '%');
+                percentText.text(pct + '%');
+
                 if (checkedCount > maxAllowed) {
-                    $('#assignedCountBadge').removeClass('badge-warning').addClass('badge-danger');
-                    $('#btnSave').prop('disabled', true);
-                    
-                    // Show inline warning instead of blocking alert
-                    $('#quotaWarning').slideDown(200);
-                    
-                    // Add shake animation to visually alert the user
-                    $('#quotaWarning').removeClass('shake');
-                    void $('#quotaWarning')[0].offsetWidth; // trigger reflow
-                    $('#quotaWarning').addClass('shake');
+                    badge.removeClass('badge-success badge-warning').addClass('badge-danger');
+                    progressBar.removeClass('bg-primary bg-warning').addClass('bg-danger');
+                    btnSave.prop('disabled', true);
+                    warning.slideDown(200);
+                } else if (checkedCount === maxAllowed) {
+                    badge.removeClass('badge-danger badge-warning').addClass('badge-success');
+                    progressBar.removeClass('bg-danger bg-warning').addClass('bg-primary');
+                    btnSave.prop('disabled', false);
+                    warning.slideUp(200);
                 } else {
-                    $('#assignedCountBadge').removeClass('badge-danger').addClass('badge-warning');
-                    $('#btnSave').prop('disabled', false);
-                    $('#quotaWarning').slideUp(200);
+                    badge.removeClass('badge-danger').addClass('badge-success');
+                    progressBar.removeClass('bg-danger').addClass('bg-primary');
+                    btnSave.prop('disabled', false);
+                    warning.slideUp(200);
                 }
             }
-            
-            $('.station-checkbox').change(function() {
+
+            $('.station-checkbox').on('change', function() {
                 updateCount();
             });
+
+            // Run initial sync
+            updateCount();
         });
     </script>
-    <style>
-        .shake {
-            animation: shake 0.5s;
-        }
-        @@keyframes shake {
-            0% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            50% { transform: translateX(5px); }
-            75% { transform: translateX(-5px); }
-            100% { transform: translateX(0); }
-        }
-    </style>
 }

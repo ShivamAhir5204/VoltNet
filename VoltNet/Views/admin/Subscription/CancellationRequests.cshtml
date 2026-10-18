@@ -43,10 +43,10 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                 <div class="d-flex align-items-center flex-wrap">
-                    <h4 class="mb-0 mr-3">Cancellation Requests</h4>
-                    <span class="badge badge-warning font-weight-600 mr-2">@pendingCount Pending</span>
-                    <span class="badge badge-secondary font-weight-600 mr-2">@Model.Count(r => r.Status == "Cancelled") Approved</span>
-                    <span class="badge badge-light font-weight-600">@Model.Count() Total</span>
+                    <h4 class="mb-0 mr-3 font-weight-bold" style="color: #212529; font-size: 20px;">Cancellation Requests</h4>
+                    <span class="badge badge-warning font-weight-700 mr-2">@pendingCount Pending</span>
+                    <span class="badge badge-secondary font-weight-700 mr-2">@Model.Count(r => r.Status == "Cancelled") Approved</span>
+                    <span class="badge badge-light font-weight-700">@Model.Count() Total</span>
                 </div>
                 <div class="card-header-action mt-2 mt-sm-0 d-flex align-items-center">
                     <a href="/admin/subscription/subscribers" class="btn btn-outline-info btn-sm mr-2" title="View all owner subscriptions">

@@ -427,6 +427,11 @@ public partial class AppDbContext : DbContext
                 .WithMany()
                 .HasForeignKey(e => e.PlanId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasIndex(e => e.StationOwnerId)
+                .HasDatabaseName("UX_OwnerSubscriptions_ActiveOwner")
+                .HasFilter("[status] IN ('Active', 'CancellationPending')")
+                .IsUnique();
         });
 
         // -- Bookings ------------------------------------------------

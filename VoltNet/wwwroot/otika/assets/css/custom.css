@@ -113,3 +113,137 @@
     }
 }
 
+/* ========================================================
+   Universal Typography & High-Visibility Detail Page Styles
+   Matches the crisp, bold Segoe UI heading typography
+   ======================================================== */
+body, 
+h1, h2, h3, h4, h5, h6, 
+.card-header h4, 
+.section-title,
+.table th, .table td,
+.detail-card-title,
+.detail-label,
+.detail-value {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* High-Contrast Section & Card Headers */
+.card .card-header h4 {
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    color: #212529 !important;
+    letter-spacing: -0.2px;
+}
+
+/* Detail Card Styling */
+.detail-card {
+    background: #ffffff !important;
+    border: 1px solid #dce2eb !important;
+    border-radius: 8px;
+    padding: 22px 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    height: 100%;
+}
+
+.detail-card-title {
+    font-size: 17px !important;
+    font-weight: 700 !important;
+    color: #212529 !important;
+    margin-bottom: 18px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #edf0f5;
+    display: flex;
+    align-items: center;
+    letter-spacing: -0.2px;
+}
+.detail-card-title i {
+    font-size: 17px;
+    margin-right: 10px;
+}
+
+/* High-Contrast, High-Visibility Detail Labels (NO pale grey / all-caps) */
+.detail-label {
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    color: #34395e !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+    margin-bottom: 4px;
+    display: inline-block;
+}
+
+/* High-Contrast Detail Values */
+.detail-value {
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    color: #212529 !important;
+    word-break: break-word;
+}
+
+/* Detail row layout */
+.detail-row {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 16px;
+}
+.detail-row:last-child {
+    margin-bottom: 0;
+}
+
+@media (min-width: 576px) {
+    .detail-row-inline {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px dashed #e8ebf1;
+        padding-bottom: 12px;
+    }
+    .detail-row-inline:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+    .detail-row-inline .detail-label {
+        margin-bottom: 0;
+        flex-shrink: 0;
+        margin-right: 18px;
+    }
+    .detail-row-inline .detail-value {
+        text-align: right;
+    }
+}
+
+/* Detail Boxes for Quotes, Remarks & Text */
+.detail-box {
+    background: #ffffff !important;
+    border: 1px solid #dce2eb !important;
+    border-radius: 6px;
+    padding: 14px 16px;
+    color: #212529 !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    line-height: 1.6;
+}
+
+/* Station Chips */
+.station-chip {
+    background: #ffffff !important;
+    border: 1px solid #dce2eb !important;
+    border-radius: 6px;
+    padding: 14px 18px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+}
+.station-chip strong {
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    color: #212529 !important;
+}
+
+
