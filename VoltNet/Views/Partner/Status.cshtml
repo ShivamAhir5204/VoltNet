@@ -26,12 +26,18 @@
                             @TempData["Success"]
                         </div>
                     }
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger mb-4" style="background: rgba(239, 68, 68, 0.1); border: none; color: #ef4444; border-radius: var(--vn-radius-sm);">
+                            @TempData["Error"]
+                        </div>
+                    }
 
                     @if (Model.Status == "Pending")
                     {
                         <div style="font-size: 4rem; margin-bottom: 16px;">⏳</div>
                         <h3 class="mb-3" style="font-weight: 700; color: var(--vn-dark);">Application Under Review</h3>
-                        <p class="text-muted mb-4">Your partner application is being reviewed by our team. We will notify you once a decision is made.</p>
+                        <p class="text-muted mb-4">Your partner application and verification documents are being reviewed by our team. We will notify you via email once a decision is made.</p>
                         
                         <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: var(--vn-radius-md); padding: 20px; display: inline-block; min-width: 80%;">
                             <strong style="color: #d97706; font-size: 1.1rem; display: block; margin-bottom: 4px;">Status: Pending Review</strong>
@@ -59,15 +65,116 @@
                     {
                         <div style="font-size: 4rem; margin-bottom: 16px;">❌</div>
                         <h3 class="mb-3" style="font-weight: 700; color: var(--vn-dark);">Application Rejected</h3>
-                        <p class="text-muted mb-4">Unfortunately, your partner application was not approved.</p>
+                        <p class="text-muted mb-4">Unfortunately, your partner application was not approved in its current state.</p>
                         
                         @if (!string.IsNullOrEmpty(Model.RejectionReason))
                         {
-                            <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: var(--vn-radius-md); padding: 20px; text-align: left;">
-                                <strong style="color: #ef4444; display: block; margin-bottom: 8px;">Reason for Rejection:</strong>
+                            <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: var(--vn-radius-md); padding: 20px; text-align: left; margin-bottom: 24px;">
+                                <strong style="color: #ef4444; display: block; margin-bottom: 8px;"><i class="bi bi-exclamation-triangle-fill me-2"></i>Reason for Rejection:</strong>
                                 <p class="text-muted mb-0" style="line-height: 1.6;">@Model.RejectionReason</p>
                             </div>
                         }
+                    }
+
+                    <!-- Uploaded KYC Documents Overview -->
+                    @if (Model.Documents != null && Model.Documents.Any())
+                    {
+                        <div class="mt-5 text-start" style="border-top: 1px solid var(--vn-border); padding-top: 24px;">
+                            <h5 class="fw-bold mb-3" style="color: var(--vn-dark);"><i class="bi bi-folder-check text-primary me-2"></i>Submitted KYC Documents</h5>
+                            <div class="table-responsive">
+                                <table class="table table-sm align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Document Type</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var doc in Model.Documents)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <strong>@doc.DocumentType</strong>
+                                                    <div class="small text-muted">@doc.OriginalFileName (@(doc.FileSizeBytes / 1024) KB)</div>
+                                                    @if (!string.IsNullOrEmpty(doc.RejectionReason))
+                                                    {
+                                                        <div class="small text-danger mt-1"><i class="bi bi-x-circle me-1"></i>@doc.RejectionReason</div>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    @if (doc.Status == "Verified")
+                                                    {
+                                                        <span class="badge bg-success">Verified</span>
+                                                    }
+                                                    else if (doc.Status == "Rejected")
+                                                    {
+                                                        <span class="badge bg-danger">Rejected</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-warning text-dark">Pending</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    <a href="@doc.FilePath" target="_blank" class="btn btn-outline-primary btn-sm py-1 px-2" style="font-size: 12px;">
+                                                        <i class="bi bi-eye"></i> View
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    }
+
+                    @if (Model.Status == "Rejected")
+                    {
+                        <!-- Resubmission Form -->
+                        <div class="mt-4 p-4 text-start" style="background: var(--vn-white); border: 1px solid var(--vn-border); border-radius: var(--vn-radius-md);">
+                            <h5 class="fw-bold mb-2" style="color: var(--vn-dark);"><i class="bi bi-arrow-repeat text-success me-2"></i>Re-upload Documents & Resubmit</h5>
+                            <p class="small text-muted mb-4">Please upload corrected scans as indicated in the rejection reason above.</p>
+
+                            <form method="post" action="/partner/resubmit" enctype="multipart/form-data">
+                                @Html.AntiForgeryToken()
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label small fw-bold">Update Phone Number</label>
+                                        <input type="text" name="phone" class="form-control vn-form-control" value="@Model.Phone" required />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label small fw-bold">Update Business Name</label>
+                                        <input type="text" name="businessName" class="form-control vn-form-control" value="@Model.BusinessName" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label small fw-bold">Re-upload PAN Card</label>
+                                        <input type="file" name="panCardFile" class="form-control vn-form-control" accept=".pdf,.jpg,.jpeg,.png,.webp" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label small fw-bold">Re-upload ID / Address Proof</label>
+                                        <input type="file" name="idProofFile" class="form-control vn-form-control" accept=".pdf,.jpg,.jpeg,.png,.webp" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label small fw-bold">Re-upload Business Doc / MSME</label>
+                                        <input type="file" name="businessDocFile" class="form-control vn-form-control" accept=".pdf,.jpg,.jpeg,.png,.webp" />
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label small fw-bold">Re-upload GST Certificate</label>
+                                        <input type="file" name="gstDocFile" class="form-control vn-form-control" accept=".pdf,.jpg,.jpeg,.png,.webp" />
+                                    </div>
+                                    <div class="col-md-12">
+                                        <label class="form-label small fw-bold">Re-upload Bank Proof</label>
+                                        <input type="file" name="bankProofFile" class="form-control vn-form-control" accept=".pdf,.jpg,.jpeg,.png,.webp" />
+                                    </div>
+                                    <div class="col-12 mt-3">
+                                        <button type="submit" class="btn-vn-primary w-100 py-3" style="border: none;">
+                                            <i class="bi bi-send-check me-2"></i> Resubmit for Verification
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
                     }
 
                     <div class="mt-5">

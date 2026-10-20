@@ -6,7 +6,7 @@
     var ist = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
     var nowIst = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, ist);
 
-    var upcomingBookings = Model.Where(b => b.Status == "Confirmed" && (b.BookingDate.Date + b.EndTime) >= nowIst).ToList();
+    var upcomingBookings = Model.Where(b => (b.Status == "Confirmed" || b.Status == "Charging") && (b.BookingDate.Date + b.EndTime) >= nowIst).ToList();
     var pastBookings = Model.Where(b => !upcomingBookings.Contains(b)).ToList();
     var waitlist = ViewBag.Waitlist as List<VoltNet.Models.WaitlistEntry> ?? new List<VoltNet.Models.WaitlistEntry>();
 }
@@ -93,17 +93,27 @@
                         @foreach (var booking in upcomingBookings)
                         {
                             var slotStart = booking.BookingDate.Date + booking.StartTime;
-                            var canCancel = (slotStart - nowIst).TotalMinutes >= 30;
+                            var isCharging = booking.Status == "Charging";
+                            var canCancel = !isCharging && (slotStart - nowIst).TotalMinutes >= 30;
 
                             <div class="col-12 col-md-6 mb-3">
-                                <div class="card border-primary h-100 shadow-sm">
+                                <div class="card border-primary h-100 shadow-sm @(isCharging ? "border-success" : "")">
                                     <div class="card-body p-4">
                                         <div class="d-flex justify-content-between align-items-start mb-2">
                                             <div>
                                                 <h5 class="font-weight-bold text-dark mb-1">@booking.Station?.Name</h5>
                                                 <p class="text-muted small mb-0"><i class="fas fa-map-marker-alt text-danger mr-1"></i> @booking.Station?.Address, @booking.Station?.City</p>
                                             </div>
-                                            <span class="badge badge-success px-3 py-2">Confirmed</span>
+                                            @if (isCharging)
+                                            {
+                                                <span class="badge badge-success px-3 py-2 text-white font-weight-bold shadow-sm">
+                                                    <i class="fas fa-bolt mr-1"></i> Actively Charging
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge badge-primary px-3 py-2">Confirmed</span>
+                                            }
                                         </div>
 
                                         <div class="p-3 bg-light rounded my-3">
@@ -127,12 +137,26 @@
                                                     <div class="font-weight-bold text-primary">@booking.StartTime.ToString(@"hh\:mm") - @booking.EndTime.ToString(@"hh\:mm")</div>
                                                 </div>
                                             </div>
+
+                                            @if (booking.BookingFee > 0 && !booking.IsWalkIn)
+                                            {
+                                                <div class="mt-2 pt-2 border-top d-flex justify-content-between align-items-center">
+                                                    <small class="text-muted"><i class="fas fa-tag text-success mr-1"></i> Advance Slot Commitment:</small>
+                                                    <span class="badge badge-warning text-dark font-weight-bold">₹@booking.BookingFee.ToString("N0") Paid (Deducted from final bill)</span>
+                                                </div>
+                                            }
                                         </div>
 
                                         <div class="d-flex justify-content-between align-items-center">
                                             <small class="text-muted">ID: #@booking.Id.ToString().Substring(0, 8).ToUpper()</small>
                                             <div>
-                                                @if (canCancel)
+                                                @if (isCharging)
+                                                {
+                                                    <span class="text-success small font-weight-bold">
+                                                        <i class="fas fa-plug mr-1"></i> Gun Connected & Charging
+                                                    </span>
+                                                }
+                                                else if (canCancel)
                                                 {
                                                     <button type="button" class="btn btn-outline-danger btn-sm" onclick="openCancelModal('@booking.Id', '@booking.Station?.Name', '@booking.BookingDate.ToString("dd MMM yyyy")', '@booking.StartTime.ToString(@"hh\:mm")')">
                                                         <i class="fas fa-times mr-1"></i> Cancel Booking
@@ -218,6 +242,18 @@
                                         <td class="col-secondary" data-label="Final Cost">
                                             <div>
                                                 <strong class="text-success">₹@(b.ActualCost?.ToString("F2") ?? b.EstimatedCost.ToString("F2"))</strong>
+                                                @if (b.BookingFee > 0)
+                                                {
+                                                    <div class="small text-muted" title="₹@b.BookingFee.ToString("F2") advance booking fee deducted from total bill">
+                                                        <i class="fas fa-check-circle text-primary"></i> Adv. ₹@b.BookingFee.ToString("F2") adjusted
+                                                    </div>
+                                                }
+                                                @if (!string.IsNullOrEmpty(b.PaymentMethod))
+                                                {
+                                                    <div class="small text-secondary">
+                                                        <i class="fas fa-wallet"></i> @b.PaymentMethod
+                                                    </div>
+                                                }
                                             </div>
                                         </td>
                                         <td class="col-secondary" data-label="Status">

@@ -1,0 +1,348 @@
+@model VoltNet.Controllers.admin.AdminRevenueViewModel
+@{
+    ViewData["Title"] = "Platform Revenue Intelligence";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h4 class="mb-1 text-primary"><i class="fas fa-chart-line mr-2"></i>Platform Revenue & Financial Intelligence</h4>
+                <p class="text-muted mb-0">Consolidated Gross Merchandise Value (GMV), network charging monetization, and B2B SaaS owner subscriptions.</p>
+            </div>
+            <div>
+                <a href="/admin/revenue/analytics" class="btn btn-primary btn-lg shadow-sm mr-2">
+                    <i class="fas fa-sliders-h mr-2"></i>Analyst Studio & Custom Date Review
+                </a>
+                <a href="/admin/revenue/export" class="btn btn-outline-success btn-lg shadow-sm">
+                    <i class="fas fa-file-csv mr-2"></i>Export Transactions
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Macro KPI Overview Cards -->
+<div class="row">
+    <!-- Total GMV -->
+    <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12 mb-4">
+        <div class="card card-statistic-1 border-0 shadow-sm" style="border-radius:12px; background:linear-gradient(135deg, #0575E6 0%, #00F260 100%); color:#fff;">
+            <div class="card-icon" style="background:rgba(255,255,255,0.2); border-radius:12px; margin:15px;">
+                <i class="fas fa-wallet fa-2x text-white"></i>
+            </div>
+            <div class="card-wrap p-3">
+                <div class="card-header p-0" style="color:rgba(255,255,255,0.85); font-size:13px; text-transform:uppercase; letter-spacing:0.5px;">Platform Total GMV</div>
+                <div class="card-body p-0 mt-1 font-weight-bold" style="font-size:26px; color:#fff;">₹@Model.TotalPlatformGMV.ToString("N0")</div>
+                <small style="color:rgba(255,255,255,0.85);"><i class="fas fa-arrow-up mr-1"></i>₹@Model.ThisMonthGMV.ToString("N0") this month</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charging Revenue -->
+    <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12 mb-4">
+        <div class="card card-statistic-1 border-0 shadow-sm" style="border-radius:12px; background:linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color:#fff;">
+            <div class="card-icon" style="background:rgba(255,255,255,0.2); border-radius:12px; margin:15px;">
+                <i class="fas fa-charging-station fa-2x text-white"></i>
+            </div>
+            <div class="card-wrap p-3">
+                <div class="card-header p-0" style="color:rgba(255,255,255,0.85); font-size:13px; text-transform:uppercase; letter-spacing:0.5px;">Charging Revenue</div>
+                <div class="card-body p-0 mt-1 font-weight-bold" style="font-size:26px; color:#fff;">₹@Model.TotalBookingRevenue.ToString("N0")</div>
+                <small style="color:rgba(255,255,255,0.85);"><i class="fas fa-bolt mr-1"></i>@Model.TotalBookingCount bookings | @Model.TotalEnergyKwh.ToString("N0") kWh</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subscription Revenue -->
+    <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12 mb-4">
+        <div class="card card-statistic-1 border-0 shadow-sm" style="border-radius:12px; background:linear-gradient(135deg, #8E2DE2 0%, #4A00E0 100%); color:#fff;">
+            <div class="card-icon" style="background:rgba(255,255,255,0.2); border-radius:12px; margin:15px;">
+                <i class="fas fa-crown fa-2x text-white"></i>
+            </div>
+            <div class="card-wrap p-3">
+                <div class="card-header p-0" style="color:rgba(255,255,255,0.85); font-size:13px; text-transform:uppercase; letter-spacing:0.5px;">SaaS Subscriptions</div>
+                <div class="card-body p-0 mt-1 font-weight-bold" style="font-size:26px; color:#fff;">₹@Model.TotalSubscriptionRevenue.ToString("N0")</div>
+                <small style="color:rgba(255,255,255,0.85);"><i class="fas fa-check-circle mr-1"></i>@Model.ActiveSubscriptionsCount Active | @Model.ExpiredSubscriptionsCount Expired</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stations Footprint -->
+    <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12 mb-4">
+        <div class="card card-statistic-1 border-0 shadow-sm" style="border-radius:12px; background:linear-gradient(135deg, #f857a6 0%, #ff5858 100%); color:#fff;">
+            <div class="card-icon" style="background:rgba(255,255,255,0.2); border-radius:12px; margin:15px;">
+                <i class="fas fa-network-wired fa-2x text-white"></i>
+            </div>
+            <div class="card-wrap p-3">
+                <div class="card-header p-0" style="color:rgba(255,255,255,0.85); font-size:13px; text-transform:uppercase; letter-spacing:0.5px;">Network Footprint</div>
+                <div class="card-body p-0 mt-1 font-weight-bold" style="font-size:26px; color:#fff;">@Model.TotalStationsCount Stations</div>
+                <small style="color:rgba(255,255,255,0.85);"><i class="fas fa-city mr-1"></i>Spanning @Model.TopCities.Count+ prime EV cities</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 12-Month Multi-Stream Trend Chart -->
+<div class="card shadow-sm border-0 mb-4" style="border-radius:12px;">
+    <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+        <div>
+            <h5 class="card-title mb-0 text-dark font-weight-bold"><i class="fas fa-chart-area text-primary mr-2"></i>12-Month Platform Revenue Progression</h5>
+            <small class="text-muted">Breakdown of Station Charging collections vs B2B SaaS Subscription plans over the past 12 months</small>
+        </div>
+        <div class="d-none d-md-block">
+            <span class="badge badge-success px-3 py-2 mr-1"><i class="fas fa-bolt mr-1"></i>Charging Revenue</span>
+            <span class="badge badge-primary px-3 py-2"><i class="fas fa-credit-card mr-1"></i>Owner Subscriptions</span>
+        </div>
+    </div>
+    <div class="card-body">
+        <div style="position: relative; height: 340px;">
+            <canvas id="platformTrendChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Two Column Breakdown: Top 10 Stations & Top 5 Cities -->
+<div class="row">
+    <!-- Top 10 Stations -->
+    <div class="col-lg-7 col-12 mb-4">
+        <div class="card shadow-sm border-0 h-100" style="border-radius:12px;">
+            <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="card-title mb-0 text-dark font-weight-bold"><i class="fas fa-medal text-warning mr-2"></i>Top 10 Earning Stations</h5>
+                    <small class="text-muted">Highest grossing charging locations on VoltNet</small>
+                </div>
+                <span class="badge badge-warning text-dark font-weight-bold px-2 py-1">Top Performers</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="thead-light">
+                            <tr>
+                                <th style="width: 40px;">#</th>
+                                <th>Station & City</th>
+                                <th class="text-center">Bookings</th>
+                                <th class="text-center">Energy (kWh)</th>
+                                <th class="text-right">Total Revenue</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!Model.TopStations.Any())
+                            {
+                                <tr>
+                                    <td colspan="5" class="text-center py-4 text-muted">
+                                        <i class="fas fa-info-circle mr-1"></i> No completed sessions recorded yet.
+                                    </td>
+                                </tr>
+                            }
+                            else
+                            {
+                                int rank = 1;
+                                @foreach (var st in Model.TopStations)
+                                {
+                                    <tr>
+                                        <td class="font-weight-bold text-center">
+                                            @if (rank == 1) { <span class="badge badge-warning text-dark">1</span> }
+                                            else if (rank == 2) { <span class="badge badge-secondary text-dark">2</span> }
+                                            else if (rank == 3) { <span class="badge badge-danger">3</span> }
+                                            else { <span class="text-muted">@rank</span> }
+                                        </td>
+                                        <td>
+                                            <div class="font-weight-bold text-dark">@st.StationName</div>
+                                            <small class="text-muted"><i class="fas fa-map-marker-alt text-danger mr-1"></i>@st.City</small>
+                                        </td>
+                                        <td class="text-center font-weight-bold">@st.TotalBookings</td>
+                                        <td class="text-center font-weight-bold text-info">@st.TotalEnergyKwh.ToString("N1")</td>
+                                        <td class="text-right font-weight-bold text-success font-size-15">₹@st.TotalRevenue.ToString("N2")</td>
+                                    </tr>
+                                    rank++;
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top 5 Cities & Subscription Health -->
+    <div class="col-lg-5 col-12 mb-4">
+        <!-- Top 5 Cities -->
+        <div class="card shadow-sm border-0 mb-4" style="border-radius:12px;">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="card-title mb-0 text-dark font-weight-bold"><i class="fas fa-city text-info mr-2"></i>Top 5 Earning Cities</h5>
+                <small class="text-muted">Metros driving EV charging volume</small>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>City</th>
+                                <th class="text-center">Stations</th>
+                                <th class="text-center">Bookings</th>
+                                <th class="text-right">Revenue</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!Model.TopCities.Any())
+                            {
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-muted">
+                                        <i class="fas fa-info-circle mr-1"></i> No city revenue aggregated yet.
+                                    </td>
+                                </tr>
+                            }
+                            else
+                            {
+                                @foreach (var city in Model.TopCities)
+                                {
+                                    <tr>
+                                        <td class="font-weight-bold text-dark">
+                                            <i class="fas fa-building text-primary mr-2"></i>@city.City
+                                        </td>
+                                        <td class="text-center"><span class="badge badge-light border">@city.StationCount</span></td>
+                                        <td class="text-center font-weight-bold">@city.TotalBookings</td>
+                                        <td class="text-right font-weight-bold text-success">₹@city.TotalRevenue.ToString("N0")</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SaaS Subscription Health Breakdown -->
+        <div class="card shadow-sm border-0" style="border-radius:12px;">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="card-title mb-0 text-dark font-weight-bold"><i class="fas fa-sliders-h text-primary mr-2"></i>Owner SaaS Subscription Health</h5>
+                <small class="text-muted">Subscription status & recurring monetization lifecycle</small>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted font-weight-bold">Active Station Owners</span>
+                    <span class="badge badge-success font-weight-bold">@Model.ActiveSubscriptionsCount Active</span>
+                </div>
+                <div class="progress mb-3" style="height: 10px; border-radius: 5px;">
+                    @{
+                        var totalSubs = Math.Max(1, Model.ActiveSubscriptionsCount + Model.ExpiredSubscriptionsCount + Model.CancelledSubscriptionsCount);
+                        var activePct = Math.Round(((double)Model.ActiveSubscriptionsCount / totalSubs) * 100);
+                        var expiredPct = Math.Round(((double)Model.ExpiredSubscriptionsCount / totalSubs) * 100);
+                        var cancelledPct = Math.Round(((double)Model.CancelledSubscriptionsCount / totalSubs) * 100);
+                    }
+                    <div class="progress-bar bg-success" role="progressbar" style="width: @activePct%;" title="Active"></div>
+                    <div class="progress-bar bg-warning" role="progressbar" style="width: @expiredPct%;" title="Expired"></div>
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: @cancelledPct%;" title="Cancelled"></div>
+                </div>
+
+                <div class="row text-center mt-3">
+                    <div class="col-4">
+                        <div class="text-muted small">Active</div>
+                        <div class="font-weight-bold text-success font-size-18 mt-1">@Model.ActiveSubscriptionsCount</div>
+                    </div>
+                    <div class="col-4">
+                        <div class="text-muted small">Expired</div>
+                        <div class="font-weight-bold text-warning font-size-18 mt-1">@Model.ExpiredSubscriptionsCount</div>
+                    </div>
+                    <div class="col-4">
+                        <div class="text-muted small">Cancelled</div>
+                        <div class="font-weight-bold text-danger font-size-18 mt-1">@Model.CancelledSubscriptionsCount</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const labels = @Html.Raw(Model.MonthLabelsJson);
+            const chargingData = @Html.Raw(Model.ChargingRevenueJson);
+            const subscriptionData = @Html.Raw(Model.SubscriptionRevenueJson);
+            const totalData = @Html.Raw(Model.TotalRevenueJson);
+
+            const ctx = document.getElementById('platformTrendChart');
+            if (ctx) {
+                new Chart(ctx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                type: 'line',
+                                label: 'Total Platform GMV (₹)',
+                                data: totalData,
+                                borderColor: '#ff9f43',
+                                backgroundColor: 'transparent',
+                                borderWidth: 3,
+                                tension: 0.3,
+                                pointRadius: 4,
+                                pointHoverRadius: 7,
+                                order: 1
+                            },
+                            {
+                                type: 'bar',
+                                label: 'Station Charging Revenue (₹)',
+                                data: chargingData,
+                                backgroundColor: 'rgba(46, 204, 113, 0.75)',
+                                borderColor: 'rgba(46, 204, 113, 1)',
+                                borderWidth: 1,
+                                borderRadius: 4,
+                                order: 2
+                            },
+                            {
+                                type: 'bar',
+                                label: 'Owner Subscriptions (₹)',
+                                data: subscriptionData,
+                                backgroundColor: 'rgba(54, 162, 235, 0.75)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 1,
+                                borderRadius: 4,
+                                order: 3
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: {
+                                    usePointStyle: true,
+                                    padding: 15
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (ctx) {
+                                        return ctx.dataset.label + ': ₹' + Number(ctx.raw).toLocaleString('en-IN');
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: { display: false }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function (val) {
+                                        return '₹' + (val >= 1000 ? (val / 1000).toLocaleString('en-IN') + 'k' : val);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+}

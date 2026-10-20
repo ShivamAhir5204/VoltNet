@@ -64,6 +64,9 @@
             <li class="dropdown @(Context.Request.Path.StartsWithSegments("/customer/bookings") ? "active" : "")">
               <a href="/customer/bookings" class="nav-link"><i data-feather="calendar"></i><span>My Bookings</span></a>
             </li>
+            <li class="dropdown @(Context.Request.Path.StartsWithSegments("/customer/spending") || Context.Request.Path.StartsWithSegments("/customer/analytics") ? "active" : "")">
+              <a href="/customer/spending" class="nav-link"><i data-feather="pie-chart"></i><span>My Spending & Energy</span></a>
+            </li>
             <li class="dropdown @(Context.Request.Path.StartsWithSegments("/Home/Stations") ? "active" : "")">
               <a href="/Home/Stations" class="nav-link"><i data-feather="map-pin"></i><span>Find Charging Stations</span></a>
             </li>

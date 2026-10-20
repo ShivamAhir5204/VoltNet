@@ -1,0 +1,405 @@
+@model VoltNet.Controllers.customer.CustomerSpendingViewModel
+@{
+    ViewData["Title"] = "My Charging & Spending Telemetry";
+    Layout = "~/Views/Shared/_CustomerLayout.cshtml";
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h4 class="mb-1 text-primary"><i class="fas fa-wallet mr-2"></i>My EV Charging & Spending Telemetry</h4>
+                <p class="text-muted mb-0">Track your electric mobility expenditures, fossil fuel savings, and environmental green offsets.</p>
+            </div>
+            <div>
+                <a href="/customer/spending/export?startDate=@(Model.StartDate.ToString("yyyy-MM-dd"))&endDate=@(Model.EndDate.ToString("yyyy-MM-dd"))" class="btn btn-outline-success btn-lg shadow-sm">
+                    <i class="fas fa-file-invoice mr-2"></i>Download Statement (CSV)
+                </a>
+                <a href="/customer/bookings" class="btn btn-outline-secondary ml-2">
+                    <i class="fas fa-calendar mr-1"></i> My Bookings
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (Model.TotalLifetimeSessions == 0)
+{
+    <div class="card shadow-sm border-0" style="border-radius:12px;">
+        <div class="card-body text-center py-5">
+            <div class="mb-3">
+                <i class="fas fa-bolt fa-4x text-muted opacity-50"></i>
+            </div>
+            <h5 class="text-secondary">No Charging Sessions Completed Yet</h5>
+            <p class="text-muted">Once you plug in and complete your charging sessions at any VoltNet station, your personal spending graphs, energy units, and fuel savings will automatically appear here.</p>
+            <a href="/Home/Stations" class="btn btn-primary"><i class="fas fa-search-location mr-1"></i> Find Nearby EV Stations</a>
+        </div>
+    </div>
+}
+else
+{
+    <!-- Macro Spending & Savings Cards -->
+    <div class="row">
+        <!-- Lifetime Spend -->
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12 mb-4">
+            <div class="card card-statistic-1 border-0 shadow-sm" style="border-radius:12px; background:linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color:#fff;">
+                <div class="card-icon" style="background:rgba(255,255,255,0.15); border-radius:12px; margin:15px;">
+                    <i class="fas fa-coins fa-2x text-white"></i>
+                </div>
+                <div class="card-wrap p-3">
+                    <div class="card-header p-0" style="color:rgba(255,255,255,0.85); font-size:13px; text-transform:uppercase; letter-spacing:0.5px;">Lifetime EV Spend</div>
+                    <div class="card-body p-0 mt-1 font-weight-bold" style="font-size:26px; color:#fff;">₹@Model.TotalLifetimeSpend.ToString("N0")</div>
+                    <small style="color:rgba(255,255,255,0.85);"><i class="fas fa-bolt mr-1"></i>@Model.TotalLifetimeSessions total charging sessions</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- This Month Spend -->
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12 mb-4">
+            <div class="card card-statistic-1 border-0 shadow-sm" style="border-radius:12px; background:linear-gradient(135deg, #0575E6 0%, #00F260 100%); color:#fff;">
+                <div class="card-icon" style="background:rgba(255,255,255,0.15); border-radius:12px; margin:15px;">
+                    <i class="fas fa-calendar-check fa-2x text-white"></i>
+                </div>
+                <div class="card-wrap p-3">
+                    <div class="card-header p-0" style="color:rgba(255,255,255,0.85); font-size:13px; text-transform:uppercase; letter-spacing:0.5px;">This Month Spend</div>
+                    <div class="card-body p-0 mt-1 font-weight-bold" style="font-size:26px; color:#fff;">₹@Model.ThisMonthSpend.ToString("N0")</div>
+                    <small style="color:rgba(255,255,255,0.85);"><i class="fas fa-charging-station mr-1"></i>@Model.ThisMonthKwh.ToString("N1") kWh consumed</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Net Fuel Savings vs Petrol -->
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12 mb-4">
+            <div class="card card-statistic-1 border-0 shadow-sm" style="border-radius:12px; background:linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color:#fff;">
+                <div class="card-icon" style="background:rgba(255,255,255,0.15); border-radius:12px; margin:15px;">
+                    <i class="fas fa-gas-pump fa-2x text-white"></i>
+                </div>
+                <div class="card-wrap p-3">
+                    <div class="card-header p-0" style="color:rgba(255,255,255,0.85); font-size:13px; text-transform:uppercase; letter-spacing:0.5px;">Estimated Petrol Savings</div>
+                    <div class="card-body p-0 mt-1 font-weight-bold" style="font-size:26px; color:#fff;">₹@Model.NetFuelSavings.ToString("N0")</div>
+                    <small style="color:rgba(255,255,255,0.85);"><i class="fas fa-arrow-down mr-1"></i>Saved compared to ICE fuel</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Unit Economics -->
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12 mb-4">
+            <div class="card card-statistic-1 border-0 shadow-sm" style="border-radius:12px; background:linear-gradient(135deg, #8E2DE2 0%, #4A00E0 100%); color:#fff;">
+                <div class="card-icon" style="background:rgba(255,255,255,0.15); border-radius:12px; margin:15px;">
+                    <i class="fas fa-tachometer-alt fa-2x text-white"></i>
+                </div>
+                <div class="card-wrap p-3">
+                    <div class="card-header p-0" style="color:rgba(255,255,255,0.85); font-size:13px; text-transform:uppercase; letter-spacing:0.5px;">Avg Session Cost</div>
+                    <div class="card-body p-0 mt-1 font-weight-bold" style="font-size:26px; color:#fff;">₹@Model.AverageCostPerSession.ToString("N0")</div>
+                    <small style="color:rgba(255,255,255,0.85);"><i class="fas fa-tag mr-1"></i>₹@Model.AverageCostPerKwh.ToString("N2")/kWh effective</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Green Eco Impact Banner -->
+    <div class="card border-0 mb-4 shadow-sm text-white" style="border-radius:12px; background:linear-gradient(135deg, #134E5E 0%, #71B280 100%);">
+        <div class="card-body p-4">
+            <div class="row align-items-center">
+                <div class="col-lg-8 col-md-7 col-12 mb-3 mb-md-0">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-leaf fa-2x mr-3 text-warning"></i>
+                        <div>
+                            <h5 class="mb-0 font-weight-bold text-white">Your Clean Mobility Environmental Impact</h5>
+                            <small class="opacity-75">Every kilowatt-hour charged on VoltNet displaces fossil combustion and cuts urban emissions.</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-5 col-12">
+                    <div class="row text-center">
+                        <div class="col-6 border-right" style="border-color: rgba(255,255,255,0.2) !important;">
+                            <div class="h4 font-weight-bold text-warning mb-0">@Model.Co2AvoidedKg kg</div>
+                            <small class="text-white opacity-75">CO₂ Offset</small>
+                        </div>
+                        <div class="col-6">
+                            <div class="h4 font-weight-bold text-warning mb-0">@Model.EquivalentTrees</div>
+                            <small class="text-white opacity-75">Tree-Equivalents</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Spending Trend Chart with Metric Switcher -->
+    <div class="card shadow-sm border-0 mb-4" style="border-radius:12px;">
+        <div class="card-header bg-white border-0 py-3 d-flex flex-wrap justify-content-between align-items-center">
+            <div>
+                <h5 class="card-title mb-0 text-dark font-weight-bold"><i class="fas fa-chart-line text-primary mr-2"></i>12-Month Charging Expenditure Trend</h5>
+                <small class="text-muted">Monthly spend and kilowatt-hour consumption timeline</small>
+            </div>
+            <div class="btn-group btn-group-toggle mt-2 mt-md-0" data-toggle="buttons">
+                <label class="btn btn-sm btn-outline-primary active" onclick="switchCustomerMetric('spend')">
+                    <input type="radio" name="options" checked> Spend (₹)
+                </label>
+                <label class="btn btn-sm btn-outline-success" onclick="switchCustomerMetric('kwh')">
+                    <input type="radio" name="options"> Energy (kWh)
+                </label>
+            </div>
+        </div>
+        <div class="card-body">
+            <div style="position: relative; height: 320px;">
+                <canvas id="customerSpendChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Two Columns: Most Frequented Stations & Vehicle Breakdown -->
+    <div class="row">
+        <!-- Frequented Stations -->
+        <div class="col-lg-6 col-12 mb-4">
+            <div class="card shadow-sm border-0 h-100" style="border-radius:12px;">
+                <div class="card-header bg-white border-0 py-3">
+                    <h6 class="card-title mb-0 text-dark font-weight-bold"><i class="fas fa-map-marker-alt text-danger mr-2"></i>My Frequented Stations</h6>
+                    <small class="text-muted">Locations where you charge most frequently</small>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Station</th>
+                                    <th class="text-center">Visits</th>
+                                    <th class="text-center">Energy (kWh)</th>
+                                    <th class="text-right">Total Spent</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (!Model.FrequentedStations.Any())
+                                {
+                                    <tr><td colspan="4" class="text-center py-4 text-muted">No station records found.</td></tr>
+                                }
+                                else
+                                {
+                                    @foreach (var s in Model.FrequentedStations)
+                                    {
+                                        <tr>
+                                            <td class="font-weight-bold">
+                                                <i class="fas fa-charging-station text-primary mr-2"></i>@s.StationName
+                                                <div class="small text-muted">@s.City</div>
+                                            </td>
+                                            <td class="text-center font-weight-bold">@s.VisitCount</td>
+                                            <td class="text-center text-info font-weight-bold">@s.TotalKwh.ToString("N1")</td>
+                                            <td class="text-right text-success font-weight-bold">₹@s.TotalSpent.ToString("N0")</td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vehicle Breakdown -->
+        <div class="col-lg-6 col-12 mb-4">
+            <div class="card shadow-sm border-0 h-100" style="border-radius:12px;">
+                <div class="card-header bg-white border-0 py-3">
+                    <h6 class="card-title mb-0 text-dark font-weight-bold"><i class="fas fa-car text-info mr-2"></i>Vehicle Telemetry & Allocation</h6>
+                    <small class="text-muted">Charging spend apportioned by vehicle model</small>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Vehicle</th>
+                                    <th class="text-center">Sessions</th>
+                                    <th class="text-center">Energy (kWh)</th>
+                                    <th class="text-right">Total Spent</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (!Model.VehicleBreakdown.Any())
+                                {
+                                    <tr><td colspan="4" class="text-center py-4 text-muted">No vehicle records found.</td></tr>
+                                }
+                                else
+                                {
+                                    @foreach (var v in Model.VehicleBreakdown)
+                                    {
+                                        <tr>
+                                            <td class="font-weight-bold">
+                                                <i class="fas fa-bolt text-warning mr-2"></i>@v.VehicleName
+                                            </td>
+                                            <td class="text-center font-weight-bold">@v.SessionCount</td>
+                                            <td class="text-center text-info font-weight-bold">@v.TotalKwh.ToString("N1")</td>
+                                            <td class="text-right text-success font-weight-bold">₹@v.TotalSpent.ToString("N0")</td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtered Personal Charging Statement History -->
+    <div class="card shadow-sm border-0 mb-4" style="border-radius:12px;">
+        <div class="card-header bg-white border-0 py-3 d-flex flex-wrap justify-content-between align-items-center">
+            <div>
+                <h6 class="card-title mb-0 text-dark font-weight-bold"><i class="fas fa-receipt text-success mr-2"></i>Charging Sessions Statement</h6>
+                <small class="text-muted">Itemized audit of your completed charging bills</small>
+            </div>
+            <!-- Quick Date Filter Form -->
+            <form method="get" action="/customer/spending" class="form-inline mt-2 mt-md-0">
+                <input type="date" name="startDate" class="form-control form-control-sm mr-2" value="@Model.StartDate.ToString("yyyy-MM-dd")" />
+                <span class="mr-2 text-muted">to</span>
+                <input type="date" name="endDate" class="form-control form-control-sm mr-2" value="@Model.EndDate.ToString("yyyy-MM-dd")" />
+                <button type="submit" class="btn btn-sm btn-primary mr-1"><i class="fas fa-filter"></i></button>
+                <a href="/customer/spending" class="btn btn-sm btn-light" title="Reset"><i class="fas fa-redo"></i></a>
+            </form>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Ref Code</th>
+                            <th>Station & City</th>
+                            <th>Date & Slot</th>
+                            <th>Vehicle</th>
+                            <th class="text-center">Energy (kWh)</th>
+                            <th class="text-right">Total Bill</th>
+                            <th class="text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.RecentSessions.Any())
+                        {
+                            <tr><td colspan="7" class="text-center py-4 text-muted">No completed sessions in this date range.</td></tr>
+                        }
+                        else
+                        {
+                            @foreach (var b in Model.RecentSessions)
+                            {
+                                var refCode = $"VN-{b.Id.ToString()[..8].ToUpper()}";
+                                var cost = b.ActualCost ?? b.EstimatedCost;
+                                <tr>
+                                    <td class="font-weight-bold text-primary">@refCode</td>
+                                    <td>
+                                        <div class="font-weight-bold text-dark">@(b.Station?.Name ?? "Station")</div>
+                                        <small class="text-muted"><i class="fas fa-map-marker-alt text-danger mr-1"></i>@(b.Station?.City ?? "")</small>
+                                    </td>
+                                    <td>
+                                        <div>@b.BookingDate.ToString("dd MMM yyyy")</div>
+                                        <small class="text-muted">@b.StartTime.ToString(@"hh\:mm") - @b.EndTime.ToString(@"hh\:mm")</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-light border">@(b.VehicleModel ?? b.VehicleNumberPlate ?? "EV")</span>
+                                    </td>
+                                    <td class="text-center font-weight-bold text-info">@(b.UnitsConsumedKwh?.ToString("N1") ?? "—")</td>
+                                    <td class="text-right font-weight-bold text-success font-size-15">₹@cost.ToString("N2")</td>
+                                    <td class="text-center">
+                                        <span class="badge badge-success px-2 py-1"><i class="fas fa-check-circle mr-1"></i>Paid</span>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    @if (Model.TotalLifetimeSessions > 0)
+    {
+        <script>
+            const trendLabels = @Html.Raw(Model.TrendLabelsJson);
+            const trendSpend = @Html.Raw(Model.TrendSpendJson);
+            const trendKwh = @Html.Raw(Model.TrendKwhJson);
+
+            let customerChart = null;
+
+            const customerConfigs = {
+                spend: {
+                    label: 'Monthly Spend (₹)',
+                    data: trendSpend,
+                    borderColor: '#2ecc71',
+                    backgroundColor: 'rgba(46, 204, 113, 0.15)',
+                    prefix: '₹',
+                    suffix: ''
+                },
+                kwh: {
+                    label: 'Energy Consumed (kWh)',
+                    data: trendKwh,
+                    borderColor: '#3498db',
+                    backgroundColor: 'rgba(52, 152, 219, 0.15)',
+                    prefix: '',
+                    suffix: ' kWh'
+                }
+            };
+
+            function initCustomerChart(metric) {
+                const ctx = document.getElementById('customerSpendChart');
+                if (!ctx) return;
+
+                const cfg = customerConfigs[metric];
+                if (customerChart) {
+                    customerChart.destroy();
+                }
+
+                customerChart = new Chart(ctx.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: trendLabels,
+                        datasets: [{
+                            label: cfg.label,
+                            data: cfg.data,
+                            borderColor: cfg.borderColor,
+                            backgroundColor: cfg.backgroundColor,
+                            fill: true,
+                            tension: 0.35,
+                            borderWidth: 2.5,
+                            pointRadius: 4,
+                            pointHoverRadius: 7,
+                            pointBackgroundColor: cfg.borderColor
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (ctx) {
+                                        return ' ' + cfg.label + ': ' + cfg.prefix + Number(ctx.raw).toLocaleString('en-IN') + cfg.suffix;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function (val) {
+                                        return cfg.prefix + val.toLocaleString('en-IN') + cfg.suffix;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            function switchCustomerMetric(metric) {
+                initCustomerChart(metric);
+            }
+
+            document.addEventListener("DOMContentLoaded", function () {
+                initCustomerChart('spend');
+            });
+        </script>
+    }
+}

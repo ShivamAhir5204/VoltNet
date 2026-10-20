@@ -1,0 +1,419 @@
+@model VoltNet.Controllers.admin.RevenueAnalystStudioViewModel
+@{
+    ViewData["Title"] = "Financial Analyst Studio & Custom Date Review";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box d-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h4 class="mb-1 text-primary"><i class="fas fa-chart-line mr-2"></i>Financial Analyst Studio & Custom Date Review</h4>
+                <p class="text-muted mb-0">Multi-granularity time-series analysis, revenue run-rate modeling, and regional monetization intelligence.</p>
+            </div>
+            <div>
+                <a href="/admin/revenue/analytics/export?startDate=@(Model.StartDate.ToString("yyyy-MM-dd"))&endDate=@(Model.EndDate.ToString("yyyy-MM-dd"))&stationId=@Model.SelectedStationId&city=@Model.SelectedCity&paymentMethod=@Model.SelectedPaymentMethod" class="btn btn-outline-success btn-lg shadow-sm">
+                    <i class="fas fa-file-excel mr-2"></i>Export Analyst Dataset (CSV)
+                </a>
+                <a href="/admin/revenue" class="btn btn-outline-secondary ml-2">
+                    <i class="fas fa-arrow-left mr-1"></i> Macro Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Analyst Filter Panel with Preset Buttons -->
+<div class="card shadow-sm border-0 mb-4" style="border-radius:12px;">
+    <div class="card-header bg-white border-0 py-3 d-flex flex-wrap justify-content-between align-items-center">
+        <h6 class="mb-0 font-weight-bold text-dark"><i class="fas fa-sliders-h text-primary mr-2"></i>Analysis Parameters & Granularity</h6>
+        <div class="btn-group btn-group-sm mt-2 mt-md-0" role="group">
+            <button type="button" class="btn btn-outline-primary" onclick="applyPreset(7, 'day')">Last 7 Days</button>
+            <button type="button" class="btn btn-outline-primary" onclick="applyPreset(30, 'day')">Last 30 Days</button>
+            <button type="button" class="btn btn-outline-primary" onclick="applyPreset(90, 'week')">Last 90 Days</button>
+            <button type="button" class="btn btn-outline-primary" onclick="applyPreset(365, 'month')">Past 1 Year</button>
+        </div>
+    </div>
+    <div class="card-body pt-0">
+        <form method="get" action="/admin/revenue/analytics" id="analystFilterForm" class="row">
+            <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                <label class="font-weight-bold text-muted small mb-1">From Date</label>
+                <input type="date" name="startDate" id="filterStartDate" class="form-control form-control-sm" value="@Model.StartDate.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                <label class="font-weight-bold text-muted small mb-1">To Date</label>
+                <input type="date" name="endDate" id="filterEndDate" class="form-control form-control-sm" value="@Model.EndDate.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                <label class="font-weight-bold text-muted small mb-1">Time Granularity</label>
+                <select name="groupBy" id="filterGroupBy" class="form-control form-control-sm">
+                    <!option value="day" @(Model.GroupBy == "day" ? "selected" : "")>Daily Buckets</!option>
+                    <!option value="week" @(Model.GroupBy == "week" ? "selected" : "")>Weekly Buckets</!option>
+                    <!option value="month" @(Model.GroupBy == "month" ? "selected" : "")>Monthly Buckets</!option>
+                </select>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                <label class="font-weight-bold text-muted small mb-1">Station Scope</label>
+                <select name="stationId" class="form-control form-control-sm">
+                    <option value="">All Stations (@Model.AvailableStations.Count)</option>
+                    @foreach (var s in Model.AvailableStations)
+                    {
+                        <!option value="@s.Id" @(Model.SelectedStationId.HasValue && Model.SelectedStationId.Value == s.Id ? "selected" : "")>@s.Name (@s.City)</!option>
+                    }
+                </select>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                <label class="font-weight-bold text-muted small mb-1">City Filter</label>
+                <select name="city" class="form-control form-control-sm">
+                    <option value="">All Cities</option>
+                    @foreach (var c in Model.AvailableCities)
+                    {
+                        <!option value="@c" @(string.Equals(Model.SelectedCity, c, StringComparison.OrdinalIgnoreCase) ? "selected" : "")>@c</!option>
+                    }
+                </select>
+            </div>
+            <div class="col-lg-2 col-md-4 col-sm-6 mb-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary btn-sm btn-block"><i class="fas fa-search mr-1"></i>Run Analysis</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Statistical Summary Cards -->
+<div class="row">
+    <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12 mb-4">
+        <div class="card bg-white border-0 shadow-sm p-3" style="border-radius:12px; border-left: 4px solid #00F260 !important;">
+            <div class="text-muted small text-uppercase font-weight-bold">Period Gross Revenue</div>
+            <h3 class="text-dark font-weight-bold mb-1 mt-1">₹@Model.TotalRevenue.ToString("N0")</h3>
+            <small class="text-muted"><i class="fas fa-bolt text-warning mr-1"></i>@Model.TotalBookings sessions completed</small>
+        </div>
+    </div>
+    <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12 mb-4">
+        <div class="card bg-white border-0 shadow-sm p-3" style="border-radius:12px; border-left: 4px solid #0575E6 !important;">
+            <div class="text-muted small text-uppercase font-weight-bold">Energy Dispensed</div>
+            <h3 class="text-primary font-weight-bold mb-1 mt-1">@Model.TotalEnergyKwh.ToString("N1") <span class="font-size-14 font-weight-normal text-muted">kWh</span></h3>
+            <small class="text-muted"><i class="fas fa-tag text-info mr-1"></i>₹@Model.EffectiveRatePerKwh.ToString("N2") avg rate/kWh</small>
+        </div>
+    </div>
+    <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12 mb-4">
+        <div class="card bg-white border-0 shadow-sm p-3" style="border-radius:12px; border-left: 4px solid #8E2DE2 !important;">
+            <div class="text-muted small text-uppercase font-weight-bold">Average Order Value (AOV)</div>
+            <h3 class="text-success font-weight-bold mb-1 mt-1">₹@Model.AverageOrderValue.ToString("N0")</h3>
+            <small class="text-muted"><i class="fas fa-calculator mr-1"></i>₹@Model.AveragePeriodRevenue.ToString("N0") avg per @Model.GroupBy</small>
+        </div>
+    </div>
+    <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12 mb-4">
+        <div class="card bg-white border-0 shadow-sm p-3" style="border-radius:12px; border-left: 4px solid #f857a6 !important;">
+            <div class="text-muted small text-uppercase font-weight-bold">Peak @Model.GroupBy.ToUpper() Earning</div>
+            <h4 class="text-danger font-weight-bold mb-1 mt-1">₹@Model.PeakPeriodRevenue.ToString("N0")</h4>
+            <small class="text-muted"><i class="fas fa-calendar-check mr-1"></i>@Model.PeakPeriodLabel</small>
+        </div>
+    </div>
+</div>
+
+<!-- Interactive Multi-Metric Chart Canvas -->
+<div class="card shadow-sm border-0 mb-4" style="border-radius:12px;">
+    <div class="card-header bg-white border-0 py-3 d-flex flex-wrap justify-content-between align-items-center">
+        <div>
+            <h5 class="card-title mb-0 text-dark font-weight-bold"><i class="fas fa-wave-square text-primary mr-2"></i>Time-Series Review Matrix</h5>
+            <small class="text-muted">Interactive telemetry over @Model.TimeSeries.Count @Model.GroupBy bucket(s) from @Model.StartDate.ToString("dd MMM yyyy") to @Model.EndDate.ToString("dd MMM yyyy")</small>
+        </div>
+        <!-- Metric Switcher Buttons -->
+        <div class="btn-group btn-group-toggle mt-2 mt-md-0" data-toggle="buttons">
+            <label class="btn btn-sm btn-outline-primary active" onclick="switchMetric('revenue')">
+                <input type="radio" name="options" checked> Revenue (₹)
+            </label>
+            <label class="btn btn-sm btn-outline-success" onclick="switchMetric('energy')">
+                <input type="radio" name="options"> Energy (kWh)
+            </label>
+            <label class="btn btn-sm btn-outline-info" onclick="switchMetric('count')">
+                <input type="radio" name="options"> Volume (Sessions)
+            </label>
+            <label class="btn btn-sm btn-outline-warning" onclick="switchMetric('aov')">
+                <input type="radio" name="options"> AOV (₹)
+            </label>
+        </div>
+    </div>
+    <div class="card-body">
+        <div style="position: relative; height: 350px;">
+            <canvas id="analystMatrixChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Two Column Breakdown: Regional Attribution & Payment Split -->
+<div class="row">
+    <!-- City Breakdown -->
+    <div class="col-lg-6 col-12 mb-4">
+        <div class="card shadow-sm border-0 h-100" style="border-radius:12px;">
+            <div class="card-header bg-white border-0 py-3">
+                <h6 class="card-title mb-0 text-dark font-weight-bold"><i class="fas fa-map-marked-alt text-info mr-2"></i>City Attribution Matrix</h6>
+                <small class="text-muted">Regional distribution in selected time window</small>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>City</th>
+                                <th class="text-center">Bookings</th>
+                                <th class="text-center">Energy (kWh)</th>
+                                <th class="text-right">Revenue (₹)</th>
+                                <th style="width: 120px;">Share</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!Model.CityBreakdown.Any())
+                            {
+                                <tr><td colspan="5" class="text-center py-4 text-muted">No completed transactions in this window.</td></tr>
+                            }
+                            else
+                            {
+                                @foreach (var c in Model.CityBreakdown)
+                                {
+                                    <tr>
+                                        <td class="font-weight-bold"><i class="fas fa-building text-primary mr-2"></i>@c.City</td>
+                                        <td class="text-center">@c.Count</td>
+                                        <td class="text-center font-weight-bold text-info">@c.EnergyKwh.ToString("N1")</td>
+                                        <td class="text-right font-weight-bold text-success">₹@c.Revenue.ToString("N0")</td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="progress flex-grow-1 mr-2" style="height: 6px;">
+                                                    <div class="progress-bar bg-info" style="width: @c.SharePercentage%;"></div>
+                                                </div>
+                                                <small class="font-weight-bold">@c.SharePercentage%</small>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Method Distribution -->
+    <div class="col-lg-6 col-12 mb-4">
+        <div class="card shadow-sm border-0 h-100" style="border-radius:12px;">
+            <div class="card-header bg-white border-0 py-3">
+                <h6 class="card-title mb-0 text-dark font-weight-bold"><i class="fas fa-wallet text-success mr-2"></i>Payment Channels & Settlement Split</h6>
+                <small class="text-muted">Payment mode penetration across selected sessions</small>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Payment Method</th>
+                                <th class="text-center">Transactions</th>
+                                <th class="text-right">Collection (₹)</th>
+                                <th style="width: 140px;">Collection Share</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!Model.PaymentBreakdown.Any())
+                            {
+                                <tr><td colspan="4" class="text-center py-4 text-muted">No transactions in this window.</td></tr>
+                            }
+                            else
+                            {
+                                @foreach (var p in Model.PaymentBreakdown)
+                                {
+                                    <tr>
+                                        <td class="font-weight-bold">
+                                            @if (p.Method.Contains("UPI")) { <i class="fas fa-qrcode text-primary mr-2"></i> }
+                                            else if (p.Method.Contains("Cash")) { <i class="fas fa-money-bill-wave text-success mr-2"></i> }
+                                            else { <i class="fas fa-credit-card text-warning mr-2"></i> }
+                                            @p.Method
+                                        </td>
+                                        <td class="text-center">@p.Count</td>
+                                        <td class="text-right font-weight-bold text-success">₹@p.Revenue.ToString("N2")</td>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="progress flex-grow-1 mr-2" style="height: 6px;">
+                                                    <div class="progress-bar bg-success" style="width: @p.SharePercentage%;"></div>
+                                                </div>
+                                                <small class="font-weight-bold">@p.SharePercentage%</small>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Time-Series Data Table for Analysts -->
+<div class="card shadow-sm border-0 mb-4" style="border-radius:12px;">
+    <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+        <div>
+            <h6 class="card-title mb-0 text-dark font-weight-bold"><i class="fas fa-table text-primary mr-2"></i>Bucket Aggregation Ledger</h6>
+            <small class="text-muted">Exact numeric values per @Model.GroupBy interval for financial audits</small>
+        </div>
+        <span class="badge badge-light border">@Model.TimeSeries.Count Intervals Aggregated</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+            <table class="table table-hover mb-0">
+                <thead class="thead-light sticky-top" style="position: sticky; top: 0; z-index: 1;">
+                    <tr>
+                        <th>Interval Period</th>
+                        <th class="text-center">Sessions</th>
+                        <th class="text-center">Energy (kWh)</th>
+                        <th class="text-right">Gross Revenue</th>
+                        <th class="text-right">AOV</th>
+                        <th class="text-right">Realized Rate</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.TimeSeries.Any())
+                    {
+                        <tr><td colspan="6" class="text-center py-4 text-muted">No data in selected date range.</td></tr>
+                    }
+                    else
+                    {
+                        @foreach (var row in Model.TimeSeries)
+                        {
+                            <tr>
+                                <td class="font-weight-bold text-dark">@row.Label</td>
+                                <td class="text-center">@row.Count</td>
+                                <td class="text-center text-info font-weight-bold">@row.EnergyKwh.ToString("N1")</td>
+                                <td class="text-right text-success font-weight-bold">₹@row.Revenue.ToString("N2")</td>
+                                <td class="text-right">₹@row.AverageOrderValue.ToString("N0")</td>
+                                <td class="text-right text-muted">₹@row.EffectiveRatePerKwh.ToString("N2")/kWh</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Preset Date Quick Selector
+        function applyPreset(days, group) {
+            const end = new Date();
+            const start = new Date();
+            start.setDate(end.getDate() - (days - 1));
+
+            document.getElementById('filterStartDate').value = start.toISOString().split('T')[0];
+            document.getElementById('filterEndDate').value = end.toISOString().split('T')[0];
+            document.getElementById('filterGroupBy').value = group;
+            document.getElementById('analystFilterForm').submit();
+        }
+
+        // Multi-Metric Chart Engine
+        const labels = @Html.Raw(Model.ChartLabelsJson);
+        const dataRevenue = @Html.Raw(Model.ChartRevenueJson);
+        const dataEnergy = @Html.Raw(Model.ChartEnergyJson);
+        const dataCount = @Html.Raw(Model.ChartCountJson);
+        const dataAov = @Html.Raw(Model.ChartAovJson);
+
+        let currentChart = null;
+
+        const metricConfigs = {
+            revenue: {
+                label: 'Gross Revenue (₹)',
+                data: dataRevenue,
+                borderColor: '#2ecc71',
+                backgroundColor: 'rgba(46, 204, 113, 0.15)',
+                prefix: '₹',
+                suffix: ''
+            },
+            energy: {
+                label: 'Energy Dispensed (kWh)',
+                data: dataEnergy,
+                borderColor: '#3498db',
+                backgroundColor: 'rgba(52, 152, 219, 0.15)',
+                prefix: '',
+                suffix: ' kWh'
+            },
+            count: {
+                label: 'Completed Sessions',
+                data: dataCount,
+                borderColor: '#9b59b6',
+                backgroundColor: 'rgba(155, 89, 182, 0.15)',
+                prefix: '',
+                suffix: ' sessions'
+            },
+            aov: {
+                label: 'Average Order Value (₹)',
+                data: dataAov,
+                borderColor: '#f39c12',
+                backgroundColor: 'rgba(243, 156, 18, 0.15)',
+                prefix: '₹',
+                suffix: ''
+            }
+        };
+
+        function initChart(metric) {
+            const ctx = document.getElementById('analystMatrixChart');
+            if (!ctx) return;
+
+            const config = metricConfigs[metric];
+            if (currentChart) {
+                currentChart.destroy();
+            }
+
+            currentChart = new Chart(ctx.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: config.label,
+                        data: config.data,
+                        borderColor: config.borderColor,
+                        backgroundColor: config.backgroundColor,
+                        fill: true,
+                        tension: 0.35,
+                        borderWidth: 2.5,
+                        pointRadius: labels.length > 40 ? 1 : 3.5,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: config.borderColor
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function (ctx) {
+                                    return ' ' + config.label + ': ' + config.prefix + Number(ctx.raw).toLocaleString('en-IN') + config.suffix;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function (val) {
+                                    return config.prefix + (val >= 1000 ? (val / 1000).toLocaleString('en-IN') + 'k' : val) + config.suffix;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function switchMetric(metric) {
+            initChart(metric);
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            initChart('revenue');
+        });
+    </script>
+}

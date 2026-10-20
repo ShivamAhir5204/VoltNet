@@ -27,7 +27,7 @@
                         </div>
                     }
 
-                    <form method="post" action="/partner/apply">
+                    <form method="post" action="/partner/apply" enctype="multipart/form-data">
                         @Html.AntiForgeryToken()
 
                         <div class="row g-4 mb-4">
@@ -44,11 +44,11 @@
                         <div class="row g-4 mb-4">
                             <div class="col-md-6">
                                 <label class="form-label text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Business Name</label>
-                                <input type="text" name="businessName" class="form-control vn-form-control" style="background: var(--vn-white); border-color: var(--vn-border);" placeholder="Optional" />
+                                <input type="text" name="businessName" class="form-control vn-form-control" style="background: var(--vn-white); border-color: var(--vn-border);" placeholder="e.g. GreenVolt Energy Solutions" />
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">Business Registration Number</label>
-                                <input type="text" name="businessRegistrationNumber" class="form-control vn-form-control" style="background: var(--vn-white); border-color: var(--vn-border);" placeholder="Optional" />
+                                <input type="text" name="businessRegistrationNumber" class="form-control vn-form-control" style="background: var(--vn-white); border-color: var(--vn-border);" placeholder="CIN / MSME / Shop Act No." />
                             </div>
                         </div>
 
@@ -57,7 +57,7 @@
                             <input type="text" name="address" class="form-control vn-form-control" style="background: var(--vn-white); border-color: var(--vn-border);" placeholder="Business/Station Address" />
                         </div>
 
-                        <div class="row g-4 mb-5">
+                        <div class="row g-4 mb-4">
                             <div class="col-md-4">
                                 <label class="form-label text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">City</label>
                                 <input type="text" name="city" class="form-control vn-form-control" style="background: var(--vn-white); border-color: var(--vn-border);" />
@@ -68,13 +68,68 @@
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label text-muted small fw-bold text-uppercase" style="letter-spacing: 0.5px;">GST Number</label>
-                                <input type="text" name="gstNumber" class="form-control vn-form-control" style="background: var(--vn-white); border-color: var(--vn-border);" placeholder="Optional" />
+                                <input type="text" name="gstNumber" class="form-control vn-form-control" style="background: var(--vn-white); border-color: var(--vn-border);" placeholder="15-digit GSTIN" />
+                            </div>
+                        </div>
+
+                        <!-- Verification & KYC Documents Section -->
+                        <div class="mt-5 mb-5 p-4" style="background: rgba(46, 157, 84, 0.04); border: 1px dashed rgba(46, 157, 84, 0.4); border-radius: var(--vn-radius-md);">
+                            <div class="d-flex align-items-center mb-3">
+                                <div style="width: 38px; height: 38px; border-radius: 8px; background: rgba(46, 157, 84, 0.15); color: var(--vn-green); display: flex; align-items: center; justify-content: center; margin-right: 12px; font-size: 1.2rem;">
+                                    <i class="bi bi-shield-check"></i>
+                                </div>
+                                <div>
+                                    <h5 class="mb-0 fw-bold" style="color: var(--vn-dark);">KYC & Verification Documents</h5>
+                                    <small class="text-muted">Upload clear scans or photos (PDF, PNG, JPG — Max 10 MB per file) for fast admin approval.</small>
+                                </div>
+                            </div>
+
+                            <div class="row g-4 mt-1">
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold text-dark">
+                                        <i class="bi bi-credit-card-2-front text-primary me-1"></i> PAN Card / Tax ID <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="file" name="panCardFile" class="form-control vn-form-control" accept=".pdf,.jpg,.jpeg,.png,.webp" required />
+                                    <div class="form-text small text-muted">Individual or Business PAN card copy</div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold text-dark">
+                                        <i class="bi bi-person-badge text-primary me-1"></i> Address / ID Proof
+                                    </label>
+                                    <input type="file" name="idProofFile" class="form-control vn-form-control" accept=".pdf,.jpg,.jpeg,.png,.webp" />
+                                    <div class="form-text small text-muted">Aadhaar card, Passport, or Voter ID</div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold text-dark">
+                                        <i class="bi bi-building text-primary me-1"></i> Business Registration / MSME
+                                    </label>
+                                    <input type="file" name="businessDocFile" class="form-control vn-form-control" accept=".pdf,.jpg,.jpeg,.png,.webp" />
+                                    <div class="form-text small text-muted">Incorporation Cert, MSME/Udyam, or Trade License</div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold text-dark">
+                                        <i class="bi bi-receipt text-primary me-1"></i> GST Registration Certificate
+                                    </label>
+                                    <input type="file" name="gstDocFile" class="form-control vn-form-control" accept=".pdf,.jpg,.jpeg,.png,.webp" />
+                                    <div class="form-text small text-muted">Official GST registration certificate if applicable</div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <label class="form-label small fw-bold text-dark">
+                                        <i class="bi bi-bank text-primary me-1"></i> Bank Account Proof / Cancelled Cheque
+                                    </label>
+                                    <input type="file" name="bankProofFile" class="form-control vn-form-control" accept=".pdf,.jpg,.jpeg,.png,.webp" />
+                                    <div class="form-text small text-muted">Cancelled cheque or bank statement header for billing payout verification</div>
+                                </div>
                             </div>
                         </div>
 
                         <div class="d-flex align-items-center gap-3">
                             <button type="submit" class="btn-vn-primary" style="padding: 14px 32px; border: none; cursor: pointer;">
-                                <i class="bi bi-send me-2"></i> Submit Application
+                                <i class="bi bi-send me-2"></i> Submit Application & Documents
                             </button>
                             <a href="/Home/BecomePartner" class="text-muted fw-semibold" style="text-decoration: none;">Cancel</a>
                         </div>

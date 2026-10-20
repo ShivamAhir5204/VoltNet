@@ -93,11 +93,9 @@
                       <a href="/owner/stations/Edit/@item.Id" class="btn btn-warning btn-sm mr-1" title="Edit Station">
                         <i class="fas fa-edit"></i> Edit
                       </a>
-                      <form asp-action="Details" method="post" class="d-inline mr-1 mb-0">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="id" value="@item.Id" />
-                        <button type="submit" class="btn btn-info btn-sm" title="Details"><i class="fas fa-info-circle"></i> View</button>
-                      </form>
+                      <a href="/owner/stations/Details/@item.Id" class="btn btn-info btn-sm mr-1" title="View Station Details">
+                        <i class="fas fa-info-circle"></i> View
+                      </a>
                       <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline mb-0">
                         @Html.AntiForgeryToken()
                         <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete station \'@item.Name\'?');" title="Delete">

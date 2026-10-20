@@ -287,6 +287,9 @@ public class CustomerBookingController : Controller
             Status = "Confirmed",
             AppliedRatePerKwh = appliedRate,
             EstimatedCost = estimatedCost,
+            BookingFee = 50.00m,
+            PaymentMethod = "Advance Slot Commitment",
+            PaymentStatus = "AdvancePaid",
             CreatedAt = DateTime.UtcNow
         };
 

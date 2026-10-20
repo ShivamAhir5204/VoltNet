@@ -78,6 +78,12 @@
               <a href="/admin/VerifyOwners" class="nav-link"><i data-feather="user-check"></i><span>Verify Owners</span></a>
             </li>
             <li class="menu-header">Billing & Subscriptions</li>
+            <li class="dropdown @(Context.Request.Path == "/admin/revenue" ? "active" : "")">
+              <a href="/admin/revenue" class="nav-link"><i data-feather="trending-up"></i><span>Platform Revenue</span></a>
+            </li>
+            <li class="dropdown @(Context.Request.Path.StartsWithSegments("/admin/revenue/analytics") ? "active" : "")">
+              <a href="/admin/revenue/analytics" class="nav-link"><i data-feather="sliders"></i><span>Analyst Studio</span></a>
+            </li>
             <li class="dropdown @(Context.Request.Path == "/admin/subscription" ? "active" : "")">
               <a href="/admin/subscription" class="nav-link"><i data-feather="dollar-sign"></i><span>Subscription Plans</span></a>
             </li>
@@ -125,12 +131,36 @@
   <!-- Custom JS File -->
   <script src="~/otika/assets/js/custom.js"></script>
 
+  @await RenderSectionAsync("Modals", required: false)
   @await RenderSectionAsync("Scripts", required: false)
+
+  <style>
+    .modal-backdrop {
+      z-index: 1040 !important;
+    }
+    .modal {
+      z-index: 1060 !important;
+    }
+    .modal-dialog {
+      z-index: 1065 !important;
+    }
+    .modal-content {
+      z-index: 1070 !important;
+    }
+  </style>
 
   <script>
     $(document).ready(function() {
+        // Relocate any modals inside #app to body to eliminate stacking context traps
+        $('#app .modal').appendTo("body");
+        $(document).on('show.bs.modal', '.modal', function () {
+            if (!$(this).parent().is('body')) {
+                $(this).appendTo("body");
+            }
+        });
+
         if ($.fn.DataTable) {
-            $('.table').DataTable({
+            $('.table:not(.no-datatable)').DataTable({
                 dom: '<"row align-items-center mb-3"<"col-12 col-md-6 mb-2 mb-md-0 d-flex justify-content-center justify-content-md-start"l><"col-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>tip'
             });
         }

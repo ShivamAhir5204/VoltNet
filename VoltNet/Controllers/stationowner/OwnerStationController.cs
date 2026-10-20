@@ -2,8 +2,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VoltNet.Data;
 using VoltNet.Models;
+using VoltNet.Services;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using System.IO;
 
 namespace VoltNet.Controllers.stationowner;
 
@@ -12,10 +16,12 @@ namespace VoltNet.Controllers.stationowner;
 public class OwnerStationController : Controller
 {
     private readonly AppDbContext _context;
+    private readonly IWebHostEnvironment _env;
 
-    public OwnerStationController(AppDbContext context)
+    public OwnerStationController(AppDbContext context, IWebHostEnvironment env)
     {
         _context = context;
+        _env = env;
     }
 
     private Guid GetUserId()
@@ -29,6 +35,7 @@ public class OwnerStationController : Controller
     {
         var userId = GetUserId();
         var stations = await _context.Stations
+            .Include(s => s.Documents)
             .Where(s => s.OwnerUserId == userId)
             .OrderByDescending(s => s.CreatedAt)
             .ToListAsync();
@@ -36,13 +43,14 @@ public class OwnerStationController : Controller
         return View("~/Views/stationowner/Stations.cshtml", stations);
     }
 
-    // POST: owner/stations/Details
+    // GET & POST: owner/stations/Details/{id}
+    [HttpGet]
     [HttpPost]
-    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Details(Guid id)
     {
         var userId = GetUserId();
         var station = await _context.Stations
+            .Include(s => s.Documents)
             .FirstOrDefaultAsync(s => s.Id == id && s.OwnerUserId == userId);
 
         if (station == null)
@@ -69,8 +77,51 @@ public class OwnerStationController : Controller
     // POST: owner/stations/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(Station model)
+    public async Task<IActionResult> Create(
+        Station model,
+        IFormFile? discomLetterFile,
+        IFormFile? landLeaseFile,
+        IFormFile? fireNocFile,
+        IFormFile? sitePhotosFile)
     {
+        // Enforce mandatory requirement for all 4 statutory documents
+        if (discomLetterFile == null || discomLetterFile.Length == 0)
+        {
+            ModelState.AddModelError("discomLetterFile", "DISCOM Electricity Sanction Letter is mandatory for station verification.");
+        }
+        if (landLeaseFile == null || landLeaseFile.Length == 0)
+        {
+            ModelState.AddModelError("landLeaseFile", "Land Lease Agreement / Ownership Deed is mandatory for station verification.");
+        }
+        if (fireNocFile == null || fireNocFile.Length == 0)
+        {
+            ModelState.AddModelError("fireNocFile", "Fire Safety NOC / Clearance Certificate is mandatory for station verification.");
+        }
+        if (sitePhotosFile == null || sitePhotosFile.Length == 0)
+        {
+            ModelState.AddModelError("sitePhotosFile", "Station Site & Installation Photographs are mandatory for station verification.");
+        }
+
+        // Validate uploaded files
+        var filesToValidate = new[]
+        {
+            (discomLetterFile, "DISCOM Sanction Letter"),
+            (landLeaseFile, "Land Lease / Ownership"),
+            (fireNocFile, "Fire Safety NOC"),
+            (sitePhotosFile, "Station Site Photos")
+        };
+
+        foreach (var (file, label) in filesToValidate)
+        {
+            if (file != null && file.Length > 0)
+            {
+                if (!FileValidationHelper.IsValidDocument(file, out var errorMsg))
+                {
+                    ModelState.AddModelError("", $"{label}: {errorMsg}");
+                }
+            }
+        }
+
         if (ModelState.IsValid)
         {
             model.Id = Guid.NewGuid();
@@ -79,12 +130,153 @@ public class OwnerStationController : Controller
             model.CreatedAt = DateTime.UtcNow;
 
             _context.Stations.Add(model);
+
+            // Handle documents
+            var uploadsDir = Path.Combine(_env.WebRootPath, "uploads", "station-documents");
+            if (!Directory.Exists(uploadsDir)) Directory.CreateDirectory(uploadsDir);
+
+            var docMappings = new[]
+            {
+                (discomLetterFile, "DISCOM Sanction Letter", "Power Load Sanction"),
+                (landLeaseFile, "Land Lease / Ownership", "Premises Lease"),
+                (fireNocFile, "Fire Safety NOC", "Fire Safety"),
+                (sitePhotosFile, "Station Site Photographs", "Site Visual Proof")
+            };
+
+            foreach (var (file, docType, docNumber) in docMappings)
+            {
+                if (file != null && file.Length > 0)
+                {
+                    var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+                    var safeFileName = $"stn_doc_{model.Id}_{Guid.NewGuid()}{ext}";
+                    var filePath = Path.Combine(uploadsDir, safeFileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await file.CopyToAsync(stream);
+                    }
+
+                    var doc = new StationDocument
+                    {
+                        Id = Guid.NewGuid(),
+                        StationId = model.Id,
+                        DocumentType = docType,
+                        DocumentNumber = docNumber,
+                        FilePath = $"/uploads/station-documents/{safeFileName}",
+                        OriginalFileName = Path.GetFileName(file.FileName),
+                        FileExtension = ext,
+                        FileSizeBytes = file.Length,
+                        Status = "Pending",
+                        UploadedAt = DateTime.UtcNow
+                    };
+
+                    _context.StationDocuments.Add(doc);
+                }
+            }
+
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = "Station created successfully and is pending verification.";
+            TempData["Success"] = "Station created successfully with compliance documents and is queued for admin verification.";
             return RedirectToAction(nameof(Index));
         }
         return View("~/Views/stationowner/CreateStation.cshtml", model);
+    }
+
+    // POST: owner/stations/UploadDocument
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UploadDocument(
+        Guid stationId, string documentType, string? documentNumber, IFormFile documentFile)
+    {
+        var userId = GetUserId();
+        var station = await _context.Stations
+            .FirstOrDefaultAsync(s => s.Id == stationId && s.OwnerUserId == userId);
+
+        if (station == null) return NotFound();
+
+        if (string.IsNullOrWhiteSpace(documentType))
+        {
+            TempData["Error"] = "Please select a document type.";
+            return RedirectToAction(nameof(Details), new { id = stationId });
+        }
+
+        if (!FileValidationHelper.IsValidDocument(documentFile, out var errorMsg))
+        {
+            TempData["Error"] = errorMsg;
+            return RedirectToAction(nameof(Details), new { id = stationId });
+        }
+
+        var uploadsDir = Path.Combine(_env.WebRootPath, "uploads", "station-documents");
+        if (!Directory.Exists(uploadsDir)) Directory.CreateDirectory(uploadsDir);
+
+        var ext = Path.GetExtension(documentFile.FileName).ToLowerInvariant();
+        var safeFileName = $"stn_doc_{station.Id}_{Guid.NewGuid()}{ext}";
+        var filePath = Path.Combine(uploadsDir, safeFileName);
+
+        using (var stream = new FileStream(filePath, FileMode.Create))
+        {
+            await documentFile.CopyToAsync(stream);
+        }
+
+        var doc = new StationDocument
+        {
+            Id = Guid.NewGuid(),
+            StationId = station.Id,
+            DocumentType = documentType.Trim(),
+            DocumentNumber = documentNumber?.Trim(),
+            FilePath = $"/uploads/station-documents/{safeFileName}",
+            OriginalFileName = Path.GetFileName(documentFile.FileName),
+            FileExtension = ext,
+            FileSizeBytes = documentFile.Length,
+            Status = "Pending",
+            UploadedAt = DateTime.UtcNow
+        };
+
+        _context.StationDocuments.Add(doc);
+
+        // If station was rejected, moving it back to PendingVerification
+        if (station.Status == "Rejected")
+        {
+            station.Status = "PendingVerification";
+            station.RejectionReason = null;
+        }
+
+        await _context.SaveChangesAsync();
+
+        TempData["Success"] = $"Compliance document '{doc.DocumentType}' uploaded successfully and queued for review.";
+        return RedirectToAction(nameof(Details), new { id = stationId });
+    }
+
+    // POST: owner/stations/DeleteDocument
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteDocument(Guid documentId, Guid stationId)
+    {
+        var userId = GetUserId();
+        var station = await _context.Stations
+            .FirstOrDefaultAsync(s => s.Id == stationId && s.OwnerUserId == userId);
+
+        if (station == null) return NotFound();
+
+        var doc = await _context.StationDocuments
+            .FirstOrDefaultAsync(d => d.Id == documentId && d.StationId == stationId);
+
+        if (doc != null)
+        {
+            // Delete physical file if exists
+            try
+            {
+                var fullPath = Path.Combine(_env.WebRootPath, doc.FilePath.TrimStart('/'));
+                if (System.IO.File.Exists(fullPath)) System.IO.File.Delete(fullPath);
+            }
+            catch { }
+
+            _context.StationDocuments.Remove(doc);
+            await _context.SaveChangesAsync();
+            TempData["Success"] = $"Document '{doc.DocumentType}' deleted.";
+        }
+
+        return RedirectToAction(nameof(Details), new { id = stationId });
     }
 
     // GET: owner/stations/Edit/{id}
@@ -139,7 +331,7 @@ public class OwnerStationController : Controller
         return View("~/Views/stationowner/EditStation.cshtml", model);
     }
 
-    // POST: owner/stations/Delete
+    // POST: owner/stations/Delete/{id}
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(Guid id)
@@ -151,27 +343,30 @@ public class OwnerStationController : Controller
         if (station == null)
             return NotFound();
 
-        // Check if managers are assigned
-        var hasManagers = await _context.StationManagers.AnyAsync(m => m.StationId == id);
+        // Check if managers are assigned to this station
+        var hasManagers = await _context.StationManagers
+            .AnyAsync(m => m.StationId == id);
+
         if (hasManagers)
         {
-            TempData["Error"] = "Cannot delete station because station managers are assigned to it. Please reassign or delete them first.";
+            TempData["Error"] = "Cannot delete station because station managers are assigned to it. Please reassign or remove managers first.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        // Check if station has active bookings
+        var hasBookings = await _context.Bookings
+            .AnyAsync(b => b.StationId == id && (b.Status == "Confirmed" || b.Status == "Charging"));
+
+        if (hasBookings)
+        {
+            TempData["Error"] = "Cannot delete station with active or ongoing charging bookings.";
             return RedirectToAction(nameof(Index));
         }
 
         _context.Stations.Remove(station);
         await _context.SaveChangesAsync();
 
-        TempData["Success"] = $"Station '{station.Name}' deleted successfully.";
+        TempData["Success"] = "Station deleted successfully.";
         return RedirectToAction(nameof(Index));
-    }
-
-    // GET: owner/stations/PickLocation
-    [HttpGet]
-    public IActionResult PickLocation(string? returnTo = null, Guid? id = null)
-    {
-        ViewBag.ReturnTo = returnTo ?? "Create";
-        ViewBag.StationId = id;
-        return View("~/Views/stationowner/OwnerPickLocation.cshtml");
     }
 }

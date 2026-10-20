@@ -16,6 +16,20 @@
   <!-- Custom style CSS -->
   <link rel="stylesheet" href="~/otika/assets/css/custom.css">
   <link rel='shortcut icon' type='image/x-icon' href='~/otika/assets/img/voltnet.ico' />
+  <style>
+    .modal-backdrop {
+      z-index: 1040 !important;
+    }
+    .modal {
+      z-index: 1060 !important;
+    }
+    .modal-dialog {
+      z-index: 1065 !important;
+    }
+    .modal-content {
+      z-index: 1070 !important;
+    }
+  </style>
 </head>
 
 <body>
@@ -82,6 +96,9 @@
             <li class="dropdown @(Context.Request.Path.StartsWithSegments("/owner/bookings") ? "active" : "")">
               <a href="/owner/bookings" class="nav-link"><i data-feather="calendar"></i><span>Station Bookings</span></a>
             </li>
+            <li class="dropdown @(Context.Request.Path.StartsWithSegments("/owner/revenue") ? "active" : "")">
+              <a href="/owner/revenue" class="nav-link"><i data-feather="bar-chart-2"></i><span>Revenue Analytics</span></a>
+            </li>
             <li class="menu-header">Account</li>
             <li class="dropdown @(Context.Request.Path.StartsWithSegments("/owner/profile") ? "active" : "")">
               <a href="/owner/profile" class="nav-link"><i data-feather="user"></i><span>My Profile</span></a>
@@ -109,6 +126,8 @@
       </footer>
     </div>
   </div>
+  @await RenderSectionAsync("Modals", required: false)
+
   <!-- General JS Scripts -->
   <script src="~/otika/assets/js/app.min.js"></script>
   <!-- JS Libraies -->
@@ -121,16 +140,24 @@
   <script src="~/otika/assets/bundles/select2/dist/js/select2.full.min.js"></script>
   <script src="~/js/indian-states.js"></script>
 
-  @await RenderSectionAsync("Scripts", required: false)
-
   <script>
     $(document).ready(function() {
+        // Relocate any modals inside #app to body to eliminate stacking context traps
+        $('#app .modal').appendTo("body");
+        $(document).on('show.bs.modal', '.modal', function () {
+            if (!$(this).parent().is('body')) {
+                $(this).appendTo("body");
+            }
+        });
+
         if ($.fn.DataTable) {
-            $('.table').DataTable({
+            $('.table:not(.no-datatable)').DataTable({
                 dom: '<"row align-items-center mb-3"<"col-12 col-md-6 mb-2 mb-md-0 d-flex justify-content-center justify-content-md-start"l><"col-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>tip'
             });
         }
     });
   </script>
+
+  @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

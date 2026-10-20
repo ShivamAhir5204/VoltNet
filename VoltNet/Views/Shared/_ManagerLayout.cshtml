@@ -78,6 +78,9 @@
             <li class="dropdown @(Context.Request.Path.StartsWithSegments("/manager/bookings") ? "active" : "")">
               <a href="/manager/bookings" class="nav-link"><i data-feather="calendar"></i><span>Bookings & Walk-In</span></a>
             </li>
+            <li class="dropdown @(Context.Request.Path.StartsWithSegments("/manager/revenue") ? "active" : "")">
+              <a href="/manager/revenue" class="nav-link"><i data-feather="bar-chart-2"></i><span>Revenue Analytics</span></a>
+            </li>
             <li class="dropdown @(Context.Request.Path.StartsWithSegments("/manager/station-blocks") ? "active" : "")">
               <a href="/manager/station-blocks" class="nav-link"><i data-feather="tool"></i><span>Maintenance & Breaks</span></a>
             </li>

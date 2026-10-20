@@ -36,6 +36,10 @@ public class Booking
     [Column(TypeName = "decimal(18,2)")]
     public decimal? ActualCost { get; set; }
 
+    // ── Anti-Hoarding Slot Booking Commitment Fee ──
+    [Column(TypeName = "decimal(18,2)")]
+    public decimal BookingFee { get; set; } = 50.00m; // Advance commitment fee, 100% adjustable against final energy bill
+
     // ── Real-World Petrol-Pump Style Meter Billing ──
     [Column(TypeName = "decimal(18,2)")]
     public decimal? UnitsConsumedKwh { get; set; }
@@ -51,6 +55,16 @@ public class Booking
 
     [StringLength(500)]
     public string? MeterPhotoUrl { get; set; } // Uploaded image proof of energy meter
+
+    // ── Payment Mode & Accounting (Cash vs UPI / QR) ──
+    [StringLength(50)]
+    public string? PaymentMethod { get; set; } // "UPI / QR Code", "Cash", "Card / NetBanking", "Advance Online"
+
+    [StringLength(30)]
+    public string PaymentStatus { get; set; } = "Pending"; // "Pending", "AdvancePaid", "Paid"
+
+    // ── Live Session Timing ──
+    public DateTime? ChargingStartedAt { get; set; } // Timestamp when gun is plugged in and manager starts session
 
     // ── Vehicle & Driver Details ──
     [StringLength(30)]

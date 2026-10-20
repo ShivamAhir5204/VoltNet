@@ -51,7 +51,8 @@
                             <label class="font-weight-bold small">Filter by Status:</label>
                             <select name="status" class="form-control">
                                 <option value="">-- All Statuses --</option>
-                                <option value="Confirmed" selected="@(ViewBag.SelectedStatus == "Confirmed")">Confirmed / Active</option>
+                                <option value="Confirmed" selected="@(ViewBag.SelectedStatus == "Confirmed")">Confirmed / Reserved</option>
+                                <option value="Charging" selected="@(ViewBag.SelectedStatus == "Charging")">⚡ In Progress / Charging</option>
                                 <option value="Completed" selected="@(ViewBag.SelectedStatus == "Completed")">Completed</option>
                                 <option value="Cancelled" selected="@(ViewBag.SelectedStatus == "Cancelled")">Cancelled</option>
                                 <option value="NoShow" selected="@(ViewBag.SelectedStatus == "NoShow")">No-Show</option>
@@ -138,18 +139,32 @@
                                                 @if (b.ActualCost.HasValue)
                                                 {
                                                     <strong class="text-success">₹@b.ActualCost.Value.ToString("F2")</strong>
+                                                    @if (!string.IsNullOrEmpty(b.PaymentMethod))
+                                                    {
+                                                        <span class="badge badge-light border text-dark font-11 d-block mt-1">@b.PaymentMethod</span>
+                                                    }
                                                 }
                                                 else
                                                 {
                                                     <span class="text-muted">Est. ₹@b.EstimatedCost.ToString("F2")</span>
+                                                    @if (b.BookingFee > 0 && !b.IsWalkIn)
+                                                    {
+                                                        <span class="badge badge-warning text-dark font-11 d-block mt-1">₹@b.BookingFee.ToString("N0") Advance Paid</span>
+                                                    }
                                                 }
                                             </div>
                                         </td>
                                         <td class="col-secondary" data-label="Status">
                                             <div>
-                                                @if (b.Status == "Confirmed")
+                                                @if (b.Status == "Charging")
                                                 {
-                                                    <span class="badge bg-primary">Active</span>
+                                                    <span class="badge bg-success text-white font-weight-bold px-2 py-1 shadow-sm">
+                                                        <i class="fas fa-bolt mr-1"></i> Charging
+                                                    </span>
+                                                }
+                                                else if (b.Status == "Confirmed")
+                                                {
+                                                    <span class="badge bg-primary">Confirmed</span>
                                                 }
                                                 else if (b.Status == "Completed")
                                                 {
@@ -173,18 +188,33 @@
                                             @if (b.Status == "Confirmed")
                                             {
                                                 <div class="d-inline-flex align-items-center justify-content-center flex-nowrap" style="white-space: nowrap;">
+                                                    <button type="button" class="btn btn-primary btn-sm mr-1 font-weight-bold"
+                                                            onclick="openStartChargingModal('@b.Id', '@(b.CustomerName ?? b.Customer?.Fullname)', '@(b.VehicleNumberPlate ?? "")', '@(b.Charger?.Name)', '@(b.StartMeterReading ?? 0)')"
+                                                            title="Plug in and Start Charging">
+                                                        <i class="fas fa-play mr-1"></i> Start
+                                                    </button>
                                                     <button type="button" class="btn btn-success btn-sm mr-1 font-weight-bold" 
-                                                            onclick="openCompleteModal('@b.Id', '@(b.CustomerName ?? b.Customer?.Fullname)', '@(b.VehicleNumberPlate ?? "")', '@(b.AppliedRatePerKwh ?? 15.00m)', '@(b.StartMeterReading ?? 0)')" 
+                                                            onclick="openCompleteModal('@b.Id', '@(b.CustomerName ?? b.Customer?.Fullname)', '@(b.VehicleNumberPlate ?? "")', '@(b.AppliedRatePerKwh ?? 15.00m)', '@(b.StartMeterReading ?? 0)', @(b.BookingFee))" 
                                                             title="Complete with Meter Reading">
-                                                        <i class="fas fa-gas-pump mr-1"></i> Bill & Complete
+                                                        <i class="fas fa-gas-pump mr-1"></i> Bill
                                                     </button>
                                                     <form asp-action="NoShow" method="post" class="d-inline mb-0">
                                                         @Html.AntiForgeryToken()
                                                         <input type="hidden" name="id" value="@b.Id" />
-                                                        <button type="submit" class="btn btn-outline-warning btn-sm" onclick="return confirm('Mark booking as No-Show?');" title="No Show">
+                                                        <button type="submit" class="btn btn-outline-warning btn-sm" onclick="return confirm('Mark booking as No-Show? This releases the slot and will automatically promote the next driver waiting in the queue.');" title="No Show">
                                                             <i class="fas fa-user-slash"></i>
                                                         </button>
                                                     </form>
+                                                </div>
+                                            }
+                                            else if (b.Status == "Charging")
+                                            {
+                                                <div class="d-inline-flex align-items-center justify-content-center flex-nowrap" style="white-space: nowrap;">
+                                                    <button type="button" class="btn btn-success btn-sm mr-1 font-weight-bold shadow-sm" 
+                                                            onclick="openCompleteModal('@b.Id', '@(b.CustomerName ?? b.Customer?.Fullname)', '@(b.VehicleNumberPlate ?? "")', '@(b.AppliedRatePerKwh ?? 15.00m)', '@(b.StartMeterReading ?? 0)', @(b.BookingFee))" 
+                                                            title="Finish & Bill">
+                                                        <i class="fas fa-stop-circle mr-1"></i> Finish & Bill
+                                                    </button>
                                                 </div>
                                             }
                                             else
@@ -292,7 +322,44 @@
     </div>
 </div>
 
-<!-- Modal 2: Petrol-Pump Meter Billing & OCR Photo Complete -->
+<!-- Modal 2: Start Charging Session -->
+<div class="modal fade" id="startChargingModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title font-weight-bold"><i class="fas fa-bolt mr-2"></i> Plug In & Start Charging Session</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form asp-action="StartCharging" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="startBookingId" name="id" />
+                <div class="modal-body">
+                    <div class="p-3 bg-light rounded mb-3">
+                        <strong id="startCustomerName" class="h6 text-dark d-block mb-1"></strong>
+                        <div id="startVehiclePlate" class="text-primary font-weight-bold"></div>
+                        <div id="startChargerName" class="text-muted small"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="font-weight-bold">Initial Meter Reading (kWh) <span class="text-muted small">(Optional)</span>:</label>
+                        <input type="number" step="0.01" min="0" name="initialMeterReading" id="startInitialMeter" class="form-control" placeholder="0.00" />
+                        <small class="text-muted">Enter display units before plugging gun into the vehicle port.</small>
+                    </div>
+                    <div class="alert alert-info py-2 px-3 small mb-0 font-weight-bold">
+                        <i class="fas fa-info-circle mr-1"></i> Starting the session changes status to 'Charging' and updates driver app in real-time.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary font-weight-bold"><i class="fas fa-play mr-1"></i> Start Charging Now</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 3: Petrol-Pump Meter Billing & OCR Photo Complete -->
 <div class="modal fade" id="completeBookingModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
         <div class="modal-content">
@@ -361,18 +428,45 @@
                     </div>
 
                     <div class="p-3 bg-light rounded border-top border-success mt-2">
-                        <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
                             <div>
-                                <span class="text-muted font-weight-bold">Calculated Total Bill:</span>
+                                <span class="text-muted font-weight-bold">Calculated Energy Bill:</span>
                                 <div class="small text-muted" id="billFormulaDisplay">0.00 kWh × ₹15.00/kWh</div>
                             </div>
                             <div class="text-right">
                                 <div class="input-group" style="max-width: 180px;">
                                     <div class="input-group-prepend"><span class="input-group-text font-weight-bold">₹</span></div>
-                                    <input type="number" step="0.01" min="0" class="form-control form-control-lg font-weight-bold text-success text-right" id="actualCost" name="actualCost" required />
+                                    <input type="number" step="0.01" min="0" class="form-control form-control-lg font-weight-bold text-success text-right" id="actualCost" name="actualCost" oninput="updateNetPayable(parseFloat(this.value)||0)" required />
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Advance Booking Fee Adjustment -->
+                        <div id="advanceAdjustmentRow" class="p-2 rounded bg-white border d-flex justify-content-between align-items-center mb-2" style="display:none;">
+                            <div>
+                                <span class="small font-weight-bold text-warning"><i class="fas fa-shield-alt mr-1"></i> Advance Slot Commitment Adjusted:</span>
+                            </div>
+                            <span class="font-weight-bold text-danger" id="advanceFeeDisplay">-₹0.00</span>
+                        </div>
+
+                        <!-- Net to collect -->
+                        <div class="p-2 rounded bg-white border border-success d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong class="text-dark">Net Amount to Collect from Driver:</strong>
+                            </div>
+                            <span class="h5 mb-0 font-weight-bold text-success" id="netPayableDisplay">₹0.00</span>
+                        </div>
+                    </div>
+
+                    <!-- Payment Mode Selection -->
+                    <div class="form-group mt-3 mb-0">
+                        <label class="font-weight-bold">Payment Collection Mode <span class="text-danger">*</span></label>
+                        <select name="paymentMethod" class="form-control font-weight-bold" required>
+                            <option value="UPI / QR Code" selected>UPI / QR Code Scan (PhonePe, GPay, Paytm)</option>
+                            <option value="Cash">Cash at Counter</option>
+                            <option value="Card (POS)">Debit / Credit Card (POS Terminal)</option>
+                        </select>
+                        <small class="text-muted">Recorded for daily station accounting and manager shift closure.</small>
                     </div>
 
                 </div>
@@ -388,19 +482,44 @@
 @section Scripts {
     <script>
         var currentRatePerKwh = 15.00;
+        var currentAdvanceFee = 0.00;
 
-        function openCompleteModal(id, customer, plate, rate, startReading) {
+        function openStartChargingModal(id, customer, plate, charger, startMeter) {
+            $('#startBookingId').val(id);
+            $('#startCustomerName').text(customer || 'Customer');
+            $('#startVehiclePlate').text(plate ? 'Vehicle Plate: ' + plate : 'Vehicle: Standard EV');
+            $('#startChargerName').text('Charger Bay: ' + (charger || 'EV Charger'));
+            $('#startInitialMeter').val(parseFloat(startMeter) > 0 ? parseFloat(startMeter) : '');
+            $('#startChargingModal').modal('show');
+        }
+
+        function openCompleteModal(id, customer, plate, rate, startReading, advanceFee) {
             $('#completeBookingId').val(id);
             $('#completeCustomerName').text(customer || 'Customer');
             $('#completeVehiclePlate').text(plate ? 'Vehicle: ' + plate : 'Vehicle: Standard EV');
             currentRatePerKwh = parseFloat(rate) || 15.00;
+            currentAdvanceFee = parseFloat(advanceFee) || 0.00;
             $('#completeRateDisplay').text('₹' + currentRatePerKwh.toFixed(2) + ' / kWh');
             $('#startMeter').val(parseFloat(startReading) || 0);
             $('#endMeter').val('');
             $('#unitsConsumed').val('');
             $('#actualCost').val('');
             $('#ocrStatusMessage').hide();
+
+            if (currentAdvanceFee > 0) {
+                $('#advanceFeeDisplay').text('-₹' + currentAdvanceFee.toFixed(2));
+                $('#advanceAdjustmentRow').show();
+            } else {
+                $('#advanceAdjustmentRow').hide();
+            }
+            $('#netPayableDisplay').text('₹0.00');
+
             $('#completeBookingModal').modal('show');
+        }
+
+        function updateNetPayable(total) {
+            var net = Math.max(0, total - currentAdvanceFee);
+            $('#netPayableDisplay').text('₹' + net.toFixed(2));
         }
 
         function recalcBill() {
@@ -412,6 +531,7 @@
                 var total = (units * currentRatePerKwh).toFixed(2);
                 $('#actualCost').val(total);
                 $('#billFormulaDisplay').text(units + ' kWh × ₹' + currentRatePerKwh.toFixed(2) + '/kWh');
+                updateNetPayable(parseFloat(total));
             }
         }
 
@@ -420,6 +540,7 @@
             var total = (units * currentRatePerKwh).toFixed(2);
             $('#actualCost').val(total);
             $('#billFormulaDisplay').text(units.toFixed(2) + ' kWh × ₹' + currentRatePerKwh.toFixed(2) + '/kWh');
+            updateNetPayable(parseFloat(total));
         }
 
         function scanMeterPhoto() {
@@ -460,6 +581,7 @@
 
         $(document).ready(function() {
             $('#walkInModal').appendTo("body");
+            $('#startChargingModal').appendTo("body");
             $('#completeBookingModal').appendTo("body");
         });
     </script>

@@ -104,9 +104,10 @@
         @foreach (var sub in Model)
         {
             var isCancelled = sub.Status == "Cancelled";
-            var isExpired = sub.EndDate < DateTime.UtcNow && !isCancelled;
-            var statusText = isCancelled ? "Cancelled" : "Expired";
-            var badgeClass = isCancelled ? "badge-danger" : "badge-secondary";
+            var isUpgraded = sub.Status == "Upgraded";
+            var isExpired = sub.EndDate < DateTime.UtcNow && !isCancelled && !isUpgraded;
+            var statusText = isCancelled ? "Cancelled" : (isUpgraded ? "Upgraded" : "Expired");
+            var badgeClass = isCancelled ? "badge-danger" : (isUpgraded ? "badge-info" : "badge-secondary");
 
             <div class="col-12 col-md-6 col-lg-4 mb-4">
                 <div class="detail-card d-flex flex-column justify-content-between">
@@ -126,6 +127,10 @@
                                 @if (isCancelled)
                                 {
                                     <i class="fas fa-ban mr-1"></i>
+                                }
+                                else if (isUpgraded)
+                                {
+                                    <i class="fas fa-arrow-circle-up mr-1"></i>
                                 }
                                 else
                                 {
@@ -192,6 +197,14 @@
                                             <strong>Admin Note:</strong> @sub.CancellationAdminRemarks
                                         </div>
                                     }
+                                </div>
+                            }
+                            else if (isUpgraded)
+                            {
+                                <div class="detail-box" style="border-left: 4px solid #0ea5e9; background: #f0f9ff;">
+                                    <span class="font-weight-600 text-info" style="font-size: 13px;">
+                                        <i class="fas fa-arrow-circle-up mr-1 text-info"></i> Upgraded to higher tier plan. Linked stations transitioned with zero interruption.
+                                    </span>
                                 </div>
                             }
                             else

@@ -70,7 +70,7 @@
                     </div>
                 </div>
 
-                <div class="card border border-success bg-light mb-4">
+                <div class="card border border-success bg-light mb-3">
                     <div class="card-body p-4">
                         <h6 class="font-weight-bold text-dark mb-3"><i class="fas fa-gas-pump text-success mr-2"></i> Transparent Petrol-Pump Style Billing</h6>
                         <div class="d-flex justify-content-between align-items-center mb-2">
@@ -86,10 +86,31 @@
                         }
                         <hr />
                         <div class="d-flex justify-content-between align-items-center">
-                            <span class="h6 mb-0 font-weight-bold text-dark">Estimated Nominal Total (1 hr):</span>
+                            <span class="h6 mb-0 font-weight-bold text-dark">Estimated Energy Cost (1 hr):</span>
                             <span class="h4 mb-0 font-weight-bold text-success">₹@estimatedCost.ToString("F2")</span>
                         </div>
                         <small class="text-muted mt-2 d-block"><i class="fas fa-info-circle text-info mr-1"></i> No wasted money: Your final invoice will be accurately billed only for actual energy units consumed during your charging session.</small>
+                    </div>
+                </div>
+
+                <!-- Early Slot Booking Charge (Anti-Hoarding Commitment) -->
+                <div class="card border border-warning bg-light mb-4" style="background: #fffdf5; border-color: #fde047;">
+                    <div class="card-body p-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <div>
+                                <span class="font-weight-bold text-dark font-15">
+                                    <i class="fas fa-shield-alt text-warning mr-1"></i> Advance Slot Booking Commitment:
+                                </span>
+                                <div class="small text-muted font-weight-600 mt-1">
+                                    Anti-hoarding deposit to guarantee reserved bay availability for your EV.
+                                </div>
+                            </div>
+                            <span class="h5 mb-0 font-weight-bold text-dark">₹50.00</span>
+                        </div>
+                        <div class="p-2 rounded bg-white border border-warning mt-2 small font-weight-bold text-success d-flex align-items-center">
+                            <i class="fas fa-tag mr-2 text-warning"></i>
+                            <span>100% Deducted from Final Bill: At checkout, you only pay (Final Energy Bill − ₹50.00)!</span>
+                        </div>
                     </div>
                 </div>
 

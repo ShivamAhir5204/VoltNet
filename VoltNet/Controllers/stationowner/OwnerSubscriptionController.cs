@@ -63,7 +63,7 @@ public class OwnerSubscriptionController : Controller
         // 5. Total Subscriptions count (Active or History)
         // Valid active subscriptions count (Active + CancellationPending)
         var activeSubscriptionsCount = allSubscriptions.Count(s => (s.Status == "Active" || s.Status == "CancellationPending") && s.EndDate >= DateTime.UtcNow);
-        var historyCount = allSubscriptions.Count(s => s.Status == "Cancelled" || (s.Status != "CancellationPending" && s.EndDate < DateTime.UtcNow));
+        var historyCount = allSubscriptions.Count(s => s.Status == "Cancelled" || s.Status == "Upgraded" || (s.Status != "CancellationPending" && s.EndDate < DateTime.UtcNow));
 
         ViewBag.ActiveCount = activeCount;
         ViewBag.PendingCancellationCount = pendingCancellationCount;
@@ -88,7 +88,7 @@ public class OwnerSubscriptionController : Controller
         var historySubscriptions = await _context.OwnerSubscriptions
             .Include(s => s.Plan)
             .Include(s => s.Stations)
-            .Where(s => s.StationOwnerId == ownerId && (s.Status == "Cancelled" || (s.Status != "CancellationPending" && s.EndDate < DateTime.UtcNow)))
+            .Where(s => s.StationOwnerId == ownerId && (s.Status == "Cancelled" || s.Status == "Upgraded" || (s.Status != "CancellationPending" && s.EndDate < DateTime.UtcNow)))
             .OrderByDescending(s => s.CreatedAt)
             .ToListAsync();
 
@@ -102,10 +102,33 @@ public class OwnerSubscriptionController : Controller
         return View("~/Views/stationowner/Subscription/History.cshtml", historySubscriptions);
     }
 
+    private static (decimal unusedCredit, decimal upgradePayable, int remainingDays) CalculateProratedUpgrade(OwnerSubscription activeSub, SubscriptionPlan newPlan)
+    {
+        if (activeSub == null || activeSub.Plan == null)
+            return (0, newPlan.PricePerMonth, 0);
+
+        var remainingDaysDouble = Math.Max(0, (activeSub.EndDate - DateTime.UtcNow).TotalDays);
+        var remainingDays = (int)Math.Ceiling(remainingDaysDouble);
+        var totalDuration = activeSub.Plan.DurationDays > 0 ? activeSub.Plan.DurationDays : 30;
+        var dailyRate = activeSub.Plan.PricePerMonth / totalDuration;
+        var rawCredit = Math.Round((decimal)remainingDaysDouble * dailyRate, 2);
+        var unusedCredit = Math.Min(activeSub.Plan.PricePerMonth, Math.Max(0, rawCredit));
+        var upgradePayable = Math.Max(0, Math.Round(newPlan.PricePerMonth - unusedCredit, 2));
+
+        return (unusedCredit, upgradePayable, remainingDays);
+    }
+
     [HttpGet("plan/{id}")]
     public async Task<IActionResult> PlanDetails(Guid id)
     {
         var ownerId = GetOwnerId();
+        var plan = await _context.SubscriptionPlans.FindAsync(id);
+        if (plan == null)
+        {
+            TempData["Error"] = "Plan not found.";
+            return RedirectToAction(nameof(Plans));
+        }
+
         var activeSub = await _context.OwnerSubscriptions
             .Include(s => s.Plan)
             .FirstOrDefaultAsync(s => s.StationOwnerId == ownerId 
@@ -114,15 +137,29 @@ public class OwnerSubscriptionController : Controller
 
         if (activeSub != null)
         {
-            TempData["Error"] = $"You already have an active subscription ({activeSub.Plan?.Name ?? "Plan"}). Station owners can only have one active subscription at a time.";
-            return RedirectToAction(nameof(Index));
-        }
+            if (activeSub.PlanId == plan.Id)
+            {
+                TempData["Warning"] = $"You are currently subscribed to the {plan.Name} plan.";
+                return RedirectToAction(nameof(Index));
+            }
 
-        var plan = await _context.SubscriptionPlans.FindAsync(id);
-        if (plan == null)
+            bool isEligibleUpgrade = plan.PricePerMonth > activeSub.Plan?.PricePerMonth || plan.MaxStations > activeSub.Plan?.MaxStations;
+            if (!isEligibleUpgrade)
+            {
+                TempData["Error"] = "Plan downgrading is not permitted while your current subscription is active.";
+                return RedirectToAction(nameof(Plans));
+            }
+
+            var (unusedCredit, upgradePayable, remainingDays) = CalculateProratedUpgrade(activeSub, plan);
+            ViewBag.IsUpgrade = true;
+            ViewBag.ActiveSubscription = activeSub;
+            ViewBag.UnusedCredit = unusedCredit;
+            ViewBag.UpgradePayable = upgradePayable;
+            ViewBag.RemainingDays = remainingDays;
+        }
+        else
         {
-            TempData["Error"] = "Plan not found.";
-            return RedirectToAction(nameof(Plans));
+            ViewBag.IsUpgrade = false;
         }
 
         ViewBag.RazorpayKeyId = _config["Razorpay:KeyId"];
@@ -141,6 +178,15 @@ public class OwnerSubscriptionController : Controller
 
         ViewBag.ActiveSubscription = activeSub;
         ViewBag.HasActiveSubscription = (activeSub != null);
+
+        if (activeSub != null)
+        {
+            var remainingDaysDouble = Math.Max(0, (activeSub.EndDate - DateTime.UtcNow).TotalDays);
+            ViewBag.RemainingDays = (int)Math.Ceiling(remainingDaysDouble);
+            var totalDuration = activeSub.Plan?.DurationDays > 0 ? activeSub.Plan.DurationDays : 30;
+            var dailyRate = (activeSub.Plan?.PricePerMonth ?? 0) / totalDuration;
+            ViewBag.UnusedCredit = Math.Min(activeSub.Plan?.PricePerMonth ?? 0, Math.Round((decimal)remainingDaysDouble * dailyRate, 2));
+        }
 
         var plans = await _context.SubscriptionPlans
             .Where(p => p.IsActive)
@@ -165,24 +211,12 @@ public class OwnerSubscriptionController : Controller
         return View("~/Views/stationowner/Subscription/Plans.cshtml", plans);
     }
 
-    // ─── Step 1: Simulate Order Creation ─────────────────────────────
+    // ─── Step 1: Simulate Order Creation (Supports New & Prorated Upgrades) ───
     [HttpPost("create-order")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> CreateOrder([FromForm] Guid planId)
     {
         var ownerId = GetOwnerId();
-
-        // ── Validation 1: Prevent multiple active subscriptions per owner ──
-        var activeSub = await _context.OwnerSubscriptions
-            .Include(s => s.Plan)
-            .FirstOrDefaultAsync(s => s.StationOwnerId == ownerId 
-                && (s.Status == "Active" || s.Status == "CancellationPending") 
-                && s.EndDate >= DateTime.UtcNow);
-
-        if (activeSub != null)
-        {
-            return Json(new { success = false, message = $"You already have an active subscription ({activeSub.Plan?.Name ?? "Plan"}). An owner can only hold one active subscription at a time." });
-        }
 
         var plan = await _context.SubscriptionPlans.FindAsync(planId);
         if (plan == null || !plan.IsActive)
@@ -190,7 +224,36 @@ public class OwnerSubscriptionController : Controller
             return Json(new { success = false, message = "Invalid or inactive plan." });
         }
 
-        var amountInPaise = (long)(plan.PricePerMonth * 100);
+        var activeSub = await _context.OwnerSubscriptions
+            .Include(s => s.Plan)
+            .FirstOrDefaultAsync(s => s.StationOwnerId == ownerId 
+                && (s.Status == "Active" || s.Status == "CancellationPending") 
+                && s.EndDate >= DateTime.UtcNow);
+
+        decimal finalPayableAmount = plan.PricePerMonth;
+        bool isUpgrade = false;
+        decimal creditDeducted = 0;
+
+        if (activeSub != null)
+        {
+            if (activeSub.PlanId == plan.Id)
+            {
+                return Json(new { success = false, message = $"You are already subscribed to the {plan.Name} plan." });
+            }
+
+            bool isEligibleUpgrade = plan.PricePerMonth > activeSub.Plan?.PricePerMonth || plan.MaxStations > activeSub.Plan?.MaxStations;
+            if (!isEligibleUpgrade)
+            {
+                return Json(new { success = false, message = "Plan downgrading is not permitted while your current subscription is active." });
+            }
+
+            var (unusedCredit, upgradePayable, _) = CalculateProratedUpgrade(activeSub, plan);
+            isUpgrade = true;
+            creditDeducted = unusedCredit;
+            finalPayableAmount = upgradePayable;
+        }
+
+        var amountInPaise = (long)(finalPayableAmount * 100);
         var orderId = $"ORDER_SIM_{Guid.NewGuid().ToString()[..8].ToUpper()}";
 
         // Fetch owner info for prefill
@@ -198,13 +261,16 @@ public class OwnerSubscriptionController : Controller
         var user = await _context.UserMasters.FindAsync(userId);
 
         // Simulate a slight network delay
-        await Task.Delay(800);
+        await Task.Delay(600);
 
         return Json(new
         {
             success = true,
             orderId,
             amount = amountInPaise,
+            finalPayable = finalPayableAmount,
+            isUpgrade,
+            creditDeducted,
             currency = "INR",
             planId = plan.Id,
             planName = plan.Name,
@@ -217,7 +283,7 @@ public class OwnerSubscriptionController : Controller
         });
     }
 
-    // ─── Step 2: Simulate Payment Verification ───────────────────────
+    // ─── Step 2: Simulate Payment Verification (Handles Upgrades Seamlessly) ───
     [HttpPost("verify-payment")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> VerifyPayment(
@@ -234,20 +300,7 @@ public class OwnerSubscriptionController : Controller
             return RedirectToAction(nameof(Plans));
         }
 
-        // ── Validation 2: Prevent multiple active subscriptions per owner ──
-        var activeSub = await _context.OwnerSubscriptions
-            .Include(s => s.Plan)
-            .FirstOrDefaultAsync(s => s.StationOwnerId == ownerId 
-                && (s.Status == "Active" || s.Status == "CancellationPending") 
-                && s.EndDate >= DateTime.UtcNow);
-
-        if (activeSub != null)
-        {
-            TempData["Error"] = $"You already have an active subscription ({activeSub.Plan?.Name ?? "Plan"}). An owner can only hold one active subscription at a time.";
-            return RedirectToAction(nameof(Index));
-        }
-
-        // ── Validation 3: Plan must still be valid ──
+        // ── Validation 2: Plan must still be valid ──
         var plan = await _context.SubscriptionPlans.FindAsync(planId);
         if (plan == null || !plan.IsActive)
         {
@@ -255,7 +308,7 @@ public class OwnerSubscriptionController : Controller
             return RedirectToAction(nameof(Plans));
         }
 
-        // ── Validation 4: Prevent duplicate subscription for same payment ──
+        // ── Validation 3: Prevent duplicate subscription for same payment ──
         var alreadyExists = await _context.OwnerSubscriptions
             .AnyAsync(s => s.PaymentId == razorpay_payment_id);
 
@@ -265,7 +318,33 @@ public class OwnerSubscriptionController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        // ── All checks passed — Create Subscription ──
+        var activeSub = await _context.OwnerSubscriptions
+            .Include(s => s.Plan)
+            .FirstOrDefaultAsync(s => s.StationOwnerId == ownerId 
+                && (s.Status == "Active" || s.Status == "CancellationPending") 
+                && s.EndDate >= DateTime.UtcNow);
+
+        decimal amountPaid = plan.PricePerMonth;
+        bool isUpgrade = false;
+
+        if (activeSub != null)
+        {
+            bool isEligibleUpgrade = plan.PricePerMonth > activeSub.Plan?.PricePerMonth || plan.MaxStations > activeSub.Plan?.MaxStations;
+            if (!isEligibleUpgrade)
+            {
+                TempData["Error"] = "You already have an active subscription. Only upgrades to higher tiers are permitted.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var (_, upgradePayable, _) = CalculateProratedUpgrade(activeSub, plan);
+            isUpgrade = true;
+            amountPaid = upgradePayable;
+
+            // Mark old subscription as Upgraded
+            activeSub.Status = "Upgraded";
+        }
+
+        // ── Create New Subscription ──
         var subscription = new OwnerSubscription
         {
             Id = Guid.NewGuid(),
@@ -274,15 +353,39 @@ public class OwnerSubscriptionController : Controller
             StartDate = DateTime.UtcNow,
             EndDate = DateTime.UtcNow.AddDays(plan.DurationDays),
             Status = "Active",
-            AmountPaid = plan.PricePerMonth,
+            AmountPaid = amountPaid,
             PaymentId = razorpay_payment_id,
             CreatedAt = DateTime.UtcNow
         };
 
         _context.OwnerSubscriptions.Add(subscription);
+
+        // Seamless Continuity: Transfer all currently linked stations to the new subscription!
+        int transferredCount = 0;
+        if (isUpgrade && activeSub != null)
+        {
+            var linkedStations = await _context.Stations
+                .Where(s => s.OwnerSubscriptionId == activeSub.Id)
+                .ToListAsync();
+
+            foreach (var st in linkedStations)
+            {
+                st.OwnerSubscriptionId = subscription.Id;
+                transferredCount++;
+            }
+        }
+
         await _context.SaveChangesAsync();
 
-        TempData["Success"] = $"Payment successful! You are now subscribed to the {plan.Name} plan. Assign your stations to activate them.";
+        if (isUpgrade)
+        {
+            TempData["Success"] = $"🎉 Plan successfully upgraded to {plan.Name}! You can now activate up to {plan.MaxStations} stations (all {transferredCount} currently linked stations remained active with zero downtime).";
+        }
+        else
+        {
+            TempData["Success"] = $"Payment successful! You are now subscribed to the {plan.Name} plan. Assign your stations to activate them.";
+        }
+
         return RedirectToAction(nameof(Index));
     }
 

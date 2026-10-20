@@ -5,6 +5,8 @@
     var razorpayKey = ViewBag.RazorpayKeyId as string ?? "";
     var hasActiveSub = (bool)(ViewBag.HasActiveSubscription ?? false);
     var activeSub = ViewBag.ActiveSubscription as VoltNet.Models.OwnerSubscription;
+    var remainingDays = (int)(ViewBag.RemainingDays ?? 0);
+    var unusedCredit = (decimal)(ViewBag.UnusedCredit ?? 0m);
 }
 
 <style>
@@ -360,22 +362,22 @@
 
 @if (hasActiveSub)
 {
-    <div class="alert alert-warning mb-4" style="background: #ffffff; border: 1px solid #ffeeba; border-left: 5px solid #ffa426; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+    <div class="alert alert-info mb-4" style="background: #ffffff; border: 1px solid #b8daff; border-left: 5px solid #6777ef; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
         <div class="d-flex align-items-center justify-content-between flex-wrap">
             <div class="d-flex align-items-center mr-3 mb-2 mb-md-0">
                 <div class="rounded-circle d-flex align-items-center justify-content-center mr-3" 
-                     style="width: 44px; height: 44px; background: #fff8e1; color: #ffa426; font-size: 20px; flex-shrink: 0;">
-                    <i class="fas fa-exclamation-triangle"></i>
+                     style="width: 44px; height: 44px; background: #eef2f7; color: #6777ef; font-size: 20px; flex-shrink: 0;">
+                    <i class="fas fa-crown"></i>
                 </div>
                 <div>
-                    <h6 class="font-weight-bold text-dark mb-1">Active Subscription In Progress</h6>
+                    <h6 class="font-weight-bold text-dark mb-1">Current Active Plan: @(activeSub?.Plan?.Name ?? "Active") (Max @(activeSub?.Plan?.MaxStations ?? 1) Stations)</h6>
                     <div class="font-weight-600 font-14" style="color: #34395e;">
-                        You are currently subscribed to the <strong>@(activeSub?.Plan?.Name ?? "Active")</strong> plan (Valid until @activeSub?.EndDate.ToString("dd MMM yyyy")).
-                        Station owners can only hold <strong>one subscription at a time</strong>.
+                        Valid until @activeSub?.EndDate.ToString("dd MMM yyyy") (@remainingDays days left).
+                        Need more stations? <strong>Upgrade anytime!</strong> Your unused days credit (₹@unusedCredit.ToString("N0")) will be automatically deducted from your upgrade price.
                     </div>
                 </div>
             </div>
-            <a href="/owner/subscription" class="btn btn-primary font-weight-700 px-3 py-2">
+            <a href="/owner/subscription" class="btn btn-outline-primary font-weight-700 px-3 py-2">
                 <i class="fas fa-layer-group mr-1"></i> Manage My Subscription
             </a>
         </div>
@@ -388,7 +390,7 @@
             <div class="card-body py-4 text-center">
                 <h4 class="font-weight-bold text-dark mb-1">Scale Your EV Charging Network</h4>
                 <p class="font-weight-600 mb-0" style="color: #34395e; font-size: 15px;">
-                    Choose a plan tailored to your station capacity. All plans include 24-hour full refund guarantees, live station monitoring, and driver bookings.
+                    Choose a plan tailored to your station capacity. All plans include 24-hour full refund guarantees, live station monitoring, driver bookings, and seamless prorated upgrades.
                 </p>
             </div>
         </div>
@@ -403,10 +405,31 @@
         var badgeText = isEnterprise ? "Enterprise Tier" : (isGrowth ? "Most Popular" : "Starter Tier");
         var badgeClass = isEnterprise ? "badge-dark" : (isGrowth ? "badge-primary" : "badge-info");
 
+        var isCurrentPlan = hasActiveSub && activeSub?.PlanId == plan.Id;
+        var isHigherTier = hasActiveSub && (plan.PricePerMonth > (activeSub?.Plan?.PricePerMonth ?? 0) || plan.MaxStations > (activeSub?.Plan?.MaxStations ?? 0));
+        var isLowerTier = hasActiveSub && !isCurrentPlan && !isHigherTier;
+
+        decimal upgradePayable = 0;
+        if (isHigherTier)
+        {
+            upgradePayable = Math.Max(0, Math.Round(plan.PricePerMonth - unusedCredit, 2));
+        }
+
         <div class="col-12 col-md-6 col-lg-4 mb-4">
-            <div class="pricing-card">
+            <div class="pricing-card @(isCurrentPlan ? "border-success shadow-sm" : "")">
                 <div class="pricing-badge">
-                    <span class="badge @badgeClass font-weight-700 px-3 py-1 font-12">@badgeText</span>
+                    @if (isCurrentPlan)
+                    {
+                        <span class="badge badge-success font-weight-700 px-3 py-1 font-12"><i class="fas fa-check-circle mr-1"></i> Current Plan</span>
+                    }
+                    else if (isHigherTier)
+                    {
+                        <span class="badge badge-warning text-dark font-weight-700 px-3 py-1 font-12"><i class="fas fa-arrow-circle-up mr-1"></i> Upgrade Available</span>
+                    }
+                    else
+                    {
+                        <span class="badge @badgeClass font-weight-700 px-3 py-1 font-12">@badgeText</span>
+                    }
                 </div>
 
                 <h3 class="font-weight-bold text-dark mb-0 font-20">@plan.Name</h3>
@@ -443,18 +466,52 @@
                 </div>
 
                 <div>
-                    @if (hasActiveSub)
+                    @if (isCurrentPlan)
                     {
-                        <button type="button" class="btn btn-secondary btn-block font-weight-700 py-2 font-15" disabled title="You already have an active subscription">
-                            <i class="fas fa-lock mr-2"></i> Subscription Active
+                        <div class="p-2 bg-light rounded text-center mb-2 border border-success">
+                            <small class="font-weight-700 text-success"><i class="fas fa-check mr-1"></i> Active until @activeSub?.EndDate.ToString("dd MMM yyyy") (@remainingDays d left)</small>
+                        </div>
+                        <button type="button" class="btn btn-outline-success btn-block font-weight-700 py-2 font-15" disabled>
+                            <i class="fas fa-check-circle mr-2"></i> Current Plan
                         </button>
                         <a href="/owner/subscription" class="btn btn-outline-primary btn-block font-weight-600 mt-2 font-14">
-                            <i class="fas fa-arrow-right mr-1"></i> Go to Active Subscription
+                            <i class="fas fa-tasks mr-1"></i> Manage Active Stations
                         </a>
+                    }
+                    else if (isHigherTier)
+                    {
+                        <div class="p-2 rounded mb-2" style="background: #f0f7ff; border: 1px dashed #6777ef;">
+                            <div class="d-flex justify-content-between font-12 mb-1">
+                                <span class="text-muted">New Plan Price:</span>
+                                <span class="font-weight-bold text-dark">₹@plan.PricePerMonth.ToString("N0")</span>
+                            </div>
+                            <div class="d-flex justify-content-between font-12 mb-1">
+                                <span class="text-success font-weight-600">Unused Credit (@remainingDays d):</span>
+                                <span class="font-weight-bold text-success">-₹@unusedCredit.ToString("N0")</span>
+                            </div>
+                            <div class="border-top pt-1 mt-1 d-flex justify-content-between align-items-center">
+                                <span class="font-weight-bold text-dark font-13">Upgrade Price:</span>
+                                <span class="font-weight-bold text-primary font-16">₹@upgradePayable.ToString("N0")</span>
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn btn-warning text-dark btn-block font-weight-700 py-2 font-15 shadow-sm" onclick="initPayment('@plan.Id', '@plan.Name', @upgradePayable, true, @unusedCredit)">
+                            <i class="fas fa-arrow-circle-up mr-2"></i> Upgrade — Pay ₹@upgradePayable.ToString("N0")
+                        </button>
+                        <a href="/owner/subscription/plan/@plan.Id" class="btn btn-outline-secondary btn-block font-weight-600 mt-2 font-14">
+                            <i class="fas fa-info-circle mr-1"></i> View Upgrade Details
+                        </a>
+                    }
+                    else if (isLowerTier)
+                    {
+                        <button type="button" class="btn btn-secondary btn-block font-weight-700 py-2 font-15" disabled title="Downgrading is not permitted while your current subscription is active">
+                            <i class="fas fa-lock mr-2"></i> Lower Tier Plan
+                        </button>
+                        <small class="text-muted text-center d-block mt-2 font-weight-600 font-12">Downgrades not available during active cycle</small>
                     }
                     else
                     {
-                        <button type="button" class="btn btn-buy-plan" onclick="initPayment('@plan.Id', '@plan.Name', @plan.PricePerMonth)">
+                        <button type="button" class="btn btn-buy-plan" onclick="initPayment('@plan.Id', '@plan.Name', @plan.PricePerMonth, false, 0)">
                             <i class="fas fa-bolt mr-2"></i> Subscribe Now — ₹@plan.PricePerMonth.ToString("N0")
                         </button>
                         <a href="/owner/subscription/plan/@plan.Id" class="btn btn-outline-secondary btn-block font-weight-600 mt-2 font-14">
@@ -555,11 +612,11 @@
     <script>
         var isPaymentInProgress = false;
 
-        function initPayment(planId, planName, amount) {
+        function initPayment(planId, planName, amount, isUpgrade, credit) {
             if (isPaymentInProgress) return;
             isPaymentInProgress = true;
 
-            $('.btn-buy-plan').prop('disabled', true);
+            $('.btn-buy-plan, .btn-warning').prop('disabled', true);
 
             $('#stageInitiating').show();
             $('#stageTrainCoin').removeClass('active');
@@ -576,15 +633,20 @@
                     if (!data.success) {
                         $('#paymentOverlay').removeClass('active');
                         isPaymentInProgress = false;
-                        $('.btn-buy-plan').prop('disabled', false);
+                        $('.btn-buy-plan, .btn-warning').prop('disabled', false);
                         alert(data.message || 'Failed to create order.');
                         return;
                     }
 
                     setTimeout(function() {
                         $('#stageInitiating').hide();
-                        $('#trainTitle').text('Processing ' + planName + ' Plan...');
-                        $('#trainSub').html('Securing transaction of <strong>₹' + amount.toLocaleString('en-IN') + '</strong>');
+                        if (data.isUpgrade) {
+                            $('#trainTitle').text('Upgrading to ' + planName + ' Plan...');
+                            $('#trainSub').html('Securing transaction of <strong>₹' + data.finalPayable.toLocaleString('en-IN') + '</strong> (after ₹' + data.creditDeducted.toLocaleString('en-IN') + ' prorated credit)');
+                        } else {
+                            $('#trainTitle').text('Processing ' + planName + ' Plan...');
+                            $('#trainSub').html('Securing transaction of <strong>₹' + amount.toLocaleString('en-IN') + '</strong>');
+                        }
                         $('#stageTrainCoin').addClass('active');
 
                         setTimeout(function() {
@@ -606,7 +668,7 @@
                 error: function() {
                     $('#paymentOverlay').removeClass('active');
                     isPaymentInProgress = false;
-                    $('.btn-buy-plan').prop('disabled', false);
+                    $('.btn-buy-plan, .btn-warning').prop('disabled', false);
                     alert('Server error. Please try again.');
                 }
             });

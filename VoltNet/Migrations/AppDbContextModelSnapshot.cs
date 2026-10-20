@@ -92,6 +92,12 @@ namespace VoltNet.Migrations
                         .HasColumnType("date")
                         .HasColumnName("booking_date");
 
+                    b.Property<decimal>("BookingFee")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(50.00m)
+                        .HasColumnName("booking_fee");
+
                     b.Property<string>("CancellationReason")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)")
@@ -104,6 +110,10 @@ namespace VoltNet.Migrations
                     b.Property<Guid>("ChargerId")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("charger_id");
+
+                    b.Property<DateTime?>("ChargingStartedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("charging_started_at");
 
                     b.Property<DateTime?>("CompletedAt")
                         .HasColumnType("datetime2")
@@ -156,6 +166,19 @@ namespace VoltNet.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)")
                         .HasColumnName("payment_id");
+
+                    b.Property<string>("PaymentMethod")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("payment_method");
+
+                    b.Property<string>("PaymentStatus")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasDefaultValue("Pending")
+                        .HasColumnName("payment_status");
 
                     b.Property<decimal?>("StartMeterReading")
                         .HasColumnType("decimal(18,2)")
@@ -373,7 +396,10 @@ namespace VoltNet.Migrations
 
                     b.HasIndex("PlanId");
 
-                    b.HasIndex("StationOwnerId");
+                    b.HasIndex("StationOwnerId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_OwnerSubscriptions_ActiveOwner")
+                        .HasFilter("[status] IN ('Active', 'CancellationPending')");
 
                     b.ToTable("OwnerSubscriptions", (string)null);
                 });
@@ -521,6 +547,85 @@ namespace VoltNet.Migrations
                         .HasDatabaseName("IX_StationBlockSlots_Date");
 
                     b.ToTable("StationBlockSlots", (string)null);
+                });
+
+            modelBuilder.Entity("VoltNet.Models.StationDocument", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("id");
+
+                    b.Property<string>("DocumentNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("document_number");
+
+                    b.Property<string>("DocumentType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("document_type");
+
+                    b.Property<string>("FileExtension")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("file_extension");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("file_path");
+
+                    b.Property<long>("FileSizeBytes")
+                        .HasColumnType("bigint")
+                        .HasColumnName("file_size_bytes");
+
+                    b.Property<string>("OriginalFileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("original_file_name");
+
+                    b.Property<string>("RejectionReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("rejection_reason");
+
+                    b.Property<Guid>("StationId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("station_id");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(30)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(30)")
+                        .HasDefaultValue("Pending")
+                        .HasColumnName("status");
+
+                    b.Property<DateTime>("UploadedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasColumnName("uploaded_at")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<DateTime?>("VerifiedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("verified_at");
+
+                    b.Property<Guid?>("VerifiedByAdminId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("verified_by_admin_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StationId")
+                        .HasDatabaseName("IX_StationDocuments_StationId");
+
+                    b.ToTable("StationDocuments", (string)null);
                 });
 
             modelBuilder.Entity("VoltNet.Models.StationManager", b =>
@@ -675,6 +780,85 @@ namespace VoltNet.Migrations
                         .HasDatabaseName("IX_StationOwners_UserId");
 
                     b.ToTable("StationOwners", (string)null);
+                });
+
+            modelBuilder.Entity("VoltNet.Models.StationOwnerDocument", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("id");
+
+                    b.Property<string>("DocumentNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("document_number");
+
+                    b.Property<string>("DocumentType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("document_type");
+
+                    b.Property<string>("FileExtension")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("file_extension");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("file_path");
+
+                    b.Property<long>("FileSizeBytes")
+                        .HasColumnType("bigint")
+                        .HasColumnName("file_size_bytes");
+
+                    b.Property<string>("OriginalFileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("original_file_name");
+
+                    b.Property<string>("RejectionReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("rejection_reason");
+
+                    b.Property<Guid>("StationOwnerId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("station_owner_id");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(30)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(30)")
+                        .HasDefaultValue("Pending")
+                        .HasColumnName("status");
+
+                    b.Property<DateTime>("UploadedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasColumnName("uploaded_at")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<DateTime?>("VerifiedAt")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("verified_at");
+
+                    b.Property<Guid?>("VerifiedByAdminId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("verified_by_admin_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StationOwnerId")
+                        .HasDatabaseName("IX_StationOwnerDocuments_OwnerId");
+
+                    b.ToTable("StationOwnerDocuments", (string)null);
                 });
 
             modelBuilder.Entity("VoltNet.Models.SubscriptionPlan", b =>
@@ -971,6 +1155,17 @@ namespace VoltNet.Migrations
                     b.Navigation("Station");
                 });
 
+            modelBuilder.Entity("VoltNet.Models.StationDocument", b =>
+                {
+                    b.HasOne("VoltNet.Models.Station", "Station")
+                        .WithMany("Documents")
+                        .HasForeignKey("StationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Station");
+                });
+
             modelBuilder.Entity("VoltNet.Models.StationManager", b =>
                 {
                     b.HasOne("VoltNet.Models.StationOwner", "CreatedByOwner")
@@ -1016,6 +1211,17 @@ namespace VoltNet.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("VoltNet.Models.StationOwnerDocument", b =>
+                {
+                    b.HasOne("VoltNet.Models.StationOwner", "StationOwner")
+                        .WithMany("Documents")
+                        .HasForeignKey("StationOwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("StationOwner");
+                });
+
             modelBuilder.Entity("VoltNet.Models.WaitlistEntry", b =>
                 {
                     b.HasOne("VoltNet.Models.Charger", "Charger")
@@ -1053,6 +1259,13 @@ namespace VoltNet.Migrations
                     b.Navigation("Chargers");
 
                     b.Navigation("ChargingRates");
+
+                    b.Navigation("Documents");
+                });
+
+            modelBuilder.Entity("VoltNet.Models.StationOwner", b =>
+                {
+                    b.Navigation("Documents");
                 });
 #pragma warning restore 612, 618
         }

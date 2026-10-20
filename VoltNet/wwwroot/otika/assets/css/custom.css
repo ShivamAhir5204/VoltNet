@@ -245,5 +245,24 @@ h1, h2, h3, h4, h5, h6,
     font-weight: 700 !important;
     color: #212529 !important;
 }
-
-
+/* Universal Bootstrap 4 Modal & Stacking Context Fix for Otika */
+.modal-backdrop {
+    z-index: 1040 !important;
+}
+.modal {
+    z-index: 1060 !important;
+}
+.modal.show {
+    z-index: 1060 !important;
+}
+.modal-dialog {
+    z-index: 1065 !important;
+    position: relative;
+    pointer-events: auto !important;
+}
+.modal-content {
+    position: relative;
+    z-index: 1070 !important;
+    pointer-events: auto !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important;
+}

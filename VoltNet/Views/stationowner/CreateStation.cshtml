@@ -13,7 +13,8 @@
         <a href="/owner/stations" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left"></i> Back</a>
       </div>
       <div class="card-body">
-        <form method="post" asp-action="Create">
+        <form method="post" asp-action="Create" enctype="multipart/form-data">
+          <div asp-validation-summary="All" class="alert alert-danger mb-3" style="border-radius: 8px;"></div>
           <div class="form-group">
             <label for="Name">Station Name <span class="text-danger">*</span></label>
             <input asp-for="Name" class="form-control" required />
@@ -68,9 +69,127 @@
             </div>
           </div>
 
+          <!-- Mandatory Station Verification Documents Section -->
+          <div class="card mt-4 mb-4" style="border: 1px solid #dce2eb; border-radius: 10px; box-shadow: 0 4px 16px rgba(0,0,0,0.04); overflow: hidden;">
+            <div class="p-3" style="background: linear-gradient(135deg, #f8faff 0%, #edf2fc 100%); border-bottom: 1px solid #e2e8f0;">
+              <div class="d-flex align-items-center justify-content-between flex-wrap">
+                <div class="d-flex align-items-center mb-2 mb-sm-0">
+                  <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mr-3" style="width: 40px; height: 40px; font-size: 18px; box-shadow: 0 3px 8px rgba(103, 119, 239, 0.35);">
+                    <i class="fas fa-file-contract"></i>
+                  </div>
+                  <div>
+                    <h6 class="mb-0 font-weight-bold text-dark font-15">Mandatory Station Verification Documents</h6>
+                    <small class="text-muted">All 4 documents are required by regulatory authorities for station approval & activation.</small>
+                  </div>
+                </div>
+                <span class="badge badge-danger font-12 font-weight-bold px-3 py-2">
+                  <i class="fas fa-asterisk mr-1 font-10"></i> 4 Documents Mandatory
+                </span>
+              </div>
+            </div>
+
+            <div class="card-body p-3 p-md-4" style="background: #ffffff;">
+              <div class="row">
+                <!-- 1. DISCOM Sanction Letter -->
+                <div class="col-md-6 mb-3">
+                  <div class="p-3 h-100 rounded" style="border: 1px solid #e2e8f0; background: #fafcff; transition: all 0.2s ease;">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                      <div class="d-flex align-items-center">
+                        <span class="rounded-circle d-inline-flex align-items-center justify-content-center mr-2" style="width: 32px; height: 32px; background: #fff8e6; color: #f59e0b; font-size: 15px;">
+                          <i class="fas fa-bolt"></i>
+                        </span>
+                        <strong class="text-dark font-14">DISCOM Sanction Letter <span class="text-danger">*</span></strong>
+                      </div>
+                      <span class="badge badge-danger font-11">Required</span>
+                    </div>
+                    <p class="text-muted font-12 mb-3" style="line-height: 1.4;">Official power load sanction approval letter from state electricity distribution company (kW/kVA).</p>
+                    <div class="custom-file mb-1">
+                      <input type="file" name="discomLetterFile" id="discomLetterFile" class="custom-file-input" accept=".pdf,.jpg,.jpeg,.png,.webp" required onchange="handleFileSelected(this, 'discomFeedback', 'discomLabel')" />
+                      <label class="custom-file-label font-13 text-truncate" id="discomLabel" for="discomLetterFile">Choose DISCOM Letter...</label>
+                    </div>
+                    <div id="discomFeedback" class="small text-muted mt-1 font-12">
+                      <i class="fas fa-info-circle mr-1"></i> PDF, PNG, JPG, JPEG (Max 10 MB)
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 2. Land Lease / Ownership Deed -->
+                <div class="col-md-6 mb-3">
+                  <div class="p-3 h-100 rounded" style="border: 1px solid #e2e8f0; background: #fafcff; transition: all 0.2s ease;">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                      <div class="d-flex align-items-center">
+                        <span class="rounded-circle d-inline-flex align-items-center justify-content-center mr-2" style="width: 32px; height: 32px; background: #e0f7fa; color: #00acc1; font-size: 15px;">
+                          <i class="fas fa-file-signature"></i>
+                        </span>
+                        <strong class="text-dark font-14">Land Lease / Ownership <span class="text-danger">*</span></strong>
+                      </div>
+                      <span class="badge badge-danger font-11">Required</span>
+                    </div>
+                    <p class="text-muted font-12 mb-3" style="line-height: 1.4;">Registered lease agreement, property ownership title deed, or land use NOC proof.</p>
+                    <div class="custom-file mb-1">
+                      <input type="file" name="landLeaseFile" id="landLeaseFile" class="custom-file-input" accept=".pdf,.jpg,.jpeg,.png,.webp" required onchange="handleFileSelected(this, 'leaseFeedback', 'leaseLabel')" />
+                      <label class="custom-file-label font-13 text-truncate" id="leaseLabel" for="landLeaseFile">Choose Lease / Deed...</label>
+                    </div>
+                    <div id="leaseFeedback" class="small text-muted mt-1 font-12">
+                      <i class="fas fa-info-circle mr-1"></i> PDF, PNG, JPG, JPEG (Max 10 MB)
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 3. Fire Safety NOC -->
+                <div class="col-md-6 mb-3">
+                  <div class="p-3 h-100 rounded" style="border: 1px solid #e2e8f0; background: #fafcff; transition: all 0.2s ease;">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                      <div class="d-flex align-items-center">
+                        <span class="rounded-circle d-inline-flex align-items-center justify-content-center mr-2" style="width: 32px; height: 32px; background: #fef2f2; color: #ef4444; font-size: 15px;">
+                          <i class="fas fa-fire-extinguisher"></i>
+                        </span>
+                        <strong class="text-dark font-14">Fire Safety NOC <span class="text-danger">*</span></strong>
+                      </div>
+                      <span class="badge badge-danger font-11">Required</span>
+                    </div>
+                    <p class="text-muted font-12 mb-3" style="line-height: 1.4;">Fire department NOC or safety clearance certificate for electrical charging premises.</p>
+                    <div class="custom-file mb-1">
+                      <input type="file" name="fireNocFile" id="fireNocFile" class="custom-file-input" accept=".pdf,.jpg,.jpeg,.png,.webp" required onchange="handleFileSelected(this, 'fireFeedback', 'fireLabel')" />
+                      <label class="custom-file-label font-13 text-truncate" id="fireLabel" for="fireNocFile">Choose Fire NOC...</label>
+                    </div>
+                    <div id="fireFeedback" class="small text-muted mt-1 font-12">
+                      <i class="fas fa-info-circle mr-1"></i> PDF, PNG, JPG, JPEG (Max 10 MB)
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 4. Station Site Photographs -->
+                <div class="col-md-6 mb-3">
+                  <div class="p-3 h-100 rounded" style="border: 1px solid #e2e8f0; background: #fafcff; transition: all 0.2s ease;">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                      <div class="d-flex align-items-center">
+                        <span class="rounded-circle d-inline-flex align-items-center justify-content-center mr-2" style="width: 32px; height: 32px; background: #f0fdf4; color: #16a34a; font-size: 15px;">
+                          <i class="fas fa-camera"></i>
+                        </span>
+                        <strong class="text-dark font-14">Station Site Photos <span class="text-danger">*</span></strong>
+                      </div>
+                      <span class="badge badge-danger font-11">Required</span>
+                    </div>
+                    <p class="text-muted font-12 mb-3" style="line-height: 1.4;">Clear wide photographs showing installed chargers, canopy, parking bays, and entrance.</p>
+                    <div class="custom-file mb-1">
+                      <input type="file" name="sitePhotosFile" id="sitePhotosFile" class="custom-file-input" accept=".pdf,.jpg,.jpeg,.png,.webp" required onchange="handleFileSelected(this, 'photosFeedback', 'photosLabel')" />
+                      <label class="custom-file-label font-13 text-truncate" id="photosLabel" for="sitePhotosFile">Choose Site Photos...</label>
+                    </div>
+                    <div id="photosFeedback" class="small text-muted mt-1 font-12">
+                      <i class="fas fa-info-circle mr-1"></i> PDF, PNG, JPG, JPEG (Max 10 MB)
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div class="form-group mt-4">
-            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Submit for Verification</button>
-            <a href="/owner/stations" class="btn btn-outline-secondary ml-2">Cancel</a>
+            <button type="submit" class="btn btn-primary btn-lg font-weight-600 px-4">
+              <i class="fas fa-save mr-1"></i> Submit Station for Admin Verification
+            </button>
+            <a href="/owner/stations" class="btn btn-outline-secondary btn-lg ml-2">Cancel</a>
           </div>
         </form>
       </div>
@@ -81,6 +200,30 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script>
+    function handleFileSelected(input, feedbackId, labelId) {
+        var feedback = document.getElementById(feedbackId);
+        var label = document.getElementById(labelId);
+        if (!feedback) return;
+
+        if (input.files && input.files[0]) {
+            var file = input.files[0];
+            var sizeMb = (file.size / (1024 * 1024)).toFixed(2);
+            if (label) {
+                label.textContent = file.name;
+            }
+            if (file.size > 10 * 1024 * 1024) {
+                feedback.innerHTML = '<span class="text-danger font-weight-bold"><i class="fas fa-exclamation-triangle mr-1"></i> ' + file.name + ' (' + sizeMb + ' MB) exceeds 10 MB limit</span>';
+                input.value = '';
+                if (label) label.textContent = 'Choose File...';
+            } else {
+                feedback.innerHTML = '<span class="text-success font-weight-bold"><i class="fas fa-check-circle mr-1"></i> ' + file.name + ' <span class="badge badge-success font-11 ml-1">' + sizeMb + ' MB</span></span>';
+            }
+        } else {
+            feedback.innerHTML = '<span class="text-muted"><i class="fas fa-info-circle mr-1"></i> PDF, PNG, JPG, JPEG (Max 10 MB)</span>';
+            if (label) label.textContent = 'Choose File...';
+        }
+    }
+
     (function() {
         // Check if we have picked location from map
         var picked = sessionStorage.getItem('ownerPickedLocation');

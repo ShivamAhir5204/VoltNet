@@ -14,11 +14,15 @@ public class ManagerBookingsController : Controller
 {
     private readonly AppDbContext _context;
     private readonly IWebHostEnvironment _env;
+    private readonly IConfiguration _configuration;
+    private readonly IHttpClientFactory _httpClientFactory;
 
-    public ManagerBookingsController(AppDbContext context, IWebHostEnvironment env)
+    public ManagerBookingsController(AppDbContext context, IWebHostEnvironment env, IConfiguration configuration, IHttpClientFactory httpClientFactory)
     {
         _context = context;
         _env = env;
+        _configuration = configuration;
+        _httpClientFactory = httpClientFactory;
     }
 
     private Guid GetUserId() => Guid.Parse(User.FindFirstValue("UserId")!);
@@ -141,18 +145,11 @@ public class ManagerBookingsController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    // ── COMPLETE CHARGING SESSION WITH METER READING & PHOTO PROOF ──
-    // POST: /manager/bookings/complete
-    [HttpPost("complete")]
+    // ── STEP 1: START CHARGING SESSION (PLUGGED IN) ──
+    // POST: /manager/bookings/start-charging
+    [HttpPost("start-charging")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Complete(
-        Guid id,
-        decimal? unitsConsumedKwh,
-        decimal? startMeterReading,
-        decimal? endMeterReading,
-        decimal? actualCost,
-        string? vehicleNumberPlate,
-        IFormFile? meterPhoto)
+    public async Task<IActionResult> StartCharging(Guid id, decimal? initialMeterReading)
     {
         var manager = await GetCurrentManagerAsync();
         if (manager == null) return Unauthorized();
@@ -165,7 +162,49 @@ public class ManagerBookingsController : Controller
 
         if (booking.Status != "Confirmed")
         {
-            TempData["Error"] = "Only active / confirmed bookings can be marked as completed.";
+            TempData["Error"] = "Only confirmed reservations can be started.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        booking.Status = "Charging";
+        booking.ChargingStartedAt = DateTime.UtcNow;
+        if (initialMeterReading.HasValue && initialMeterReading.Value > 0)
+        {
+            booking.StartMeterReading = initialMeterReading.Value;
+        }
+
+        await _context.SaveChangesAsync();
+
+        TempData["Success"] = $"⚡ Vehicle plugged in! Charging session started for {booking.VehicleNumberPlate ?? "Vehicle"} on {booking.Charger?.Name}.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    // ── STEP 2: COMPLETE CHARGING SESSION WITH METER READING & PHOTO PROOF ──
+    // POST: /manager/bookings/complete
+    [HttpPost("complete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Complete(
+        Guid id,
+        decimal? unitsConsumedKwh,
+        decimal? startMeterReading,
+        decimal? endMeterReading,
+        decimal? actualCost,
+        string? vehicleNumberPlate,
+        string? paymentMethod,
+        IFormFile? meterPhoto)
+    {
+        var manager = await GetCurrentManagerAsync();
+        if (manager == null) return Unauthorized();
+
+        var booking = await _context.Bookings
+            .Include(b => b.Charger)
+            .FirstOrDefaultAsync(b => b.Id == id && b.StationId == manager.StationId);
+
+        if (booking == null) return NotFound();
+
+        if (booking.Status != "Confirmed" && booking.Status != "Charging")
+        {
+            TempData["Error"] = "Only active or in-progress bookings can be marked as completed.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -202,6 +241,10 @@ public class ManagerBookingsController : Controller
             }
         }
 
+        // Deduct Advance Booking Fee (Anti-hoarding commitment fee adjusted)
+        decimal feeAdjusted = booking.BookingFee > 0 ? booking.BookingFee : 0m;
+        decimal netAmountToCollect = Math.Max(0, finalBill - feeAdjusted);
+
         // Handle Meter Photo Upload Proof
         if (meterPhoto != null && meterPhoto.Length > 0)
         {
@@ -225,6 +268,8 @@ public class ManagerBookingsController : Controller
         booking.EndMeterReading = endMeterReading;
         booking.AppliedRatePerKwh = ratePerKwh;
         booking.ActualCost = finalBill;
+        booking.PaymentMethod = string.IsNullOrWhiteSpace(paymentMethod) ? "UPI / QR Code" : paymentMethod.Trim();
+        booking.PaymentStatus = "Paid";
         booking.CompletedAt = DateTime.UtcNow;
 
         if (!string.IsNullOrWhiteSpace(vehicleNumberPlate))
@@ -234,7 +279,7 @@ public class ManagerBookingsController : Controller
 
         await _context.SaveChangesAsync();
 
-        TempData["Success"] = $"Charging session completed! {units:F2} kWh billed at ₹{ratePerKwh:F2}/kWh. Total: ₹{finalBill:F2}.";
+        TempData["Success"] = $"Charging session completed! {units:F2} kWh billed at ₹{ratePerKwh:F2}/kWh. Total: ₹{finalBill:F2} (Net Collected via {booking.PaymentMethod}: ₹{netAmountToCollect:F2}).";
         return RedirectToAction(nameof(Index));
     }
 
@@ -258,10 +303,113 @@ public class ManagerBookingsController : Controller
         }
 
         booking.Status = "NoShow";
+
+        // Auto-promote waitlist queue driver on No-Show
+        var nextInQueue = await _context.WaitlistEntries
+            .Include(w => w.Customer)
+            .Where(w => w.ChargerId == booking.ChargerId && w.BookingDate == booking.BookingDate && w.StartTime == booking.StartTime && w.Status == "Waiting")
+            .OrderBy(w => w.QueuePosition)
+            .ThenBy(w => w.CreatedAt)
+            .FirstOrDefaultAsync();
+
+        if (nextInQueue != null)
+        {
+            var promotedBooking = new Booking
+            {
+                Id = Guid.NewGuid(),
+                CustomerId = nextInQueue.CustomerId,
+                CustomerName = nextInQueue.Customer?.Fullname ?? "Customer",
+                CustomerPhone = nextInQueue.Customer?.Mobile,
+                VehicleNumberPlate = nextInQueue.VehicleNumberPlate,
+                StationId = booking.StationId,
+                ChargerId = booking.ChargerId,
+                BookingDate = booking.BookingDate,
+                StartTime = booking.StartTime,
+                EndTime = booking.EndTime,
+                Status = "Confirmed",
+                AppliedRatePerKwh = booking.AppliedRatePerKwh,
+                EstimatedCost = booking.EstimatedCost,
+                BookingFee = 50.00m,
+                PaymentMethod = "Advance Slot Commitment",
+                PaymentStatus = "AdvancePaid",
+                CreatedAt = DateTime.UtcNow
+            };
+
+            nextInQueue.Status = "Promoted";
+            nextInQueue.PromotedAt = DateTime.UtcNow;
+
+            _context.Bookings.Add(promotedBooking);
+
+            var remainingQueue = await _context.WaitlistEntries
+                .Where(w => w.ChargerId == booking.ChargerId && w.BookingDate == booking.BookingDate && w.StartTime == booking.StartTime && w.Status == "Waiting" && w.Id != nextInQueue.Id)
+                .OrderBy(w => w.QueuePosition)
+                .ToListAsync();
+
+            int pos = 1;
+            foreach (var item in remainingQueue)
+            {
+                item.QueuePosition = pos++;
+            }
+
+            _ = SendPromotionNotificationEmailAsync(promotedBooking.Id);
+        }
+
         await _context.SaveChangesAsync();
 
-        TempData["Success"] = $"Booking #{booking.Id.ToString().Substring(0, 8).ToUpper()} marked as No-Show. Slot released.";
+        TempData["Success"] = nextInQueue != null
+            ? $"Booking #{booking.Id.ToString()[..8].ToUpper()} marked as No-Show. Driver '{nextInQueue.Customer?.Fullname}' from queue automatically promoted to this slot!"
+            : $"Booking #{booking.Id.ToString()[..8].ToUpper()} marked as No-Show. Slot released.";
         return RedirectToAction(nameof(Index));
+    }
+
+    private async Task SendPromotionNotificationEmailAsync(Guid bookingId)
+    {
+        try
+        {
+            var booking = await _context.Bookings
+                .Include(b => b.Customer)
+                .Include(b => b.Station)
+                .Include(b => b.Charger)
+                .FirstOrDefaultAsync(b => b.Id == bookingId);
+
+            if (booking == null || booking.Customer == null || string.IsNullOrEmpty(booking.Customer.Email))
+                return;
+
+            var client = _httpClientFactory.CreateClient();
+            var apiKey = _configuration["MailApi:ApiKey"];
+            if (!string.IsNullOrEmpty(apiKey))
+            {
+                client.DefaultRequestHeaders.Add("x-api-key", apiKey);
+            }
+
+            var formContent = new MultipartFormDataContent();
+            formContent.Add(new StringContent(booking.Customer.Email), "to");
+            formContent.Add(new StringContent("🎉 You've Been Promoted to a Confirmed Slot! — VoltNet"), "subject");
+
+            var body = $@"
+Hello {booking.Customer.Fullname},
+
+A previously reserved charging slot at {booking.Station?.Name} was just released due to a No-Show, and you have been AUTOMATICALLY PROMOTED from the waitlist queue to a CONFIRMED RESERVATION!
+
+Your Booking Details:
+• Station: {booking.Station?.Name}, {booking.Station?.City}
+• Charger: {booking.Charger?.Name} ({booking.Charger?.ConnectorType})
+• Date: {booking.BookingDate:dd MMM yyyy}
+• Time Slot: {booking.StartTime:hh\:mm} - {booking.EndTime:hh\:mm}
+• Status: Confirmed
+
+View your active booking here: http://localhost:5000/customer/bookings
+
+Thank you for charging with VoltNet!
+VoltNet Team";
+
+            formContent.Add(new StringContent(body), "body");
+            await client.PostAsync("http://mailsendapi.runasp.net/api/Mailing/send", formContent);
+        }
+        catch
+        {
+            // Email failure won't fail transaction
+        }
     }
 
     // ── AJAX HELPER: Auto Extract Meter Reading from Photo (OCR Simulation / Heuristic) ──

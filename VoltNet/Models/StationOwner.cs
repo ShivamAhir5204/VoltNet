@@ -51,4 +51,5 @@ public class StationOwner
     // Navigation properties
     public virtual UserMaster User { get; set; } = null!;
     public virtual UserMaster? ApprovedByUser { get; set; }
+    public virtual ICollection<StationOwnerDocument> Documents { get; set; } = new List<StationOwnerDocument>();
 }

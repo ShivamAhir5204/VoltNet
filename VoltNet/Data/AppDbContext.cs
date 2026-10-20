@@ -25,6 +25,8 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<Booking> Bookings { get; set; }
     public virtual DbSet<WaitlistEntry> WaitlistEntries { get; set; }
     public virtual DbSet<StationBlockSlot> StationBlockSlots { get; set; }
+    public virtual DbSet<StationDocument> StationDocuments { get; set; }
+    public virtual DbSet<StationOwnerDocument> StationOwnerDocuments { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -495,6 +497,21 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.MeterPhotoUrl)
                 .HasMaxLength(500)
                 .HasColumnName("meter_photo_url");
+
+            entity.Property(e => e.BookingFee)
+                .HasColumnType("decimal(18,2)")
+                .HasColumnName("booking_fee")
+                .HasDefaultValue(50.00m);
+            entity.Property(e => e.PaymentMethod)
+                .HasMaxLength(50)
+                .HasColumnName("payment_method");
+            entity.Property(e => e.PaymentStatus)
+                .HasMaxLength(30)
+                .HasColumnName("payment_status")
+                .HasDefaultValue("Pending");
+            entity.Property(e => e.ChargingStartedAt)
+                .HasColumnName("charging_started_at");
+
             entity.Property(e => e.VehicleNumberPlate)
                 .HasMaxLength(30)
                 .HasColumnName("vehicle_number_plate");
@@ -581,6 +598,64 @@ public partial class AppDbContext : DbContext
             entity.HasOne(e => e.CreatedByManager).WithMany().HasForeignKey(e => e.CreatedByManagerId).OnDelete(DeleteBehavior.Restrict);
 
             entity.HasIndex(e => new { e.StationId, e.BlockDate }).HasDatabaseName("IX_StationBlockSlots_Date");
+        });
+
+        // -- StationDocument -----------------------------------------
+        modelBuilder.Entity<StationDocument>(entity =>
+        {
+            entity.ToTable("StationDocuments");
+
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnName("id");
+            entity.Property(e => e.StationId).HasColumnName("station_id");
+            entity.Property(e => e.DocumentType).HasMaxLength(100).HasColumnName("document_type");
+            entity.Property(e => e.DocumentNumber).HasMaxLength(100).HasColumnName("document_number");
+            entity.Property(e => e.FilePath).HasMaxLength(500).HasColumnName("file_path");
+            entity.Property(e => e.OriginalFileName).HasMaxLength(255).HasColumnName("original_file_name");
+            entity.Property(e => e.FileExtension).HasMaxLength(50).HasColumnName("file_extension");
+            entity.Property(e => e.FileSizeBytes).HasColumnName("file_size_bytes");
+            entity.Property(e => e.Status).HasMaxLength(30).IsUnicode(false).HasColumnName("status").HasDefaultValue("Pending");
+            entity.Property(e => e.RejectionReason).HasMaxLength(500).HasColumnName("rejection_reason");
+            entity.Property(e => e.VerifiedAt).HasColumnName("verified_at");
+            entity.Property(e => e.VerifiedByAdminId).HasColumnName("verified_by_admin_id");
+            entity.Property(e => e.UploadedAt).HasColumnName("uploaded_at").HasDefaultValueSql("GETUTCDATE()");
+
+            entity.HasOne(e => e.Station)
+                .WithMany(s => s.Documents)
+                .HasForeignKey(e => e.StationId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(e => e.StationId).HasDatabaseName("IX_StationDocuments_StationId");
+        });
+
+        // -- StationOwnerDocument ------------------------------------
+        modelBuilder.Entity<StationOwnerDocument>(entity =>
+        {
+            entity.ToTable("StationOwnerDocuments");
+
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnName("id");
+            entity.Property(e => e.StationOwnerId).HasColumnName("station_owner_id");
+            entity.Property(e => e.DocumentType).HasMaxLength(100).HasColumnName("document_type");
+            entity.Property(e => e.DocumentNumber).HasMaxLength(100).HasColumnName("document_number");
+            entity.Property(e => e.FilePath).HasMaxLength(500).HasColumnName("file_path");
+            entity.Property(e => e.OriginalFileName).HasMaxLength(255).HasColumnName("original_file_name");
+            entity.Property(e => e.FileExtension).HasMaxLength(50).HasColumnName("file_extension");
+            entity.Property(e => e.FileSizeBytes).HasColumnName("file_size_bytes");
+            entity.Property(e => e.Status).HasMaxLength(30).IsUnicode(false).HasColumnName("status").HasDefaultValue("Pending");
+            entity.Property(e => e.RejectionReason).HasMaxLength(500).HasColumnName("rejection_reason");
+            entity.Property(e => e.VerifiedAt).HasColumnName("verified_at");
+            entity.Property(e => e.VerifiedByAdminId).HasColumnName("verified_by_admin_id");
+            entity.Property(e => e.UploadedAt).HasColumnName("uploaded_at").HasDefaultValueSql("GETUTCDATE()");
+
+            entity.HasOne(e => e.StationOwner)
+                .WithMany(o => o.Documents)
+                .HasForeignKey(e => e.StationOwnerId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(e => e.StationOwnerId).HasDatabaseName("IX_StationOwnerDocuments_OwnerId");
         });
 
         OnModelCreatingPartial(modelBuilder);

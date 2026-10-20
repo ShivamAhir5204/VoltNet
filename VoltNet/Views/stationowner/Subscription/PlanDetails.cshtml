@@ -1,12 +1,18 @@
 @model VoltNet.Models.SubscriptionPlan
 @{
-    ViewData["Title"] = $"Subscribe to {Model.Name}";
+    var isUpgrade = (bool)(ViewBag.IsUpgrade ?? false);
+    var activeSub = ViewBag.ActiveSubscription as VoltNet.Models.OwnerSubscription;
+    var unusedCredit = (decimal)(ViewBag.UnusedCredit ?? 0m);
+    var upgradePayable = (decimal)(ViewBag.UpgradePayable ?? Model.PricePerMonth);
+    var remainingDays = (int)(ViewBag.RemainingDays ?? 0);
+
+    ViewData["Title"] = isUpgrade ? $"Upgrade to {Model.Name}" : $"Subscribe to {Model.Name}";
     Layout = "~/Views/Shared/_OwnerLayout.cshtml";
     var razorpayKey = ViewBag.RazorpayKeyId as string ?? "";
     var isEnterprise = Model.MaxStations > 10;
     var isGrowth = Model.MaxStations > 1 && !isEnterprise;
-    var badgeText = isEnterprise ? "Enterprise Tier" : (isGrowth ? "Growth Tier" : "Starter Tier");
-    var badgeClass = isEnterprise ? "badge-dark" : (isGrowth ? "badge-primary" : "badge-info");
+    var badgeText = isUpgrade ? "Plan Upgrade" : (isEnterprise ? "Enterprise Tier" : (isGrowth ? "Growth Tier" : "Starter Tier"));
+    var badgeClass = isUpgrade ? "badge-warning text-dark" : (isEnterprise ? "badge-dark" : (isGrowth ? "badge-primary" : "badge-info"));
 }
 
 <style>
@@ -307,7 +313,7 @@
     <div class="section-header-back">
         <a href="/owner/subscription/plans" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
     </div>
-    <h1>Subscribe to @Model.Name</h1>
+    <h1>@(isUpgrade ? $"Upgrade to {Model.Name}" : $"Subscribe to {Model.Name}")</h1>
     <div class="section-header-breadcrumb">
         <div class="breadcrumb-item active"><a href="/owner/dashboard">Dashboard</a></div>
         <div class="breadcrumb-item"><a href="/owner/subscription">Subscriptions</a></div>
@@ -317,6 +323,25 @@
 </div>
 
 <div class="row">
+    @if (isUpgrade && activeSub != null)
+    {
+        <div class="col-12 mb-4">
+            <div class="alert alert-info d-flex flex-wrap align-items-center justify-content-between p-3" style="border-radius: 10px; background: linear-gradient(135deg, #e0f2fe 0%, #eef2ff 100%); border: 1px solid #bae6fd; color: #0369a1;">
+                <div class="d-flex align-items-center mb-2 mb-md-0">
+                    <div class="mr-3" style="width: 44px; height: 44px; border-radius: 50%; background: #0284c7; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <div>
+                        <strong class="font-16 d-block" style="color: #0c4a6e;">Upgrading from @activeSub.Plan?.Name</strong>
+                        <span class="font-13" style="color: #0369a1;">
+                            You have <strong>@remainingDays days</strong> remaining on your current plan. We've credited <strong>₹@unusedCredit.ToString("N2")</strong> toward this upgrade!
+                        </span>
+                    </div>
+                </div>
+                <span class="badge badge-primary px-3 py-2 font-13 font-weight-700">Instant Switch • Zero Station Downtime</span>
+            </div>
+        </div>
+    }
     <!-- ─── Left Column: Plan Specs & Features ───────────────────────── -->
     <div class="col-12 col-lg-7 mb-4">
         <!-- Plan Specifications -->
@@ -442,6 +467,19 @@
                 <span class="detail-value font-weight-600 text-dark font-15">₹@Model.PricePerMonth.ToString("N2")</span>
             </div>
 
+            @if (isUpgrade && unusedCredit > 0)
+            {
+                <div class="detail-row detail-row-inline" style="background: #f0fdf4; border-radius: 6px; padding: 8px 12px; margin: 6px 0; border: 1px dashed #86efac;">
+                    <div>
+                        <span class="detail-label text-success font-weight-bold d-block">
+                            <i class="fas fa-tag mr-1"></i> Prorated Credit
+                        </span>
+                        <small class="text-muted">Unused value (@remainingDays days left on @activeSub?.Plan?.Name)</small>
+                    </div>
+                    <span class="detail-value font-weight-bold text-success font-16">-₹@unusedCredit.ToString("N2")</span>
+                </div>
+            }
+
             <div class="detail-row detail-row-inline">
                 <span class="detail-label">GST / Platform Taxes</span>
                 <span class="detail-value font-weight-bold text-success font-14">Included</span>
@@ -450,12 +488,12 @@
             <div class="my-3 py-3 border-top border-bottom d-flex justify-content-between align-items-center">
                 <span class="font-weight-bold text-dark font-17">Total Payable</span>
                 <span class="font-weight-bold text-dark" style="font-size: 26px;">
-                    ₹@Model.PricePerMonth.ToString("N0")
+                    ₹@(isUpgrade ? upgradePayable.ToString("N0") : Model.PricePerMonth.ToString("N0"))
                 </span>
             </div>
 
-            <button type="button" class="btn btn-pay-now mb-3" id="btnPay" onclick="startRazorpayPayment('@Model.Id', '@Model.Name', @Model.PricePerMonth)">
-                <i class="fas fa-lock mr-2"></i> Pay ₹@Model.PricePerMonth.ToString("N0") & Activate
+            <button type="button" class="btn btn-pay-now mb-3" id="btnPay" onclick="startRazorpayPayment('@Model.Id', '@Model.Name', @(isUpgrade ? upgradePayable : Model.PricePerMonth))">
+                <i class="fas fa-@(isUpgrade ? "bolt" : "lock") mr-2"></i> @(isUpgrade ? $"Pay ₹{upgradePayable.ToString("N0")} & Upgrade Now" : $"Pay ₹{Model.PricePerMonth.ToString("N0")} & Activate")
             </button>
 
             <div class="text-center font-weight-600 font-12" style="color: #34395e;">
@@ -481,7 +519,7 @@
                     <i class="fas fa-lock"></i>
                 </div>
             </div>
-            <h5 class="font-weight-bold mb-1" style="color: #212529;">Connecting to Payment Gateway...</h5>
+            <h5 class="font-weight-bold mb-1" style="color: #212529;">@(isUpgrade ? "Initiating Plan Upgrade..." : "Connecting to Payment Gateway...")</h5>
             <p class="font-weight-600 small mb-0" style="color: #34395e;">Initializing encrypted order with Razorpay</p>
         </div>
 
@@ -531,7 +569,7 @@
 
             <div style="position: absolute; bottom: 8px; left: 0; width: 100%; text-align: center;">
                 <h6 class="font-weight-bold mb-0 text-dark" style="font-size: 0.9rem;">Processing Payment...</h6>
-                <small class="font-weight-600" style="color: #34395e;">Transferring <strong>₹@Model.PricePerMonth.ToString("N0")</strong> securely</small>
+                <small class="font-weight-600" style="color: #34395e;">Transferring <strong>₹@(isUpgrade ? upgradePayable.ToString("N0") : Model.PricePerMonth.ToString("N0"))</strong> securely</small>
             </div>
         </div>
 
@@ -541,7 +579,7 @@
                 <i class="fas fa-check"></i>
             </div>
             <h4 class="font-weight-bold text-success mb-1">Payment Successful!</h4>
-            <p class="font-weight-600 small mb-3" style="color: #34395e;">Subscription activated. Finalizing your dashboard...</p>
+            <p class="font-weight-600 small mb-3" style="color: #34395e;">@(isUpgrade ? "Plan upgraded successfully! Transferring your active stations..." : "Subscription activated. Finalizing your dashboard...")</p>
             <div class="spinner-border spinner-border-sm text-success" role="status"></div>
         </div>
     </div>

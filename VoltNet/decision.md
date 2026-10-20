@@ -322,4 +322,264 @@ This document details **why** and **which** technical, security, UX, and archite
 - **Decision**: Created `/manager/station-blocks` allowing managers to temporarily block specific chargers or the entire station for maintenance, grid power cuts, or staff breaks. Blocked slots are visually indicated to customers and locked from reservations.
 - **Why**: Prevents frustrated drivers from arriving at a station undergoing emergency electrical work or power outages.
 
+---
+
+## 11. Subscription Plan Upgrade Architecture (Netflix / JioCinema / Hotstar Prorated Model)
+
+### 11.1 Single Active Subscription Rule Preserved
+- **Decision**: A Station Owner is restricted to **exactly one** `Status == "Active"` subscription at any time. Rather than stacking multiple overlapping subscriptions, owners can upgrade their active subscription to a higher tier at any point (whether they have hit their station limit or simply want higher station and manager quotas).
+- **Why**: Eliminates multiple confusing billing dates, avoids duplicate invoice overhead, and mirrors standard industry models (Netflix, JioCinema, Hotstar, Spotify).
+
+### 11.2 Prorated Unused Days Credit Formula
+- **Decision**: When an owner upgrades from an active plan to a higher-tier plan, their remaining days are converted into a monetary discount deducted directly from the new plan's price:
+  $$\text{Daily Rate} = \frac{\text{Amount Paid on Old Plan}}{\text{Total Duration Days of Old Plan}}$$
+  $$\text{Unused Credit} = \min(\text{Amount Paid on Old Plan}, \max(0, \text{Daily Rate} \times \text{Remaining Days}))$$
+  $$\text{Net Upgrade Price} = \max(0, \text{New Plan Price} - \text{Unused Credit})$$
+- **Why**: Guarantees fair, transparent billing. Station owners never lose the value of days they already paid for, encouraging frictionless upgrades without waiting for plans to expire.
+
+### 11.3 Seamless Station Continuity & Zero Downtime Transition
+- **Decision**: In `OwnerSubscriptionController.VerifyPayment`:
+  1. The existing active subscription is transitioned to `Status = "Upgraded"`.
+  2. The new subscription is created with `Status = "Active"`, `StartDate = DateTime.UtcNow`, `EndDate = DateTime.UtcNow.AddDays(plan.DurationDays)`, and `AmountPaid = upgradePayable`.
+  3. **Automatic Station Re-linking**: All stations linked to the old subscription ID are re-assigned to the new subscription ID:
+     ```csharp
+     foreach (var st in activeSub.Stations)
+     {
+         st.OwnerSubscriptionId = subscription.Id;
+     }
+     ```
+- **Why**: Linked stations never lose their active status, ensuring 0% public map downtime and uninterrupted customer bookings during the upgrade.
+
+### 11.4 Ubiquitous "⚡ Upgrade" Callouts (Netflix / Hotstar UX)
+- **Decision**:
+  - **Index Dashboard**: Added prominent `⚡ Upgrade` action buttons directly on the active subscription card and header bar, plus dynamic quota alerts when assigned stations reach limit.
+  - **Station Allocation (`Assign.cshtml`)**: Added an upgrade reminder box for owners needing more capacity than their current tier allows.
+  - **Plan Catalog (`Plans.cshtml`)**: Displays "Current Plan" on active tier, disables lower tiers, and transforms higher-tier cards into "Upgrade Available" with full price breakdown (`New Price - Credit = Net Pay`).
+  - **Checkout Summary (`PlanDetails.cshtml`)**: Shows line-item prorated discount row (`-₹X.XX Prorated Credit`) and "Pay & Upgrade Now" CTA with matching payment simulation animations.
+  - **History (`History.cshtml`)**: Distinct `Upgraded` badge and info callout preserving an audit trail of past subscriptions.
+- **Why**: Provides a modern, premium SaaS upgrade journey where owners are never stuck or confused about how to expand their network capacity.
+
+---
+
+## 12. Real-World Charging Session Lifecycle & Anti-Hoarding Slot Protection
+
+### 12.1 The "Early Slot Booking Loophole" & How We Solved It
+- **The Problem / Loophole**:
+  - In a free reservation system where energy is only billed at completion, malicious or casual EV drivers could reserve multiple peak-hour slots across different charging stations with zero financial consequence.
+  - If a driver cancels late, does not show up, or simply changes their plans, the station owner suffers 100% loss of that charging bay for that hour, and other genuine EV drivers on low battery are turned away.
+- **The Solution: ₹50 Advance Slot Commitment Deposit**:
+  - When an online driver books a slot, they pay a nominal **₹50 Advance Slot Commitment Fee** (`BookingFee = 50.00m`, `PaymentStatus = "AdvancePaid"`).
+  - **100% Adjusted at Checkout**: When the customer arrives and charges their vehicle, the ₹50 is deducted in full from their final energy bill:
+    $$\text{Final Energy Cost} = \text{Units Consumed (kWh)} \times \text{Rate/kWh}$$
+    $$\text{Net Amount to Collect by Manager} = \max(0, \text{Final Energy Cost} - \text{BookingFee})$$
+  - **Walk-In Drivers**: Pay ₹0 advance booking fee because they are already physically at the station.
+  - **No-Show / Late Cancellation Forfeiture**: If a customer ghosts or fails to show up, the ₹50 deposit compensates the station owner for bay reservation downtime.
+
+### 12.2 Two-Stage Physical Session Lifecycle (`Confirmed` $\to$ `Charging` $\to$ `Completed`)
+- **Decision**:
+  - `Confirmed`: The slot is booked and reserved. Driver is expected.
+  - `Charging` (New State): Triggered by station manager clicking **"⚡ Start Charging"** when the charging gun is physically plugged into the EV. Captures `ChargingStartedAt` timestamp and `StartMeterReading`.
+  - `Completed`: Triggered by station manager clicking **"Finish & Bill"** when charging ends. Captures `EndMeterReading`, `UnitsConsumedKwh`, photo proof of meter, and handles payment collection.
+  - **Customer Protection**: While `Status == "Charging"`, the customer's "Cancel Booking" button is locked to prevent premature mid-session cancellation.
+- **Why**: Real-world EV stations have a distinct physical state between arrival/plug-in and final billing. Managers can see all bays that are actively pumping power in real-time.
+
+### 12.3 Multi-Channel Payment Accounting at Bay Checkout
+- **Decision**:
+  - The station manager checkout modal includes a **Payment Method** selector:
+    - `UPI / QR Scan` (BHIM, PhonePe, Google Pay, Paytm)
+    - `Cash` (Physical currency at counter)
+    - `Card (POS Machine)` (Credit/Debit tap & chip)
+  - Displays explicit breakdown: `Actual Energy Cost` - `Advance Paid (₹50)` = `Net Collectable Amount`.
+  - Stored in database fields `PaymentMethod` and `PaymentStatus = "Paid"`.
+- **Why**: Station owners require clear accounting audit logs to reconcile cash in counter vs bank UPI receipts.
+
+### 12.4 Automated No-Show Waitlist Promotion
+- **Decision**:
+  - When a manager marks an absent booking as `NoShow`, the system triggers an immediate waitlist check for that charger and time slot.
+  - The next waiting driver in line (`QueuePosition == 1`) is automatically promoted to `Confirmed`.
+  - Subsequent queue members are shifted forward (`QueuePosition--`).
+  - An automated email notification is fired to the promoted driver via `SendPromotionNotificationEmailAsync`.
+- **Why**: Ensures bay downtime is minimized by immediately offering empty bays to standby drivers waiting nearby.
+
+---
+
+## 13. Dual-Level Document Verification & Automated Email Engine
+
+### 13.1 Dual-Level Verification Domain Separation
+- **Decision**: Split document verification into two distinct, auditable architectural entities:
+  1. **`StationOwnerDocument` (Partner KYC Onboarding)**: Identity Proof / PAN Card, Aadhaar / Passport, Business Incorporation / MSME / Trade License, GST Certificate, Bank Account Cancelled Cheque.
+  2. **`StationDocument` (Charging Infrastructure Statutory Compliance)**: DISCOM Power Sanction Letter, Land Lease / Ownership Deed, Fire Safety NOC, CEIG Safety Clearance / Single Line Diagram (SLD), and Station Site Photographs.
+- **Why**: Separates the legal entity identity verification (KYC of the person/firm running the business) from physical premises compliance (electrical power grid safety and land permissions). A single owner can operate multiple stations, each with distinct DISCOM sanction letters and fire NOCs.
+
+### 13.2 File Security & Anti-Malware Safeguards (`FileValidationHelper`)
+- **Decision**:
+  - **Extension Whitelist**: Only `.pdf`, `.jpg`, `.jpeg`, `.png`, and `.webp` allowed.
+  - **Magic Byte Verification**: Inspects raw binary header bytes (`%PDF`, `FF D8 FF`, `89 50 4E 47`, `RIFF...WEBP`) to prevent disguised scripts or executable payloads.
+  - **File Size Ceiling**: Strictly capped at 10 MB per document to prevent DoS memory bloat.
+  - **Hashed Storage & Path Sanitization**: Files stored with `Guid.NewGuid()` filenames in dedicated directories (`/uploads/owner-kyc/` and `/uploads/station-documents/`) to eliminate directory traversal attacks and collision overwrites.
+- **Why**: Protects backend servers from arbitrary file execution and malicious payload uploads.
+
+### 13.3 Frictionless Resubmission Lifecycle
+- **Decision**:
+  - If Admin rejects a partner application or a charging station, the applicant / owner is not locked out.
+  - The rejection note is clearly displayed in their status portal alongside their uploaded documents.
+  - Users can directly upload corrected scans and submit. Re-uploading moves document and station status back to `"Pending"` / `"PendingVerification"`, automatically reappearing on Admin's verification queue.
+- **Why**: Mirrors real-world onboarding where documents are frequently blurry or need updated stamps.
+
+### 13.4 In-Browser Document Preview (Zero-Download UX)
+- **Decision**: In `Views/admin/verify/StationDetails.cshtml` and `Views/admin/verify/OwnerDetails.cshtml`, clicking **"Preview"** launches a responsive modal embedding the PDF in an iframe or displaying a high-resolution image zoom.
+- **Why**: Admins can inspect compliance seals and text without downloading hundreds of untrusted files to their local workstations.
+
+### 13.5 Automated Email Notification Engine
+- **Decision**: Automated branded HTML email dispatches on verification decisions:
+  - **Station Approved**: Congratulates the station owner, confirms station details, and provides a direct CTA to their owner dashboard.
+  - **Station Rejected**: Delivers actionable feedback detailing the exact rejection reasons and provides a direct link to re-upload.
+  - **Partner Application Approved**: Welcomes the applicant to the Station Owner ecosystem, confirms role elevation to `StationOwner`, and outlines next operational steps.
+  - **Partner Application Rejected**: Explains why KYC was insufficient and provides a link to their partner status page to resubmit corrected documents.
+  - **Individual Document Approval & Rejection**: Dispatches instant feedback to the owner whenever an admin accepts or rejects a specific document (e.g. DISCOM Sanction Letter or Fire Safety NOC) so the owner is immediately aware without waiting for total station rejection.
+- **Why**: Real-time transparency keeps applicants informed without needing manual support correspondence.
+
+### 13.6 Mandatory Statutory Document Requirement at Station Creation
+- **Decision**: All 4 compliance documents (**DISCOM Sanction Letter**, **Land Lease / Ownership Deed**, **Fire Safety NOC**, and **Station Site Photographs**) are made strictly **mandatory** upon station registration:
+  - Client-side: `required` HTML attributes and interactive custom file picker cards with instant file name, size, and 10 MB limit feedback.
+  - Server-side: `OwnerStationController.Create` checks for non-null/non-empty files and reports user-friendly `ModelState` errors.
+  - Replaced the awkward header `"Compliance & Statutory Documents (Optional now, or upload in Station Details)"` with a professional, regulatory-standard banner: **`Mandatory Station Verification Documents`** explaining national compliance requirements.
+- **Why**: Prevents dummy or incomplete stations from flooding the database and ensuring only fully compliant stations reach the admin verification desk.
+
+---
+
+## 14. Frontend Architecture & Modal Stacking Context Engine
+
+### 14.1 Universal Modal Stacking Context Architecture (Otika Theme Fix)
+- **Problem**: In Otika and Bootstrap 4, the `.main-content` wrapper has `position: relative`. When a modal is nested inside `@RenderBody()`, its z-index applies only within `.main-content`'s stacking context. When Bootstrap appends `.modal-backdrop` directly to `<body>` at `z-index: 1040`, the backdrop covers `.main-content` and the modal inside it, causing a dark, dull screen where no buttons or inputs can be clicked.
+- **Solution**:
+  1. **Razor Architectural Placement**: Added `@await RenderSectionAsync("Modals", required: false)` right before `</body>` in `_OwnerLayout.cshtml` and `_AdminLayout.cshtml`. All modals are defined in `@section Modals { ... }` and rendered natively as direct children of `<body>`, completely immune to any parent stacking context.
+  2. **Proactive Relocation Script**: On DOM ready, `$('#app .modal').appendTo("body")` automatically moves any modal found inside `#app` to `<body>` before any click event is triggered.
+  3. **CSS z-index Hierarchy**:
+     - `.modal-backdrop`: `z-index: 1040 !important`
+     - `.modal`: `z-index: 1060 !important`
+     - `.modal-dialog`: `z-index: 1065 !important`
+     - `.modal-content`: `z-index: 1070 !important`
+- **Why**: Provides a permanent, robust fix across all browsers and views, ensuring modals always appear in front of the backdrop and remain fully responsive.
+
+### 14.2 Multi-State Verification Queue Query
+- **Decision**: Updated `VerifyStations` query in `VerifyController.cs`:
+  `Where(s => s.Status == "PendingVerification" || s.Documents.Any(d => d.Status == "Pending"))`
+- **Why**: When an active station owner uploads an updated NOC or new compliance document from Station Details, the station previously remained hidden from the admin verification queue because its status was `"Active"`. The enhanced query ensures stations with newly submitted documents appear with a distinct **`New Docs Pending`** badge.
+
+---
+
+## 15. Phase 4 — Revenue Module Architectural & Implementation Decisions
+
+### 15.1 Pure Aggregation Architecture (Zero Schema Migrations)
+- **Decision**: Implemented full financial analytics, station-wise metrics, utilization formulas, and platform-wide GMV using pure relational aggregations across existing tables (`Bookings`, `Chargers`, `Stations`, `StationOwners`, `OwnerSubscriptions`, and `SubscriptionPlans`).
+- **Why**:
+  - Eliminates unnecessary duplicate tables or transaction caches that drift out of sync with real booking states.
+  - Ensures 100% financial consistency: every single rupee reported in KPIs directly derives from verified completed booking records (`ActualCost ?? EstimatedCost`) or active B2B SaaS subscription invoices (`AmountPaid - RefundAmount`).
+
+### 15.2 Indian Standard Time (IST UTC +05:30) Date Boundary Normalization
+- **Decision**: All daily, weekly, and monthly financial window calculations explicitly compute dates in IST:
+  ```csharp
+  var istNow = DateTime.UtcNow.AddHours(5).AddMinutes(30);
+  var today = istNow.Date;
+  var startOfWeek = today.AddDays(-(int)(today.DayOfWeek == DayOfWeek.Sunday ? 6 : today.DayOfWeek - DayOfWeek.Monday));
+  var startOfMonth = new DateTime(today.Year, today.Month, 1);
+  ```
+- **Why**: In standard UTC, Indian business hours (e.g. 5:30 AM to 11:59 PM) span two different UTC calendar days. Without IST conversion, transactions completed between 5:30 AM and 11:59 AM IST would incorrectly count towards the previous day, resulting in inaccurate "Today's Revenue" metrics.
+
+### 15.3 Strict Three-Tier IDOR Protection
+- **Decision**:
+  1. **Station Manager (`/manager/revenue`)**: Resolves station strictly through the authenticated user's claim:
+     `_context.StationManagers.FirstOrDefaultAsync(m => m.UserId == userId)`
+     Never accepts a `stationId` query parameter from the URL.
+  2. **Station Owner (`/owner/revenue` & `/owner/revenue/export`)**: Scopes all revenue and CSV exports strictly to `s.OwnerUserId == userId`. If a custom `stationId` query parameter is supplied, it is validated against the owner's owned station list before being applied.
+  3. **Platform Admin (`/admin/revenue` & `/admin/revenue/export`)**: Restricted via `[Authorize(Roles = "Admin,SuperAdmin")]` to deliver macro platform oversight.
+- **Why**: Completely neutralizes Insecure Direct Object Reference (IDOR) attacks, ensuring managers and owners can never spy on competitor stations or unauthorized network revenues.
+
+### 15.4 Operational EV Bay Utilization & Peak-Hour Intelligence
+- **Decision**:
+  - **Peak Hour**: Dynamically calculated by grouping completed sessions by hour of day (`b.StartTime.Hours`) and identifying the modal charging window (e.g., 6:00 PM – 7:00 PM).
+  - **30-Day Bay Utilization Rate**: Formulated as:
+    $$\text{Utilization \%} = \frac{\text{Completed Sessions in 30 Days}}{\text{Total Chargers} \times \text{Daily Operating Hours} \times 30} \times 100$$
+    Where daily operating hours dynamically derive from the station's `OpeningTime` and `ClosingTime`.
+  - **Top Charger Analysis**: Identifies the single most profitable charger unit, its connector standard (CCS2, Type 2, CHAdeMO), and computes its percentage contribution to total station revenue.
+- **Why**: Transforms raw monetary receipts into actionable operational intelligence for station managers and owners to schedule maintenance, optimize dynamic pricing, and prevent bay bottlenecks.
+
+### 15.5 RFC 4180 Compliant CSV Export Engine with UTF-8 BOM
+- **Decision**: Both Owner (`/owner/revenue/export`) and Admin (`/admin/revenue/export`) CSV exports include a leading UTF-8 Byte Order Mark (`\uFEFF`) and quote-escaped cell values.
+- **Why**: Standard UTF-8 CSVs opened in Microsoft Excel on Windows in India often misinterpret UTF-8 currency symbols and accents. Prepending `\uFEFF` guarantees that Excel, Google Sheets, and LibreOffice immediately parse column encodings and delimiters seamlessly without prompt dialogs.
+
+### 15.6 Chart.js Integration & Real-Time Visualization
+- **Decision**: Integrated Chart.js 4.x via CDN with custom responsive line and bar visualizations:
+  - Manager: 30-day daily revenue trend line with gradient fill and session volume tooltips.
+  - Owner: Per-station comparative bar chart and selected date range daily progression.
+  - Admin: 12-month multi-stream stacked bar and line progression separating station charging collections from B2B SaaS subscription revenues, accompanied by an owner subscription lifecycle health gauge.
+- **Why**: Gives each stakeholder an immediate visual pulse of their business with zero bundle overhead.
+
+---
+
+## 16. Financial Analyst Studio & Custom Date Review Matrix
+
+### 16.1 Multi-Granularity Time-Series Bucketing (Daily, Weekly, Monthly)
+- **Decision**: Created `/admin/revenue/analytics` providing custom date range analysis with configurable temporal granularity (`day`, `week`, `month`):
+  - Automatically selects an optimal default granularity (Daily if $\le$ 31 days, Weekly if $\le$ 120 days, Monthly if $> 120$ days) while permitting manual analyst overriding.
+  - Generates comprehensive bucket metrics: Volume (Sessions), Units (kWh), Gross Collection (₹), Average Order Value (AOV), and Realized Rate (₹/kWh).
+- **Why**: Allows financial auditors and business analysts to evaluate seasonality, charging velocity, and revenue run-rates without being overwhelmed by noisy daily plots over multi-month or annual horizons.
+
+### 16.2 In-Browser Multi-Metric Dynamic Switcher
+- **Decision**: Implemented an in-memory metric switching engine in `Views/admin/revenue/Analytics.cshtml` using Chart.js. Analysts can toggle between:
+  1. Gross Collection (₹)
+  2. Energy Dispensed (kWh)
+  3. Session Volume (Count)
+  4. Average Order Value (AOV)
+  Without triggering full page reloads or querying the database again.
+- **Why**: Delivers instant, app-like responsiveness for reviewers comparing volume spikes versus monetary realization.
+
+### 16.3 Analyst Raw Dataset Export
+- **Decision**: Added `[HttpGet("analytics/export")]` exporting granular booking data filtered by date, station, city, and payment method with an explicit UTF-8 BOM.
+- **Why**: Financial analysts and auditors can import the CSV directly into Python/Pandas, PowerBI, or Excel Pivot Tables without formatting headaches.
+
+---
+
+## 17. EV Driver Spending Telemetry, Fuel Savings & Statement Engine
+
+### 17.1 Customer Financial & Ecological Value Proposition
+- **Decision**: Created `CustomerSpendingController.cs` (`/customer/spending` and `/customer/analytics`) giving registered EV drivers transparency into their total charging expenses.
+- **Key Telemetry Metrics**:
+  - **Lifetime & Monthly Spend**: Total INR invested in EV charging, session counts, and kWh added.
+  - **Unit Economics**: Average cost per charging session (₹/session) and realized rate per unit (₹/kWh).
+  - **Net Fossil Fuel Savings**:
+    $$\text{Savings} = (\text{Total kWh} \times 7\text{ km/kWh} \times \frac{\text{₹}102}{\text{14.5 km/L}}) - \text{Total EV Spend}$$
+  - **CO₂ Emissions Avoided**: Computed at standard grid displacement of $0.82\text{ kg CO}_2/\text{kWh}$, accompanied by tree-equivalent equivalents ($\div 20\text{ kg/tree/year}$).
+- **Why**: Validates the driver's decision to transition to electric mobility by visibly displaying cash saved and carbon emissions offset on every charging session.
+
+### 17.2 Personal Statement Export Engine
+- **Decision**: Added `/customer/spending/export` enabling drivers to download an itemized, date-filtered CSV charging statement with station names, charger IDs, vehicle numbers, kilowatt-hours, and payment timestamps.
+- **Why**: Real-world drivers need official charging statements for corporate travel reimbursements, tax deductions, and personal expense tracking.
+
+---
+
+## 18. Owner Individual Station Revenue Intelligence & Deep-Dive Analytics
+
+### 18.1 Dedicated Station Revenue Route & Strict IDOR Scoping
+- **Decision**: Implemented `[HttpGet("owner/revenue/station/{stationId}")]` and `[HttpGet("owner/revenue/station/{stationId}/export")]` in `OwnerRevenueController.cs`.
+- **Ownership Verification**:
+  ```csharp
+  var station = await _context.Stations
+      .Include(s => s.Chargers)
+      .FirstOrDefaultAsync(s => s.Id == stationId && s.OwnerUserId == userId);
+  if (station == null) return NotFound("Station not found or you are not authorized to view this station's financial telemetry.");
+  ```
+- **Why**: Protects station owners against IDOR attacks by ensuring an owner can only deep-dive into revenue for stations registered under their verified `OwnerUserId`.
+
+### 18.2 Station-Level Operational Telemetry & Charger-by-Charger Matrix
+- **Decision**:
+  - **Station Highlights**: Top earning charger at that station with connector type and % contribution, peak charging hour window, bay utilization percentage over operating hours, and payment channel distribution (UPI vs Cash vs Card).
+  - **Charger-by-Charger Monetization Matrix**: Evaluates each individual charger bay at that station with its connector type, rated capacity (`CapacityKw`), sessions count, energy dispensed (kWh), total revenue collection (₹), and revenue share (%).
+  - **Time-Series Chart with Metric Switcher**: Interactive Chart.js canvas supporting real-time toggling between Gross Revenue (₹), Energy (kWh), Session Count, and Average Order Value (AOV) across Daily, Weekly, or Monthly buckets.
+  - **Itemized Sessions Ledger**: Detailed audit of recent completed charging sessions with driver details, energy, cost, and payment status.
+  - **Direct Station CSV Export**: One-click download of all completed session records for that specific station with UTF-8 BOM.
+- **Why**: Station owners operating multiple stations need granular unit economics to understand which specific chargers are underperforming, identify hardware failures, and optimize slot allocations.
+
+
 
