@@ -6,190 +6,185 @@
 }
 
 <div class="row">
-  <div class="col-12 col-lg-8">
-    <div class="card">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <h4>Create New Station</h4>
-        <a href="/owner/stations" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left"></i> Back</a>
+  <div class="col-12">
+    <div class="card card-primary shadow-sm mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center py-3">
+        <h4 class="text-dark font-weight-bold mb-0">
+          <i class="fas fa-charging-station text-primary mr-2"></i> Create Station
+        </h4>
+        <a href="/owner/stations" class="btn btn-outline-secondary btn-sm font-weight-600">
+          <i class="fas fa-arrow-left mr-1"></i> Back
+        </a>
       </div>
-      <div class="card-body">
-        <form method="post" asp-action="Create" enctype="multipart/form-data">
-          <div asp-validation-summary="All" class="alert alert-danger mb-3" style="border-radius: 8px;"></div>
-          <div class="form-group">
-            <label for="Name">Station Name <span class="text-danger">*</span></label>
-            <input asp-for="Name" class="form-control" required />
-            <span asp-validation-for="Name" class="text-danger"></span>
-          </div>
-          <div class="form-group">
-            <label for="Address">Address <span class="text-danger">*</span></label>
-            <input asp-for="Address" class="form-control" required />
-            <span asp-validation-for="Address" class="text-danger"></span>
-          </div>
-          <div class="row">
-            <div class="col-md-6 form-group">
-              <label for="City">City <span class="text-danger">*</span></label>
-              <input asp-for="City" class="form-control" required />
-              <span asp-validation-for="City" class="text-danger"></span>
-            </div>
-            <div class="col-md-6 form-group">
-              <label for="State">State <span class="text-danger">*</span></label>
-              <select asp-for="State" class="form-control" id="State" required>
-                <option value="">-- Select State --</option>
-              </select>
-              <span asp-validation-for="State" class="text-danger"></span>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-12 col-md-5 form-group">
-              <label for="Latitude">Latitude <span class="text-danger">*</span></label>
-              <input asp-for="Latitude" id="Latitude" type="number" step="any" class="form-control" required />
-              <span asp-validation-for="Latitude" class="text-danger"></span>
-            </div>
-            <div class="col-12 col-md-5 form-group">
-              <label for="Longitude">Longitude <span class="text-danger">*</span></label>
-              <input asp-for="Longitude" id="Longitude" type="number" step="any" class="form-control" required />
-              <span asp-validation-for="Longitude" class="text-danger"></span>
-            </div>
-            <div class="col-12 col-md-2 form-group d-flex align-items-end">
-              <button type="button" id="btnPickMap" class="btn btn-info btn-block mb-1">
-                <i class="fas fa-map-marker-alt"></i> Pick from Map
-              </button>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-6 form-group">
-              <label for="OpeningTime">Opening Time <span class="text-danger">*</span></label>
-              <input asp-for="OpeningTime" type="time" class="form-control" required />
-              <span asp-validation-for="OpeningTime" class="text-danger"></span>
-            </div>
-            <div class="col-md-6 form-group">
-              <label for="ClosingTime">Closing Time <span class="text-danger">*</span></label>
-              <input asp-for="ClosingTime" type="time" class="form-control" required />
-              <span asp-validation-for="ClosingTime" class="text-danger"></span>
-            </div>
-          </div>
 
-          <!-- Mandatory Station Verification Documents Section -->
-          <div class="card mt-4 mb-4" style="border: 1px solid #dce2eb; border-radius: 10px; box-shadow: 0 4px 16px rgba(0,0,0,0.04); overflow: hidden;">
-            <div class="p-3" style="background: linear-gradient(135deg, #f8faff 0%, #edf2fc 100%); border-bottom: 1px solid #e2e8f0;">
-              <div class="d-flex align-items-center justify-content-between flex-wrap">
-                <div class="d-flex align-items-center mb-2 mb-sm-0">
-                  <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mr-3" style="width: 40px; height: 40px; font-size: 18px; box-shadow: 0 3px 8px rgba(103, 119, 239, 0.35);">
-                    <i class="fas fa-file-contract"></i>
+      <div class="card-body p-3 p-md-4">
+        <form method="post" asp-action="Create" enctype="multipart/form-data" id="createStationForm">
+          @Html.AntiForgeryToken()
+
+          @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)
+          {
+            <div asp-validation-summary="All" class="alert alert-danger mb-3 py-2 px-3"></div>
+          }
+
+          <div class="row">
+            <!-- ── LEFT COLUMN: Station Core Details ── -->
+            <div class="col-12 col-lg-6 mb-3 mb-lg-0">
+              <div class="p-3 rounded border bg-white h-100 shadow-none">
+                <h6 class="font-weight-bold text-dark mb-3 pb-2 border-bottom">
+                  <i class="fas fa-info-circle text-primary mr-1"></i> Station Basic Information
+                </h6>
+
+                <div class="form-group mb-3">
+                  <label for="Name" class="font-weight-600 font-13 mb-1 text-dark">Station Name <span class="text-danger">*</span></label>
+                  <input asp-for="Name" class="form-control" required placeholder="e.g. EcoVolt Fast Hub Gandhidham" />
+                  <span asp-validation-for="Name" class="text-danger small"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                  <label for="Address" class="font-weight-600 font-13 mb-1 text-dark">Street Address <span class="text-danger">*</span></label>
+                  <input asp-for="Address" class="form-control" required placeholder="Plot No., Highway / Landmark" />
+                  <span asp-validation-for="Address" class="text-danger small"></span>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group col-md-6 mb-3">
+                    <label for="City" class="font-weight-600 font-13 mb-1 text-dark">City <span class="text-danger">*</span></label>
+                    <input asp-for="City" class="form-control" required placeholder="e.g. Gandhidham" />
+                    <span asp-validation-for="City" class="text-danger small"></span>
                   </div>
-                  <div>
-                    <h6 class="mb-0 font-weight-bold text-dark font-15">Mandatory Station Verification Documents</h6>
-                    <small class="text-muted">All 4 documents are required by regulatory authorities for station approval & activation.</small>
+                  <div class="form-group col-md-6 mb-3">
+                    <label for="State" class="font-weight-600 font-13 mb-1 text-dark">State <span class="text-danger">*</span></label>
+                    <select asp-for="State" class="form-control" id="State" required>
+                      <option value="">-- Select State --</option>
+                    </select>
+                    <span asp-validation-for="State" class="text-danger small"></span>
                   </div>
                 </div>
-                <span class="badge badge-danger font-12 font-weight-bold px-3 py-2">
-                  <i class="fas fa-asterisk mr-1 font-10"></i> 4 Documents Mandatory
-                </span>
+
+                <div class="form-row align-items-end">
+                  <div class="form-group col-12 col-sm-5 mb-3">
+                    <label for="Latitude" class="font-weight-600 font-13 mb-1 text-dark">Latitude <span class="text-danger">*</span></label>
+                    <input asp-for="Latitude" id="Latitude" type="number" step="any" class="form-control font-mono" required placeholder="23.078..." />
+                    <span asp-validation-for="Latitude" class="text-danger small"></span>
+                  </div>
+                  <div class="form-group col-12 col-sm-4 mb-3">
+                    <label for="Longitude" class="font-weight-600 font-13 mb-1 text-dark">Longitude <span class="text-danger">*</span></label>
+                    <input asp-for="Longitude" id="Longitude" type="number" step="any" class="form-control font-mono" required placeholder="70.133..." />
+                    <span asp-validation-for="Longitude" class="text-danger small"></span>
+                  </div>
+                  <div class="form-group col-12 col-sm-3 mb-3">
+                    <button type="button" id="btnPickMap" class="btn btn-info btn-block" style="height: 42px;">
+                      <i class="fas fa-map-marker-alt mr-1"></i> Map
+                    </button>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group col-md-6 mb-2">
+                    <label for="OpeningTime" class="font-weight-600 font-13 mb-1 text-dark">Opening Time <span class="text-danger">*</span></label>
+                    <input asp-for="OpeningTime" type="time" class="form-control" required />
+                    <span asp-validation-for="OpeningTime" class="text-danger small"></span>
+                  </div>
+                  <div class="form-group col-md-6 mb-2">
+                    <label for="ClosingTime" class="font-weight-600 font-13 mb-1 text-dark">Closing Time <span class="text-danger">*</span></label>
+                    <input asp-for="ClosingTime" type="time" class="form-control" required />
+                    <span asp-validation-for="ClosingTime" class="text-danger small"></span>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div class="card-body p-3 p-md-4" style="background: #ffffff;">
-              <div class="row">
+            <!-- ── RIGHT COLUMN: Statutory Compliance Documents ── -->
+            <div class="col-12 col-lg-6">
+              <div class="p-3 rounded border bg-white h-100 shadow-none">
+                <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom flex-wrap">
+                  <h6 class="font-weight-bold text-dark mb-0">
+                    <i class="fas fa-file-contract text-primary mr-1"></i> Compliance Verification Documents
+                  </h6>
+                  <span class="badge badge-danger font-11 px-2 py-1 font-weight-bold">
+                    4 Required
+                  </span>
+                </div>
+
                 <!-- 1. DISCOM Sanction Letter -->
-                <div class="col-md-6 mb-3">
-                  <div class="p-3 h-100 rounded" style="border: 1px solid #e2e8f0; background: #fafcff; transition: all 0.2s ease;">
-                    <div class="d-flex align-items-center justify-content-between mb-2">
-                      <div class="d-flex align-items-center">
-                        <span class="rounded-circle d-inline-flex align-items-center justify-content-center mr-2" style="width: 32px; height: 32px; background: #fff8e6; color: #f59e0b; font-size: 15px;">
-                          <i class="fas fa-bolt"></i>
-                        </span>
-                        <strong class="text-dark font-14">DISCOM Sanction Letter <span class="text-danger">*</span></strong>
-                      </div>
-                      <span class="badge badge-danger font-11">Required</span>
-                    </div>
-                    <p class="text-muted font-12 mb-3" style="line-height: 1.4;">Official power load sanction approval letter from state electricity distribution company (kW/kVA).</p>
-                    <div class="custom-file mb-1">
-                      <input type="file" name="discomLetterFile" id="discomLetterFile" class="custom-file-input" accept=".pdf,.jpg,.jpeg,.png,.webp" required onchange="handleFileSelected(this, 'discomFeedback', 'discomLabel')" />
-                      <label class="custom-file-label font-13 text-truncate" id="discomLabel" for="discomLetterFile">Choose DISCOM Letter...</label>
-                    </div>
-                    <div id="discomFeedback" class="small text-muted mt-1 font-12">
-                      <i class="fas fa-info-circle mr-1"></i> PDF, PNG, JPG, JPEG (Max 10 MB)
-                    </div>
+                <div class="p-2 mb-2 rounded bg-light border">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="font-weight-bold font-13 text-dark">
+                      <i class="fas fa-bolt text-warning mr-1"></i> DISCOM Sanction Letter <span class="text-danger">*</span>
+                    </span>
+                    <span class="badge badge-danger font-10">Required</span>
+                  </div>
+                  <div class="custom-file">
+                    <input type="file" name="discomLetterFile" id="discomLetterFile" class="custom-file-input" accept=".pdf,.jpg,.jpeg,.png,.webp" required onchange="handleFileSelected(this, 'discomFeedback', 'discomLabel')" />
+                    <label class="custom-file-label font-12 text-truncate" id="discomLabel" for="discomLetterFile">Choose DISCOM Sanction Letter...</label>
+                  </div>
+                  <div id="discomFeedback" class="small text-muted mt-1 font-11">
+                    PDF, PNG, JPG (Max 10 MB)
                   </div>
                 </div>
 
                 <!-- 2. Land Lease / Ownership Deed -->
-                <div class="col-md-6 mb-3">
-                  <div class="p-3 h-100 rounded" style="border: 1px solid #e2e8f0; background: #fafcff; transition: all 0.2s ease;">
-                    <div class="d-flex align-items-center justify-content-between mb-2">
-                      <div class="d-flex align-items-center">
-                        <span class="rounded-circle d-inline-flex align-items-center justify-content-center mr-2" style="width: 32px; height: 32px; background: #e0f7fa; color: #00acc1; font-size: 15px;">
-                          <i class="fas fa-file-signature"></i>
-                        </span>
-                        <strong class="text-dark font-14">Land Lease / Ownership <span class="text-danger">*</span></strong>
-                      </div>
-                      <span class="badge badge-danger font-11">Required</span>
-                    </div>
-                    <p class="text-muted font-12 mb-3" style="line-height: 1.4;">Registered lease agreement, property ownership title deed, or land use NOC proof.</p>
-                    <div class="custom-file mb-1">
-                      <input type="file" name="landLeaseFile" id="landLeaseFile" class="custom-file-input" accept=".pdf,.jpg,.jpeg,.png,.webp" required onchange="handleFileSelected(this, 'leaseFeedback', 'leaseLabel')" />
-                      <label class="custom-file-label font-13 text-truncate" id="leaseLabel" for="landLeaseFile">Choose Lease / Deed...</label>
-                    </div>
-                    <div id="leaseFeedback" class="small text-muted mt-1 font-12">
-                      <i class="fas fa-info-circle mr-1"></i> PDF, PNG, JPG, JPEG (Max 10 MB)
-                    </div>
+                <div class="p-2 mb-2 rounded bg-light border">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="font-weight-bold font-13 text-dark">
+                      <i class="fas fa-file-signature text-info mr-1"></i> Land Lease / Ownership <span class="text-danger">*</span>
+                    </span>
+                    <span class="badge badge-danger font-10">Required</span>
+                  </div>
+                  <div class="custom-file">
+                    <input type="file" name="landLeaseFile" id="landLeaseFile" class="custom-file-input" accept=".pdf,.jpg,.jpeg,.png,.webp" required onchange="handleFileSelected(this, 'leaseFeedback', 'leaseLabel')" />
+                    <label class="custom-file-label font-12 text-truncate" id="leaseLabel" for="landLeaseFile">Choose Lease Agreement / Title Deed...</label>
+                  </div>
+                  <div id="leaseFeedback" class="small text-muted mt-1 font-11">
+                    PDF, PNG, JPG (Max 10 MB)
                   </div>
                 </div>
 
                 <!-- 3. Fire Safety NOC -->
-                <div class="col-md-6 mb-3">
-                  <div class="p-3 h-100 rounded" style="border: 1px solid #e2e8f0; background: #fafcff; transition: all 0.2s ease;">
-                    <div class="d-flex align-items-center justify-content-between mb-2">
-                      <div class="d-flex align-items-center">
-                        <span class="rounded-circle d-inline-flex align-items-center justify-content-center mr-2" style="width: 32px; height: 32px; background: #fef2f2; color: #ef4444; font-size: 15px;">
-                          <i class="fas fa-fire-extinguisher"></i>
-                        </span>
-                        <strong class="text-dark font-14">Fire Safety NOC <span class="text-danger">*</span></strong>
-                      </div>
-                      <span class="badge badge-danger font-11">Required</span>
-                    </div>
-                    <p class="text-muted font-12 mb-3" style="line-height: 1.4;">Fire department NOC or safety clearance certificate for electrical charging premises.</p>
-                    <div class="custom-file mb-1">
-                      <input type="file" name="fireNocFile" id="fireNocFile" class="custom-file-input" accept=".pdf,.jpg,.jpeg,.png,.webp" required onchange="handleFileSelected(this, 'fireFeedback', 'fireLabel')" />
-                      <label class="custom-file-label font-13 text-truncate" id="fireLabel" for="fireNocFile">Choose Fire NOC...</label>
-                    </div>
-                    <div id="fireFeedback" class="small text-muted mt-1 font-12">
-                      <i class="fas fa-info-circle mr-1"></i> PDF, PNG, JPG, JPEG (Max 10 MB)
-                    </div>
+                <div class="p-2 mb-2 rounded bg-light border">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="font-weight-bold font-13 text-dark">
+                      <i class="fas fa-fire-extinguisher text-danger mr-1"></i> Fire Safety NOC <span class="text-danger">*</span>
+                    </span>
+                    <span class="badge badge-danger font-10">Required</span>
+                  </div>
+                  <div class="custom-file">
+                    <input type="file" name="fireNocFile" id="fireNocFile" class="custom-file-input" accept=".pdf,.jpg,.jpeg,.png,.webp" required onchange="handleFileSelected(this, 'fireFeedback', 'fireLabel')" />
+                    <label class="custom-file-label font-12 text-truncate" id="fireLabel" for="fireNocFile">Choose Fire Safety NOC Certificate...</label>
+                  </div>
+                  <div id="fireFeedback" class="small text-muted mt-1 font-11">
+                    PDF, PNG, JPG (Max 10 MB)
                   </div>
                 </div>
 
                 <!-- 4. Station Site Photographs -->
-                <div class="col-md-6 mb-3">
-                  <div class="p-3 h-100 rounded" style="border: 1px solid #e2e8f0; background: #fafcff; transition: all 0.2s ease;">
-                    <div class="d-flex align-items-center justify-content-between mb-2">
-                      <div class="d-flex align-items-center">
-                        <span class="rounded-circle d-inline-flex align-items-center justify-content-center mr-2" style="width: 32px; height: 32px; background: #f0fdf4; color: #16a34a; font-size: 15px;">
-                          <i class="fas fa-camera"></i>
-                        </span>
-                        <strong class="text-dark font-14">Station Site Photos <span class="text-danger">*</span></strong>
-                      </div>
-                      <span class="badge badge-danger font-11">Required</span>
-                    </div>
-                    <p class="text-muted font-12 mb-3" style="line-height: 1.4;">Clear wide photographs showing installed chargers, canopy, parking bays, and entrance.</p>
-                    <div class="custom-file mb-1">
-                      <input type="file" name="sitePhotosFile" id="sitePhotosFile" class="custom-file-input" accept=".pdf,.jpg,.jpeg,.png,.webp" required onchange="handleFileSelected(this, 'photosFeedback', 'photosLabel')" />
-                      <label class="custom-file-label font-13 text-truncate" id="photosLabel" for="sitePhotosFile">Choose Site Photos...</label>
-                    </div>
-                    <div id="photosFeedback" class="small text-muted mt-1 font-12">
-                      <i class="fas fa-info-circle mr-1"></i> PDF, PNG, JPG, JPEG (Max 10 MB)
-                    </div>
+                <div class="p-2 mb-2 rounded bg-light border">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="font-weight-bold font-13 text-dark">
+                      <i class="fas fa-camera text-success mr-1"></i> Site Photos <span class="text-danger">*</span>
+                    </span>
+                    <span class="badge badge-danger font-10">Required</span>
+                  </div>
+                  <div class="custom-file">
+                    <input type="file" name="sitePhotosFile" id="sitePhotosFile" class="custom-file-input" accept=".pdf,.jpg,.jpeg,.png,.webp" required onchange="handleFileSelected(this, 'photosFeedback', 'photosLabel')" />
+                    <label class="custom-file-label font-12 text-truncate" id="photosLabel" for="sitePhotosFile">Choose Station Site Photo...</label>
+                  </div>
+                  <div id="photosFeedback" class="small text-muted mt-1 font-11">
+                    PDF, PNG, JPG (Max 10 MB)
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <div class="form-group mt-4">
-            <button type="submit" class="btn btn-primary btn-lg font-weight-600 px-4">
-              <i class="fas fa-save mr-1"></i> Submit Station for Admin Verification
+          <!-- ── Action Buttons ── -->
+          <div class="mt-4 pt-3 border-top d-flex align-items-center flex-wrap">
+            <button type="submit" class="btn btn-primary font-weight-700 px-4 py-2 mr-2">
+              <i class="fas fa-save mr-1"></i> Submit Station for Verification
             </button>
-            <a href="/owner/stations" class="btn btn-outline-secondary btn-lg ml-2">Cancel</a>
+            <a href="/owner/stations" class="btn btn-outline-secondary font-weight-600 px-3 py-2">
+              Cancel
+            </a>
           </div>
         </form>
       </div>
@@ -197,8 +192,54 @@
   </div>
 </div>
 
+<!-- Modal: In-Page Leaflet Map Location Picker -->
+<div class="modal fade" id="pickMapModal" tabindex="-1" role="dialog" aria-labelledby="pickMapModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document" style="max-width: 850px;">
+    <div class="modal-content border-0 shadow-lg" style="border-radius: 10px; overflow: hidden;">
+      <div class="modal-header bg-primary text-white py-2 px-3">
+        <h5 class="modal-title font-weight-bold font-15" id="pickMapModalLabel">
+          <i class="fas fa-map-marked-alt mr-2"></i> Select Station GPS Location
+        </h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body p-2">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-2 px-2 py-1 bg-light rounded border">
+          <div class="d-flex align-items-center font-weight-bold font-13">
+            <span class="mr-3 text-dark">Lat: <span id="modalDisplayLat" class="text-primary font-mono">—</span></span>
+            <span class="text-dark">Lng: <span id="modalDisplayLng" class="text-primary font-mono">—</span></span>
+          </div>
+          <div>
+            <button type="button" id="btnModalGps" class="btn btn-sm btn-outline-primary mr-1">
+              <i class="fas fa-crosshairs mr-1"></i> My Location
+            </button>
+            <a href="/owner/stations/PickLocation" class="btn btn-sm btn-outline-secondary">
+              <i class="fas fa-external-link-alt mr-1"></i> Full Page
+            </a>
+          </div>
+        </div>
+        <div id="inlinePickMap" style="height: 380px; width: 100%; border-radius: 6px; border: 1px solid #dee2e6;"></div>
+        <small class="text-muted mt-1 d-block font-11">
+          <i class="fas fa-info-circle mr-1"></i> Click anywhere on the map or drag the pin to pin-point your station coordinates.
+        </small>
+      </div>
+      <div class="modal-footer bg-light py-2">
+        <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Cancel</button>
+        <button type="button" id="btnModalConfirm" class="btn btn-success btn-sm font-weight-bold px-3" disabled>
+          <i class="fas fa-check mr-1"></i> Apply Coordinates
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/js/indian-states.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
     function handleFileSelected(input, feedbackId, labelId) {
         var feedback = document.getElementById(feedbackId);
@@ -212,20 +253,19 @@
                 label.textContent = file.name;
             }
             if (file.size > 10 * 1024 * 1024) {
-                feedback.innerHTML = '<span class="text-danger font-weight-bold"><i class="fas fa-exclamation-triangle mr-1"></i> ' + file.name + ' (' + sizeMb + ' MB) exceeds 10 MB limit</span>';
+                feedback.innerHTML = '<span class="text-danger font-weight-bold font-11"><i class="fas fa-exclamation-triangle mr-1"></i> ' + file.name + ' (' + sizeMb + ' MB) exceeds 10 MB</span>';
                 input.value = '';
                 if (label) label.textContent = 'Choose File...';
             } else {
-                feedback.innerHTML = '<span class="text-success font-weight-bold"><i class="fas fa-check-circle mr-1"></i> ' + file.name + ' <span class="badge badge-success font-11 ml-1">' + sizeMb + ' MB</span></span>';
+                feedback.innerHTML = '<span class="text-success font-weight-bold font-11"><i class="fas fa-check-circle mr-1"></i> ' + file.name + ' (' + sizeMb + ' MB)</span>';
             }
         } else {
-            feedback.innerHTML = '<span class="text-muted"><i class="fas fa-info-circle mr-1"></i> PDF, PNG, JPG, JPEG (Max 10 MB)</span>';
+            feedback.innerHTML = '<span class="text-muted font-11">PDF, PNG, JPG (Max 10 MB)</span>';
             if (label) label.textContent = 'Choose File...';
         }
     }
 
     (function() {
-        // Check if we have picked location from map
         var picked = sessionStorage.getItem('ownerPickedLocation');
         if (picked) {
             var loc = JSON.parse(picked);
@@ -234,17 +274,96 @@
             sessionStorage.removeItem('ownerPickedLocation');
         }
 
-        // Pick from Map button
-        document.getElementById('btnPickMap').addEventListener('click', function() {
-            var lat = document.getElementById('Latitude').value;
-            var lng = document.getElementById('Longitude').value;
-            if (lat && lng && parseFloat(lat) !== 0 && parseFloat(lng) !== 0) {
-                sessionStorage.setItem('ownerPickLocationInitial', JSON.stringify({ lat: lat, lng: lng }));
+        var mapInstance = null;
+        var mapMarker = null;
+        var selectedLat = null;
+        var selectedLng = null;
+
+        function initModalMap() {
+            var curLat = parseFloat(document.getElementById('Latitude').value);
+            var curLng = parseFloat(document.getElementById('Longitude').value);
+            var initLat = (!isNaN(curLat) && curLat !== 0) ? curLat : 20.5937;
+            var initLng = (!isNaN(curLng) && curLng !== 0) ? curLng : 78.9629;
+            var initZoom = (!isNaN(curLat) && curLat !== 0) ? 15 : 5;
+
+            if (!mapInstance) {
+                mapInstance = L.map('inlinePickMap').setView([initLat, initLng], initZoom);
+
+                var street = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap',
+                    maxZoom: 19
+                });
+                street.addTo(mapInstance);
+
+                mapInstance.on('click', function(e) {
+                    setMarkerLocation(e.latlng.lat, e.latlng.lng);
+                });
+            } else {
+                mapInstance.setView([initLat, initLng], initZoom);
             }
-            window.location.href = '/owner/stations/PickLocation';
+
+            if (!isNaN(curLat) && curLat !== 0 && !isNaN(curLng) && curLng !== 0) {
+                setMarkerLocation(curLat, curLng);
+            }
+
+            setTimeout(function() {
+                mapInstance.invalidateSize();
+            }, 300);
+        }
+
+        function setMarkerLocation(lat, lng) {
+            selectedLat = parseFloat(lat.toFixed(6));
+            selectedLng = parseFloat(lng.toFixed(6));
+
+            if (mapMarker) {
+                mapMarker.setLatLng([selectedLat, selectedLng]);
+            } else {
+                mapMarker = L.marker([selectedLat, selectedLng], { draggable: true }).addTo(mapInstance);
+                mapMarker.on('dragend', function(e) {
+                    var pos = e.target.getLatLng();
+                    setMarkerLocation(pos.lat, pos.lng);
+                });
+            }
+
+            document.getElementById('modalDisplayLat').textContent = selectedLat.toFixed(6);
+            document.getElementById('modalDisplayLng').textContent = selectedLng.toFixed(6);
+            document.getElementById('btnModalConfirm').disabled = false;
+        }
+
+        document.getElementById('btnPickMap').addEventListener('click', function() {
+            $('#pickMapModal').modal('show');
+        });
+
+        $('#pickMapModal').on('shown.bs.modal', function() {
+            initModalMap();
+        });
+
+        document.getElementById('btnModalGps').addEventListener('click', function() {
+            if (!navigator.geolocation) {
+                alert('Geolocation is not supported by your browser.');
+                return;
+            }
+            navigator.geolocation.getCurrentPosition(function(pos) {
+                var lat = pos.coords.latitude;
+                var lng = pos.coords.longitude;
+                mapInstance.setView([lat, lng], 15);
+                setMarkerLocation(lat, lng);
+            }, function() {
+                alert('Unable to retrieve your location.');
+            });
+        });
+
+        document.getElementById('btnModalConfirm').addEventListener('click', function() {
+            if (selectedLat !== null && selectedLng !== null) {
+                document.getElementById('Latitude').value = selectedLat.toFixed(6);
+                document.getElementById('Longitude').value = selectedLng.toFixed(6);
+                $('#pickMapModal').modal('hide');
+            }
         });
 
         $(document).ready(function() {
+            $('#pickMapModal').appendTo("body");
+
             var stateSelect = $('#State');
             if (typeof indianStates !== 'undefined') {
                 indianStates.forEach(function(state) {

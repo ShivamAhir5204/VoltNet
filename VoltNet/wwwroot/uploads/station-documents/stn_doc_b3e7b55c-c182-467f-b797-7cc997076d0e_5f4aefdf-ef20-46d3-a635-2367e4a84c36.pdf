@@ -1,0 +1,487 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.00 842.00] /Contents 4 0 R /Resources << /Font << /F1 5 0 R /F2 6 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 6353 >>
+stream
+q
+0.080 0.130 0.240 rg
+0.00 742.00 595.00 100.00 re
+f
+Q
+BT
+1.000 1.000 1.000 rg
+/F2 16.0 Tf
+40.00 802.00 Td
+(VOLTNET CHARGING INFRASTRUCTURE) Tj
+ET
+BT
+0.380 0.750 0.980 rg
+/F1 10.0 Tf
+40.00 782.00 Td
+(TAX INVOICE & SUBSCRIPTION PAYMENT RECEIPT) Tj
+ET
+BT
+0.700 0.750 0.850 rg
+/F1 8.0 Tf
+40.00 762.00 Td
+(GSTIN: 24AAACV1234F1Z8 | CIN: U40106GJ2026PTC109876) Tj
+ET
+BT
+1.000 1.000 1.000 rg
+/F2 9.0 Tf
+380.00 802.00 Td
+(Receipt No: RCP-pay_SIM_BURTP84IZ) Tj
+ET
+BT
+0.800 0.850 0.900 rg
+/F1 8.0 Tf
+380.00 786.00 Td
+(Date: 16 Oct 2026, 12:03 PM UTC) Tj
+ET
+BT
+0.200 0.800 0.400 rg
+/F2 9.0 Tf
+380.00 770.00 Td
+(Status: ACTIVE) Tj
+ET
+q
+0.960 0.970 0.990 rg
+40.00 635.00 245.00 85.00 re
+f
+Q
+q
+0.50 w
+0.850 0.880 0.920 RG
+40.00 635.00 245.00 85.00 re
+S
+Q
+BT
+0.150 0.200 0.350 rg
+/F2 9.0 Tf
+50.00 705.00 Td
+(BILLED TO / SUBSCRIBER) Tj
+ET
+BT
+0.100 0.100 0.150 rg
+/F1 9.0 Tf
+50.00 688.00 Td
+(Name: Satyam) Tj
+ET
+BT
+0.300 0.350 0.400 rg
+/F1 8.0 Tf
+50.00 673.00 Td
+(Email: shivamavadiya07@gmail.com) Tj
+ET
+BT
+0.300 0.350 0.400 rg
+/F1 8.0 Tf
+50.00 658.00 Td
+(Mobile: 7845129630) Tj
+ET
+BT
+0.300 0.350 0.400 rg
+/F1 8.0 Tf
+50.00 643.00 Td
+(City/State: Los santos, Goa) Tj
+ET
+q
+0.960 0.970 0.990 rg
+310.00 635.00 245.00 85.00 re
+f
+Q
+q
+0.50 w
+0.850 0.880 0.920 RG
+310.00 635.00 245.00 85.00 re
+S
+Q
+BT
+0.150 0.200 0.350 rg
+/F2 9.0 Tf
+320.00 705.00 Td
+(SUBSCRIPTION METADATA) Tj
+ET
+BT
+0.100 0.500 0.300 rg
+/F2 9.0 Tf
+320.00 688.00 Td
+(Plan Tier: Enterprise) Tj
+ET
+BT
+0.300 0.350 0.400 rg
+/F1 8.0 Tf
+320.00 673.00 Td
+(Duration: 30 Days) Tj
+ET
+BT
+0.300 0.350 0.400 rg
+/F1 8.0 Tf
+320.00 658.00 Td
+(Start Date: 16 Oct 2026) Tj
+ET
+BT
+0.300 0.350 0.400 rg
+/F1 8.0 Tf
+320.00 643.00 Td
+(Valid Till: 15 Nov 2026) Tj
+ET
+BT
+0.100 0.150 0.300 rg
+/F2 10.0 Tf
+40.00 615.00 Td
+(PLAN ENTITLEMENTS & LIMITS) Tj
+ET
+q
+0.150 0.220 0.380 rg
+40.00 587.00 515.00 22.00 re
+f
+Q
+BT
+1.000 1.000 1.000 rg
+/F2 9.0 Tf
+50.00 601.00 Td
+(Feature / Allocation) Tj
+ET
+BT
+1.000 1.000 1.000 rg
+/F2 9.0 Tf
+350.00 601.00 Td
+(Authorized Quota) Tj
+ET
+BT
+1.000 1.000 1.000 rg
+/F2 9.0 Tf
+470.00 601.00 Td
+(Status) Tj
+ET
+q
+0.980 0.980 0.990 rg
+40.00 559.00 515.00 20.00 re
+f
+Q
+q
+0.50 w
+0.900 0.920 0.950 RG
+40.00 559.00 515.00 20.00 re
+S
+Q
+BT
+0.200 0.250 0.300 rg
+/F1 8.0 Tf
+50.00 570.00 Td
+(Maximum Active Charging Stations) Tj
+ET
+BT
+0.150 0.200 0.300 rg
+/F2 8.0 Tf
+350.00 570.00 Td
+(20 Station\(s\)) Tj
+ET
+BT
+0.100 0.600 0.200 rg
+/F1 8.0 Tf
+470.00 570.00 Td
+(Allocated) Tj
+ET
+q
+0.980 0.980 0.990 rg
+40.00 537.00 515.00 20.00 re
+f
+Q
+q
+0.50 w
+0.900 0.920 0.950 RG
+40.00 537.00 515.00 20.00 re
+S
+Q
+BT
+0.200 0.250 0.300 rg
+/F1 8.0 Tf
+50.00 548.00 Td
+(Maximum Managers Per Station) Tj
+ET
+BT
+0.150 0.200 0.300 rg
+/F2 8.0 Tf
+350.00 548.00 Td
+(10 Manager\(s\)) Tj
+ET
+BT
+0.100 0.600 0.200 rg
+/F1 8.0 Tf
+470.00 548.00 Td
+(Allocated) Tj
+ET
+q
+0.980 0.980 0.990 rg
+40.00 515.00 515.00 20.00 re
+f
+Q
+q
+0.50 w
+0.900 0.920 0.950 RG
+40.00 515.00 515.00 20.00 re
+S
+Q
+BT
+0.200 0.250 0.300 rg
+/F1 8.0 Tf
+50.00 526.00 Td
+(IoT Real-time Charger Control & Telemetry) Tj
+ET
+BT
+0.150 0.200 0.300 rg
+/F2 8.0 Tf
+350.00 526.00 Td
+(Enabled) Tj
+ET
+BT
+0.100 0.600 0.200 rg
+/F1 8.0 Tf
+470.00 526.00 Td
+(Active) Tj
+ET
+q
+0.980 0.980 0.990 rg
+40.00 493.00 515.00 20.00 re
+f
+Q
+q
+0.50 w
+0.900 0.920 0.950 RG
+40.00 493.00 515.00 20.00 re
+S
+Q
+BT
+0.200 0.250 0.300 rg
+/F1 8.0 Tf
+50.00 504.00 Td
+(Automated Spot Booking & Waitlist Queue) Tj
+ET
+BT
+0.150 0.200 0.300 rg
+/F2 8.0 Tf
+350.00 504.00 Td
+(Included) Tj
+ET
+BT
+0.100 0.600 0.200 rg
+/F1 8.0 Tf
+470.00 504.00 Td
+(Active) Tj
+ET
+q
+0.980 0.980 0.990 rg
+40.00 471.00 515.00 20.00 re
+f
+Q
+q
+0.50 w
+0.900 0.920 0.950 RG
+40.00 471.00 515.00 20.00 re
+S
+Q
+BT
+0.200 0.250 0.300 rg
+/F1 8.0 Tf
+50.00 482.00 Td
+(Financial & Dynamic Tariff Analytics) Tj
+ET
+BT
+0.150 0.200 0.300 rg
+/F2 8.0 Tf
+350.00 482.00 Td
+(Full Access) Tj
+ET
+BT
+0.100 0.600 0.200 rg
+/F1 8.0 Tf
+470.00 482.00 Td
+(Active) Tj
+ET
+BT
+0.100 0.150 0.300 rg
+/F2 10.0 Tf
+40.00 445.00 Td
+(PAYMENT BREAKDOWN) Tj
+ET
+q
+0.150 0.220 0.380 rg
+40.00 417.00 515.00 22.00 re
+f
+Q
+BT
+1.000 1.000 1.000 rg
+/F2 9.0 Tf
+50.00 431.00 Td
+(Description) Tj
+ET
+BT
+1.000 1.000 1.000 rg
+/F2 9.0 Tf
+380.00 431.00 Td
+(Taxable / Rate) Tj
+ET
+BT
+1.000 1.000 1.000 rg
+/F2 9.0 Tf
+480.00 431.00 Td
+(Amount \(INR\)) Tj
+ET
+BT
+0.200 0.250 0.300 rg
+/F1 8.0 Tf
+50.00 400.00 Td
+(VoltNet Platform Subscription \(Enterprise\)) Tj
+ET
+BT
+0.400 0.450 0.500 rg
+/F1 8.0 Tf
+380.00 400.00 Td
+(Base Fee) Tj
+ET
+BT
+0.100 0.150 0.200 rg
+/F1 8.0 Tf
+480.00 400.00 Td
+(Rs. 8,473.73) Tj
+ET
+BT
+0.400 0.450 0.500 rg
+/F1 8.0 Tf
+50.00 382.00 Td
+(CGST \(9%\)) Tj
+ET
+BT
+0.400 0.450 0.500 rg
+/F1 8.0 Tf
+380.00 382.00 Td
+(9.00%) Tj
+ET
+BT
+0.400 0.450 0.500 rg
+/F1 8.0 Tf
+480.00 382.00 Td
+(Rs. 762.64) Tj
+ET
+BT
+0.400 0.450 0.500 rg
+/F1 8.0 Tf
+50.00 364.00 Td
+(SGST \(9%\)) Tj
+ET
+BT
+0.400 0.450 0.500 rg
+/F1 8.0 Tf
+380.00 364.00 Td
+(9.00%) Tj
+ET
+BT
+0.400 0.450 0.500 rg
+/F1 8.0 Tf
+480.00 364.00 Td
+(Rs. 762.63) Tj
+ET
+q
+0.920 0.980 0.940 rg
+320.00 326.00 235.00 30.00 re
+f
+Q
+q
+0.50 w
+0.200 0.700 0.350 RG
+320.00 326.00 235.00 30.00 re
+S
+Q
+BT
+0.050 0.450 0.150 rg
+/F2 10.0 Tf
+330.00 342.00 Td
+(TOTAL AMOUNT PAID:) Tj
+ET
+BT
+0.050 0.500 0.150 rg
+/F2 11.0 Tf
+460.00 342.00 Td
+(Rs. 9,999.00) Tj
+ET
+q
+0.970 0.970 0.980 rg
+40.00 261.00 515.00 35.00 re
+f
+Q
+q
+0.50 w
+0.880 0.900 0.920 RG
+40.00 261.00 515.00 35.00 re
+S
+Q
+BT
+0.200 0.250 0.300 rg
+/F2 8.0 Tf
+50.00 284.00 Td
+(Payment Method: Online Gateway \(UPI / NetBanking / Cards\)) Tj
+ET
+BT
+0.350 0.400 0.450 rg
+/F1 8.0 Tf
+50.00 269.00 Td
+(Transaction Reference ID: pay_SIM_BURTP84IZ) Tj
+ET
+q
+0.50 w
+0.850 0.880 0.920 RG
+40.00 75.00 m
+555.00 75.00 l
+S
+Q
+BT
+0.450 0.500 0.550 rg
+/F1 8.0 Tf
+40.00 60.00 Td
+(This is a computer generated commercial tax invoice and does not require a physical signature.) Tj
+ET
+BT
+0.450 0.500 0.550 rg
+/F1 8.0 Tf
+40.00 48.00 Td
+(VoltNet EV Infrastructure Systems India Pvt Ltd | support@voltnet.com | +91 1800-VOLT-NET) Tj
+ET
+BT
+0.500 0.550 0.600 rg
+/F1 8.0 Tf
+450.00 48.00 Td
+(Generated: 23-10-2026) Tj
+ET
+
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+6 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+xref
+0 7
+0000000000 65535 f 
+0000000010 00000 n 
+0000000062 00000 n 
+0000000122 00000 n 
+0000000267 00000 n 
+0000006677 00000 n 
+0000006750 00000 n 
+trailer
+<< /Size 7 /Root 1 0 R >>
+startxref
+6828
+%%EOF

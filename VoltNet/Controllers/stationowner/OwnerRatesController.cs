@@ -55,8 +55,9 @@ public class OwnerRatesController : Controller
 
         // 2. Identify available connector types from existing chargers at this station
         var availableConnectors = station.Chargers
-            .Select(c => c.ConnectorType)
-            .Distinct()
+            .Where(c => !string.IsNullOrWhiteSpace(c.ConnectorType))
+            .Select(c => c.ConnectorType.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
             .OrderBy(c => c)
             .ToList();
 
@@ -95,8 +96,12 @@ public class OwnerRatesController : Controller
 
         var trimmedConnector = connectorType.Trim();
 
-        // Check that station actually has chargers with this connector type
-        if (!station.Chargers.Any(c => c.ConnectorType.Equals(trimmedConnector, StringComparison.OrdinalIgnoreCase)))
+        // Check if station has this connector installed or it is a recognized EV standard connector
+        var standardTypes = new[] { "CCS2", "Type 2", "Type 2 (AC)", "CHAdeMO", "GB/T", "15A Domestic", "15A Domestic (3-Pin)", "Type 1", "DC Fast" };
+        bool hasMatchingCharger = station.Chargers.Any(c => c.ConnectorType.Trim().Equals(trimmedConnector, StringComparison.OrdinalIgnoreCase));
+        bool isStandard = standardTypes.Any(t => t.Equals(trimmedConnector, StringComparison.OrdinalIgnoreCase));
+
+        if (!hasMatchingCharger && !isStandard)
         {
             TempData["Error"] = $"Cannot add rate: Station does not have any '{trimmedConnector}' chargers installed.";
             return RedirectToAction(nameof(Index), new { stationId });

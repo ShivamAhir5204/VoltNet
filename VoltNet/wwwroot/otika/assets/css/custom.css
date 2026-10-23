@@ -475,3 +475,117 @@ h1, h2, h3, h4, h5, h6,
         margin-bottom: 4px;
     }
 }
+
+/* ========================================================
+   Otika Theme Palette & Styling System
+   ======================================================== */
+:root {
+    --otika-primary: #6777EF;
+    --otika-deep-slate: #353C48;
+    --otika-dark-slate: #34395E;
+    --otika-muted-slate: #96A2B4;
+    --otika-teal: #3DC9B3;
+    --otika-white: #FFFFFF;
+    --otika-soft-grey: #F9F9F9;
+    --otika-light-grey: #F2F2F2;
+    --otika-border-grey: #E3EAEF;
+    --otika-success: #28C76F;
+    --otika-warning: #FFA117;
+    --otika-error: #EA5455;
+    --otika-info: #3ABAF4;
+}
+
+.card-otika {
+    background: #FFFFFF;
+    border: 1px solid #E3EAEF;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(53, 60, 72, 0.05);
+    transition: all 0.2s ease;
+}
+
+.card-otika:hover {
+    box-shadow: 0 4px 12px rgba(53, 60, 72, 0.09);
+}
+
+.card-otika-header {
+    background: #FFFFFF;
+    border-bottom: 1px solid #E3EAEF;
+    padding: 18px 24px;
+}
+
+.text-deep-slate { color: #353C48 !important; }
+.text-dark-slate { color: #34395E !important; }
+.text-muted-slate { color: #96A2B4 !important; }
+.text-otika-teal { color: #3DC9B3 !important; }
+.text-otika-primary { color: #6777EF !important; }
+
+.bg-soft-grey { background-color: #F9F9F9 !important; }
+.bg-light-grey { background-color: #F2F2F2 !important; }
+.border-otika { border-color: #E3EAEF !important; }
+
+.btn-otika-primary {
+    background-color: #6777EF !important;
+    border-color: #6777EF !important;
+    color: #FFFFFF !important;
+    font-weight: 600;
+}
+.btn-otika-primary:hover {
+    background-color: #34395E !important;
+    border-color: #34395E !important;
+    color: #FFFFFF !important;
+}
+
+.badge-otika-primary {
+    background-color: #6777EF !important;
+    color: #FFFFFF !important;
+}
+.badge-otika-teal {
+    background-color: #3DC9B3 !important;
+    color: #FFFFFF !important;
+}
+.badge-otika-success {
+    background-color: #28C76F !important;
+    color: #FFFFFF !important;
+}
+.badge-otika-warning {
+    background-color: #FFA117 !important;
+    color: #FFFFFF !important;
+}
+.badge-otika-error {
+    background-color: #EA5455 !important;
+    color: #FFFFFF !important;
+}
+.badge-otika-info {
+    background-color: #3ABAF4 !important;
+    color: #FFFFFF !important;
+}
+
+.otika-filter-bar {
+    background: #FFFFFF;
+    border: 1px solid #E3EAEF;
+    border-radius: 8px;
+    padding: 10px 16px;
+    margin-bottom: 14px;
+    box-shadow: 0 1px 3px rgba(53, 60, 72, 0.04);
+}
+
+.otika-table th {
+    background: #F9F9F9;
+    color: #34395E;
+    font-weight: 700;
+    font-size: 13px;
+    border-top: 1px solid #E3EAEF;
+    border-bottom: 1px solid #E3EAEF;
+}
+
+.otika-search-input {
+    border: 1px solid #E3EAEF;
+    background: #FFFFFF;
+    border-radius: 6px;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+.otika-search-input:focus {
+    border-color: #6777EF;
+    box-shadow: 0 0 0 0.2rem rgba(103, 119, 239, 0.25);
+}
+

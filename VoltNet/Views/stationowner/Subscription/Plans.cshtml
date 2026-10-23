@@ -348,61 +348,53 @@
     }
 </style>
 
-<div class="section-header">
-    <div class="section-header-back">
-        <a href="/owner/subscription" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
+<div class="row align-items-center mb-3">
+    <div class="col-sm-6">
+        <h4 class="text-dark font-weight-bold mb-0">
+            <i class="fas fa-layer-group text-primary mr-2"></i> Subscription Plans
+        </h4>
     </div>
-    <h1>Subscription Plans</h1>
-    <div class="section-header-breadcrumb">
-        <div class="breadcrumb-item active"><a href="/owner/dashboard">Dashboard</a></div>
-        <div class="breadcrumb-item"><a href="/owner/subscription">Subscriptions</a></div>
-        <div class="breadcrumb-item">Plans</div>
+    <div class="col-sm-6 text-sm-right mt-2 mt-sm-0">
+        <a href="/owner/subscription" class="btn btn-outline-secondary btn-sm font-weight-600">
+            <i class="fas fa-arrow-left mr-1"></i> My Subscriptions
+        </a>
     </div>
 </div>
 
 @if (hasActiveSub)
 {
-    <div class="alert alert-info mb-4" style="background: #ffffff; border: 1px solid #b8daff; border-left: 5px solid #6777ef; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
-        <div class="d-flex align-items-center justify-content-between flex-wrap">
-            <div class="d-flex align-items-center mr-3 mb-2 mb-md-0">
-                <div class="rounded-circle d-flex align-items-center justify-content-center mr-3" 
-                     style="width: 44px; height: 44px; background: #eef2f7; color: #6777ef; font-size: 20px; flex-shrink: 0;">
-                    <i class="fas fa-crown"></i>
+    <div class="card mb-3 shadow-sm border-0" style="background: linear-gradient(135deg, #6777ef 0%, #4a54c4 100%); border-radius: 8px;">
+        <div class="card-body p-3 d-flex align-items-center justify-content-between flex-wrap" style="color: #ffffff !important;">
+            <div class="d-flex align-items-center mb-2 mb-md-0">
+                <div class="rounded-circle d-flex align-items-center justify-content-center mr-3 bg-white" style="width: 44px; height: 44px; font-size: 18px; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
+                    <i class="fas fa-crown text-warning"></i>
                 </div>
                 <div>
-                    <h6 class="font-weight-bold text-dark mb-1">Current Active Plan: @(activeSub?.Plan?.Name ?? "Active") (Max @(activeSub?.Plan?.MaxStations ?? 1) Stations)</h6>
-                    <div class="font-weight-600 font-14" style="color: #34395e;">
-                        Valid until @activeSub?.EndDate.ToString("dd MMM yyyy") (@remainingDays days left).
-                        Need more stations? <strong>Upgrade anytime!</strong> Your unused days credit (₹@unusedCredit.ToString("N0")) will be automatically deducted from your upgrade price.
+                    <div class="d-flex align-items-center flex-wrap">
+                        <span class="font-weight-bold font-16 mr-2" style="color: #ffffff !important; text-shadow: 0 1px 2px rgba(0,0,0,0.2);">Active Plan: @(activeSub?.Plan?.Name ?? "Active") (Max @(activeSub?.Plan?.MaxStations ?? 1) Stations)</span>
+                        <span class="badge shadow-sm" style="background-color: #ffc107 !important; color: #1a1a1a !important; font-weight: 800 !important; font-size: 12px !important; padding: 4px 10px; border-radius: 4px;">
+                            <i class="fas fa-clock mr-1"></i> @remainingDays Days Left
+                        </span>
+                    </div>
+                    <div class="font-13 mt-1" style="color: #ffffff !important; font-weight: 600; text-shadow: 0 1px 2px rgba(0,0,0,0.15);">
+                        Valid till <span style="color: #ffffff !important; font-weight: 800; text-decoration: underline;">@activeSub?.EndDate.ToString("dd MMM yyyy")</span>
+                        &bull; Unused credit: <span class="badge shadow-sm" style="background-color: #ffffff !important; color: #15803d !important; font-weight: 800 !important; font-size: 12px; padding: 2px 8px;">₹@unusedCredit.ToString("N0")</span> applies automatically to upgrades.
                     </div>
                 </div>
             </div>
-            <a href="/owner/subscription" class="btn btn-outline-primary font-weight-700 px-3 py-2">
-                <i class="fas fa-layer-group mr-1"></i> Manage My Subscription
+            <a href="/owner/subscription" class="btn btn-light shadow-sm px-3 py-2 font-13 font-weight-bold" style="background-color: #ffffff !important; color: #6777ef !important; border: none;">
+                <i class="fas fa-cog mr-1"></i> Manage Active Plan
             </a>
         </div>
     </div>
 }
-
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card" style="border: 1px solid #dce2eb; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
-            <div class="card-body py-4 text-center">
-                <h4 class="font-weight-bold text-dark mb-1">Scale Your EV Charging Network</h4>
-                <p class="font-weight-600 mb-0" style="color: #34395e; font-size: 15px;">
-                    Choose a plan tailored to your station capacity. All plans include 24-hour full refund guarantees, live station monitoring, driver bookings, and seamless prorated upgrades.
-                </p>
-            </div>
-        </div>
-    </div>
-</div>
 
 <div class="row">
     @foreach (var plan in Model)
     {
         var isEnterprise = plan.MaxStations > 10;
         var isGrowth = plan.MaxStations > 1 && !isEnterprise;
-        var badgeText = isEnterprise ? "Enterprise Tier" : (isGrowth ? "Most Popular" : "Starter Tier");
+        var badgeText = isEnterprise ? "Enterprise" : (isGrowth ? "Popular" : "Starter");
         var badgeClass = isEnterprise ? "badge-dark" : (isGrowth ? "badge-primary" : "badge-info");
 
         var isCurrentPlan = hasActiveSub && activeSub?.PlanId == plan.Id;
@@ -415,108 +407,76 @@
             upgradePayable = Math.Max(0, Math.Round(plan.PricePerMonth - unusedCredit, 2));
         }
 
-        <div class="col-12 col-md-6 col-lg-4 mb-4">
-            <div class="pricing-card @(isCurrentPlan ? "border-success shadow-sm" : "")">
+        <div class="col-12 col-md-4 mb-3">
+            <div class="pricing-card @(isCurrentPlan ? "border-success shadow-sm" : "")" style="padding: 20px;">
                 <div class="pricing-badge">
                     @if (isCurrentPlan)
                     {
-                        <span class="badge badge-success font-weight-700 px-3 py-1 font-12"><i class="fas fa-check-circle mr-1"></i> Current Plan</span>
+                        <span class="badge badge-success font-weight-700 px-2 py-1 font-11"><i class="fas fa-check-circle mr-1"></i> Current Plan</span>
                     }
                     else if (isHigherTier)
                     {
-                        <span class="badge badge-warning text-dark font-weight-700 px-3 py-1 font-12"><i class="fas fa-arrow-circle-up mr-1"></i> Upgrade Available</span>
+                        <span class="badge badge-warning text-dark font-weight-700 px-2 py-1 font-11"><i class="fas fa-arrow-circle-up mr-1"></i> Upgrade</span>
                     }
                     else
                     {
-                        <span class="badge @badgeClass font-weight-700 px-3 py-1 font-12">@badgeText</span>
+                        <span class="badge @badgeClass font-weight-700 px-2 py-1 font-11">@badgeText</span>
                     }
                 </div>
 
-                <h3 class="font-weight-bold text-dark mb-0 font-20">@plan.Name</h3>
-                <div class="pricing-price">
+                <h4 class="font-weight-bold text-dark mb-0 font-18">@plan.Name</h4>
+                <div class="pricing-price" style="font-size: 26px; margin: 8px 0 4px 0;">
                     ₹@plan.PricePerMonth.ToString("N0")
-                    <span class="pricing-duration">/ @plan.DurationDays Days</span>
+                    <span class="pricing-duration font-13 font-weight-normal text-muted">/ @plan.DurationDays Days</span>
                 </div>
 
-                <p class="font-weight-500 mb-4" style="color: #34395e; font-size: 14px; min-height: 42px;">
-                    @(string.IsNullOrWhiteSpace(plan.Description) ? "Full access to VoltNet EV network management and driver booking pipeline." : plan.Description)
-                </p>
-
-                <div class="border-top pt-3 mb-4 flex-grow-1">
-                    <div class="feature-item">
-                        <i class="fas fa-charging-station feature-icon"></i>
-                        <span>Activate up to <strong class="text-primary font-weight-bold">@plan.MaxStations</strong> Charging Stations</span>
+                <div class="border-top pt-2 mt-2 mb-3 flex-grow-1">
+                    <div class="feature-item mb-2 font-13">
+                        <i class="fas fa-charging-station text-primary mr-2 font-14"></i>
+                        <span>Up to <strong class="text-dark">@plan.MaxStations</strong> Charging Stations</span>
                     </div>
-                    <div class="feature-item">
-                        <i class="fas fa-user-shield feature-icon"></i>
-                        <span>Up to <strong class="text-dark font-weight-bold">@plan.MaxManagersPerStation</strong> Managers per Station</span>
+                    <div class="feature-item mb-2 font-13">
+                        <i class="fas fa-users text-primary mr-2 font-14"></i>
+                        <span>Up to <strong class="text-dark">@plan.MaxManagersPerStation</strong> Managers / Station</span>
                     </div>
-                    <div class="feature-item">
-                        <i class="fas fa-calendar-alt feature-icon"></i>
-                        <span><strong class="text-dark font-weight-bold">@plan.DurationDays Days</strong> Continuous Billing Cycle</span>
+                    <div class="feature-item mb-2 font-13">
+                        <i class="fas fa-bolt text-primary mr-2 font-14"></i>
+                        <span>IoT Telemetry & Dynamic Rates</span>
                     </div>
-                    <div class="feature-item">
-                        <i class="fas fa-shield-alt feature-icon"></i>
-                        <span><strong class="text-success font-weight-bold">24-Hour Full Refund</strong> Cancellation Guarantee</span>
-                    </div>
-                    <div class="feature-item">
-                        <i class="fas fa-chart-line feature-icon"></i>
-                        <span>Live Session & Revenue Analytics</span>
+                    <div class="feature-item mb-2 font-13">
+                        <i class="fas fa-shield-alt text-success mr-2 font-14"></i>
+                        <span>24h Full Refund Guarantee</span>
                     </div>
                 </div>
 
-                <div>
+                <div class="mt-auto">
                     @if (isCurrentPlan)
                     {
-                        <div class="p-2 bg-light rounded text-center mb-2 border border-success">
-                            <small class="font-weight-700 text-success"><i class="fas fa-check mr-1"></i> Active until @activeSub?.EndDate.ToString("dd MMM yyyy") (@remainingDays d left)</small>
-                        </div>
-                        <button type="button" class="btn btn-outline-success btn-block font-weight-700 py-2 font-15" disabled>
-                            <i class="fas fa-check-circle mr-2"></i> Current Plan
+                        <button type="button" class="btn btn-outline-success btn-block font-weight-bold py-2 font-13" disabled>
+                            <i class="fas fa-check-circle mr-1"></i> Current Plan
                         </button>
-                        <a href="/owner/subscription" class="btn btn-outline-primary btn-block font-weight-600 mt-2 font-14">
-                            <i class="fas fa-tasks mr-1"></i> Manage Active Stations
-                        </a>
                     }
                     else if (isHigherTier)
                     {
-                        <div class="p-2 rounded mb-2" style="background: #f0f7ff; border: 1px dashed #6777ef;">
-                            <div class="d-flex justify-content-between font-12 mb-1">
-                                <span class="text-muted">New Plan Price:</span>
-                                <span class="font-weight-bold text-dark">₹@plan.PricePerMonth.ToString("N0")</span>
-                            </div>
-                            <div class="d-flex justify-content-between font-12 mb-1">
-                                <span class="text-success font-weight-600">Unused Credit (@remainingDays d):</span>
-                                <span class="font-weight-bold text-success">-₹@unusedCredit.ToString("N0")</span>
-                            </div>
-                            <div class="border-top pt-1 mt-1 d-flex justify-content-between align-items-center">
-                                <span class="font-weight-bold text-dark font-13">Upgrade Price:</span>
-                                <span class="font-weight-bold text-primary font-16">₹@upgradePayable.ToString("N0")</span>
-                            </div>
+                        <div class="p-2 rounded mb-2 bg-light border text-center font-12">
+                            <span class="text-muted">Pay after ₹@unusedCredit.ToString("N0") credit:</span>
+                            <strong class="text-primary font-14 ml-1">₹@upgradePayable.ToString("N0")</strong>
                         </div>
-
-                        <button type="button" class="btn btn-warning text-dark btn-block font-weight-700 py-2 font-15 shadow-sm" onclick="initPayment('@plan.Id', '@plan.Name', @upgradePayable, true, @unusedCredit)">
-                            <i class="fas fa-arrow-circle-up mr-2"></i> Upgrade — Pay ₹@upgradePayable.ToString("N0")
+                        <button type="button" class="btn btn-warning text-dark btn-block font-weight-bold py-2 font-13 shadow-sm" onclick="initPayment('@plan.Id', '@plan.Name', @upgradePayable, true, @unusedCredit)">
+                            <i class="fas fa-arrow-circle-up mr-1"></i> Upgrade (₹@upgradePayable.ToString("N0"))
                         </button>
-                        <a href="/owner/subscription/plan/@plan.Id" class="btn btn-outline-secondary btn-block font-weight-600 mt-2 font-14">
-                            <i class="fas fa-info-circle mr-1"></i> View Upgrade Details
-                        </a>
                     }
                     else if (isLowerTier)
                     {
-                        <button type="button" class="btn btn-secondary btn-block font-weight-700 py-2 font-15" disabled title="Downgrading is not permitted while your current subscription is active">
-                            <i class="fas fa-lock mr-2"></i> Lower Tier Plan
+                        <button type="button" class="btn btn-secondary btn-block font-weight-bold py-2 font-13" disabled title="Downgrading is not permitted while current subscription is active">
+                            <i class="fas fa-lock mr-1"></i> Lower Tier
                         </button>
-                        <small class="text-muted text-center d-block mt-2 font-weight-600 font-12">Downgrades not available during active cycle</small>
                     }
                     else
                     {
-                        <button type="button" class="btn btn-buy-plan" onclick="initPayment('@plan.Id', '@plan.Name', @plan.PricePerMonth, false, 0)">
-                            <i class="fas fa-bolt mr-2"></i> Subscribe Now — ₹@plan.PricePerMonth.ToString("N0")
+                        <button type="button" class="btn btn-buy-plan py-2 font-13" onclick="initPayment('@plan.Id', '@plan.Name', @plan.PricePerMonth, false, 0)">
+                            <i class="fas fa-bolt mr-1"></i> Select Plan — ₹@plan.PricePerMonth.ToString("N0")
                         </button>
-                        <a href="/owner/subscription/plan/@plan.Id" class="btn btn-outline-secondary btn-block font-weight-600 mt-2 font-14">
-                            <i class="fas fa-info-circle mr-1"></i> View Plan Details
-                        </a>
                     }
                 </div>
             </div>

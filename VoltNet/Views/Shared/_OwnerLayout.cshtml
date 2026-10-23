@@ -60,11 +60,9 @@
                 Change Password
               </a>
               <div class="dropdown-divider"></div>
-              <form action="/logout" method="post" id="logoutForm" class="dropdown-item has-icon text-danger d-flex align-items-center" style="cursor:pointer">
-                @Html.AntiForgeryToken()
-                <i class="fas fa-sign-out-alt mr-2"></i>
-                <a onclick="document.getElementById('logoutForm').submit();" class="text-danger" style="margin:0; padding:0;">Logout</a>
-              </form>
+              <a href="/logout" class="dropdown-item has-icon text-danger">
+                <i class="fas fa-sign-out-alt"></i> Logout
+              </a>
             </div>
           </li>
         </ul>
@@ -138,7 +136,20 @@
   <!-- Custom JS File -->
   <script src="~/otika/assets/js/custom.js"></script>
   <script src="~/otika/assets/bundles/select2/dist/js/select2.full.min.js"></script>
-  <script src="~/js/indian-states.js"></script>
+  <style>
+    .modal-backdrop {
+      z-index: 1040 !important;
+    }
+    .modal {
+      z-index: 1060 !important;
+    }
+    .modal-dialog {
+      z-index: 1065 !important;
+    }
+    .modal-content {
+      z-index: 1070 !important;
+    }
+  </style>
 
   <script>
     $(document).ready(function() {

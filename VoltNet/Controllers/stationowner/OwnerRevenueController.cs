@@ -296,6 +296,63 @@ public class OwnerRevenueController : Controller
         return File(bytes, "text/csv", fileName);
     }
 
+    // GET: /owner/revenue/export-pdf
+    [HttpGet("export-pdf")]
+    public async Task<IActionResult> ExportPdf(DateTime? startDate, DateTime? endDate, Guid? stationId)
+    {
+        var userId = GetUserId();
+
+        var ownedStations = await _context.Stations
+            .Where(s => s.OwnerUserId == userId)
+            .ToListAsync();
+
+        if (!ownedStations.Any())
+        {
+            return BadRequest("No stations found for this account.");
+        }
+
+        var ownedStationIds = ownedStations.Select(s => s.Id).ToList();
+
+        var query = _context.Bookings
+            .Include(b => b.Station)
+            .Include(b => b.Charger)
+            .Include(b => b.Customer)
+            .Where(b => ownedStationIds.Contains(b.StationId) && b.Status == "Completed");
+
+        Station? targetStation = null;
+        if (stationId.HasValue && stationId.Value != Guid.Empty)
+        {
+            targetStation = ownedStations.FirstOrDefault(s => s.Id == stationId.Value);
+            if (targetStation != null)
+            {
+                query = query.Where(b => b.StationId == stationId.Value);
+            }
+        }
+
+        var start = startDate?.Date ?? DateTime.UtcNow.AddDays(-30).Date;
+        var end = endDate?.Date ?? DateTime.UtcNow.Date;
+
+        query = query.Where(b => b.BookingDate >= start && b.BookingDate <= end);
+
+        var bookings = await query
+            .OrderByDescending(b => b.BookingDate)
+            .ThenByDescending(b => b.StartTime)
+            .ToListAsync();
+
+        var totalRev = bookings.Sum(b => b.ActualCost ?? b.EstimatedCost);
+        var totalKwh = bookings.Sum(b => b.UnitsConsumedKwh ?? 0m);
+
+        var title = targetStation != null ? $"{targetStation.Name} - Revenue Report" : "Consolidated Network Revenue Report";
+        var subtitle = targetStation != null ? $"Location: {targetStation.City}, {targetStation.State}" : $"{ownedStations.Count} Commercial Stations";
+
+        var ownerUser = await _context.UserMasters.FindAsync(userId);
+        var pdfBytes = VoltNet.Services.PdfGeneratorService.GenerateRevenueReportPdf(
+            title, subtitle, start, end, totalRev, bookings.Count, totalKwh, bookings, ownerUser?.Fullname ?? "Station Owner");
+
+        var fileName = $"VoltNet_Revenue_{DateTime.Now:yyyyMMdd_HHmm}.pdf";
+        return File(pdfBytes, "application/pdf", fileName);
+    }
+
     // GET: /owner/revenue/station/{stationId}
     [HttpGet("station/{stationId}")]
     public async Task<IActionResult> StationRevenue(
@@ -626,6 +683,44 @@ public class OwnerRevenueController : Controller
         var bytes = Encoding.UTF8.GetBytes(sb.ToString());
         var fileName = $"VoltNet_StationRevenue_{station.Name.Replace(" ", "_")}_{DateTime.Now:yyyyMMdd_HHmm}.csv";
         return File(bytes, "text/csv", fileName);
+    }
+
+    // GET: /owner/revenue/station/{stationId}/export-pdf
+    [HttpGet("station/{stationId}/export-pdf")]
+    public async Task<IActionResult> ExportStationPdf(Guid stationId, DateTime? startDate, DateTime? endDate)
+    {
+        var userId = GetUserId();
+
+        var station = await _context.Stations
+            .FirstOrDefaultAsync(s => s.Id == stationId && s.OwnerUserId == userId);
+
+        if (station == null)
+        {
+            return NotFound("Station not found or you are not authorized to export this station's data.");
+        }
+
+        var start = startDate?.Date ?? DateTime.UtcNow.AddDays(-30).Date;
+        var end = endDate?.Date ?? DateTime.UtcNow.Date;
+
+        var bookings = await _context.Bookings
+            .Include(b => b.Charger)
+            .Include(b => b.Customer)
+            .Where(b => b.StationId == stationId && b.Status == "Completed" && b.BookingDate >= start && b.BookingDate <= end)
+            .OrderByDescending(b => b.BookingDate)
+            .ThenByDescending(b => b.StartTime)
+            .ToListAsync();
+
+        var totalRev = bookings.Sum(b => b.ActualCost ?? b.EstimatedCost);
+        var totalKwh = bookings.Sum(b => b.UnitsConsumedKwh ?? 0m);
+
+        var ownerUser = await _context.UserMasters.FindAsync(userId);
+        var pdfBytes = VoltNet.Services.PdfGeneratorService.GenerateRevenueReportPdf(
+            $"{station.Name} - Revenue Report",
+            $"Location: {station.City}, {station.State}",
+            start, end, totalRev, bookings.Count, totalKwh, bookings, ownerUser?.Fullname ?? "Station Owner");
+
+        var fileName = $"VoltNet_{station.Name.Replace(" ", "_")}_Revenue_{DateTime.Now:yyyyMMdd_HHmm}.pdf";
+        return File(pdfBytes, "application/pdf", fileName);
     }
 
     private static string EscapeCsv(string text)

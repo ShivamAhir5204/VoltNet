@@ -40,11 +40,9 @@
             <div class="dropdown-menu dropdown-menu-right pullDown">
               <div class="dropdown-title">Hello, @(User.Identity?.Name ?? "Customer")</div>
               <div class="dropdown-divider"></div>
-              <form action="/logout" method="post" id="logoutForm" class="dropdown-item has-icon text-danger d-flex align-items-center" style="cursor:pointer">
-                @Html.AntiForgeryToken()
-                <i class="fas fa-sign-out-alt mr-2"></i>
-                <a onclick="document.getElementById('logoutForm').submit();" class="text-danger" style="margin:0; padding:0;">Logout</a>
-              </form>
+              <a href="/logout" class="dropdown-item has-icon text-danger">
+                <i class="fas fa-sign-out-alt"></i> Logout
+              </a>
             </div>
           </li>
         </ul>
@@ -108,6 +106,33 @@
   <script src="~/otika/assets/js/scripts.js"></script>
   <!-- Custom JS File -->
   <script src="~/otika/assets/js/custom.js"></script>
+  <style>
+    .modal-backdrop {
+      z-index: 1040 !important;
+    }
+    .modal {
+      z-index: 1060 !important;
+    }
+    .modal-dialog {
+      z-index: 1070 !important;
+    }
+    .modal-content {
+      z-index: 1075 !important;
+    }
+  </style>
+
+  <script>
+    $(document).ready(function () {
+      $('#app .modal, .main-wrapper .modal, .main-content .modal').each(function () {
+        $(this).appendTo("body");
+      });
+      $(document).on('show.bs.modal', '.modal', function () {
+        if (!$(this).parent().is('body')) {
+          $(this).appendTo('body');
+        }
+      });
+    });
+  </script>
 
   @await RenderSectionAsync("Scripts", required: false)
 </body>

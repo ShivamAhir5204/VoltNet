@@ -564,46 +564,12 @@ public class OwnerSubscriptionController : Controller
         var userId = GetUserId();
         var user = await _context.UserMasters.FindAsync(userId);
 
-        // Generate plain text receipt
-        var sb = new StringBuilder();
-        sb.AppendLine("═══════════════════════════════════════════");
-        sb.AppendLine("              VOLTNET - PAYMENT RECEIPT              ");
-        sb.AppendLine("═══════════════════════════════════════════");
-        sb.AppendLine();
-        sb.AppendLine($"  Receipt Date  : {DateTime.UtcNow:dd MMM yyyy, hh:mm tt} UTC");
-        sb.AppendLine($"  Payment ID    : {subscription.PaymentId}");
-        sb.AppendLine($"  Subscription  : {subscription.Id}");
-        sb.AppendLine();
-        sb.AppendLine("───────────────────────────────────────────");
-        sb.AppendLine("  CUSTOMER DETAILS");
-        sb.AppendLine("───────────────────────────────────────────");
-        sb.AppendLine($"  Name          : {user?.Fullname ?? "N/A"}");
-        sb.AppendLine($"  Email         : {user?.Email ?? "N/A"}");
-        sb.AppendLine($"  Phone         : {user?.Mobile ?? "N/A"}");
-        sb.AppendLine();
-        sb.AppendLine("───────────────────────────────────────────");
-        sb.AppendLine("  PLAN DETAILS");
-        sb.AppendLine("───────────────────────────────────────────");
-        sb.AppendLine($"  Plan Name     : {subscription.Plan?.Name ?? "N/A"}");
-        sb.AppendLine($"  Description   : {subscription.Plan?.Description ?? "N/A"}");
-        sb.AppendLine($"  Max Stations  : {subscription.Plan?.MaxStations ?? 0}");
-        sb.AppendLine($"  Duration      : {subscription.Plan?.DurationDays ?? 0} Days");
-        sb.AppendLine($"  Start Date    : {subscription.StartDate:dd MMM yyyy}");
-        sb.AppendLine($"  End Date      : {subscription.EndDate:dd MMM yyyy}");
-        sb.AppendLine($"  Status        : {subscription.Status}");
-        sb.AppendLine();
-        sb.AppendLine("───────────────────────────────────────────");
-        sb.AppendLine("  PAYMENT SUMMARY");
-        sb.AppendLine("───────────────────────────────────────────");
-        sb.AppendLine($"  Amount Paid   : ₹{subscription.AmountPaid:N2}");
-        sb.AppendLine($"  Payment ID    : {subscription.PaymentId}");
-        sb.AppendLine();
-        sb.AppendLine("═══════════════════════════════════════════");
-        sb.AppendLine("  This is an auto-generated receipt from VoltNet.");
-        sb.AppendLine("  For support, contact support@voltnet.com");
-        sb.AppendLine("═══════════════════════════════════════════");
+        // Generate commercial PDF receipt
+        var pdfBytes = VoltNet.Services.PdfGeneratorService.GenerateSubscriptionReceiptPdf(subscription, user);
+        var filename = !string.IsNullOrWhiteSpace(subscription.PaymentId)
+            ? $"VoltNet_Receipt_{subscription.PaymentId}.pdf"
+            : $"VoltNet_Receipt_{subscription.Id.ToString()[..8]}.pdf";
 
-        var bytes = Encoding.UTF8.GetBytes(sb.ToString());
-        return File(bytes, "text/plain", $"VoltNet_Receipt_{subscription.PaymentId}.txt");
+        return File(pdfBytes, "application/pdf", filename);
     }
 }

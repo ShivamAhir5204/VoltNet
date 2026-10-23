@@ -1,69 +1,206 @@
 @{
     ViewData["Title"] = "Manager Dashboard";
     Layout = "~/Views/Shared/_ManagerLayout.cshtml";
+    var stationStatus = ViewBag.StationStatus as string ?? "Active";
+    var totalChargers = (int)(ViewBag.TotalChargers ?? 0);
+    var activeChargers = (int)(ViewBag.ActiveChargers ?? 0);
+    var todayBookings = (int)(ViewBag.TodayBookings ?? 0);
+    var todayRevenue = (decimal)(ViewBag.TodayRevenue ?? 0m);
 }
 
+<!-- Station Banner (Compact) -->
 <div class="row">
-    <div class="col-xl-4 col-lg-6 col-md-6 col-sm-6 col-xs-12">
-        <div class="card">
-            <div class="card-statistic-4">
-                <div class="align-items-center justify-content-between">
-                    <div class="row">
-                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pr-0 pt-3">
-                            <div class="card-content">
-                                <h5 class="font-15">Station</h5>
-                                <h2 class="mb-3 font-18">@ViewBag.StationName</h2>
-                                <span class="badge @(ViewBag.StationStatus == "Active" ? "badge-success" : (ViewBag.StationStatus == "Maintenance" ? "badge-warning" : "badge-danger"))">
-                                    @ViewBag.StationStatus
-                                </span>
-                            </div>
-                        </div>
-                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0">
-                            <div class="banner-img">
-                                <img src="~/otika/assets/img/banner/1.png" alt="">
-                            </div>
-                        </div>
-                    </div>
+    <div class="col-12">
+        <div class="page-title-box d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between bg-white p-3 rounded shadow-sm mb-3" style="border: 1px solid #E3EAEF;">
+            <div>
+                <div class="d-flex align-items-center flex-wrap">
+                    <h4 class="mb-0 font-weight-bold mr-3" style="color: #353C48; font-size: 18px;">
+                        <i class="fas fa-charging-station mr-2" style="color: #6777EF;"></i>@ViewBag.StationName
+                    </h4>
+                    @if (stationStatus == "Active")
+                    {
+                        <span class="badge px-2 py-1 font-weight-bold" style="background: rgba(40, 199, 111, 0.12); color: #28C76F; border-radius: 6px; font-size: 11px;">
+                            <i class="fas fa-bolt mr-1"></i>Active Station
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge px-2 py-1 font-weight-bold" style="background: rgba(234, 84, 85, 0.12); color: #EA5455; border-radius: 6px; font-size: 11px;">
+                            @stationStatus
+                        </span>
+                    }
+                </div>
+                <div class="font-weight-500 mt-1" style="color: #96A2B4; font-size: 12px;">
+                    <i class="fas fa-map-marker-alt mr-1" style="color: #EA5455;"></i>@ViewBag.StationAddress, @ViewBag.StationCity &bull; Station Manager Console
                 </div>
             </div>
-        </div>
-    </div>
-    
-    <div class="col-xl-4 col-lg-6 col-md-6 col-sm-6 col-xs-12">
-        <div class="card">
-            <div class="card-statistic-4">
-                <div class="align-items-center justify-content-between">
-                    <div class="row">
-                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pr-0 pt-3">
-                            <div class="card-content">
-                                <h5 class="font-15">Total Chargers</h5>
-                                <h2 class="mb-3 font-18">@ViewBag.TotalChargers</h2>
-                                <p class="mb-0"><span class="col-green">@ViewBag.ActiveChargers</span> Active</p>
-                            </div>
-                        </div>
-                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0">
-                            <div class="banner-img">
-                                <img src="~/otika/assets/img/banner/2.png" alt="">
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="mt-2 mt-md-0 d-flex flex-wrap">
+                <a href="/manager/bookings" class="btn btn-warning btn-sm font-weight-bold text-dark mr-2 shadow-sm" style="border-radius: 6px;">
+                    <i class="fas fa-bolt mr-1"></i>+ Walk-In Driver
+                </a>
+                <a href="/manager/station-blocks" class="btn btn-outline-secondary btn-sm font-weight-bold shadow-sm" style="border-radius: 6px;">
+                    <i class="fas fa-tools mr-1"></i>Maintenance
+                </a>
             </div>
         </div>
     </div>
 </div>
 
+<!-- 4 Compact Macro KPI Cards in 1 Row -->
+<div class="row">
+    <!-- Station Status -->
+    <div class="col-xl-3 col-sm-6 col-12 mb-3">
+        <div class="card p-3 shadow-sm h-100 mb-0" style="background: #FFFFFF; border: 1px solid #E3EAEF; border-left: 4px solid #6777EF !important; border-radius: 8px;">
+            <div class="d-flex align-items-center justify-content-between mb-1">
+                <span class="font-weight-bold text-uppercase" style="color: #96A2B4; font-size: 11px;">STATION STATUS</span>
+                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: rgba(103, 119, 239, 0.12); color: #6777EF; font-size: 14px;">
+                    <i class="fas fa-signal"></i>
+                </div>
+            </div>
+            <div class="font-weight-bold" style="color: #353C48; font-size: 20px;">@stationStatus</div>
+            <div class="mt-1">
+                <span class="badge" style="background: #F2F2F2; color: #34395E; font-size: 10px;">Operational</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Chargers -->
+    <div class="col-xl-3 col-sm-6 col-12 mb-3">
+        <div class="card p-3 shadow-sm h-100 mb-0" style="background: #FFFFFF; border: 1px solid #E3EAEF; border-left: 4px solid #3DC9B3 !important; border-radius: 8px;">
+            <div class="d-flex align-items-center justify-content-between mb-1">
+                <span class="font-weight-bold text-uppercase" style="color: #96A2B4; font-size: 11px;">CHARGER BAYS</span>
+                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: rgba(61, 201, 179, 0.12); color: #3DC9B3; font-size: 14px;">
+                    <i class="fas fa-plug"></i>
+                </div>
+            </div>
+            <div class="font-weight-bold" style="color: #353C48; font-size: 20px;">@activeChargers / @totalChargers</div>
+            <div class="mt-1">
+                <span class="badge" style="background: rgba(61, 201, 179, 0.12); color: #3DC9B3; font-size: 10px;">@activeChargers Active Bays</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Today's Bookings -->
+    <div class="col-xl-3 col-sm-6 col-12 mb-3">
+        <div class="card p-3 shadow-sm h-100 mb-0" style="background: #FFFFFF; border: 1px solid #E3EAEF; border-left: 4px solid #FFA117 !important; border-radius: 8px;">
+            <div class="d-flex align-items-center justify-content-between mb-1">
+                <span class="font-weight-bold text-uppercase" style="color: #96A2B4; font-size: 11px;">TODAY'S SESSIONS</span>
+                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: rgba(255, 161, 23, 0.12); color: #FFA117; font-size: 14px;">
+                    <i class="fas fa-calendar-day"></i>
+                </div>
+            </div>
+            <div class="font-weight-bold" style="color: #353C48; font-size: 20px;">@todayBookings</div>
+            <div class="mt-1">
+                <a href="/manager/bookings" class="font-weight-bold" style="font-size: 11px; color: #FFA117;">View Bookings &rarr;</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Today's Revenue -->
+    <div class="col-xl-3 col-sm-6 col-12 mb-3">
+        <div class="card p-3 shadow-sm h-100 mb-0" style="background: #FFFFFF; border: 1px solid #E3EAEF; border-left: 4px solid #28C76F !important; border-radius: 8px;">
+            <div class="d-flex align-items-center justify-content-between mb-1">
+                <span class="font-weight-bold text-uppercase" style="color: #96A2B4; font-size: 11px;">TODAY'S REVENUE</span>
+                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: rgba(40, 199, 111, 0.12); color: #28C76F; font-size: 14px;">
+                    <i class="fas fa-rupee-sign"></i>
+                </div>
+            </div>
+            <div class="font-weight-bold" style="color: #28C76F; font-size: 20px;">₹@todayRevenue.ToString("N0")</div>
+            <div class="mt-1">
+                <a href="/manager/revenue" class="font-weight-bold" style="font-size: 11px; color: #28C76F;">Revenue Analytics &rarr;</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Compact Navigation & Operations Quick Actions Grid -->
 <div class="row">
     <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h4>Welcome, Station Manager!</h4>
+        <div class="card shadow-sm" style="background: #FFFFFF; border: 1px solid #E3EAEF; border-radius: 8px;">
+            <div class="card-header border-0 py-2 px-3" style="background: #FFFFFF; border-bottom: 1px solid #F2F2F2 !important;">
+                <h6 class="mb-0 font-weight-bold" style="color: #353C48; font-size: 14px;">
+                    <i class="fas fa-th-large mr-2" style="color: #6777EF;"></i>Station Operations Quick Hub
+                </h6>
             </div>
-            <div class="card-body">
-                <p>Use the sidebar to manage your station details and add/edit chargers.</p>
-                <div class="mt-4">
-                    <a href="/manager/station" class="btn btn-primary btn-lg"><i class="bi bi-map"></i> View Station Details</a>
-                    <a href="/manager/chargers" class="btn btn-info btn-lg ml-2"><i class="bi bi-lightning"></i> Manage Chargers</a>
+            <div class="card-body p-3">
+                <div class="row">
+                    <!-- My Station -->
+                    <div class="col-md-4 col-sm-6 col-12 mb-2">
+                        <a href="/manager/station" class="d-flex align-items-center p-2 rounded text-decoration-none" style="background: #F9FAFB; border: 1px solid #E3EAEF; color: inherit; transition: all 0.2s;">
+                            <div class="rounded mr-3 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; background: rgba(103, 119, 239, 0.12); color: #6777EF; font-size: 16px;">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div>
+                                <div class="font-weight-bold text-dark-slate" style="font-size: 13px;">My Station Details</div>
+                                <small class="text-muted-slate">Operating hours & location</small>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Chargers -->
+                    <div class="col-md-4 col-sm-6 col-12 mb-2">
+                        <a href="/manager/chargers" class="d-flex align-items-center p-2 rounded text-decoration-none" style="background: #F9FAFB; border: 1px solid #E3EAEF; color: inherit; transition: all 0.2s;">
+                            <div class="rounded mr-3 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; background: rgba(61, 201, 179, 0.12); color: #3DC9B3; font-size: 16px;">
+                                <i class="fas fa-plug"></i>
+                            </div>
+                            <div>
+                                <div class="font-weight-bold text-dark-slate" style="font-size: 13px;">Manage Chargers</div>
+                                <small class="text-muted-slate">Configure guns, kW & status</small>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Charging Rates -->
+                    <div class="col-md-4 col-sm-6 col-12 mb-2">
+                        <a href="/manager/rates" class="d-flex align-items-center p-2 rounded text-decoration-none" style="background: #F9FAFB; border: 1px solid #E3EAEF; color: inherit; transition: all 0.2s;">
+                            <div class="rounded mr-3 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; background: rgba(255, 161, 23, 0.12); color: #FFA117; font-size: 16px;">
+                                <i class="fas fa-tags"></i>
+                            </div>
+                            <div>
+                                <div class="font-weight-bold text-dark-slate" style="font-size: 13px;">Charging Rates</div>
+                                <small class="text-muted-slate">₹/kWh tariffs per connector</small>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Bookings & Walk-In -->
+                    <div class="col-md-4 col-sm-6 col-12 mb-2">
+                        <a href="/manager/bookings" class="d-flex align-items-center p-2 rounded text-decoration-none" style="background: #F9FAFB; border: 1px solid #E3EAEF; color: inherit; transition: all 0.2s;">
+                            <div class="rounded mr-3 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; background: rgba(40, 199, 111, 0.12); color: #28C76F; font-size: 16px;">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <div>
+                                <div class="font-weight-bold text-dark-slate" style="font-size: 13px;">Bookings & Walk-In</div>
+                                <small class="text-muted-slate">Live charging & sessions</small>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Revenue Analytics -->
+                    <div class="col-md-4 col-sm-6 col-12 mb-2">
+                        <a href="/manager/revenue" class="d-flex align-items-center p-2 rounded text-decoration-none" style="background: #F9FAFB; border: 1px solid #E3EAEF; color: inherit; transition: all 0.2s;">
+                            <div class="rounded mr-3 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; background: rgba(103, 119, 239, 0.12); color: #6777EF; font-size: 16px;">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div>
+                                <div class="font-weight-bold text-dark-slate" style="font-size: 13px;">Revenue Analytics</div>
+                                <small class="text-muted-slate">Telemetry, PDF/CSV reports</small>
+                            </div>
+                        </a>
+                    </div>
+
+                    <!-- Maintenance & Breaks -->
+                    <div class="col-md-4 col-sm-6 col-12 mb-2">
+                        <a href="/manager/station-blocks" class="d-flex align-items-center p-2 rounded text-decoration-none" style="background: #F9FAFB; border: 1px solid #E3EAEF; color: inherit; transition: all 0.2s;">
+                            <div class="rounded mr-3 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; background: rgba(234, 84, 85, 0.12); color: #EA5455; font-size: 16px;">
+                                <i class="fas fa-tools"></i>
+                            </div>
+                            <div>
+                                <div class="font-weight-bold text-dark-slate" style="font-size: 13px;">Maintenance & Breaks</div>
+                                <small class="text-muted-slate">Block slots for servicing</small>
+                            </div>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

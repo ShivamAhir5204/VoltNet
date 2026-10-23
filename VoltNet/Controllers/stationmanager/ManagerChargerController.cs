@@ -59,10 +59,23 @@ public class ManagerChargerController : Controller
         var stationId = await GetStationIdAsync(GetUserId());
         if (stationId == null) return RedirectToAction("Error", "Home");
 
+        if (model.CapacityKw < 1 || model.CapacityKw > 500)
+        {
+            ModelState.AddModelError("CapacityKw", "Charger capacity must be between 1 kW and 500 kW.");
+        }
+
+        var isDuplicateName = await _context.Chargers
+            .AnyAsync(c => c.StationId == stationId.Value && c.Name.ToLower() == (model.Name ?? "").Trim().ToLower());
+        if (isDuplicateName)
+        {
+            ModelState.AddModelError("Name", $"A charger named '{model.Name}' already exists at this station.");
+        }
+
         if (ModelState.IsValid)
         {
             model.Id = Guid.NewGuid();
             model.StationId = stationId.Value;
+            model.Name = model.Name.Trim();
             model.CreatedAt = DateTime.UtcNow;
 
             _context.Chargers.Add(model);
@@ -98,6 +111,18 @@ public class ManagerChargerController : Controller
 
         if (id != model.Id) return BadRequest();
 
+        if (model.CapacityKw < 1 || model.CapacityKw > 500)
+        {
+            ModelState.AddModelError("CapacityKw", "Charger capacity must be between 1 kW and 500 kW.");
+        }
+
+        var isDuplicateName = await _context.Chargers
+            .AnyAsync(c => c.StationId == stationId.Value && c.Id != id && c.Name.ToLower() == (model.Name ?? "").Trim().ToLower());
+        if (isDuplicateName)
+        {
+            ModelState.AddModelError("Name", $"Another charger named '{model.Name}' already exists at this station.");
+        }
+
         if (ModelState.IsValid)
         {
             var charger = await _context.Chargers
@@ -105,7 +130,7 @@ public class ManagerChargerController : Controller
 
             if (charger == null) return NotFound();
 
-            charger.Name = model.Name;
+            charger.Name = model.Name.Trim();
             charger.ConnectorType = model.ConnectorType;
             charger.CapacityKw = model.CapacityKw;
             charger.Status = model.Status;
@@ -129,16 +154,35 @@ public class ManagerChargerController : Controller
         var charger = await _context.Chargers
             .FirstOrDefaultAsync(c => c.Id == id && c.StationId == stationId); // Security constraint
 
-        if (charger != null)
-        {
-            _context.Chargers.Remove(charger);
-            await _context.SaveChangesAsync();
-            TempData["Success"] = "Charger deleted successfully.";
-        }
-        else
+        if (charger == null)
         {
             TempData["Error"] = "Charger not found.";
+            return RedirectToAction(nameof(Index));
         }
+
+        // Check active / scheduled bookings
+        var hasActiveBookings = await _context.Bookings
+            .AnyAsync(b => b.ChargerId == id && (b.Status == "Confirmed" || b.Status == "Charging"));
+
+        if (hasActiveBookings)
+        {
+            TempData["Error"] = $"Cannot delete '{charger.Name}' because active or upcoming bookings are scheduled on this charger.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        // Check historical bookings to avoid violating foreign key constraint
+        var hasHistoricalBookings = await _context.Bookings.AnyAsync(b => b.ChargerId == id);
+        if (hasHistoricalBookings)
+        {
+            charger.Status = "Inactive";
+            await _context.SaveChangesAsync();
+            TempData["Success"] = $"Charger '{charger.Name}' has past charging transaction history and cannot be deleted. It has been set to Inactive.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        _context.Chargers.Remove(charger);
+        await _context.SaveChangesAsync();
+        TempData["Success"] = $"Charger '{charger.Name}' deleted successfully.";
 
         return RedirectToAction(nameof(Index));
     }

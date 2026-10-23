@@ -24,80 +24,98 @@
 
 <div class="row">
     <div class="col-12">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+        <div class="card card-otika">
+            <div class="card-header card-otika-header d-flex justify-content-between align-items-center flex-wrap">
                 <div>
-                    <h4 class="mb-1"><i class="fas fa-charging-station text-primary mr-2"></i> Charging Operations — @(station?.Name)</h4>
-                    <p class="text-muted mb-0 small">Petrol-pump style meter billing, walk-in offline entries, meter photo OCR reading, and session completion.</p>
+                    <h4 class="mb-0 text-dark-slate font-weight-700">
+                        <i class="fas fa-charging-station text-otika-primary mr-2"></i> Bookings — @(station?.Name)
+                    </h4>
                 </div>
-                <div class="d-flex gap-2 flex-wrap mt-2 mt-md-0">
-                    <button type="button" class="btn btn-warning font-weight-bold text-dark" data-toggle="modal" data-target="#walkInModal">
-                        <i class="fas fa-bolt mr-1"></i> + New Walk-In Driver
+                <div class="d-flex gap-2 flex-wrap mt-2 mt-md-0" style="gap: 8px;">
+                    <span class="badge badge-light border text-muted-slate font-weight-600 px-3 py-2 mr-1" id="liveMgrCountBadge">
+                        Showing @Model.Count() bookings
+                    </span>
+                    <button type="button" class="btn btn-warning font-weight-bold text-dark btn-sm" data-toggle="modal" data-target="#walkInModal">
+                        <i class="fas fa-bolt mr-1"></i> + Walk-In Driver
                     </button>
-                    <a href="/manager/station-blocks" class="btn btn-outline-secondary">
-                        <i class="fas fa-tools mr-1"></i> Maintenance & Breaks
+                    <a href="/manager/station-blocks" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-tools mr-1"></i> Maintenance
                     </a>
                 </div>
             </div>
             <div class="card-body">
-                <!-- Filters Form -->
-                <form method="get" class="mb-4 bg-light p-3 rounded">
+                <!-- Otika Instant Real-Time Filter Bar (Compact) -->
+                <div class="otika-filter-bar">
                     <div class="row align-items-end">
                         <div class="col-12 col-md-4 mb-2 mb-md-0">
-                            <label class="font-weight-bold small">Filter by Date:</label>
-                            <input type="date" name="date" class="form-control" value="@ViewBag.SelectedDate" />
+                            <label class="small font-weight-bold text-dark-slate mb-1">Quick Search</label>
+                            <div class="input-group input-group-sm">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text bg-white border-right-0 text-muted-slate"><i class="fas fa-search"></i></span>
+                                </div>
+                                <input type="text" id="liveMgrSearchInput" class="form-control form-control-sm otika-search-input border-left-0" placeholder="Driver, plate, phone, charger..." />
+                            </div>
                         </div>
-                        <div class="col-12 col-md-4 mb-2 mb-md-0">
-                            <label class="font-weight-bold small">Filter by Status:</label>
-                            <select name="status" class="form-control">
-                                <option value="">-- All Statuses --</option>
-                                <option value="Confirmed" selected="@(ViewBag.SelectedStatus == "Confirmed")">Confirmed / Reserved</option>
-                                <option value="Charging" selected="@(ViewBag.SelectedStatus == "Charging")">⚡ In Progress / Charging</option>
-                                <option value="Completed" selected="@(ViewBag.SelectedStatus == "Completed")">Completed</option>
-                                <option value="Cancelled" selected="@(ViewBag.SelectedStatus == "Cancelled")">Cancelled</option>
-                                <option value="NoShow" selected="@(ViewBag.SelectedStatus == "NoShow")">No-Show</option>
+                        <div class="col-12 col-md-3 mb-2 mb-md-0">
+                            <label class="small font-weight-bold text-dark-slate mb-1">Status</label>
+                            <select id="liveMgrStatusFilter" class="form-control form-control-sm otika-search-input">
+                                <option value="">All Statuses</option>
+                                <option value="confirmed">Confirmed</option>
+                                <option value="charging">Charging</option>
+                                <option value="completed">Completed</option>
+                                <option value="cancelled">Cancelled</option>
+                                <option value="noshow">No-Show</option>
                             </select>
                         </div>
-                        <div class="col-12 col-md-4">
-                            <button type="submit" class="btn btn-primary mr-1"><i class="fas fa-filter mr-1"></i> Filter</button>
-                            <a href="/manager/bookings" class="btn btn-outline-secondary">Reset</a>
+                        <div class="col-12 col-md-3 mb-2 mb-md-0">
+                            <label class="small font-weight-bold text-dark-slate mb-1">Date</label>
+                            <input type="date" id="liveMgrDateFilter" class="form-control form-control-sm otika-search-input" />
+                        </div>
+                        <div class="col-12 col-md-2">
+                            <button type="button" id="btnMgrResetFilters" class="btn btn-outline-secondary btn-sm btn-block" title="Reset Filters" style="height: 31px;">
+                                <i class="fas fa-redo-alt mr-1"></i> Reset
+                            </button>
                         </div>
                     </div>
-                </form>
+                </div>
 
                 @if (!Model.Any())
                 {
-                    <div class="text-center py-5">
-                        <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
-                        <h5>No Bookings Found</h5>
-                        <p class="text-muted">No reservations match your filter criteria for this station.</p>
+                    <div class="text-center py-5 bg-soft-grey rounded border-otika">
+                        <i class="fas fa-calendar-times text-muted-slate mb-3" style="font-size: 38px;"></i>
+                        <h6 class="text-dark-slate font-weight-bold mb-1">No Bookings Recorded</h6>
+                        <small class="text-muted-slate">Reservations and walk-in sessions for this station will appear here.</small>
                     </div>
                 }
                 else
                 {
                     <div class="table-responsive">
-                        <table class="table table-striped align-middle table-responsive-cards" id="table-1">
+                        <table class="table table-striped otika-table align-middle table-responsive-cards" id="table-1">
                             <thead>
                                 <tr>
                                     <th>Driver / Customer</th>
                                     <th>Vehicle & Charger</th>
                                     <th>Date & Slot</th>
                                     <th>Type</th>
-                                    <th>Energy Used</th>
+                                    <th>Energy</th>
                                     <th>Final Cost</th>
                                     <th>Status</th>
-                                    <th class="text-center" style="min-width: 220px;">Actions</th>
+                                    <th class="text-center" style="min-width: 200px;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach (var b in Model)
                                 {
-                                    <tr>
+                                    var statusLower = b.Status.ToLower();
+                                    <tr class="mgr-booking-row"
+                                        data-status="@statusLower"
+                                        data-date="@b.BookingDate.ToString("yyyy-MM-dd")"
+                                        data-search="@($"{b.CustomerName} {b.Customer?.Fullname} {b.CustomerPhone} {b.Customer?.Mobile} {b.VehicleNumberPlate} {b.Charger?.Name} {b.Charger?.ConnectorType}".ToLower())">
                                         <td class="col-primary" data-label="Driver / Customer">
                                             <div class="d-flex align-items-center justify-content-between">
                                                 <div>
-                                                    <span class="font-weight-bold text-dark">@(b.CustomerName ?? b.Customer?.Fullname ?? "Customer")</span>
-                                                    <div class="small text-muted"><i class="fas fa-phone mr-1"></i> @(b.CustomerPhone ?? b.Customer?.Mobile ?? "—")</div>
+                                                    <span class="font-weight-bold text-dark-slate">@(b.CustomerName ?? b.Customer?.Fullname ?? "Customer")</span>
+                                                    <div class="small text-muted-slate"><i class="fas fa-phone mr-1"></i> @(b.CustomerPhone ?? b.Customer?.Mobile ?? "—")</div>
                                                 </div>
                                                 <button type="button" class="mobile-expand-btn ml-2" title="Show details">
                                                     <i data-feather="chevron-down"></i>
@@ -106,50 +124,50 @@
                                         </td>
                                         <td class="col-secondary" data-label="Vehicle & Charger">
                                             <div>
-                                                <strong class="text-primary">@(string.IsNullOrEmpty(b.VehicleNumberPlate) ? "Plate: —" : b.VehicleNumberPlate)</strong>
-                                                <div class="small text-dark font-weight-bold">@b.Charger?.Name (@b.Charger?.ConnectorType)</div>
+                                                <strong class="text-dark-slate">@(string.IsNullOrEmpty(b.VehicleNumberPlate) ? "Plate: —" : b.VehicleNumberPlate)</strong>
+                                                <div class="small text-muted-slate">@b.Charger?.Name (@b.Charger?.ConnectorType)</div>
                                             </div>
                                         </td>
                                         <td class="col-secondary" data-label="Date & Slot">
-                                            <div>@b.BookingDate.ToString("dd MMM yyyy")</div>
-                                            <div class="small text-muted">@b.StartTime.ToString(@"hh\:mm") - @b.EndTime.ToString(@"hh\:mm")</div>
+                                            <div class="text-dark-slate font-weight-500">@b.BookingDate.ToString("dd MMM yyyy")</div>
+                                            <div class="small text-muted-slate">@b.StartTime.ToString(@"hh\:mm") - @b.EndTime.ToString(@"hh\:mm")</div>
                                         </td>
                                         <td class="col-secondary" data-label="Type">
                                             @if (b.IsWalkIn)
                                             {
-                                                <span class="badge badge-warning text-dark font-weight-bold">⚡ Walk-In</span>
+                                                <span class="badge badge-otika-warning font-weight-bold">⚡ Walk-In</span>
                                             }
                                             else
                                             {
-                                                <span class="badge badge-info font-weight-bold">📱 App Booking</span>
+                                                <span class="badge badge-otika-info font-weight-bold">📱 App</span>
                                             }
                                         </td>
-                                        <td class="col-secondary" data-label="Energy Used">
+                                        <td class="col-secondary" data-label="Energy">
                                             @if (b.UnitsConsumedKwh.HasValue)
                                             {
-                                                <strong class="text-dark">@b.UnitsConsumedKwh.Value.ToString("F2") kWh</strong>
+                                                <strong class="text-dark-slate">@b.UnitsConsumedKwh.Value.ToString("F2") kWh</strong>
                                             }
                                             else
                                             {
-                                                <span class="text-muted">—</span>
+                                                <span class="text-muted-slate">—</span>
                                             }
                                         </td>
                                         <td class="col-secondary" data-label="Final Cost">
                                             <div>
                                                 @if (b.ActualCost.HasValue)
                                                 {
-                                                    <strong class="text-success">₹@b.ActualCost.Value.ToString("F2")</strong>
+                                                    <strong class="text-success" style="color: #28C76F !important;">₹@b.ActualCost.Value.ToString("F2")</strong>
                                                     @if (!string.IsNullOrEmpty(b.PaymentMethod))
                                                     {
-                                                        <span class="badge badge-light border text-dark font-11 d-block mt-1">@b.PaymentMethod</span>
+                                                        <span class="badge badge-light border text-muted-slate font-11 d-block mt-1">@b.PaymentMethod</span>
                                                     }
                                                 }
                                                 else
                                                 {
-                                                    <span class="text-muted">Est. ₹@b.EstimatedCost.ToString("F2")</span>
+                                                    <span class="text-muted-slate">Est. ₹@b.EstimatedCost.ToString("F2")</span>
                                                     @if (b.BookingFee > 0 && !b.IsWalkIn)
                                                     {
-                                                        <span class="badge badge-warning text-dark font-11 d-block mt-1">₹@b.BookingFee.ToString("N0") Advance Paid</span>
+                                                        <span class="badge badge-otika-warning font-11 d-block mt-1">₹@b.BookingFee.ToString("N0") Advance</span>
                                                     }
                                                 }
                                             </div>
@@ -158,29 +176,29 @@
                                             <div>
                                                 @if (b.Status == "Charging")
                                                 {
-                                                    <span class="badge bg-success text-white font-weight-bold px-2 py-1 shadow-sm">
+                                                    <span class="badge badge-otika-teal font-weight-bold px-2 py-1">
                                                         <i class="fas fa-bolt mr-1"></i> Charging
                                                     </span>
                                                 }
                                                 else if (b.Status == "Confirmed")
                                                 {
-                                                    <span class="badge bg-primary">Confirmed</span>
+                                                    <span class="badge badge-otika-primary">Confirmed</span>
                                                 }
                                                 else if (b.Status == "Completed")
                                                 {
-                                                    <span class="badge bg-success">Completed</span>
+                                                    <span class="badge badge-otika-success">Completed</span>
                                                 }
                                                 else if (b.Status == "Cancelled")
                                                 {
-                                                    <span class="badge bg-danger" title="@b.CancellationReason">Cancelled</span>
+                                                    <span class="badge badge-otika-error" title="@b.CancellationReason">Cancelled</span>
                                                 }
                                                 else if (b.Status == "NoShow")
                                                 {
-                                                    <span class="badge bg-warning text-dark">No Show</span>
+                                                    <span class="badge badge-otika-warning">No-Show</span>
                                                 }
                                                 else
                                                 {
-                                                    <span class="badge bg-info">@b.Status</span>
+                                                    <span class="badge badge-otika-info">@b.Status</span>
                                                 }
                                             </div>
                                         </td>
@@ -583,6 +601,57 @@
             $('#walkInModal').appendTo("body");
             $('#startChargingModal').appendTo("body");
             $('#completeBookingModal').appendTo("body");
+
+            // Instant Real-Time Table Filter
+            var searchInput = document.getElementById('liveMgrSearchInput');
+            var statusFilter = document.getElementById('liveMgrStatusFilter');
+            var dateFilter = document.getElementById('liveMgrDateFilter');
+            var resetBtn = document.getElementById('btnMgrResetFilters');
+            var countBadge = document.getElementById('liveMgrCountBadge');
+            var rows = document.querySelectorAll('.mgr-booking-row');
+            var totalRows = rows.length;
+
+            function applyMgrLiveFilter() {
+                var searchVal = (searchInput ? searchInput.value : '').trim().toLowerCase();
+                var statusVal = (statusFilter ? statusFilter.value : '').toLowerCase();
+                var dateVal = (dateFilter ? dateFilter.value : '').trim();
+
+                var visibleCount = 0;
+
+                rows.forEach(function(row) {
+                    var rowSearch = row.getAttribute('data-search') || '';
+                    var rowStatus = row.getAttribute('data-status') || '';
+                    var rowDate = row.getAttribute('data-date') || '';
+
+                    var matchSearch = !searchVal || rowSearch.indexOf(searchVal) !== -1;
+                    var matchStatus = !statusVal || rowStatus === statusVal;
+                    var matchDate = !dateVal || rowDate === dateVal;
+
+                    if (matchSearch && matchStatus && matchDate) {
+                        row.style.display = '';
+                        visibleCount++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                if (countBadge) {
+                    countBadge.textContent = 'Showing ' + visibleCount + ' of ' + totalRows + ' bookings';
+                }
+            }
+
+            if (searchInput) searchInput.addEventListener('input', applyMgrLiveFilter);
+            if (statusFilter) statusFilter.addEventListener('change', applyMgrLiveFilter);
+            if (dateFilter) dateFilter.addEventListener('input', applyMgrLiveFilter);
+
+            if (resetBtn) {
+                resetBtn.addEventListener('click', function() {
+                    if (searchInput) searchInput.value = '';
+                    if (statusFilter) statusFilter.value = '';
+                    if (dateFilter) dateFilter.value = '';
+                    applyMgrLiveFilter();
+                });
+            }
         });
     </script>
 }

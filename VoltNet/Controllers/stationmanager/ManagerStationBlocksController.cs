@@ -74,6 +74,32 @@ public class ManagerStationBlocksController : Controller
             return RedirectToAction(nameof(Index));
         }
 
+        var today = DateTime.UtcNow.AddMinutes(330).Date;
+        if (blockDate.Date < today)
+        {
+            TempData["Error"] = "Cannot block slots in the past.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        // Check if customer bookings already exist during this slot
+        var bookingConflictQuery = _context.Bookings
+            .Where(b => b.StationId == manager.StationId &&
+                        b.BookingDate == blockDate.Date &&
+                        (b.Status == "Confirmed" || b.Status == "Charging") &&
+                        b.StartTime < end && b.EndTime > start);
+
+        if (chargerId.HasValue && chargerId.Value != Guid.Empty)
+        {
+            bookingConflictQuery = bookingConflictQuery.Where(b => b.ChargerId == chargerId.Value);
+        }
+
+        var conflictingBookings = await bookingConflictQuery.CountAsync();
+        if (conflictingBookings > 0)
+        {
+            TempData["Error"] = $"Cannot block slot: {conflictingBookings} active customer reservation(s) already exist during this time window. Please reschedule with drivers first.";
+            return RedirectToAction(nameof(Index));
+        }
+
         var block = new StationBlockSlot
         {
             Id = Guid.NewGuid(),

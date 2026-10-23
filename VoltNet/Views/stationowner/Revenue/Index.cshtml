@@ -17,11 +17,16 @@
             </div>
             @if (Model.HasStations)
             {
-                <div class="action-btns mt-3 mt-sm-0">
+                <div class="action-btns mt-3 mt-sm-0 d-flex">
+                    <a href="/owner/revenue/export-pdf?startDate=@(Model.StartDate.ToString("yyyy-MM-dd"))&endDate=@(Model.EndDate.ToString("yyyy-MM-dd"))&stationId=@(Model.SelectedStationId)" 
+                       class="btn font-weight-bold px-3 py-2 shadow-sm mr-2" 
+                       style="background: #E8F4FD; border: 1.5px solid #2B6CB0; color: #2B6CB0; border-radius: 6px; font-size: 13px;">
+                        <i class="fas fa-file-pdf mr-1 text-danger"></i>Download PDF
+                    </a>
                     <a href="/owner/revenue/export?startDate=@(Model.StartDate.ToString("yyyy-MM-dd"))&endDate=@(Model.EndDate.ToString("yyyy-MM-dd"))&stationId=@(Model.SelectedStationId)" 
                        class="btn font-weight-bold px-3 py-2 shadow-sm" 
                        style="background: #FFFFFF; border: 1.5px solid #28C76F; color: #28C76F; border-radius: 6px; font-size: 13px;">
-                        <i class="fas fa-download mr-1"></i>Export CSV
+                        <i class="fas fa-file-csv mr-1"></i>Export CSV
                     </a>
                 </div>
             }

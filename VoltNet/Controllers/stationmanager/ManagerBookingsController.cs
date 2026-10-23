@@ -97,6 +97,23 @@ public class ManagerBookingsController : Controller
             return RedirectToAction(nameof(Index));
         }
 
+        if (!Regex.IsMatch(customerPhone.Trim(), @"^[6-9]\d{9}$"))
+        {
+            TempData["Error"] = "Please enter a valid 10-digit driver mobile number (starting with 6, 7, 8, or 9).";
+            return RedirectToAction(nameof(Index));
+        }
+
+        if (vehicleNumberPlate.Trim().Length < 4)
+        {
+            TempData["Error"] = "Please enter a valid vehicle license plate number.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        if (durationMinutes < 15 || durationMinutes > 480)
+        {
+            durationMinutes = 60;
+        }
+
         var charger = await _context.Chargers.FirstOrDefaultAsync(c => c.Id == chargerId && c.StationId == manager.StationId);
         if (charger == null)
         {
@@ -215,6 +232,13 @@ public class ManagerBookingsController : Controller
         var ratePerKwh = booking.AppliedRatePerKwh ?? activeRate?.RatePerKwh ?? 15.00m;
         var ratePerHour = activeRate?.RatePerHour ?? 0.00m;
 
+        // Real-world validation: End meter reading sanity check
+        if (startMeterReading.HasValue && endMeterReading.HasValue && endMeterReading.Value < startMeterReading.Value)
+        {
+            TempData["Error"] = $"End meter reading ({endMeterReading.Value}) cannot be lower than initial start reading ({startMeterReading.Value}).";
+            return RedirectToAction(nameof(Index));
+        }
+
         // Calculate Units Consumed (kWh)
         decimal units = 0;
         if (unitsConsumedKwh.HasValue && unitsConsumedKwh.Value > 0)
@@ -292,6 +316,8 @@ public class ManagerBookingsController : Controller
         if (manager == null) return Unauthorized();
 
         var booking = await _context.Bookings
+            .Include(b => b.Charger)
+            .Include(b => b.Station)
             .FirstOrDefaultAsync(b => b.Id == id && b.StationId == manager.StationId);
 
         if (booking == null) return NotFound();
@@ -311,6 +337,9 @@ public class ManagerBookingsController : Controller
             .OrderBy(w => w.QueuePosition)
             .ThenBy(w => w.CreatedAt)
             .FirstOrDefaultAsync();
+
+        string? promotedEmail = null;
+        string? promotedName = null;
 
         if (nextInQueue != null)
         {
@@ -351,10 +380,31 @@ public class ManagerBookingsController : Controller
                 item.QueuePosition = pos++;
             }
 
-            _ = SendPromotionNotificationEmailAsync(promotedBooking.Id);
+            promotedEmail = nextInQueue.Customer?.Email;
+            promotedName = nextInQueue.Customer?.Fullname;
         }
 
         await _context.SaveChangesAsync();
+
+        // Safely trigger email in background AFTER database operation completes with in-memory data
+        if (!string.IsNullOrEmpty(promotedEmail))
+        {
+            var stationName = booking.Station?.Name ?? manager.Station?.Name ?? "Charging Station";
+            var stationCity = booking.Station?.City ?? manager.Station?.City ?? "";
+            var chargerName = booking.Charger?.Name ?? "EV Charger";
+            var connectorType = booking.Charger?.ConnectorType ?? "Fast Charger";
+
+            _ = SendPromotionNotificationEmailAsync(
+                promotedEmail,
+                promotedName ?? "Customer",
+                stationName,
+                stationCity,
+                chargerName,
+                connectorType,
+                booking.BookingDate,
+                booking.StartTime,
+                booking.EndTime);
+        }
 
         TempData["Success"] = nextInQueue != null
             ? $"Booking #{booking.Id.ToString()[..8].ToUpper()} marked as No-Show. Driver '{nextInQueue.Customer?.Fullname}' from queue automatically promoted to this slot!"
@@ -362,19 +412,19 @@ public class ManagerBookingsController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    private async Task SendPromotionNotificationEmailAsync(Guid bookingId)
+    private async Task SendPromotionNotificationEmailAsync(
+        string email,
+        string customerName,
+        string stationName,
+        string stationCity,
+        string chargerName,
+        string connectorType,
+        DateTime bookingDate,
+        TimeSpan startTime,
+        TimeSpan endTime)
     {
         try
         {
-            var booking = await _context.Bookings
-                .Include(b => b.Customer)
-                .Include(b => b.Station)
-                .Include(b => b.Charger)
-                .FirstOrDefaultAsync(b => b.Id == bookingId);
-
-            if (booking == null || booking.Customer == null || string.IsNullOrEmpty(booking.Customer.Email))
-                return;
-
             var client = _httpClientFactory.CreateClient();
             var apiKey = _configuration["MailApi:ApiKey"];
             if (!string.IsNullOrEmpty(apiKey))
@@ -383,22 +433,22 @@ public class ManagerBookingsController : Controller
             }
 
             var formContent = new MultipartFormDataContent();
-            formContent.Add(new StringContent(booking.Customer.Email), "to");
+            formContent.Add(new StringContent(email), "to");
             formContent.Add(new StringContent("🎉 You've Been Promoted to a Confirmed Slot! — VoltNet"), "subject");
 
             var body = $@"
-Hello {booking.Customer.Fullname},
+Hello {customerName},
 
-A previously reserved charging slot at {booking.Station?.Name} was just released due to a No-Show, and you have been AUTOMATICALLY PROMOTED from the waitlist queue to a CONFIRMED RESERVATION!
+A previously reserved charging slot at {stationName} was just released due to a No-Show, and you have been AUTOMATICALLY PROMOTED from the waitlist queue to a CONFIRMED RESERVATION!
 
 Your Booking Details:
-• Station: {booking.Station?.Name}, {booking.Station?.City}
-• Charger: {booking.Charger?.Name} ({booking.Charger?.ConnectorType})
-• Date: {booking.BookingDate:dd MMM yyyy}
-• Time Slot: {booking.StartTime:hh\:mm} - {booking.EndTime:hh\:mm}
+• Station: {stationName}, {stationCity}
+• Charger: {chargerName} ({connectorType})
+• Date: {bookingDate:dd MMM yyyy}
+• Time Slot: {startTime:hh\:mm} - {endTime:hh\:mm}
 • Status: Confirmed
 
-View your active booking here: http://localhost:5000/customer/bookings
+View your active booking here: http://localhost:5213/customer/bookings
 
 Thank you for charging with VoltNet!
 VoltNet Team";

@@ -27,6 +27,17 @@ public class UserMasterController : Controller
         return View("~/Views/admin/usermaster/Index.cshtml", users);
     }
 
+    // GET: admin/UserMaster/Details/{id}
+    [HttpGet]
+    public async Task<IActionResult> Details(Guid id)
+    {
+        var user = await _context.UserMasters.FirstOrDefaultAsync(m => m.Id == id);
+        if (user == null)
+            return NotFound();
+
+        return View("~/Views/admin/usermaster/Details.cshtml", user);
+    }
+
     // POST: admin/UserMaster/LoadDetails
     [HttpPost]
     [ValidateAntiForgeryToken]

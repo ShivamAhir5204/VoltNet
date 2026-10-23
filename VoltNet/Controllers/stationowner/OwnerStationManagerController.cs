@@ -76,6 +76,30 @@ public class OwnerStationManagerController : Controller
             return View("~/Views/stationowner/CreateStationManager.cshtml");
         }
 
+        // Real-world validation: Email address format
+        if (!new System.ComponentModel.DataAnnotations.EmailAddressAttribute().IsValid(email.Trim()))
+        {
+            ViewBag.Error = "Please enter a valid email address.";
+            await PopulateStationDropdown(userId, stationId);
+            return View("~/Views/stationowner/CreateStationManager.cshtml");
+        }
+
+        // Real-world validation: 10-digit mobile number
+        if (!System.Text.RegularExpressions.Regex.IsMatch(phone.Trim(), @"^[6-9]\d{9}$"))
+        {
+            ViewBag.Error = "Please enter a valid 10-digit mobile number (starting with 6, 7, 8, or 9).";
+            await PopulateStationDropdown(userId, stationId);
+            return View("~/Views/stationowner/CreateStationManager.cshtml");
+        }
+
+        // Real-world validation: Password length
+        if (password.Length < 6)
+        {
+            ViewBag.Error = "Password must be at least 6 characters long.";
+            await PopulateStationDropdown(userId, stationId);
+            return View("~/Views/stationowner/CreateStationManager.cshtml");
+        }
+
         // Verify the station belongs to this owner
         var station = await _context.Stations
             .FirstOrDefaultAsync(s => s.Id == stationId && s.OwnerUserId == userId);
@@ -249,9 +273,9 @@ public class OwnerStationManagerController : Controller
         }
 
         // Validate phone
-        if (phone.Trim().Length != 10 || !phone.Trim().All(char.IsDigit))
+        if (!System.Text.RegularExpressions.Regex.IsMatch(phone.Trim(), @"^[6-9]\d{9}$"))
         {
-            ViewBag.Error = "Please enter a valid 10-digit mobile number.";
+            ViewBag.Error = "Please enter a valid 10-digit mobile number (starting with 6, 7, 8, or 9).";
             await PopulateStationDropdown(userId, stationId);
             return View("~/Views/stationowner/EditStationManager.cshtml", manager);
         }

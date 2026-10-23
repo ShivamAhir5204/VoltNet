@@ -29,6 +29,17 @@ public class AdminUserController : Controller
         return View("~/Views/admin/adminuser/Index.cshtml", admins);
     }
 
+    // GET: admin/AdminUser/Details/{id}
+    [HttpGet]
+    public async Task<IActionResult> Details(Guid id)
+    {
+        var admin = await _context.AdminUsers.FirstOrDefaultAsync(m => m.Id == id);
+        if (admin == null)
+            return NotFound();
+
+        return View("~/Views/admin/adminuser/Details.cshtml", admin);
+    }
+
     // POST: admin/AdminUser/LoadDetails
     [HttpPost]
     [ValidateAntiForgeryToken]

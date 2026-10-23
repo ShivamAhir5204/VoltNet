@@ -38,10 +38,21 @@ public class ManagerDashboardController : Controller
         var totalChargers = await _context.Chargers.CountAsync(c => c.StationId == manager.StationId);
         var activeChargers = await _context.Chargers.CountAsync(c => c.StationId == manager.StationId && c.Status == "Active");
         
+        var istNow = DateTime.UtcNow.AddMinutes(330);
+        var today = istNow.Date;
+        var todayBookings = await _context.Bookings.CountAsync(b => b.StationId == manager.StationId && b.BookingDate == today);
+        var todayRevenue = await _context.Bookings
+            .Where(b => b.StationId == manager.StationId && b.BookingDate == today && (b.Status == "Completed" || b.Status == "Charging"))
+            .SumAsync(b => (decimal?)(b.ActualCost ?? b.EstimatedCost)) ?? 0;
+
         ViewBag.TotalChargers = totalChargers;
         ViewBag.ActiveChargers = activeChargers;
+        ViewBag.TodayBookings = todayBookings;
+        ViewBag.TodayRevenue = todayRevenue;
         ViewBag.StationName = manager.Station.Name;
         ViewBag.StationStatus = manager.Station.Status;
+        ViewBag.StationCity = manager.Station.City;
+        ViewBag.StationAddress = manager.Station.Address;
 
         return View("~/Views/stationmanager/Dashboard.cshtml");
     }

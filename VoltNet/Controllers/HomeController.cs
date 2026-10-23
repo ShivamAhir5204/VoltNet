@@ -33,7 +33,7 @@ public class HomeController : Controller
         var activeStations = _context.Stations
             .Include(s => s.Chargers)
             .Include(s => s.OwnerSubscription)
-            .Where(s => s.Status == "Active" && s.OwnerSubscription != null && s.OwnerSubscription.Status == "Active" && s.OwnerSubscription.EndDate >= DateTime.UtcNow);
+            .Where(s => s.Status == "Active" && (s.OwnerSubscription == null || (s.OwnerSubscription.Status == "Active" && s.OwnerSubscription.EndDate >= DateTime.UtcNow)));
 
         // Check if user is logged in
         var userIdStr = User.FindFirstValue("UserId");
@@ -144,7 +144,7 @@ public class HomeController : Controller
             .Include(s => s.Chargers)
             .Include(s => s.ChargingRates)
             .Include(s => s.OwnerSubscription)
-            .Where(s => s.Status == "Active" && s.OwnerSubscription != null && s.OwnerSubscription.Status == "Active" && s.OwnerSubscription.EndDate >= DateTime.UtcNow)
+            .Where(s => s.Status == "Active" && (s.OwnerSubscription == null || (s.OwnerSubscription.Status == "Active" && s.OwnerSubscription.EndDate >= DateTime.UtcNow)))
             .AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(q))
@@ -191,7 +191,7 @@ public class HomeController : Controller
         // Get unique cities for the dropdown
         ViewBag.Cities = await _context.Stations
             .Include(s => s.OwnerSubscription)
-            .Where(s => s.Status == "Active" && s.OwnerSubscription != null && s.OwnerSubscription.Status == "Active" && s.OwnerSubscription.EndDate >= DateTime.UtcNow)
+            .Where(s => s.Status == "Active" && (s.OwnerSubscription == null || (s.OwnerSubscription.Status == "Active" && s.OwnerSubscription.EndDate >= DateTime.UtcNow)))
             .Select(s => s.City)
             .Distinct()
             .OrderBy(c => c)
@@ -200,7 +200,7 @@ public class HomeController : Controller
         // Get unique connector types for the dropdown
         ViewBag.Connectors = await _context.Chargers
             .Include(c => c.Station!.OwnerSubscription)
-            .Where(c => c.Status == "Active" && c.Station!.Status == "Active" && c.Station.OwnerSubscription != null && c.Station.OwnerSubscription.Status == "Active" && c.Station.OwnerSubscription.EndDate >= DateTime.UtcNow)
+            .Where(c => c.Status == "Active" && c.Station!.Status == "Active" && (c.Station.OwnerSubscription == null || (c.Station.OwnerSubscription.Status == "Active" && c.Station.OwnerSubscription.EndDate >= DateTime.UtcNow)))
             .Select(c => c.ConnectorType)
             .Distinct()
             .OrderBy(c => c)
@@ -210,6 +210,8 @@ public class HomeController : Controller
     }
 
     [HttpGet("station/{id}")]
+    [HttpGet("Home/StationDetail/{id}")]
+    [HttpGet("StationDetail/{id}")]
     public async Task<IActionResult> StationDetail(Guid id)
     {
         var station = await _context.Stations
@@ -218,11 +220,17 @@ public class HomeController : Controller
             .Include(s => s.OwnerSubscription)
             .FirstOrDefaultAsync(s => s.Id == id);
 
-        if (station == null || station.Status != "Active" || station.OwnerSubscription == null || station.OwnerSubscription.Status != "Active" || station.OwnerSubscription.EndDate < DateTime.UtcNow)
+        if (station == null)
         {
-            return NotFound();
+            TempData["Error"] = "The requested charging station could not be found.";
+            return RedirectToAction("Stations");
         }
 
+        var isSubscriptionActive = station.OwnerSubscription == null || 
+                                   (station.OwnerSubscription.Status == "Active" && 
+                                    station.OwnerSubscription.EndDate >= DateTime.UtcNow);
+
+        ViewBag.IsAvailableForBooking = (station.Status == "Active") && isSubscriptionActive;
         ViewBag.IsOpen = IsStationOpen(station.OpeningTime, station.ClosingTime);
 
         return View("~/Views/Home/StationDetail.cshtml", station);
@@ -271,7 +279,7 @@ public class HomeController : Controller
     {
         var stations = await _context.Stations
             .Include(s => s.OwnerSubscription)
-            .Where(s => s.Status == "Active" && s.OwnerSubscription != null && s.OwnerSubscription.Status == "Active" && s.OwnerSubscription.EndDate >= DateTime.UtcNow && (s.Latitude != 0 || s.Longitude != 0))
+            .Where(s => s.Status == "Active" && (s.OwnerSubscription == null || (s.OwnerSubscription.Status == "Active" && s.OwnerSubscription.EndDate >= DateTime.UtcNow)) && (s.Latitude != 0 || s.Longitude != 0))
             .Select(s => new
             {
                 s.Id,

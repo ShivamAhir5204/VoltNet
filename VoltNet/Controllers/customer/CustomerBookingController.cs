@@ -35,8 +35,8 @@ public class CustomerBookingController : Controller
             .Include(s => s.OwnerSubscription)
             .FirstOrDefaultAsync(s => s.Id == stationId);
 
-        if (station == null || station.Status != "Active" || station.OwnerSubscription == null ||
-            station.OwnerSubscription.Status != "Active" || station.OwnerSubscription.EndDate < DateTime.UtcNow)
+        if (station == null || station.Status != "Active" || (station.OwnerSubscription != null &&
+            (station.OwnerSubscription.Status != "Active" || station.OwnerSubscription.EndDate < DateTime.UtcNow)))
         {
             TempData["Error"] = "This station is currently unavailable for booking.";
             return RedirectToAction("Stations", "Home");
@@ -64,8 +64,8 @@ public class CustomerBookingController : Controller
             .Include(s => s.OwnerSubscription)
             .FirstOrDefaultAsync(s => s.Id == stationId);
 
-        if (station == null || station.Status != "Active" || station.OwnerSubscription == null ||
-            station.OwnerSubscription.Status != "Active" || station.OwnerSubscription.EndDate < DateTime.UtcNow)
+        if (station == null || station.Status != "Active" || (station.OwnerSubscription != null &&
+            (station.OwnerSubscription.Status != "Active" || station.OwnerSubscription.EndDate < DateTime.UtcNow)))
         {
             TempData["Error"] = "This station is currently unavailable.";
             return RedirectToAction("Stations", "Home");
@@ -159,8 +159,8 @@ public class CustomerBookingController : Controller
             .Include(s => s.OwnerSubscription)
             .FirstOrDefaultAsync(s => s.Id == stationId);
 
-        if (station == null || station.Status != "Active" || station.OwnerSubscription == null ||
-            station.OwnerSubscription.Status != "Active" || station.OwnerSubscription.EndDate < DateTime.UtcNow)
+        if (station == null || station.Status != "Active" || (station.OwnerSubscription != null &&
+            (station.OwnerSubscription.Status != "Active" || station.OwnerSubscription.EndDate < DateTime.UtcNow)))
         {
             TempData["Error"] = "This station is unavailable.";
             return RedirectToAction("Stations", "Home");
@@ -203,8 +203,8 @@ public class CustomerBookingController : Controller
             .Include(s => s.OwnerSubscription)
             .FirstOrDefaultAsync(s => s.Id == stationId);
 
-        if (station == null || station.Status != "Active" || station.OwnerSubscription == null ||
-            station.OwnerSubscription.Status != "Active" || station.OwnerSubscription.EndDate < DateTime.UtcNow)
+        if (station == null || station.Status != "Active" || (station.OwnerSubscription != null &&
+            (station.OwnerSubscription.Status != "Active" || station.OwnerSubscription.EndDate < DateTime.UtcNow)))
         {
             TempData["Error"] = "Station is not active.";
             return RedirectToAction("Stations", "Home");
@@ -296,8 +296,26 @@ public class CustomerBookingController : Controller
         _context.Bookings.Add(booking);
         await _context.SaveChangesAsync();
 
-        // Send booking confirmation email in background
-        _ = SendBookingConfirmationEmailAsync(booking.Id);
+        // Send booking confirmation email in background safely with in-memory data
+        if (!string.IsNullOrEmpty(user?.Email))
+        {
+            _ = SendBookingConfirmationEmailAsync(
+                user.Email,
+                user.Fullname ?? "Customer",
+                booking.Id.ToString()[..8].ToUpper(),
+                station.Name,
+                station.Address,
+                station.City,
+                charger.Name,
+                charger.ConnectorType,
+                charger.CapacityKw,
+                booking.VehicleNumberPlate,
+                booking.BookingDate,
+                booking.StartTime,
+                booking.EndTime,
+                appliedRate,
+                estimatedCost);
+        }
 
         TempData["Success"] = $"Booking confirmed for {station.Name} ({charger.Name}) on {dateOnly:dd MMM yyyy} at {startTime:hh\\:mm}!";
         return Redirect("/customer/bookings");
@@ -347,19 +365,25 @@ public class CustomerBookingController : Controller
         return RedirectToAction(nameof(SelectSlot), new { stationId, chargerId, date = dateOnly.ToString("yyyy-MM-dd") });
     }
 
-    private async Task SendBookingConfirmationEmailAsync(Guid bookingId)
+    private async Task SendBookingConfirmationEmailAsync(
+        string email,
+        string customerName,
+        string bookingCode,
+        string stationName,
+        string stationAddress,
+        string stationCity,
+        string chargerName,
+        string connectorType,
+        double capacityKw,
+        string? vehicleNumberPlate,
+        DateTime bookingDate,
+        TimeSpan startTime,
+        TimeSpan endTime,
+        decimal appliedRatePerKwh,
+        decimal estimatedCost)
     {
         try
         {
-            var booking = await _context.Bookings
-                .Include(b => b.Customer)
-                .Include(b => b.Station)
-                .Include(b => b.Charger)
-                .FirstOrDefaultAsync(b => b.Id == bookingId);
-
-            if (booking == null || booking.Customer == null || string.IsNullOrEmpty(booking.Customer.Email))
-                return;
-
             var client = _httpClientFactory.CreateClient();
             var apiKey = _configuration["MailApi:ApiKey"];
             if (!string.IsNullOrEmpty(apiKey))
@@ -368,23 +392,23 @@ public class CustomerBookingController : Controller
             }
 
             var formContent = new MultipartFormDataContent();
-            formContent.Add(new StringContent(booking.Customer.Email), "to");
-            formContent.Add(new StringContent($"VoltNet Booking Confirmation — #{booking.Id.ToString().Substring(0, 8).ToUpper()}"), "subject");
+            formContent.Add(new StringContent(email), "to");
+            formContent.Add(new StringContent($"VoltNet Booking Confirmation — #{bookingCode}"), "subject");
 
             var body = $@"
-Hello {booking.Customer.Fullname},
+Hello {customerName},
 
 Your EV charging slot has been successfully reserved with VoltNet!
 
 Reservation Summary:
-• Booking ID: #{booking.Id.ToString().Substring(0, 8).ToUpper()}
-• Station: {booking.Station?.Name}, {booking.Station?.Address}, {booking.Station?.City}
-• Charger: {booking.Charger?.Name} ({booking.Charger?.ConnectorType}, {booking.Charger?.CapacityKw}kW)
-• Vehicle Plate: {booking.VehicleNumberPlate ?? "Not specified"}
-• Date: {booking.BookingDate:dd MMM yyyy}
-• Time Slot: {booking.StartTime:hh\:mm} - {booking.EndTime:hh\:mm}
-• Billing Mode: Units used (kWh) × Rate/kWh (₹{booking.AppliedRatePerKwh ?? 15.00m:F2}/kWh)
-• Estimated Cost: ₹{booking.EstimatedCost:F2}
+• Booking ID: #{bookingCode}
+• Station: {stationName}, {stationAddress}, {stationCity}
+• Charger: {chargerName} ({connectorType}, {capacityKw}kW)
+• Vehicle Plate: {vehicleNumberPlate ?? "Not specified"}
+• Date: {bookingDate:dd MMM yyyy}
+• Time Slot: {startTime:hh\:mm} - {endTime:hh\:mm}
+• Billing Mode: Units used (kWh) × Rate/kWh (₹{appliedRatePerKwh:F2}/kWh)
+• Estimated Cost: ₹{estimatedCost:F2}
 • Status: Confirmed
 
 Note: When you finish charging at the station, your total bill will be accurately calculated based on actual energy meter units consumed.

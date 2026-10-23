@@ -2,8 +2,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using System.Text;
 using VoltNet.Data;
 using VoltNet.Models;
+using VoltNet.Controllers.stationowner;
 
 namespace VoltNet.Controllers.stationmanager;
 
@@ -28,160 +30,356 @@ public class ManagerRevenueController : Controller
         var userId = GetUserId();
         return await _context.StationManagers
             .Include(m => m.Station)
+            .ThenInclude(s => s!.Chargers)
             .FirstOrDefaultAsync(m => m.UserId == userId && m.IsActive);
     }
 
     [HttpGet("")]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(DateTime? startDate, DateTime? endDate, string? groupBy)
     {
         var manager = await GetCurrentManagerAsync();
         if (manager == null || manager.Station == null)
         {
             ViewBag.ErrorMessage = "No active station assigned to your manager account.";
-            return View("~/Views/stationmanager/Revenue/Index.cshtml");
+            return View("~/Views/stationmanager/Revenue/Index.cshtml", null);
         }
 
-        var stationId = manager.StationId;
-        var nowIst = DateTime.UtcNow.AddMinutes(330);
-        var today = nowIst.Date;
+        var station = manager.Station;
+        var stationId = station.Id;
 
-        // Current week start (Monday)
-        var diff = (7 + (today.DayOfWeek - DayOfWeek.Monday)) % 7;
-        var startOfWeek = today.AddDays(-1 * diff);
+        // IST Time calculations
+        var istNow = DateTime.UtcNow.AddHours(5).AddMinutes(30);
+        var today = istNow.Date;
+        var startOfWeek = today.AddDays(-(int)(today.DayOfWeek == DayOfWeek.Sunday ? 6 : today.DayOfWeek - DayOfWeek.Monday));
         var startOfMonth = new DateTime(today.Year, today.Month, 1);
-        var startOf30Days = today.AddDays(-29);
 
-        // Fetch completed bookings for this station (Strict IDOR scope)
-        var completedBookings = await _context.Bookings
+        // Fetch completed bookings for this station
+        var allCompletedBookings = await _context.Bookings
             .Include(b => b.Charger)
+            .Include(b => b.Customer)
             .Where(b => b.StationId == stationId && b.Status == "Completed")
-            .OrderByDescending(b => b.CompletedAt ?? b.CreatedAt)
+            .OrderByDescending(b => b.BookingDate)
+            .ThenByDescending(b => b.StartTime)
             .ToListAsync();
 
-        // 1. KPI Cards
-        var todayBookings = completedBookings.Where(b => b.BookingDate.Date == today).ToList();
+        // 1. Macro KPIs (All Time / Life of Station)
+        var todayBookings = allCompletedBookings.Where(b => b.BookingDate == today).ToList();
         var todayRevenue = todayBookings.Sum(b => b.ActualCost ?? b.EstimatedCost);
+        var todayCount = todayBookings.Count;
 
-        var weekBookings = completedBookings.Where(b => b.BookingDate.Date >= startOfWeek && b.BookingDate.Date <= today).ToList();
+        var weekBookings = allCompletedBookings.Where(b => b.BookingDate >= startOfWeek && b.BookingDate <= today).ToList();
         var weekRevenue = weekBookings.Sum(b => b.ActualCost ?? b.EstimatedCost);
+        var weekCount = weekBookings.Count;
 
-        var monthBookings = completedBookings.Where(b => b.BookingDate.Date >= startOfMonth && b.BookingDate.Date <= today).ToList();
+        var monthBookings = allCompletedBookings.Where(b => b.BookingDate >= startOfMonth && b.BookingDate <= today).ToList();
         var monthRevenue = monthBookings.Sum(b => b.ActualCost ?? b.EstimatedCost);
+        var monthCount = monthBookings.Count;
 
-        var allTimeRevenue = completedBookings.Sum(b => b.ActualCost ?? b.EstimatedCost);
-        var totalEnergyDispensed = completedBookings.Sum(b => b.UnitsConsumedKwh ?? 0m);
+        var allTimeRevenue = allCompletedBookings.Sum(b => b.ActualCost ?? b.EstimatedCost);
+        var allTimeCount = allCompletedBookings.Count;
+        var totalEnergyKwh = allCompletedBookings.Sum(b => b.UnitsConsumedKwh ?? 0m);
 
-        // 2. Top Performing Charger
+        // 2. Custom Date Range Filtering for Review & Charts
+        var filterStart = startDate ?? today.AddDays(-29);
+        var filterEnd = endDate ?? today;
+
+        if (filterStart > filterEnd)
+        {
+            var temp = filterStart;
+            filterStart = filterEnd;
+            filterEnd = temp;
+        }
+
+        if (string.IsNullOrWhiteSpace(groupBy))
+        {
+            var span = (filterEnd - filterStart).TotalDays;
+            groupBy = span <= 31 ? "day" : (span <= 120 ? "week" : "month");
+        }
+
+        var periodBookings = allCompletedBookings
+            .Where(b => b.BookingDate >= filterStart.Date && b.BookingDate <= filterEnd.Date)
+            .ToList();
+
+        var periodRevenue = periodBookings.Sum(b => b.ActualCost ?? b.EstimatedCost);
+        var periodSessions = periodBookings.Count;
+        var periodEnergyKwh = periodBookings.Sum(b => b.UnitsConsumedKwh ?? 0m);
+        var periodAov = periodSessions > 0 ? periodRevenue / periodSessions : 0m;
+        var periodRate = periodEnergyKwh > 0 ? periodRevenue / periodEnergyKwh : 0m;
+
+        // Top Performing Charger in Period
         string topChargerName = "—";
         string topChargerConnector = "—";
         decimal topChargerRev = 0;
         int topChargerSharePct = 0;
 
-        var chargerRevenueGroups = completedBookings
+        var topGroup = periodBookings
             .Where(b => b.Charger != null)
             .GroupBy(b => b.Charger!)
-            .Select(g => new
-            {
-                Charger = g.Key,
-                Revenue = g.Sum(b => b.ActualCost ?? b.EstimatedCost),
-                Count = g.Count()
-            })
-            .OrderByDescending(g => g.Revenue)
+            .Select(g => new { Charger = g.Key, Rev = g.Sum(b => b.ActualCost ?? b.EstimatedCost) })
+            .OrderByDescending(x => x.Rev)
             .FirstOrDefault();
 
-        if (chargerRevenueGroups != null && allTimeRevenue > 0)
+        if (topGroup != null && periodRevenue > 0)
         {
-            topChargerName = chargerRevenueGroups.Charger.Name;
-            topChargerConnector = chargerRevenueGroups.Charger.ConnectorType;
-            topChargerRev = chargerRevenueGroups.Revenue;
-            topChargerSharePct = (int)Math.Round((topChargerRev / allTimeRevenue) * 100);
+            topChargerName = topGroup.Charger.Name;
+            topChargerConnector = topGroup.Charger.ConnectorType;
+            topChargerRev = topGroup.Rev;
+            topChargerSharePct = (int)Math.Round((topChargerRev / periodRevenue) * 100);
         }
 
-        // 3. Peak Hour Analysis
+        // Peak Demand Hour
         string peakHourRange = "—";
-        var peakHourGroup = completedBookings
+        var peakGroup = periodBookings
             .GroupBy(b => b.StartTime.Hours)
             .OrderByDescending(g => g.Count())
             .FirstOrDefault();
 
-        if (peakHourGroup != null)
+        if (peakGroup != null)
         {
-            var h = peakHourGroup.Key;
+            var h = peakGroup.Key;
             var startAmPm = h >= 12 ? (h == 12 ? 12 : h - 12) + " PM" : (h == 0 ? 12 : h) + " AM";
             var nextH = (h + 1) % 24;
             var endAmPm = nextH >= 12 ? (nextH == 12 ? 12 : nextH - 12) + " PM" : (nextH == 0 ? 12 : nextH) + " AM";
             peakHourRange = $"{startAmPm} - {endAmPm}";
         }
 
-        // 4. Bay Utilization Rate (Last 30 Days)
-        var totalChargersCount = await _context.Chargers.CountAsync(c => c.StationId == stationId);
-        int operatingHours = 14; // Default standard operating day (e.g. 7 AM - 9 PM)
-        if (manager.Station.ClosingTime > manager.Station.OpeningTime)
+        // Bay Utilization Rate
+        var totalChargersCount = station.Chargers?.Count ?? 1;
+        int operatingHours = 14;
+        if (station.ClosingTime > station.OpeningTime)
         {
-            operatingHours = (int)Math.Max(1, (manager.Station.ClosingTime - manager.Station.OpeningTime).TotalHours);
+            operatingHours = (int)Math.Max(1, (station.ClosingTime - station.OpeningTime).TotalHours);
         }
+        var spanDays = Math.Max(1, (int)(filterEnd - filterStart).TotalDays + 1);
+        var totalAvailableSlots = Math.Max(1, totalChargersCount * operatingHours * spanDays);
+        var utilizationPct = Math.Min(100, (int)Math.Round(((double)periodSessions / totalAvailableSlots) * 100));
 
-        var totalAvailableSlots30Days = Math.Max(1, totalChargersCount * operatingHours * 30);
-        var last30DaysBookings = completedBookings.Where(b => b.BookingDate.Date >= startOf30Days).ToList();
-        var utilizationPct = Math.Min(100, (int)Math.Round(((double)last30DaysBookings.Count / totalAvailableSlots30Days) * 100));
-
-        // 5. Last 30 Days Trend Data for Chart.js
-        var chartLabels = new List<string>();
-        var chartRevenueData = new List<decimal>();
-        var chartSessionsData = new List<int>();
-
-        for (int i = 0; i < 30; i++)
+        // 3. Charger Breakdown
+        var chargerBreakdown = (station.Chargers ?? new List<Charger>()).Select(c =>
         {
-            var curDate = startOf30Days.AddDays(i);
-            chartLabels.Add(curDate.ToString("dd MMM"));
+            var cBookings = periodBookings.Where(b => b.ChargerId == c.Id).ToList();
+            var rev = cBookings.Sum(b => b.ActualCost ?? b.EstimatedCost);
+            var kwh = cBookings.Sum(b => b.UnitsConsumedKwh ?? 0m);
+            var count = cBookings.Count;
+            var share = periodRevenue > 0 ? (rev / periodRevenue) * 100 : 0;
 
-            var dayBookings = completedBookings.Where(b => b.BookingDate.Date == curDate).ToList();
-            chartRevenueData.Add(dayBookings.Sum(b => b.ActualCost ?? b.EstimatedCost));
-            chartSessionsData.Add(dayBookings.Count);
-        }
+            return new StationChargerRevenueItem
+            {
+                ChargerId = c.Id,
+                ChargerName = c.Name,
+                ConnectorType = c.ConnectorType ?? "Standard",
+                CapacityKw = c.CapacityKw,
+                TotalBookings = count,
+                TotalEnergyKwh = kwh,
+                TotalRevenue = rev,
+                RevenueSharePercentage = Math.Round(share, 1)
+            };
+        }).OrderByDescending(c => c.TotalRevenue).ToList();
 
-        // 6. Payment Mode Breakdown
-        var paymentMethodBreakdown = completedBookings
+        // 4. Payment Breakdown
+        var paymentBreakdown = periodBookings
             .GroupBy(b => string.IsNullOrWhiteSpace(b.PaymentMethod) ? "UPI / QR Code" : b.PaymentMethod)
             .Select(g => new
             {
                 Method = g.Key,
                 Amount = g.Sum(b => b.ActualCost ?? b.EstimatedCost),
-                Count = g.Count()
+                Count = g.Count(),
+                Share = periodRevenue > 0 ? Math.Round((g.Sum(b => b.ActualCost ?? b.EstimatedCost) / periodRevenue) * 100, 1) : 0
             })
             .OrderByDescending(x => x.Amount)
             .ToList();
 
-        // 7. Recent 10 Transactions
-        var recentTransactions = completedBookings.Take(10).ToList();
+        // 5. Time-Series Bucketing
+        var timeSeriesLabels = new List<string>();
+        var timeSeriesRev = new List<decimal>();
+        var timeSeriesKwh = new List<decimal>();
+        var timeSeriesCount = new List<int>();
+        var timeSeriesAov = new List<decimal>();
 
-        // View model data
-        ViewBag.Station = manager.Station;
-        ViewBag.TodayRevenue = todayRevenue;
-        ViewBag.TodayCount = todayBookings.Count;
-        ViewBag.WeekRevenue = weekRevenue;
-        ViewBag.WeekCount = weekBookings.Count;
-        ViewBag.MonthRevenue = monthRevenue;
-        ViewBag.MonthCount = monthBookings.Count;
-        ViewBag.AllTimeRevenue = allTimeRevenue;
-        ViewBag.AllTimeBookings = completedBookings.Count;
-        ViewBag.TotalEnergyDispensed = totalEnergyDispensed;
+        if (groupBy == "day")
+        {
+            for (var dt = filterStart.Date; dt <= filterEnd.Date; dt = dt.AddDays(1))
+            {
+                timeSeriesLabels.Add(dt.ToString("dd MMM"));
+                var bDay = periodBookings.Where(b => b.BookingDate == dt).ToList();
+                var rev = bDay.Sum(b => b.ActualCost ?? b.EstimatedCost);
+                var kwh = bDay.Sum(b => b.UnitsConsumedKwh ?? 0m);
+                var count = bDay.Count;
 
-        ViewBag.TopChargerName = topChargerName;
-        ViewBag.TopChargerConnector = topChargerConnector;
-        ViewBag.TopChargerSharePct = topChargerSharePct;
-        ViewBag.TopChargerRev = topChargerRev;
+                timeSeriesRev.Add(rev);
+                timeSeriesKwh.Add(kwh);
+                timeSeriesCount.Add(count);
+                timeSeriesAov.Add(count > 0 ? rev / count : 0m);
+            }
+        }
+        else if (groupBy == "week")
+        {
+            var curMonday = filterStart.Date.AddDays(-(int)(filterStart.Date.DayOfWeek == DayOfWeek.Sunday ? 6 : filterStart.Date.DayOfWeek - DayOfWeek.Monday));
+            while (curMonday <= filterEnd.Date)
+            {
+                var nextSunday = curMonday.AddDays(6);
+                timeSeriesLabels.Add(curMonday.ToString("dd MMM"));
+                var bWeek = periodBookings.Where(b => b.BookingDate.Date >= curMonday && b.BookingDate.Date <= nextSunday && b.BookingDate.Date <= filterEnd.Date).ToList();
+                var rev = bWeek.Sum(b => b.ActualCost ?? b.EstimatedCost);
+                var kwh = bWeek.Sum(b => b.UnitsConsumedKwh ?? 0m);
+                var count = bWeek.Count;
 
-        ViewBag.PeakHourRange = peakHourRange;
-        ViewBag.UtilizationPct = utilizationPct;
+                timeSeriesRev.Add(rev);
+                timeSeriesKwh.Add(kwh);
+                timeSeriesCount.Add(count);
+                timeSeriesAov.Add(count > 0 ? rev / count : 0m);
+                curMonday = curMonday.AddDays(7);
+            }
+        }
+        else // month
+        {
+            var curMonth = new DateTime(filterStart.Year, filterStart.Month, 1);
+            var endMonth = new DateTime(filterEnd.Year, filterEnd.Month, 1);
+            while (curMonth <= endMonth)
+            {
+                var nextMonth = curMonth.AddMonths(1).AddTicks(-1);
+                timeSeriesLabels.Add(curMonth.ToString("MMM yy"));
+                var bMonth = periodBookings.Where(b => b.BookingDate.Date >= curMonth && b.BookingDate.Date <= nextMonth && b.BookingDate.Date >= filterStart.Date && b.BookingDate.Date <= filterEnd.Date).ToList();
+                var rev = bMonth.Sum(b => b.ActualCost ?? b.EstimatedCost);
+                var kwh = bMonth.Sum(b => b.UnitsConsumedKwh ?? 0m);
+                var count = bMonth.Count;
 
-        ViewBag.ChartLabels = chartLabels;
-        ViewBag.ChartRevenue = chartRevenueData;
-        ViewBag.ChartSessions = chartSessionsData;
+                timeSeriesRev.Add(rev);
+                timeSeriesKwh.Add(kwh);
+                timeSeriesCount.Add(count);
+                timeSeriesAov.Add(count > 0 ? rev / count : 0m);
+                curMonth = curMonth.AddMonths(1);
+            }
+        }
 
-        ViewBag.PaymentBreakdown = paymentMethodBreakdown;
-        ViewBag.RecentTransactions = recentTransactions;
+        var chargerLabels = chargerBreakdown.Select(c => c.ChargerName).ToList();
+        var chargerData = chargerBreakdown.Select(c => c.TotalRevenue).ToList();
 
-        return View("~/Views/stationmanager/Revenue/Index.cshtml");
+        var vm = new OwnerIndividualStationRevenueViewModel
+        {
+            Station = station,
+            StartDate = filterStart,
+            EndDate = filterEnd,
+            GroupBy = groupBy,
+
+            TodayRevenue = todayRevenue,
+            TodayBookings = todayCount,
+            WeekRevenue = weekRevenue,
+            WeekBookings = weekCount,
+            MonthRevenue = monthRevenue,
+            MonthBookings = monthCount,
+            AllTimeRevenue = allTimeRevenue,
+            AllTimeBookings = allTimeCount,
+            TotalEnergyKwh = totalEnergyKwh,
+
+            PeriodRevenue = periodRevenue,
+            PeriodBookings = periodSessions,
+            PeriodEnergyKwh = periodEnergyKwh,
+            PeriodAvgTicket = periodAov,
+            PeriodRatePerKwh = periodRate,
+
+            TopChargerName = topChargerName,
+            TopChargerConnector = topChargerConnector,
+            TopChargerSharePct = topChargerSharePct,
+            TopChargerRevenue = topChargerRev,
+            PeakHourRange = peakHourRange,
+            UtilizationPct = utilizationPct,
+
+            ChargerBreakdowns = chargerBreakdown,
+            RecentSessions = periodBookings.Take(50).ToList(),
+
+            ChartLabelsJson = System.Text.Json.JsonSerializer.Serialize(timeSeriesLabels),
+            ChartRevenueJson = System.Text.Json.JsonSerializer.Serialize(timeSeriesRev),
+            ChartEnergyJson = System.Text.Json.JsonSerializer.Serialize(timeSeriesKwh),
+            ChartCountJson = System.Text.Json.JsonSerializer.Serialize(timeSeriesCount),
+            ChartAovJson = System.Text.Json.JsonSerializer.Serialize(timeSeriesAov),
+
+            ChargerLabelsJson = System.Text.Json.JsonSerializer.Serialize(chargerLabels),
+            ChargerDataJson = System.Text.Json.JsonSerializer.Serialize(chargerData)
+        };
+
+        ViewBag.PaymentBreakdown = paymentBreakdown;
+
+        return View("~/Views/stationmanager/Revenue/Index.cshtml", vm);
+    }
+
+    // GET: /manager/revenue/export
+    [HttpGet("export")]
+    public async Task<IActionResult> ExportCsv(DateTime? startDate, DateTime? endDate)
+    {
+        var manager = await GetCurrentManagerAsync();
+        if (manager == null || manager.Station == null)
+        {
+            return NotFound("No active station assigned to your manager account.");
+        }
+
+        var start = startDate?.Date ?? DateTime.UtcNow.AddDays(-30).Date;
+        var end = endDate?.Date ?? DateTime.UtcNow.Date;
+
+        var bookings = await _context.Bookings
+            .Include(b => b.Charger)
+            .Include(b => b.Customer)
+            .Where(b => b.StationId == manager.StationId && b.Status == "Completed" && b.BookingDate >= start && b.BookingDate <= end)
+            .OrderByDescending(b => b.BookingDate)
+            .ThenByDescending(b => b.StartTime)
+            .ToListAsync();
+
+        var sb = new StringBuilder();
+        sb.AppendLine("Booking ID,Booking Date,Start Time,End Time,Charger,Connector,Vehicle No,Customer Name,Energy (kWh),Rate/kWh (INR),Total Amount (INR),Payment Method,Status");
+
+        foreach (var b in bookings)
+        {
+            var id = b.Id.ToString();
+            var date = b.BookingDate.ToString("yyyy-MM-dd");
+            var startT = b.StartTime.ToString(@"hh\:mm");
+            var endT = b.EndTime.ToString(@"hh\:mm");
+            var charger = $"\"{b.Charger?.Name ?? "—"}\"";
+            var connector = b.Charger?.ConnectorType ?? "—";
+            var plate = b.VehicleNumberPlate ?? "—";
+            var customer = $"\"{b.CustomerName ?? b.Customer?.Fullname ?? "Walk-In Driver"}\"";
+            var kwh = b.UnitsConsumedKwh?.ToString("F2") ?? "0.00";
+            var rate = b.AppliedRatePerKwh?.ToString("F2") ?? "0.00";
+            var cost = (b.ActualCost ?? b.EstimatedCost).ToString("F2");
+            var payMethod = b.PaymentMethod ?? "UPI / QR Code";
+            var status = b.Status;
+
+            sb.AppendLine($"{id},{date},{startT},{endT},{charger},{connector},{plate},{customer},{kwh},{rate},{cost},{payMethod},{status}");
+        }
+
+        var fileName = $"VoltNet_StationRevenue_{manager.Station.Name.Replace(" ", "_")}_{DateTime.Now:yyyyMMdd_HHmm}.csv";
+        return File(Encoding.UTF8.GetBytes(sb.ToString()), "text/csv", fileName);
+    }
+
+    // GET: /manager/revenue/export-pdf
+    [HttpGet("export-pdf")]
+    public async Task<IActionResult> ExportPdf(DateTime? startDate, DateTime? endDate)
+    {
+        var manager = await GetCurrentManagerAsync();
+        if (manager == null || manager.Station == null)
+        {
+            return NotFound("No active station assigned to your manager account.");
+        }
+
+        var start = startDate?.Date ?? DateTime.UtcNow.AddDays(-30).Date;
+        var end = endDate?.Date ?? DateTime.UtcNow.Date;
+
+        var bookings = await _context.Bookings
+            .Include(b => b.Charger)
+            .Include(b => b.Customer)
+            .Where(b => b.StationId == manager.StationId && b.Status == "Completed" && b.BookingDate >= start && b.BookingDate <= end)
+            .OrderByDescending(b => b.BookingDate)
+            .ThenByDescending(b => b.StartTime)
+            .ToListAsync();
+
+        var totalRev = bookings.Sum(b => b.ActualCost ?? b.EstimatedCost);
+        var totalKwh = bookings.Sum(b => b.UnitsConsumedKwh ?? 0m);
+
+        var pdfBytes = VoltNet.Services.PdfGeneratorService.GenerateRevenueReportPdf(
+            $"{manager.Station.Name} - Station Revenue Report",
+            $"Station: {manager.Station.City}, {manager.Station.State}",
+            start, end, totalRev, bookings.Count, totalKwh, bookings, manager.FullName ?? "Station Manager");
+
+        var fileName = $"VoltNet_StationRevenue_{manager.Station.Name.Replace(" ", "_")}_{DateTime.Now:yyyyMMdd_HHmm}.pdf";
+        return File(pdfBytes, "application/pdf", fileName);
     }
 }

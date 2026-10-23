@@ -67,6 +67,15 @@ public class OwnerStationController : Controller
         return View("~/Views/stationowner/StationDetails.cshtml", station);
     }
 
+    // GET: owner/stations/PickLocation
+    [HttpGet]
+    public IActionResult PickLocation(string? returnTo, Guid? id)
+    {
+        ViewBag.ReturnTo = returnTo ?? "Create";
+        ViewBag.StationId = id;
+        return View("~/Views/stationowner/OwnerPickLocation.cshtml");
+    }
+
     // GET: owner/stations/Create
     [HttpGet]
     public IActionResult Create()
@@ -122,12 +131,38 @@ public class OwnerStationController : Controller
             }
         }
 
+        // Real-world validation: Coordinates
+        if (model.Latitude < -90 || model.Latitude > 90 || model.Longitude < -180 || model.Longitude > 180 || (model.Latitude == 0 && model.Longitude == 0))
+        {
+            ModelState.AddModelError("Latitude", "Please provide valid GPS coordinates (Latitude -90 to 90, Longitude -180 to 180).");
+        }
+
+        // Real-world validation: Station duplicate name in same city for same owner
+        var currentUserId = GetUserId();
+        var isDuplicate = await _context.Stations
+            .AnyAsync(s => s.OwnerUserId == currentUserId && s.City.ToLower() == (model.City ?? "").Trim().ToLower() && s.Name.ToLower() == (model.Name ?? "").Trim().ToLower());
+        if (isDuplicate)
+        {
+            ModelState.AddModelError("Name", $"You already have a station named '{model.Name}' in {model.City}.");
+        }
+
         if (ModelState.IsValid)
         {
             model.Id = Guid.NewGuid();
             model.OwnerUserId = GetUserId();
             model.Status = "PendingVerification";
             model.CreatedAt = DateTime.UtcNow;
+
+            // Auto-assign to owner's active subscription if capacity is available
+            var activeSub = await _context.OwnerSubscriptions
+                .Include(os => os.Plan)
+                .Include(os => os.Stations)
+                .FirstOrDefaultAsync(os => os.Owner!.UserId == model.OwnerUserId && os.Status == "Active" && os.EndDate >= DateTime.UtcNow);
+
+            if (activeSub != null && (activeSub.Plan == null || activeSub.Stations.Count < activeSub.Plan.MaxStations))
+            {
+                model.OwnerSubscriptionId = activeSub.Id;
+            }
 
             _context.Stations.Add(model);
 
@@ -354,12 +389,22 @@ public class OwnerStationController : Controller
         }
 
         // Check if station has active bookings
-        var hasBookings = await _context.Bookings
+        var hasActiveBookings = await _context.Bookings
             .AnyAsync(b => b.StationId == id && (b.Status == "Confirmed" || b.Status == "Charging"));
 
-        if (hasBookings)
+        if (hasActiveBookings)
         {
-            TempData["Error"] = "Cannot delete station with active or ongoing charging bookings.";
+            TempData["Error"] = "Cannot delete station with active or scheduled charging bookings.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        // Check if historical bookings exist
+        var hasHistoricalBookings = await _context.Bookings.AnyAsync(b => b.StationId == id);
+        if (hasHistoricalBookings)
+        {
+            station.Status = "Suspended";
+            await _context.SaveChangesAsync();
+            TempData["Success"] = $"Station '{station.Name}' has past charging records and cannot be permanently deleted. It has been decommissioned and archived.";
             return RedirectToAction(nameof(Index));
         }
 

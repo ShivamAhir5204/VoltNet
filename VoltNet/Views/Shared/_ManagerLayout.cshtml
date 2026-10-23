@@ -45,11 +45,9 @@
                 Change Password
               </a>
               <div class="dropdown-divider"></div>
-              <form action="/logout" method="post" id="logoutForm" class="dropdown-item has-icon text-danger d-flex align-items-center" style="cursor:pointer">
-                @Html.AntiForgeryToken()
-                <i class="fas fa-sign-out-alt mr-2"></i>
-                <a onclick="document.getElementById('logoutForm').submit();" class="text-danger" style="margin:0; padding:0;">Logout</a>
-              </form>
+              <a href="/logout" class="dropdown-item has-icon text-danger">
+                <i class="fas fa-sign-out-alt"></i> Logout
+              </a>
             </div>
           </li>
         </ul>
@@ -121,12 +119,78 @@
   <!-- Custom JS File -->
   <script src="~/otika/assets/js/custom.js"></script>
 
+  @await RenderSectionAsync("Modals", required: false)
   @await RenderSectionAsync("Scripts", required: false)
+
+  <style>
+    .modal-backdrop {
+      z-index: 1040 !important;
+    }
+    .modal {
+      z-index: 1060 !important;
+    }
+    .modal-dialog {
+      z-index: 1065 !important;
+    }
+    .modal-content {
+      z-index: 1070 !important;
+    }
+
+    /* Minimize vertical scrolling across manager portal */
+    .main-content {
+      padding-top: 72px !important;
+      padding-bottom: 20px !important;
+      padding-left: 270px;
+      padding-right: 22px;
+    }
+    .section {
+      margin-bottom: 0 !important;
+    }
+    .card {
+      margin-bottom: 16px !important;
+      border-radius: 8px !important;
+    }
+    .card .card-header {
+      min-height: 46px !important;
+      padding: 8px 16px !important;
+    }
+    .card .card-body {
+      padding: 14px 16px !important;
+    }
+    .table td, .table th {
+      padding: 8px 12px !important;
+      vertical-align: middle !important;
+    }
+    .card-otika-header {
+      padding: 10px 16px !important;
+      margin-bottom: 12px !important;
+    }
+    .page-title-box {
+      margin-bottom: 12px !important;
+    }
+    .table-responsive {
+      margin-bottom: 0 !important;
+    }
+    .card-statistic-4 {
+      padding: 12px 14px !important;
+    }
+    .card-statistic-4 .card-content {
+      padding-top: 4px !important;
+    }
+  </style>
 
   <script>
     $(document).ready(function() {
+        // Relocate any modals inside #app to body to eliminate stacking context traps
+        $('#app .modal').appendTo("body");
+        $(document).on('show.bs.modal', '.modal', function () {
+            if (!$(this).parent().is('body')) {
+                $(this).appendTo("body");
+            }
+        });
+
         if ($.fn.DataTable) {
-            $('.table').DataTable({
+            $('.table:not(.no-datatable)').DataTable({
                 dom: '<"row align-items-center mb-3"<"col-12 col-md-6 mb-2 mb-md-0 d-flex justify-content-center justify-content-md-start"l><"col-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>tip'
             });
         }

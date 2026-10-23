@@ -149,6 +149,22 @@
   <script src="~/bootstrap-5.3.8-dist/bootstrap-5.3.8-dist/js/bootstrap.bundle.min.js"></script>
   <!-- VoltNet User-Site JS -->
   <script src="~/usersite/js/main.js"></script>
+
+  <style>
+    .modal-backdrop {
+      z-index: 1040 !important;
+    }
+    .modal {
+      z-index: 1060 !important;
+    }
+    .modal-dialog {
+      z-index: 1070 !important;
+    }
+    .modal-content {
+      z-index: 1075 !important;
+    }
+  </style>
+
   @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

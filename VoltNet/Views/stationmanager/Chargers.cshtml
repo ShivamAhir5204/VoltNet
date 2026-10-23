@@ -1,6 +1,6 @@
 @model IEnumerable<VoltNet.Models.Charger>
 @{
-    ViewData["Title"] = "Manage Chargers";
+    ViewData["Title"] = "Chargers";
     Layout = "~/Views/Shared/_ManagerLayout.cshtml";
 }
 
@@ -11,7 +11,7 @@
             <div class="alert alert-success alert-dismissible show fade">
                 <div class="alert-body">
                     <button class="close" data-dismiss="alert"><span>&times;</span></button>
-                    @TempData["Success"]
+                    <i class="fas fa-check-circle mr-2"></i> @TempData["Success"]
                 </div>
             </div>
         }
@@ -20,64 +20,102 @@
             <div class="alert alert-danger alert-dismissible show fade">
                 <div class="alert-body">
                     <button class="close" data-dismiss="alert"><span>&times;</span></button>
-                    @TempData["Error"]
+                    <i class="fas fa-exclamation-triangle mr-2"></i> @TempData["Error"]
                 </div>
             </div>
         }
 
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h4>Chargers</h4>
-                <a href="/manager/chargers/create" class="btn btn-primary"><i class="fas fa-plus"></i> Add New Charger</a>
+        <div class="card card-otika">
+            <div class="card-header card-otika-header d-flex justify-content-between align-items-center flex-wrap">
+                <div>
+                    <h4 class="mb-0 text-dark-slate font-weight-700">
+                        <i class="fas fa-charging-station text-otika-primary mr-2"></i> Chargers
+                    </h4>
+                </div>
+                <div class="mt-2 mt-sm-0">
+                    <a href="/manager/chargers/create" class="btn btn-otika-primary btn-sm">
+                        <i class="fas fa-plus mr-1"></i> Add Charger
+                    </a>
+                </div>
             </div>
             <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-striped table-md table-responsive-cards">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Connector Type</th>
-                                <th>Capacity (kW)</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var item in Model)
-                            {
+                @if (!Model.Any())
+                {
+                    <div class="text-center py-5 bg-soft-grey rounded border-otika">
+                        <i class="fas fa-plug text-muted-slate mb-3" style="font-size: 38px;"></i>
+                        <h6 class="text-dark-slate font-weight-bold mb-1">No Chargers Configured</h6>
+                        <small class="text-muted-slate mb-3 d-block">Add your first charging gun/bay to start taking customer bookings.</small>
+                        <a href="/manager/chargers/create" class="btn btn-otika-primary btn-sm">
+                            <i class="fas fa-plus mr-1"></i> Add Charger
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-striped otika-table align-middle table-responsive-cards" id="table-1">
+                            <thead>
                                 <tr>
-                                    <td data-label="Name">@item.Name</td>
-                                    <td data-label="Connector Type">@item.ConnectorType</td>
-                                    <td data-label="Capacity (kW)">@item.CapacityKw kW</td>
-                                    <td data-label="Status">
-                                        <span class="badge @(item.Status == "Active" ? "badge-success" : (item.Status == "Maintenance" ? "badge-warning" : "badge-danger"))">
-                                            @item.Status
-                                        </span>
-                                    </td>
-                                    <td data-label="Actions">
-                                        <div class="d-flex" style="gap:5px;">
-                                            <a href="/manager/chargers/edit/@item.Id" class="btn btn-warning btn-sm" title="Edit">
-                                                <i class="fas fa-edit"></i> Edit
-                                            </a>
-                                            <form action="/manager/chargers/delete/@item.Id" method="post" onsubmit="return confirm('Are you sure you want to delete this charger?');">
-                                                @Html.AntiForgeryToken()
-                                                <button type="submit" class="btn btn-danger btn-sm" title="Delete">
-                                                    <i class="fas fa-trash"></i> Delete
+                                    <th>Name</th>
+                                    <th>Connector</th>
+                                    <th>Capacity</th>
+                                    <th>Status</th>
+                                    <th class="text-center" style="width: 150px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td class="col-primary" data-label="Name">
+                                            <div class="d-flex align-items-center justify-content-between">
+                                                <strong class="text-dark-slate font-weight-700">@item.Name</strong>
+                                                <button type="button" class="mobile-expand-btn ml-2" title="Show details">
+                                                    <i data-feather="chevron-down"></i>
                                                 </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            }
-                            @if (!Model.Any())
-                            {
-                                <tr>
-                                    <td colspan="5" class="text-center">No chargers found. Add your first charger!</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
+                                            </div>
+                                        </td>
+                                        <td class="col-secondary" data-label="Connector">
+                                            <span class="badge badge-otika-teal font-weight-600 px-2 py-1">
+                                                <i class="fas fa-bolt mr-1"></i> @item.ConnectorType
+                                            </span>
+                                        </td>
+                                        <td class="col-secondary" data-label="Capacity">
+                                            <span class="text-dark-slate font-weight-600">@item.CapacityKw kW</span>
+                                        </td>
+                                        <td class="col-secondary" data-label="Status">
+                                            @if (item.Status == "Active")
+                                            {
+                                                <span class="badge badge-otika-success">Active</span>
+                                            }
+                                            else if (item.Status == "Maintenance")
+                                            {
+                                                <span class="badge badge-otika-warning">Maintenance</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge badge-otika-error">@item.Status</span>
+                                            }
+                                        </td>
+                                        <td class="text-center col-action" data-label="Actions">
+                                            <div class="d-inline-flex align-items-center justify-content-center flex-nowrap" style="gap: 4px;">
+                                                <a href="/manager/chargers/edit/@item.Id" class="btn btn-warning btn-sm" title="Edit">
+                                                    <i class="fas fa-edit"></i> Edit
+                                                </a>
+                                                <form action="/manager/chargers/delete/@item.Id" method="post" class="d-inline mb-0" onsubmit="return confirm('Are you sure you want to delete this charger?');">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-outline-danger btn-sm" title="Delete">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
             </div>
         </div>
     </div>

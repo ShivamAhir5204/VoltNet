@@ -67,6 +67,19 @@ public class StationController : Controller
         return View("~/Views/admin/station/PickLocation.cshtml");
     }
 
+    // GET: admin/Station/Details/{id}
+    [HttpGet]
+    public async Task<IActionResult> Details(Guid id)
+    {
+        var station = await _context.Stations
+            .Include(s => s.OwnerUser)
+            .FirstOrDefaultAsync(s => s.Id == id);
+        if (station == null)
+            return NotFound();
+
+        return View("~/Views/admin/station/Details.cshtml", station);
+    }
+
     // POST: admin/Station/LoadDetails
     [HttpPost]
     [ValidateAntiForgeryToken]

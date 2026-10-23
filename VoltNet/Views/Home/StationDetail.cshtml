@@ -16,8 +16,22 @@
 </section>
 
 <!-- Station Info Content -->
-<section style="padding: 80px 0;">
+<section style="padding: 60px 0;">
     <div class="container">
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i> @TempData["Success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
         <div class="row g-5">
             <!-- Left Column: Details -->
             <div class="col-lg-8 vn-reveal" style="transition-delay: 300ms;">
@@ -131,9 +145,21 @@
                     <div class="card-body p-4 text-center">
                         <i class="bi bi-calendar-check" style="font-size: 3rem; color: var(--vn-green); margin-bottom: 15px; display: block;"></i>
                         <h4 style="font-weight: 700; margin-bottom: 15px;">Book a Slot</h4>
-                        <a href="/customer/book/@Model.Id" class="btn-vn-primary w-100 d-block text-center text-decoration-none" style="padding: 14px; font-size: 1.1rem;">
-                            <i class="bi bi-lightning-charge-fill me-1"></i> Book a Charger Now
-                        </a>
+                        @if (ViewBag.IsAvailableForBooking == true)
+                        {
+                            <a href="/customer/book/@Model.Id" class="btn-vn-primary w-100 d-block text-center text-decoration-none" style="padding: 14px; font-size: 1.1rem;">
+                                <i class="bi bi-lightning-charge-fill me-1"></i> Book a Charger Now
+                            </a>
+                        }
+                        else
+                        {
+                            <div class="alert alert-warning py-2 px-3 small font-weight-bold mb-3 text-start">
+                                <i class="bi bi-clock-history me-1"></i> Online bookings open once station verification and active subscription are linked.
+                            </div>
+                            <button class="btn btn-secondary w-100 py-3 text-white" disabled>
+                                <i class="bi bi-lock me-1"></i> Booking Unavailable
+                            </button>
+                        }
                     </div>
                 </div>
 

@@ -3,6 +3,20 @@
 @{
     var station = ViewBag.Station as VoltNet.Models.Station;
     var availableConnectors = ViewBag.AvailableConnectors as List<string> ?? new List<string>();
+    var stationChargers = station?.Chargers?.OrderBy(c => c.Name).ToList() ?? new List<VoltNet.Models.Charger>();
+
+    // Identify active configured connector types so we only show types that are NOT yet added
+    var activeConfiguredTypes = Model.Where(r => r.IsActive).Select(r => r.ConnectorType.Trim()).ToList();
+    var unconfiguredInstalledConnectors = availableConnectors
+        .Where(c => !activeConfiguredTypes.Any(act => act.Equals(c, StringComparison.OrdinalIgnoreCase)))
+        .ToList();
+
+    var allStandardTypes = new[] { "CCS2", "Type 2", "Type 2 (AC)", "CHAdeMO", "GB/T", "15A Domestic", "15A Domestic (3-Pin)", "Type 1", "DC Fast" };
+    var unconfiguredStandardTypes = allStandardTypes
+        .Where(std => !activeConfiguredTypes.Any(act => act.Equals(std, StringComparison.OrdinalIgnoreCase)) &&
+                      !unconfiguredInstalledConnectors.Any(inst => inst.Equals(std, StringComparison.OrdinalIgnoreCase)))
+        .ToList();
+
     ViewData["Title"] = $"Charging Rates - {station?.Name}";
     Layout = "~/Views/Shared/_OwnerLayout.cshtml";
 }
@@ -24,69 +38,70 @@
 
 <div class="row">
     <div class="col-12">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+        <div class="card card-otika mb-4">
+            <div class="card-header card-otika-header d-flex justify-content-between align-items-center flex-wrap">
                 <div>
-                    <h4 class="mb-1"><i class="fas fa-bolt text-warning mr-2"></i> Charging Rates — @(station?.Name)</h4>
-                    <p class="text-muted mb-0 small">Set and maintain energy prices per kWh & hourly parking/charging fees for each connector type.</p>
+                    <h4 class="mb-0 text-dark-slate font-weight-700">
+                        <i class="fas fa-bolt text-otika-primary mr-2"></i> Charging Rates — @(station?.Name)
+                    </h4>
                 </div>
                 <div class="mt-2 mt-sm-0">
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addRateModal">
+                    <button type="button" class="btn btn-otika-primary" data-toggle="modal" data-target="#addRateModal">
                         <i class="fas fa-plus mr-1"></i> Add Connector Rate
                     </button>
-                    <a href="/owner/stations" class="btn btn-secondary ml-1"><i class="fas fa-arrow-left"></i> Back to Stations</a>
+                    <a href="/owner/rates" class="btn btn-outline-secondary ml-1"><i class="fas fa-arrow-left mr-1"></i> Back</a>
                 </div>
             </div>
             <div class="card-body">
                 <!-- Informational summary cards -->
                 <div class="row mb-4">
                     <div class="col-12 col-md-4">
-                        <div class="card bg-light border-0 shadow-none mb-2">
+                        <div class="card bg-soft-grey border-otika mb-2">
                             <div class="card-body py-3">
                                 <div class="d-flex align-items-center">
-                                    <div class="p-3 bg-primary text-white rounded mr-3">
+                                    <div class="p-3 badge-otika-primary text-white rounded mr-3">
                                         <i class="fas fa-plug fa-lg"></i>
                                     </div>
                                     <div>
-                                        <div class="text-muted small">Installed Connectors</div>
-                                        <div class="font-weight-bold h5 mb-0">@availableConnectors.Count Types</div>
+                                        <div class="text-muted-slate small font-weight-600">Chargers / Guns Installed</div>
+                                        <div class="font-weight-700 text-dark-slate h5 mb-0">@stationChargers.Count Charging Points</div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="col-12 col-md-4">
-                        <div class="card bg-light border-0 shadow-none mb-2">
+                        <div class="card bg-soft-grey border-otika mb-2">
                             <div class="card-body py-3">
                                 <div class="d-flex align-items-center">
-                                    <div class="p-3 bg-success text-white rounded mr-3">
+                                    <div class="p-3 badge-otika-success text-white rounded mr-3">
                                         <i class="fas fa-check fa-lg"></i>
                                     </div>
                                     <div>
-                                        <div class="text-muted small">Active Pricing Rates</div>
-                                        <div class="font-weight-bold h5 mb-0">@Model.Count(r => r.IsActive) Configured</div>
+                                        <div class="text-muted-slate small font-weight-600">Active Rate Tariffs</div>
+                                        <div class="font-weight-700 text-dark-slate h5 mb-0">@Model.Count(r => r.IsActive) Configured</div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="col-12 col-md-4">
-                        <div class="card bg-light border-0 shadow-none mb-2">
+                        <div class="card bg-soft-grey border-otika mb-2">
                             <div class="card-body py-3">
                                 <div class="d-flex align-items-center">
-                                    <div class="p-3 bg-info text-white rounded mr-3">
+                                    <div class="p-3 badge-otika-teal text-white rounded mr-3">
                                         <i class="fas fa-tag fa-lg"></i>
                                     </div>
                                     <div>
-                                        <div class="text-muted small">Starting Price</div>
-                                        <div class="font-weight-bold h5 mb-0">
+                                        <div class="text-muted-slate small font-weight-600">Starting Energy Price</div>
+                                        <div class="font-weight-700 text-dark-slate h5 mb-0">
                                             @if (Model.Any(r => r.IsActive))
                                             {
                                                 <span>₹@Model.Where(r => r.IsActive).Min(r => r.RatePerKwh).ToString("F2")/kWh</span>
                                             }
                                             else
                                             {
-                                                <span class="text-warning">Not Set</span>
+                                                <span class="text-muted-slate font-14">Not Set</span>
                                             }
                                         </div>
                                     </div>
@@ -96,180 +111,280 @@
                     </div>
                 </div>
 
-                @if (!Model.Any())
-                {
-                    <div class="text-center py-5 my-3">
-                        <div class="mb-3 text-muted">
-                            <i class="fas fa-receipt fa-4x opacity-50"></i>
-                        </div>
-                        <h5>No Charging Rates Configured Yet</h5>
-                        <p class="text-muted" style="max-width: 500px; margin: 0 auto;">
-                            Customers will not be able to calculate costs or book charging slots at this station until you set charging rates for your installed connector types.
-                        </p>
-                        <button type="button" class="btn btn-primary mt-3" data-toggle="modal" data-target="#addRateModal">
-                            <i class="fas fa-plus mr-1"></i> Add Your First Rate
-                        </button>
+                <!-- ── SECTION 1: Charger Points & Their Assigned Charging Rates ── -->
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="font-weight-700 text-dark-slate mb-0">
+                            <i class="fas fa-charging-station text-otika-primary mr-1"></i> Installed Charger Points & Applicable Tariffs
+                        </h6>
+                        <small class="text-muted-slate">Cross-reference each physical charging gun with its active customer rate.</small>
                     </div>
-                }
-                else
-                {
-                    <div class="table-responsive">
-                        <table class="table table-striped align-middle table-responsive-cards" id="table-1">
-                            <thead>
-                                <tr>
-                                    <th>Connector Type</th>
-                                    <th>Rate (per kWh)</th>
-                                    <th>Rate (per Hour)</th>
-                                    <th>Status</th>
-                                    <th>Last Updated</th>
-                                    <th class="text-center" style="width: 220px;">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var rate in Model)
-                                {
+
+                    @if (!stationChargers.Any())
+                    {
+                        <div class="p-3 bg-soft-grey rounded border-otika text-center">
+                            <small class="text-muted-slate">No chargers installed at this station yet. Add chargers via Station Managers or Chargers portal.</small>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-sm otika-table align-middle mb-0">
+                                <thead>
                                     <tr>
-                                        <td class="col-primary" data-label="Connector Type">
-                                            <div class="d-flex align-items-center justify-content-between">
-                                                <div class="d-flex align-items-center">
-                                                    <span class="badge badge-info mr-2 px-2 py-1">
-                                                        <i class="fas fa-bolt"></i> @rate.ConnectorType
-                                                    </span>
-                                                </div>
-                                                <button type="button" class="mobile-expand-btn ml-2" title="Show details">
-                                                    <i data-feather="chevron-down"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                        <td class="col-secondary" data-label="Rate (per kWh)">
-                                            <div>
-                                                <strong class="text-success h6 mb-0">₹@rate.RatePerKwh.ToString("F2")</strong>
-                                                <span class="text-muted small">/ kWh</span>
-                                            </div>
-                                        </td>
-                                        <td class="col-secondary" data-label="Rate (per Hour)">
-                                            <div>
-                                                @if (rate.RatePerHour.HasValue && rate.RatePerHour.Value > 0)
+                                        <th>Charger Point / Bay</th>
+                                        <th>Connector Type</th>
+                                        <th>Power Capacity</th>
+                                        <th>Status</th>
+                                        <th>Applicable Energy Rate</th>
+                                        <th>Hourly Slot Fee</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var charger in stationChargers)
+                                    {
+                                        var mappedRate = Model.FirstOrDefault(r => r.IsActive && r.ConnectorType.Equals(charger.ConnectorType.Trim(), StringComparison.OrdinalIgnoreCase));
+                                        <tr>
+                                            <td>
+                                                <strong class="text-dark-slate"><i class="fas fa-gas-pump text-muted-slate mr-1"></i> @charger.Name</strong>
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-otika-teal font-weight-600">@charger.ConnectorType</span>
+                                            </td>
+                                            <td>
+                                                <span class="font-weight-600 text-dark-slate">@charger.CapacityKw kW</span>
+                                            </td>
+                                            <td>
+                                                @if (charger.Status == "Active")
                                                 {
-                                                    <strong class="text-primary font-weight-bold">₹@rate.RatePerHour.Value.ToString("F2")</strong>
-                                                    <span class="text-muted small">/ hr</span>
+                                                    <span class="badge badge-otika-success">Active</span>
+                                                }
+                                                else if (charger.Status == "Maintenance")
+                                                {
+                                                    <span class="badge badge-otika-warning">Maintenance</span>
                                                 }
                                                 else
                                                 {
-                                                    <span class="text-muted">—</span>
+                                                    <span class="badge badge-secondary">@charger.Status</span>
                                                 }
-                                            </div>
-                                        </td>
-                                        <td class="col-secondary" data-label="Status">
-                                            <div>
+                                            </td>
+                                            <td>
+                                                @if (mappedRate != null)
+                                                {
+                                                    <strong class="text-success" style="color: #28C76F !important;">₹@mappedRate.RatePerKwh.ToString("F2") / kWh</strong>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge badge-light border text-danger font-weight-bold" style="color: #EA5455 !important;">
+                                                        <i class="fas fa-exclamation-circle mr-1"></i> Rate Not Set
+                                                    </span>
+                                                    <button type="button" class="btn btn-xs btn-outline-primary ml-1" onclick="openAddRateForConnector('@charger.ConnectorType')">
+                                                        Set Rate
+                                                    </button>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (mappedRate != null && mappedRate.RatePerHour.HasValue && mappedRate.RatePerHour.Value > 0)
+                                                {
+                                                    <span class="text-dark-slate font-weight-600">₹@mappedRate.RatePerHour.Value.ToString("F2") / hr</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted-slate">—</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+
+                <!-- ── SECTION 2: Active Rate Tariffs by Connector Type ── -->
+                <div class="mt-4 pt-3 border-top border-otika">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="font-weight-700 text-dark-slate mb-0">
+                            <i class="fas fa-tags text-otika-primary mr-1"></i> Configured Rate Tariffs by Connector Type
+                        </h6>
+                    </div>
+
+                    @if (!Model.Any())
+                    {
+                        <div class="text-center py-4 bg-soft-grey rounded border-otika">
+                            <i class="fas fa-receipt text-muted-slate mb-2" style="font-size: 32px;"></i>
+                            <h6 class="text-dark-slate font-weight-bold mb-1">No Charging Rates Configured</h6>
+                            <small class="text-muted-slate mb-3 d-block">Configure rates for installed connectors so customers can book charging slots.</small>
+                            <button type="button" class="btn btn-otika-primary btn-sm" data-toggle="modal" data-target="#addRateModal">
+                                <i class="fas fa-plus mr-1"></i> Add First Rate
+                            </button>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped otika-table align-middle table-responsive-cards" id="table-1">
+                                <thead>
+                                    <tr>
+                                        <th>Connector Type</th>
+                                        <th>Rate (per kWh)</th>
+                                        <th>Hourly Fee</th>
+                                        <th>Status</th>
+                                        <th>Updated</th>
+                                        <th class="text-center" style="width: 200px;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var rate in Model)
+                                    {
+                                        <tr>
+                                            <td class="col-primary" data-label="Connector">
+                                                <div class="d-flex align-items-center justify-content-between">
+                                                    <span class="badge badge-otika-teal font-weight-600 px-2 py-1">
+                                                        <i class="fas fa-bolt mr-1"></i> @rate.ConnectorType
+                                                    </span>
+                                                    <button type="button" class="mobile-expand-btn ml-2" title="Show details">
+                                                        <i data-feather="chevron-down"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                            <td class="col-secondary" data-label="Rate (per kWh)">
+                                                <div>
+                                                    <strong class="text-success h6 mb-0" style="color: #28C76F !important;">₹@rate.RatePerKwh.ToString("F2")</strong>
+                                                    <span class="text-muted-slate small">/ kWh</span>
+                                                </div>
+                                            </td>
+                                            <td class="col-secondary" data-label="Hourly Fee">
+                                                <div>
+                                                    @if (rate.RatePerHour.HasValue && rate.RatePerHour.Value > 0)
+                                                    {
+                                                        <strong class="text-dark-slate">₹@rate.RatePerHour.Value.ToString("F2")</strong>
+                                                        <span class="text-muted-slate small">/ hr</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted-slate">—</span>
+                                                    }
+                                                </div>
+                                            </td>
+                                            <td class="col-secondary" data-label="Status">
                                                 @if (rate.IsActive)
                                                 {
-                                                    <span class="badge bg-success">Active</span>
+                                                    <span class="badge badge-otika-success">Active</span>
                                                 }
                                                 else
                                                 {
-                                                    <span class="badge bg-secondary">Inactive</span>
+                                                    <span class="badge badge-secondary">Inactive</span>
                                                 }
-                                            </div>
-                                        </td>
-                                        <td class="col-secondary" data-label="Last Updated">
-                                            <div>
-                                                <small class="text-muted">
-                                                    @(rate.UpdatedAt?.ToString("dd MMM yyyy, hh:mm tt") ?? rate.CreatedAt.ToString("dd MMM yyyy, hh:mm tt"))
+                                            </td>
+                                            <td class="col-secondary" data-label="Updated">
+                                                <small class="text-muted-slate">
+                                                    @(rate.UpdatedAt?.ToString("dd MMM yyyy") ?? rate.CreatedAt.ToString("dd MMM yyyy"))
                                                 </small>
-                                            </div>
-                                        </td>
-                                        <td class="text-center col-action" data-label="Actions">
-                                            <div class="d-inline-flex align-items-center justify-content-center flex-nowrap" style="white-space: nowrap;">
-                                                <button type="button" class="btn btn-warning btn-sm mr-1"
-                                                        onclick="openEditRateModal('@rate.Id', '@rate.ConnectorType', '@rate.RatePerKwh', '@(rate.RatePerHour ?? 0)')"
-                                                        title="Edit Rate">
-                                                    <i class="fas fa-edit"></i> Edit
-                                                </button>
-                                                <form asp-action="ToggleStatus" method="post" class="d-inline mb-0">
-                                                    @Html.AntiForgeryToken()
-                                                    <input type="hidden" name="id" value="@rate.Id" />
-                                                    <button type="submit" class="btn @(rate.IsActive ? "btn-outline-secondary" : "btn-outline-success") btn-sm"
-                                                            title="@(rate.IsActive ? "Deactivate rate" : "Activate rate")">
-                                                        <i class="fas @(rate.IsActive ? "fa-ban" : "fa-check")"></i>
-                                                        @(rate.IsActive ? "Deactivate" : "Activate")
+                                            </td>
+                                            <td class="text-center col-action" data-label="Actions">
+                                                <div class="d-inline-flex align-items-center justify-content-center flex-nowrap" style="gap: 4px;">
+                                                    <button type="button" class="btn btn-warning btn-sm"
+                                                            onclick="openEditRateModal('@rate.Id', '@rate.ConnectorType', '@rate.RatePerKwh', '@(rate.RatePerHour ?? 0)')"
+                                                            title="Edit Rate">
+                                                        <i class="fas fa-edit"></i> Edit
                                                     </button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                }
+                                                    <form asp-action="ToggleStatus" method="post" class="d-inline mb-0">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="id" value="@rate.Id" />
+                                                        <button type="submit" class="btn @(rate.IsActive ? "btn-outline-secondary" : "btn-outline-success") btn-sm"
+                                                                title="@(rate.IsActive ? "Deactivate rate" : "Activate rate")">
+                                                            <i class="fas @(rate.IsActive ? "fa-ban" : "fa-check")"></i>
+                                                            @(rate.IsActive ? "Deactivate" : "Activate")
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal: Add Rate -->
+<!-- Modal: Add Rate (Only displays types NOT yet added) -->
 <div class="modal fade" id="addRateModal" tabindex="-1" role="dialog" aria-labelledby="addRateModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="addRateModalTitle"><i class="fas fa-plus-circle mr-2"></i> Add Charging Rate</h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+        <div class="modal-content card-otika border-0">
+            <div class="modal-header bg-white border-bottom py-3">
+                <h5 class="modal-title font-weight-bold text-dark-slate" id="addRateModalTitle">
+                    <i class="fas fa-plus-circle text-otika-primary mr-2"></i> Add Charging Rate
+                </h5>
+                <button type="button" class="close text-dark" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <form asp-action="Create" method="post">
                 @Html.AntiForgeryToken()
                 <input type="hidden" name="stationId" value="@(station?.Id)" />
-                <div class="modal-body">
+                <div class="modal-body p-4">
                     <div class="form-group">
-                        <label for="connectorType" class="font-weight-bold">Connector Type <span class="text-danger">*</span></label>
-                        <select class="form-control select2" id="connectorType" name="connectorType" required style="width: 100%;">
+                        <label for="connectorType" class="small font-weight-bold text-dark-slate">Connector Type <span class="text-danger">*</span></label>
+                        <select class="form-control" id="connectorType" name="connectorType" required>
                             <option value="">-- Select Connector --</option>
-                            @foreach (var connector in availableConnectors)
+                            @if (unconfiguredInstalledConnectors.Any())
                             {
-                                <option value="@connector">@connector</option>
+                                <optgroup label="Installed at Station (Not Configured Yet)">
+                                    @foreach (var connector in unconfiguredInstalledConnectors)
+                                    {
+                                        <option value="@connector">@connector (Installed)</option>
+                                    }
+                                </optgroup>
+                            }
+                            @if (unconfiguredStandardTypes.Any())
+                            {
+                                <optgroup label="Other Standard EV Connectors">
+                                    @foreach (var std in unconfiguredStandardTypes)
+                                    {
+                                        <option value="@std">@std</option>
+                                    }
+                                </optgroup>
                             }
                         </select>
-                        <small class="form-text text-muted">Populated from existing chargers configured at this station.</small>
+                        <small class="form-text text-muted">Only unconfigured connector types are shown to prevent duplicate rate conflicts.</small>
                     </div>
 
                     <div class="form-group">
-                        <label for="ratePerKwh" class="font-weight-bold">Rate per kWh (₹) <span class="text-danger">*</span></label>
+                        <label for="ratePerKwh" class="small font-weight-bold text-dark-slate">Rate per kWh (₹) <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text">₹</span>
+                                <span class="input-group-text bg-white border-right-0 text-muted-slate">₹</span>
                             </div>
-                            <input type="number" step="0.01" min="0.01" max="150.00" class="form-control" id="ratePerKwh" name="ratePerKwh" required placeholder="e.g. 15.00" oninput="calculateEstimate('add')" />
+                            <input type="number" step="0.01" min="0.01" max="150.00" class="form-control border-left-0" id="ratePerKwh" name="ratePerKwh" required placeholder="e.g. 15.00" oninput="calculateEstimate('add')" />
                         </div>
-                        <small class="form-text text-muted">Primary billing rate based on electricity consumed (Max ₹150.00/kWh).</small>
                     </div>
 
                     <div class="form-group">
-                        <label for="ratePerHour" class="font-weight-bold">Rate per Hour (₹) <span class="text-muted">(Optional)</span></label>
+                        <label for="ratePerHour" class="small font-weight-bold text-dark-slate">Rate per Hour (₹) <span class="text-muted-slate">(Optional)</span></label>
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text">₹</span>
+                                <span class="input-group-text bg-white border-right-0 text-muted-slate">₹</span>
                             </div>
-                            <input type="number" step="0.01" min="0.00" max="2000.00" class="form-control" id="ratePerHour" name="ratePerHour" placeholder="e.g. 50.00 (optional)" />
+                            <input type="number" step="0.01" min="0.00" max="2000.00" class="form-control border-left-0" id="ratePerHour" name="ratePerHour" placeholder="e.g. 50.00" />
                         </div>
-                        <small class="form-text text-muted">Additional or flat parking/slot fee (leave blank if energy-only pricing).</small>
                     </div>
 
                     <!-- Live Estimation Box -->
-                    <div class="p-3 bg-light rounded border mt-3">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="text-muted small font-weight-bold"><i class="fas fa-calculator mr-1"></i> Cost Preview (Typical 30 kWh Fast Charge):</span>
-                            <span class="font-weight-bold text-success" id="addCostPreview">₹0.00</span>
-                        </div>
-                        <div class="text-muted small" style="font-size: 0.75rem;">
-                            Formula: 30 kWh × Rate/kWh. Helps you avoid decimal or typo mistakes.
+                    <div class="p-3 bg-soft-grey rounded border-otika mt-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="small font-weight-bold text-dark-slate"><i class="fas fa-calculator mr-1 text-otika-primary"></i> 30 kWh Preview:</span>
+                            <span class="font-weight-bold text-success font-15" id="addCostPreview" style="color: #28C76F !important;">₹0.00</span>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-save mr-1"></i> Save Charging Rate</button>
+                <div class="modal-footer bg-light py-2 px-4">
+                    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-otika-primary btn-sm"><i class="fas fa-save mr-1"></i> Save Rate</button>
                 </div>
             </form>
         </div>
@@ -279,9 +394,11 @@
 <!-- Modal: Edit Rate -->
 <div class="modal fade" id="editRateModal" tabindex="-1" role="dialog" aria-labelledby="editRateModalTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-warning text-dark">
-                <h5 class="modal-title" id="editRateModalTitle"><i class="fas fa-edit mr-2"></i> Edit Charging Rate</h5>
+        <div class="modal-content card-otika border-0">
+            <div class="modal-header bg-white border-bottom py-3">
+                <h5 class="modal-title font-weight-bold text-dark-slate" id="editRateModalTitle">
+                    <i class="fas fa-edit text-warning mr-2"></i> Edit Charging Rate
+                </h5>
                 <button type="button" class="close text-dark" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -289,43 +406,42 @@
             <form asp-action="Edit" method="post">
                 @Html.AntiForgeryToken()
                 <input type="hidden" id="editRateId" name="id" />
-                <div class="modal-body">
+                <div class="modal-body p-4">
                     <div class="form-group">
-                        <label class="font-weight-bold">Connector Type</label>
-                        <input type="text" class="form-control" id="editConnectorType" readonly disabled />
+                        <label class="small font-weight-bold text-dark-slate">Connector Type</label>
+                        <input type="text" class="form-control bg-light" id="editConnectorType" readonly disabled />
                     </div>
 
                     <div class="form-group">
-                        <label for="editRatePerKwh" class="font-weight-bold">Rate per kWh (₹) <span class="text-danger">*</span></label>
+                        <label for="editRatePerKwh" class="small font-weight-bold text-dark-slate">Rate per kWh (₹) <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text">₹</span>
+                                <span class="input-group-text bg-white border-right-0 text-muted-slate">₹</span>
                             </div>
-                            <input type="number" step="0.01" min="0.01" max="150.00" class="form-control" id="editRatePerKwh" name="ratePerKwh" required oninput="calculateEstimate('edit')" />
+                            <input type="number" step="0.01" min="0.01" max="150.00" class="form-control border-left-0" id="editRatePerKwh" name="ratePerKwh" required oninput="calculateEstimate('edit')" />
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label for="editRatePerHour" class="font-weight-bold">Rate per Hour (₹) <span class="text-muted">(Optional)</span></label>
+                        <label for="editRatePerHour" class="small font-weight-bold text-dark-slate">Rate per Hour (₹) <span class="text-muted-slate">(Optional)</span></label>
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text">₹</span>
+                                <span class="input-group-text bg-white border-right-0 text-muted-slate">₹</span>
                             </div>
-                            <input type="number" step="0.01" min="0.00" max="2000.00" class="form-control" id="editRatePerHour" name="ratePerHour" />
+                            <input type="number" step="0.01" min="0.00" max="2000.00" class="form-control border-left-0" id="editRatePerHour" name="ratePerHour" />
                         </div>
                     </div>
 
-                    <!-- Live Estimation Box -->
-                    <div class="p-3 bg-light rounded border mt-3">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="text-muted small font-weight-bold"><i class="fas fa-calculator mr-1"></i> Cost Preview (Typical 30 kWh Fast Charge):</span>
-                            <span class="font-weight-bold text-success" id="editCostPreview">₹0.00</span>
+                    <div class="p-3 bg-soft-grey rounded border-otika mt-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="small font-weight-bold text-dark-slate"><i class="fas fa-calculator mr-1 text-warning"></i> 30 kWh Preview:</span>
+                            <span class="font-weight-bold text-success font-15" id="editCostPreview" style="color: #28C76F !important;">₹0.00</span>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-warning"><i class="fas fa-save mr-1"></i> Update Rate</button>
+                <div class="modal-footer bg-light py-2 px-4">
+                    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning btn-sm font-weight-bold"><i class="fas fa-save mr-1"></i> Update Rate</button>
                 </div>
             </form>
         </div>
@@ -343,6 +459,11 @@
             $('#editRateModal').modal('show');
         }
 
+        function openAddRateForConnector(connector) {
+            $('#connectorType').val(connector);
+            $('#addRateModal').modal('show');
+        }
+
         function calculateEstimate(type) {
             var val = type === 'add' ? $('#ratePerKwh').val() : $('#editRatePerKwh').val();
             var cost = (parseFloat(val) || 0) * 30;
@@ -351,7 +472,6 @@
         }
 
         $(document).ready(function() {
-            // Fix modal stacking on body
             $('#addRateModal, #editRateModal').appendTo("body");
         });
     </script>
