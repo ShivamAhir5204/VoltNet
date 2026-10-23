@@ -266,3 +266,212 @@ h1, h2, h3, h4, h5, h6,
     pointer-events: auto !important;
     box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important;
 }
+
+/* ==========================================================================
+   OTIKA THEME COLOR PALETTE (Universal System Tokens)
+   ========================================================================== */
+:root {
+    /* Primary Colours */
+    --otika-primary: #6777EF;
+    --otika-deep-slate: #353C48;
+
+    /* Secondary Colours */
+    --otika-dark-slate: #34395E;
+    --otika-muted-slate: #96A2B4;
+    --otika-teal: #3DC9B3;
+
+    /* Neutral Colours */
+    --otika-white: #FFFFFF;
+    --otika-soft-grey: #F9F9F9;
+    --otika-light-grey: #F2F2F2;
+    --otika-border-grey: #E3EAEF;
+
+    /* Utility Colours */
+    --otika-success: #28C76F;
+    --otika-warning: #FFA117;
+    --otika-error: #EA5455;
+    --otika-info: #3ABAF4;
+}
+
+/* Otika Revenue KPI Card */
+.revenue-stat-card {
+    background: #FFFFFF !important;
+    border: 1px solid #E3EAEF !important;
+    border-radius: 10px !important;
+    padding: 20px 22px !important;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    height: calc(100% - 24px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+.revenue-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(103, 119, 239, 0.08) !important;
+}
+.revenue-stat-card .stat-icon-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+.revenue-stat-card .stat-label {
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    color: #34395E !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+.revenue-stat-card .stat-value {
+    font-size: 26px !important;
+    font-weight: 800 !important;
+    color: #353C48 !important;
+    line-height: 1.2;
+    letter-spacing: -0.5px;
+}
+.revenue-stat-card .stat-badge {
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    border-radius: 6px;
+    padding: 3px 8px;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* Otika Highlight Card */
+.revenue-highlight-card {
+    background: #FFFFFF !important;
+    border: 1px solid #E3EAEF !important;
+    border-radius: 8px !important;
+    padding: 16px 18px !important;
+    text-align: center;
+    height: 100%;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.02) !important;
+}
+.revenue-highlight-card .highlight-label {
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    color: #34395E !important;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-bottom: 4px;
+}
+.revenue-highlight-card .highlight-value {
+    font-size: 22px !important;
+    font-weight: 800 !important;
+    margin-bottom: 0;
+    line-height: 1.2;
+}
+
+/* Otika Operational Card */
+.revenue-op-card {
+    background: #FFFFFF !important;
+    border: 1px solid #E3EAEF !important;
+    border-radius: 10px !important;
+    padding: 18px 20px !important;
+    height: 100%;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.02) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.revenue-op-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(52, 57, 94, 0.06) !important;
+}
+
+/* Otika Metric Switcher */
+.otika-metric-switcher {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.otika-metric-switcher .btn {
+    border: 1px solid #E3EAEF !important;
+    background: #FFFFFF !important;
+    color: #34395E !important;
+    font-weight: 600 !important;
+    font-size: 12px !important;
+    border-radius: 6px !important;
+    padding: 5px 12px !important;
+    transition: all 0.2s ease;
+}
+.otika-metric-switcher .btn:hover {
+    background: #F9F9F9 !important;
+    border-color: #96A2B4 !important;
+    color: #353C48 !important;
+}
+.otika-metric-switcher .btn.active-revenue {
+    background: rgba(40, 199, 111, 0.12) !important;
+    border-color: #28C76F !important;
+    color: #28C76F !important;
+}
+.otika-metric-switcher .btn.active-energy {
+    background: rgba(61, 201, 179, 0.12) !important;
+    border-color: #3DC9B3 !important;
+    color: #3DC9B3 !important;
+}
+.otika-metric-switcher .btn.active-sessions {
+    background: rgba(103, 119, 239, 0.12) !important;
+    border-color: #6777EF !important;
+    color: #6777EF !important;
+}
+.otika-metric-switcher .btn.active-aov {
+    background: rgba(255, 161, 23, 0.12) !important;
+    border-color: #FFA117 !important;
+    color: #FFA117 !important;
+}
+
+/* Otika Preset Buttons */
+.otika-preset-btn {
+    background: #FFFFFF !important;
+    border: 1px solid #E3EAEF !important;
+    color: #34395E !important;
+    font-weight: 600 !important;
+    font-size: 12px !important;
+    border-radius: 6px !important;
+    padding: 5px 10px !important;
+    transition: all 0.2s ease;
+}
+.otika-preset-btn:hover {
+    background: #F2F2F2 !important;
+    color: #6777EF !important;
+    border-color: #6777EF !important;
+}
+
+/* Mobile Responsive Adjustments for Revenue Analytics */
+@media (max-width: 767.98px) {
+    .page-title-box {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+    }
+    .page-title-box .action-btns {
+        margin-top: 12px !important;
+        width: 100% !important;
+    }
+    .page-title-box .action-btns .btn {
+        width: 100% !important;
+        margin-right: 0 !important;
+        margin-bottom: 8px !important;
+    }
+    .revenue-stat-card .stat-value {
+        font-size: 22px !important;
+    }
+    .revenue-highlight-card .highlight-value {
+        font-size: 19px !important;
+    }
+    .otika-metric-switcher, .otika-preset-group {
+        width: 100% !important;
+        margin-top: 10px !important;
+    }
+    .otika-metric-switcher .btn, .otika-preset-group .otika-preset-btn {
+        flex: 1 1 calc(50% - 6px);
+        text-align: center;
+        margin-bottom: 4px;
+    }
+}

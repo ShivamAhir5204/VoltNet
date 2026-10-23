@@ -6,100 +6,140 @@
 
 <div class="row">
     <div class="col-12">
-        <div class="page-title-box d-flex align-items-center justify-content-between mb-4">
+        <div class="page-title-box d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between mb-4">
             <div>
-                <h4 class="mb-1 text-primary"><i class="fas fa-chart-line mr-2"></i>Multi-Station Revenue Analytics</h4>
-                <p class="text-muted mb-0">Consolidated financial performance, bay earnings, and energy monetization across your charging network.</p>
+                <h4 class="mb-1 font-weight-bold" style="color: #353C48; font-size: 22px;">
+                    <i class="fas fa-chart-line mr-2" style="color: #6777EF;"></i>Revenue Analytics
+                </h4>
+                <div class="font-weight-500" style="color: #96A2B4; font-size: 13px;">
+                    Consolidated financial and operational overview across all stations.
+                </div>
             </div>
-            <div>
-                @if (Model.HasStations)
-                {
-                    <a href="/owner/revenue/export?startDate=@(Model.StartDate.ToString("yyyy-MM-dd"))&endDate=@(Model.EndDate.ToString("yyyy-MM-dd"))&stationId=@(Model.SelectedStationId)" class="btn btn-outline-success btn-lg shadow-sm">
-                        <i class="fas fa-file-csv mr-2"></i>Export to CSV
+            @if (Model.HasStations)
+            {
+                <div class="action-btns mt-3 mt-sm-0">
+                    <a href="/owner/revenue/export?startDate=@(Model.StartDate.ToString("yyyy-MM-dd"))&endDate=@(Model.EndDate.ToString("yyyy-MM-dd"))&stationId=@(Model.SelectedStationId)" 
+                       class="btn font-weight-bold px-3 py-2 shadow-sm" 
+                       style="background: #FFFFFF; border: 1.5px solid #28C76F; color: #28C76F; border-radius: 6px; font-size: 13px;">
+                        <i class="fas fa-download mr-1"></i>Export CSV
                     </a>
-                }
-            </div>
+                </div>
+            }
         </div>
     </div>
 </div>
 
 @if (!Model.HasStations)
 {
-    <div class="card shadow-sm border-0">
+    <div class="card shadow-sm border-0" style="border: 1px solid #E3EAEF !important; border-radius: 10px;">
         <div class="card-body text-center py-5">
             <div class="mb-3">
-                <i class="fas fa-charging-station fa-4x text-muted opacity-50"></i>
+                <i class="fas fa-charging-station fa-4x" style="color: #96A2B4; opacity: 0.6;"></i>
             </div>
-            <h5 class="text-secondary">No Stations Registered</h5>
-            <p class="text-muted">You haven't registered any charging stations under this account yet. Once stations are created and bookings complete, revenue reports will automatically appear here.</p>
-            <a href="/owner/stations/create" class="btn btn-primary"><i class="fas fa-plus mr-1"></i> Add Your First Station</a>
+            <h5 class="font-weight-bold" style="color: #353C48;">No Stations Registered</h5>
+            <p class="font-weight-500 max-w-500 mx-auto" style="color: #96A2B4; max-width: 500px;">
+                You haven't registered any charging stations under this account yet. Once stations are created and bookings complete, revenue reports will automatically appear here.
+            </p>
+            <a href="/owner/stations/create" class="btn font-weight-bold px-4 py-2" style="background: #6777EF; color: #FFFFFF; border-radius: 6px;">
+                <i class="fas fa-plus mr-1"></i> Add Your First Station
+            </a>
         </div>
     </div>
 }
 else
 {
-    <!-- Macro Summary Cards -->
+    <!-- Macro Summary Cards (Otika Theme Palette) -->
     <div class="row">
-        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12 mb-4">
-            <div class="card card-statistic-1 border-0 shadow-sm" style="border-radius:12px; background:linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color:#fff;">
-                <div class="card-icon" style="background:rgba(255,255,255,0.15); border-radius:12px; margin:15px;">
-                    <i class="fas fa-coins fa-2x text-white"></i>
+        <!-- Today's Revenue -->
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12 mb-4">
+            <div class="revenue-stat-card">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="stat-label">Today</div>
+                    <div class="stat-icon-box" style="background: rgba(103, 119, 239, 0.12); color: #6777EF;">
+                        <i class="fas fa-coins"></i>
+                    </div>
                 </div>
-                <div class="card-wrap p-3">
-                    <div class="card-header p-0" style="color:rgba(255,255,255,0.85); font-size:13px; text-transform:uppercase; letter-spacing:0.5px;">Today's Revenue</div>
-                    <div class="card-body p-0 mt-1 font-weight-bold" style="font-size:26px; color:#fff;">₹@Model.TodayRevenue.ToString("N0")</div>
-                    <small style="color:rgba(255,255,255,0.75);"><i class="fas fa-bolt mr-1"></i>@Model.TodayBookings completed sessions</small>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12 mb-4">
-            <div class="card card-statistic-1 border-0 shadow-sm" style="border-radius:12px; background:linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color:#fff;">
-                <div class="card-icon" style="background:rgba(255,255,255,0.15); border-radius:12px; margin:15px;">
-                    <i class="fas fa-calendar-week fa-2x text-white"></i>
-                </div>
-                <div class="card-wrap p-3">
-                    <div class="card-header p-0" style="color:rgba(255,255,255,0.85); font-size:13px; text-transform:uppercase; letter-spacing:0.5px;">This Week</div>
-                    <div class="card-body p-0 mt-1 font-weight-bold" style="font-size:26px; color:#fff;">₹@Model.WeekRevenue.ToString("N0")</div>
-                    <small style="color:rgba(255,255,255,0.75);"><i class="fas fa-bolt mr-1"></i>@Model.WeekBookings sessions</small>
+                <div>
+                    <div class="stat-value">₹@Model.TodayRevenue.ToString("N0")</div>
+                    <div class="mt-2">
+                        <span class="stat-badge" style="background: rgba(40, 199, 111, 0.12); color: #28C76F;">
+                            <i class="fas fa-bolt mr-1"></i>@Model.TodayBookings sessions
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12 mb-4">
-            <div class="card card-statistic-1 border-0 shadow-sm" style="border-radius:12px; background:linear-gradient(135deg, #8E2DE2 0%, #4A00E0 100%); color:#fff;">
-                <div class="card-icon" style="background:rgba(255,255,255,0.15); border-radius:12px; margin:15px;">
-                    <i class="fas fa-calendar-alt fa-2x text-white"></i>
+        <!-- This Week -->
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12 mb-4">
+            <div class="revenue-stat-card">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="stat-label">This Week</div>
+                    <div class="stat-icon-box" style="background: rgba(61, 201, 179, 0.12); color: #3DC9B3;">
+                        <i class="fas fa-calendar-week"></i>
+                    </div>
                 </div>
-                <div class="card-wrap p-3">
-                    <div class="card-header p-0" style="color:rgba(255,255,255,0.85); font-size:13px; text-transform:uppercase; letter-spacing:0.5px;">This Month</div>
-                    <div class="card-body p-0 mt-1 font-weight-bold" style="font-size:26px; color:#fff;">₹@Model.MonthRevenue.ToString("N0")</div>
-                    <small style="color:rgba(255,255,255,0.75);"><i class="fas fa-bolt mr-1"></i>@Model.MonthBookings sessions</small>
+                <div>
+                    <div class="stat-value">₹@Model.WeekRevenue.ToString("N0")</div>
+                    <div class="mt-2">
+                        <span class="stat-badge" style="background: rgba(61, 201, 179, 0.12); color: #3DC9B3;">
+                            <i class="fas fa-bolt mr-1"></i>@Model.WeekBookings sessions
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12 mb-4">
-            <div class="card card-statistic-1 border-0 shadow-sm" style="border-radius:12px; background:linear-gradient(135deg, #f857a6 0%, #ff5858 100%); color:#fff;">
-                <div class="card-icon" style="background:rgba(255,255,255,0.15); border-radius:12px; margin:15px;">
-                    <i class="fas fa-trophy fa-2x text-white"></i>
+        <!-- This Month -->
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12 mb-4">
+            <div class="revenue-stat-card">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="stat-label">This Month</div>
+                    <div class="stat-icon-box" style="background: rgba(58, 186, 244, 0.12); color: #3ABAF4;">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
                 </div>
-                <div class="card-wrap p-3">
-                    <div class="card-header p-0" style="color:rgba(255,255,255,0.85); font-size:13px; text-transform:uppercase; letter-spacing:0.5px;">All-Time Earnings</div>
-                    <div class="card-body p-0 mt-1 font-weight-bold" style="font-size:26px; color:#fff;">₹@Model.AllTimeRevenue.ToString("N0")</div>
-                    <small style="color:rgba(255,255,255,0.75);"><i class="fas fa-bolt mr-1"></i>@Model.AllTimeBookings total sessions</small>
+                <div>
+                    <div class="stat-value">₹@Model.MonthRevenue.ToString("N0")</div>
+                    <div class="mt-2">
+                        <span class="stat-badge" style="background: rgba(58, 186, 244, 0.12); color: #3ABAF4;">
+                            <i class="fas fa-bolt mr-1"></i>@Model.MonthBookings sessions
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- All-Time Earnings -->
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12 mb-4">
+            <div class="revenue-stat-card">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="stat-label">All-Time</div>
+                    <div class="stat-icon-box" style="background: rgba(255, 161, 23, 0.12); color: #FFA117;">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                </div>
+                <div>
+                    <div class="stat-value">₹@Model.AllTimeRevenue.ToString("N0")</div>
+                    <div class="mt-2">
+                        <span class="stat-badge" style="background: rgba(255, 161, 23, 0.12); color: #FFA117;">
+                            <i class="fas fa-bolt mr-1"></i>@Model.AllTimeBookings sessions
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Filter Bar -->
-    <div class="card shadow-sm border-0 mb-4" style="border-radius:12px;">
-        <div class="card-body p-3">
+    <!-- Filter Bar (Clean Otika Palette & Responsive Layout) -->
+    <div class="card shadow-sm mb-4" style="background: #FFFFFF; border: 1px solid #E3EAEF; border-radius: 10px;">
+        <div class="card-body p-3 p-md-4">
             <form method="get" action="/owner/revenue" class="row align-items-end">
-                <div class="col-lg-3 col-md-3 col-sm-12 mb-2 mb-md-0">
-                    <label class="font-weight-bold text-muted small mb-1"><i class="fas fa-charging-station mr-1"></i>Filter by Station</label>
-                    <select name="stationId" class="form-control selectric">
+                <div class="col-12 col-md-6 col-lg-3 mb-3 mb-lg-0">
+                    <label class="font-weight-bold mb-1" style="color: #34395E; font-size: 13px;">
+                        <i class="fas fa-charging-station mr-1" style="color: #6777EF;"></i>Filter by Station
+                    </label>
+                    <select name="stationId" class="form-control" style="background: #FFFFFF; border: 1px solid #E3EAEF; color: #353C48; border-radius: 6px; font-weight: 600;">
                         <option value="">All Stations (@Model.OwnedStations.Count Stations)</option>
                         @foreach (var s in Model.OwnedStations)
                         {
@@ -114,72 +154,89 @@ else
                         }
                     </select>
                 </div>
-                <div class="col-lg-2 col-md-3 col-sm-6 mb-2 mb-md-0">
-                    <label class="font-weight-bold text-muted small mb-1"><i class="fas fa-calendar mr-1"></i>From Date</label>
-                    <input type="date" name="startDate" class="form-control" value="@Model.StartDate.ToString("yyyy-MM-dd")" />
+                <div class="col-6 col-md-3 col-lg-2 mb-3 mb-lg-0">
+                    <label class="font-weight-bold mb-1" style="color: #34395E; font-size: 13px;">
+                        <i class="fas fa-calendar mr-1" style="color: #6777EF;"></i>From Date
+                    </label>
+                    <input type="date" name="startDate" class="form-control" value="@Model.StartDate.ToString("yyyy-MM-dd")" 
+                           style="background: #FFFFFF; border: 1px solid #E3EAEF; color: #353C48; border-radius: 6px; font-weight: 600;" />
                 </div>
-                <div class="col-lg-2 col-md-3 col-sm-6 mb-2 mb-md-0">
-                    <label class="font-weight-bold text-muted small mb-1"><i class="fas fa-calendar mr-1"></i>To Date</label>
-                    <input type="date" name="endDate" class="form-control" value="@Model.EndDate.ToString("yyyy-MM-dd")" />
+                <div class="col-6 col-md-3 col-lg-2 mb-3 mb-lg-0">
+                    <label class="font-weight-bold mb-1" style="color: #34395E; font-size: 13px;">
+                        <i class="fas fa-calendar mr-1" style="color: #6777EF;"></i>To Date
+                    </label>
+                    <input type="date" name="endDate" class="form-control" value="@Model.EndDate.ToString("yyyy-MM-dd")" 
+                           style="background: #FFFFFF; border: 1px solid #E3EAEF; color: #353C48; border-radius: 6px; font-weight: 600;" />
                 </div>
-                <div class="col-lg-2 col-md-3 col-sm-6 mb-2 mb-md-0">
-                    <label class="font-weight-bold text-muted small mb-1"><i class="fas fa-layer-group mr-1"></i>Interval</label>
-                    <select name="groupBy" class="form-control">
+                <div class="col-6 col-md-4 col-lg-2 mb-3 mb-lg-0">
+                    <label class="font-weight-bold mb-1" style="color: #34395E; font-size: 13px;">
+                        <i class="fas fa-layer-group mr-1" style="color: #6777EF;"></i>Interval
+                    </label>
+                    <select name="groupBy" class="form-control" style="background: #FFFFFF; border: 1px solid #E3EAEF; color: #353C48; border-radius: 6px; font-weight: 600;">
                         <!option value="day" @(Model.GroupBy == "day" ? "selected" : "")>Daily</!option>
                         <!option value="week" @(Model.GroupBy == "week" ? "selected" : "")>Weekly</!option>
                         <!option value="month" @(Model.GroupBy == "month" ? "selected" : "")>Monthly</!option>
                     </select>
                 </div>
-                <div class="col-lg-3 col-md-12 col-sm-12 d-flex mt-2 mt-lg-0">
-                    <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-filter mr-1"></i>Apply Filter</button>
-                    <a href="/owner/revenue" class="btn btn-light ml-2" title="Reset Filters"><i class="fas fa-redo"></i></a>
+                <div class="col-6 col-md-8 col-lg-3 d-flex align-items-center">
+                    <button type="submit" class="btn font-weight-bold flex-grow-1" 
+                            style="background: #6777EF; border-color: #6777EF; color: #FFFFFF; border-radius: 6px; height: 42px;">
+                        <i class="fas fa-filter mr-1"></i>Apply Filter
+                    </button>
+                    <a href="/owner/revenue" class="btn ml-2 d-flex align-items-center justify-content-center" 
+                       style="background: #F9F9F9; border: 1px solid #E3EAEF; color: #34395E; border-radius: 6px; width: 42px; height: 42px;" 
+                       title="Reset Filters">
+                        <i class="fas fa-redo"></i>
+                    </a>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Filtered Range Highlights -->
+    <!-- Filtered Range Highlights (Otika Accent Borders) -->
     <div class="row mb-4">
-        <div class="col-md-3 col-6 mb-2">
-            <div class="card bg-light border-0 p-3 text-center" style="border-radius:10px;">
-                <span class="text-muted small text-uppercase font-weight-bold">Selected Window Revenue</span>
-                <h4 class="text-success font-weight-bold mb-0 mt-1">₹@Model.PeriodRevenue.ToString("N0")</h4>
+        <div class="col-12 col-sm-6 col-lg-3 mb-3 mb-lg-0">
+            <div class="revenue-highlight-card" style="border-top: 3px solid #28C76F !important;">
+                <div class="highlight-label">Period Revenue</div>
+                <div class="highlight-value" style="color: #28C76F;">₹@Model.PeriodRevenue.ToString("N0")</div>
             </div>
         </div>
-        <div class="col-md-3 col-6 mb-2">
-            <div class="card bg-light border-0 p-3 text-center" style="border-radius:10px;">
-                <span class="text-muted small text-uppercase font-weight-bold">Charging Bookings</span>
-                <h4 class="text-primary font-weight-bold mb-0 mt-1">@Model.PeriodBookings</h4>
+        <div class="col-12 col-sm-6 col-lg-3 mb-3 mb-lg-0">
+            <div class="revenue-highlight-card" style="border-top: 3px solid #6777EF !important;">
+                <div class="highlight-label">Sessions</div>
+                <div class="highlight-value" style="color: #6777EF;">@Model.PeriodBookings</div>
             </div>
         </div>
-        <div class="col-md-3 col-6 mb-2">
-            <div class="card bg-light border-0 p-3 text-center" style="border-radius:10px;">
-                <span class="text-muted small text-uppercase font-weight-bold">Total Energy Dispensed</span>
-                <h4 class="text-info font-weight-bold mb-0 mt-1">@Model.PeriodUnitsKWh.ToString("N1") kWh</h4>
+        <div class="col-12 col-sm-6 col-lg-3 mb-3 mb-lg-0">
+            <div class="revenue-highlight-card" style="border-top: 3px solid #3DC9B3 !important;">
+                <div class="highlight-label">Energy</div>
+                <div class="highlight-value" style="color: #3DC9B3;">@Model.PeriodUnitsKWh.ToString("N1") <span style="font-size: 13px; font-weight: 600;">kWh</span></div>
             </div>
         </div>
-        <div class="col-md-3 col-6 mb-2">
-            <div class="card bg-light border-0 p-3 text-center" style="border-radius:10px;">
-                <span class="text-muted small text-uppercase font-weight-bold">Avg Order Value (AOV)</span>
-                <h4 class="text-warning font-weight-bold mb-0 mt-1">₹@Model.PeriodAvgTicket.ToString("N0")</h4>
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="revenue-highlight-card" style="border-top: 3px solid #FFA117 !important;">
+                <div class="highlight-label">Avg Order Value</div>
+                <div class="highlight-value" style="color: #FFA117;">₹@Model.PeriodAvgTicket.ToString("N0")</div>
             </div>
         </div>
     </div>
 
     <!-- Visual Charts Row -->
     <div class="row">
-        <div class="col-lg-6 col-md-12 mb-4">
-            <div class="card shadow-sm border-0 h-100" style="border-radius:12px;">
-                <div class="card-header bg-white border-0 py-3">
-                    <h5 class="card-title mb-0 text-dark font-weight-bold"><i class="fas fa-chart-bar text-primary mr-2"></i>Revenue Breakdown by Station</h5>
-                    <small class="text-muted">Earnings distribution across your active stations in the selected date range</small>
+        <!-- Revenue Breakdown Bar Chart -->
+        <div class="col-lg-6 col-12 mb-4">
+            <div class="card shadow-sm h-100" style="background: #FFFFFF; border: 1px solid #E3EAEF; border-radius: 10px;">
+                <div class="card-header bg-white py-3" style="border-bottom: 1px solid #E3EAEF;">
+                    <h6 class="card-title mb-0 font-weight-bold" style="color: #353C48; font-size: 15px;">
+                        <i class="fas fa-chart-bar mr-2" style="color: #6777EF;"></i>Revenue by Station
+                    </h6>
                 </div>
                 <div class="card-body">
                     @if (Model.PeriodRevenue == 0)
                     {
-                        <div class="text-center py-5 text-muted">
-                            <i class="fas fa-chart-pie fa-3x mb-2 text-black-50"></i>
-                            <p>No revenue data recorded for this date range.</p>
+                        <div class="text-center py-5" style="color: #96A2B4;">
+                            <i class="fas fa-chart-pie fa-3x mb-2 opacity-50"></i>
+                            <div class="font-weight-600" style="font-size: 13px;">No revenue data recorded.</div>
                         </div>
                     }
                     else
@@ -192,18 +249,20 @@ else
             </div>
         </div>
 
-        <div class="col-lg-6 col-md-12 mb-4">
-            <div class="card shadow-sm border-0 h-100" style="border-radius:12px;">
-                <div class="card-header bg-white border-0 py-3">
-                    <h5 class="card-title mb-0 text-dark font-weight-bold"><i class="fas fa-chart-area text-success mr-2"></i>Daily Revenue Trend</h5>
-                    <small class="text-muted">Daily earnings progression across selected stations</small>
+        <!-- Daily Revenue Trend Line Chart -->
+        <div class="col-lg-6 col-12 mb-4">
+            <div class="card shadow-sm h-100" style="background: #FFFFFF; border: 1px solid #E3EAEF; border-radius: 10px;">
+                <div class="card-header bg-white py-3" style="border-bottom: 1px solid #E3EAEF;">
+                    <h6 class="card-title mb-0 font-weight-bold" style="color: #353C48; font-size: 15px;">
+                        <i class="fas fa-chart-area mr-2" style="color: #28C76F;"></i>Daily Trend
+                    </h6>
                 </div>
                 <div class="card-body">
                     @if (Model.PeriodRevenue == 0)
                     {
-                        <div class="text-center py-5 text-muted">
-                            <i class="fas fa-chart-line fa-3x mb-2 text-black-50"></i>
-                            <p>No revenue data recorded for this date range.</p>
+                        <div class="text-center py-5" style="color: #96A2B4;">
+                            <i class="fas fa-chart-line fa-3x mb-2 opacity-50"></i>
+                            <div class="font-weight-600" style="font-size: 13px;">No revenue data recorded.</div>
                         </div>
                     }
                     else
@@ -217,35 +276,38 @@ else
         </div>
     </div>
 
-    <!-- Station Comparison Table -->
-    <div class="card shadow-sm border-0 mb-4" style="border-radius:12px;">
-        <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
-            <div>
-                <h5 class="card-title mb-0 text-dark font-weight-bold"><i class="fas fa-table text-info mr-2"></i>Station Comparison Matrix</h5>
-                <small class="text-muted">Comparative operational & monetization breakdown across all your stations</small>
+    <!-- Station Comparison Matrix Table -->
+    <div class="card shadow-sm mb-4" style="background: #FFFFFF; border: 1px solid #E3EAEF; border-radius: 10px;">
+        <div class="card-header bg-white py-3 d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center" style="border-bottom: 1px solid #E3EAEF;">
+            <div class="mb-2 mb-sm-0">
+                <h6 class="card-title mb-0 font-weight-bold" style="color: #353C48; font-size: 15px;">
+                    <i class="fas fa-table mr-2" style="color: #3ABAF4;"></i>Station Comparison
+                </h6>
             </div>
-            <span class="badge badge-primary px-3 py-2">@Model.StationComparisons.Count Station(s) Listed</span>
+            <span class="badge font-weight-bold px-2 py-1" style="background: #F9F9F9; border: 1px solid #E3EAEF; color: #34395E; border-radius: 6px; font-size: 11px;">
+                @Model.StationComparisons.Count Stations
+            </span>
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="thead-light">
+                <table class="table table-hover mb-0" style="color: #353C48;">
+                    <thead style="background: #F9F9F9; border-bottom: 2px solid #E3EAEF;">
                         <tr>
-                            <th>Station Name</th>
-                            <th>City & Location</th>
-                            <th class="text-center">Bookings</th>
-                            <th class="text-center">Energy (kWh)</th>
-                            <th class="text-right">Total Revenue</th>
-                            <th style="width: 220px;">Revenue Share</th>
-                            <th class="text-center">Actions</th>
+                            <th style="color: #34395E; font-weight: 700; border: none; padding: 14px 18px;">Station Name</th>
+                            <th style="color: #34395E; font-weight: 700; border: none; padding: 14px 18px;">City & Location</th>
+                            <th class="text-center" style="color: #34395E; font-weight: 700; border: none; padding: 14px 18px;">Bookings</th>
+                            <th class="text-center" style="color: #34395E; font-weight: 700; border: none; padding: 14px 18px;">Energy (kWh)</th>
+                            <th class="text-right" style="color: #34395E; font-weight: 700; border: none; padding: 14px 18px;">Total Revenue</th>
+                            <th style="width: 220px; color: #34395E; font-weight: 700; border: none; padding: 14px 18px;">Revenue Share</th>
+                            <th class="text-center" style="color: #34395E; font-weight: 700; border: none; padding: 14px 18px;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @if (!Model.StationComparisons.Any() || Model.StationComparisons.All(s => s.TotalRevenue == 0))
                         {
                             <tr>
-                                <td colspan="7" class="text-center py-4 text-muted">
-                                    <i class="fas fa-info-circle mr-1"></i> No completed booking revenue recorded for your stations yet.
+                                <td colspan="7" class="text-center py-5" style="color: #96A2B4;">
+                                    <i class="fas fa-info-circle mr-1"></i> No completed booking revenue recorded for your stations in this date range.
                                 </td>
                             </tr>
                         }
@@ -253,30 +315,40 @@ else
                         {
                             @foreach (var station in Model.StationComparisons)
                             {
-                                <tr>
-                                    <td class="font-weight-bold text-dark">
-                                        <i class="fas fa-charging-station text-primary mr-2"></i>@station.StationName
+                                <tr style="border-bottom: 1px solid #E3EAEF;">
+                                    <td class="font-weight-bold" style="padding: 14px 18px; color: #353C48;">
+                                        <i class="fas fa-charging-station mr-2" style="color: #6777EF;"></i>@station.StationName
                                     </td>
-                                    <td>
-                                        <span class="badge badge-light border"><i class="fas fa-map-marker-alt text-danger mr-1"></i>@station.City</span>
-                                        <div class="small text-muted text-truncate" style="max-width: 200px;">@station.Address</div>
+                                    <td style="padding: 14px 18px;">
+                                        <span class="badge" style="background: #F2F2F2; color: #34395E; border: 1px solid #E3EAEF; font-weight: 600;">
+                                            <i class="fas fa-map-marker-alt mr-1" style="color: #EA5455;"></i>@station.City
+                                        </span>
+                                        <div class="small text-truncate" style="max-width: 220px; color: #96A2B4;">@station.Address</div>
                                     </td>
-                                    <td class="text-center font-weight-bold">@station.TotalBookings</td>
-                                    <td class="text-center font-weight-bold text-info">@station.TotalUnitsKWh.ToString("N1")</td>
-                                    <td class="text-right font-weight-bold text-success font-size-16">₹@station.TotalRevenue.ToString("N2")</td>
-                                    <td>
+                                    <td class="text-center font-weight-bold" style="padding: 14px 18px; color: #353C48;">@station.TotalBookings</td>
+                                    <td class="text-center font-weight-bold" style="padding: 14px 18px; color: #3DC9B3;">@station.TotalUnitsKWh.ToString("N1")</td>
+                                    <td class="text-right font-weight-bold" style="padding: 14px 18px; color: #28C76F; font-size: 16px;">₹@station.TotalRevenue.ToString("N2")</td>
+                                    <td style="padding: 14px 18px;">
                                         <div class="d-flex align-items-center">
-                                            <div class="progress flex-grow-1 mr-2" style="height: 8px; border-radius: 4px;">
-                                                <div class="progress-bar bg-success" role="progressbar" style="width: @(station.RevenueSharePercentage)%;" aria-valuenow="@(station.RevenueSharePercentage)" aria-valuemin="0" aria-valuemax="100"></div>
+                                            <div class="progress flex-grow-1 mr-2" style="height: 8px; border-radius: 4px; background: #E3EAEF;">
+                                                <div class="progress-bar" role="progressbar" 
+                                                     style="width: @(station.RevenueSharePercentage)%; background-color: #28C76F; border-radius: 4px;" 
+                                                     aria-valuenow="@(station.RevenueSharePercentage)" aria-valuemin="0" aria-valuemax="100"></div>
                                             </div>
-                                            <span class="font-weight-bold small">@(station.RevenueSharePercentage)%</span>
+                                            <span class="font-weight-bold small" style="color: #353C48;">@(station.RevenueSharePercentage)%</span>
                                         </div>
                                     </td>
-                                    <td class="text-center text-nowrap">
-                                        <a href="/owner/revenue/station/@station.StationId" class="btn btn-sm btn-success font-weight-bold mr-1" title="View Station Revenue Intelligence">
+                                    <td class="text-center text-nowrap" style="padding: 14px 18px;">
+                                        <a href="/owner/revenue/station/@station.StationId" 
+                                           class="btn btn-sm font-weight-bold mr-1" 
+                                           style="background: #6777EF; color: #FFFFFF; border-radius: 5px; padding: 6px 12px;" 
+                                           title="View Station Revenue Intelligence">
                                             <i class="fas fa-chart-line mr-1"></i>Station Analytics
                                         </a>
-                                        <a href="/owner/stations/details/@station.StationId" class="btn btn-sm btn-outline-primary" title="Station Settings & Profile">
+                                        <a href="/owner/stations/details/@station.StationId" 
+                                           class="btn btn-sm" 
+                                           style="background: #FFFFFF; border: 1px solid #E3EAEF; color: #34395E; border-radius: 5px; padding: 6px 10px;" 
+                                           title="Station Settings & Profile">
                                             <i class="fas fa-cog"></i>
                                         </a>
                                     </td>
@@ -296,7 +368,7 @@ else
     {
         <script>
             document.addEventListener("DOMContentLoaded", function () {
-                // 1. Station Breakdown Bar Chart
+                // 1. Station Breakdown Bar Chart (Otika Indigo #6777EF)
                 const stationLabels = @Html.Raw(Model.StationChartLabelsJson);
                 const stationData = @Html.Raw(Model.StationChartDataJson);
 
@@ -309,8 +381,9 @@ else
                             datasets: [{
                                 label: 'Revenue (₹)',
                                 data: stationData,
-                                backgroundColor: 'rgba(54, 162, 235, 0.75)',
-                                borderColor: 'rgba(54, 162, 235, 1)',
+                                backgroundColor: 'rgba(103, 119, 239, 0.85)',
+                                borderColor: '#6777EF',
+                                hoverBackgroundColor: '#5a67d8',
                                 borderWidth: 1.5,
                                 borderRadius: 6
                             }]
@@ -321,6 +394,11 @@ else
                             plugins: {
                                 legend: { display: false },
                                 tooltip: {
+                                    backgroundColor: '#353C48',
+                                    titleColor: '#FFFFFF',
+                                    bodyColor: '#FFFFFF',
+                                    padding: 10,
+                                    cornerRadius: 6,
                                     callbacks: {
                                         label: function (ctx) {
                                             return ' Revenue: ₹' + Number(ctx.raw).toLocaleString('en-IN');
@@ -329,11 +407,18 @@ else
                                 }
                             },
                             scales: {
+                                x: {
+                                    grid: { display: false },
+                                    ticks: { color: '#96A2B4', font: { weight: '600' } }
+                                },
                                 y: {
                                     beginAtZero: true,
+                                    grid: { color: '#F2F2F2' },
                                     ticks: {
+                                        color: '#96A2B4',
+                                        font: { weight: '600' },
                                         callback: function (val) {
-                                            return '₹' + val.toLocaleString('en-IN');
+                                            return '₹' + (val >= 1000 ? (val / 1000).toLocaleString('en-IN') + 'k' : val);
                                         }
                                     }
                                 }
@@ -342,15 +427,15 @@ else
                     });
                 }
 
-                // 2. Daily Trend Line Chart
+                // 2. Daily Trend Line Chart (Otika Success Green #28C76F)
                 const trendLabels = @Html.Raw(Model.TrendChartLabelsJson);
                 const trendData = @Html.Raw(Model.TrendChartDataJson);
 
                 const ctxTrend = document.getElementById('dailyTrendChart');
                 if (ctxTrend) {
                     const gradient = ctxTrend.getContext('2d').createLinearGradient(0, 0, 0, 300);
-                    gradient.addColorStop(0, 'rgba(46, 204, 113, 0.45)');
-                    gradient.addColorStop(1, 'rgba(46, 204, 113, 0.0)');
+                    gradient.addColorStop(0, 'rgba(40, 199, 111, 0.35)');
+                    gradient.addColorStop(1, 'rgba(40, 199, 111, 0.0)');
 
                     new Chart(ctxTrend.getContext('2d'), {
                         type: 'line',
@@ -359,14 +444,16 @@ else
                             datasets: [{
                                 label: 'Daily Revenue (₹)',
                                 data: trendData,
-                                borderColor: '#2ecc71',
+                                borderColor: '#28C76F',
                                 backgroundColor: gradient,
                                 fill: true,
                                 tension: 0.35,
                                 borderWidth: 2.5,
-                                pointRadius: 3,
+                                pointRadius: trendLabels.length > 30 ? 2 : 4,
                                 pointHoverRadius: 6,
-                                pointBackgroundColor: '#2ecc71'
+                                pointBackgroundColor: '#28C76F',
+                                pointBorderColor: '#FFFFFF',
+                                pointBorderWidth: 2
                             }]
                         },
                         options: {
@@ -375,6 +462,11 @@ else
                             plugins: {
                                 legend: { display: false },
                                 tooltip: {
+                                    backgroundColor: '#353C48',
+                                    titleColor: '#FFFFFF',
+                                    bodyColor: '#FFFFFF',
+                                    padding: 10,
+                                    cornerRadius: 6,
                                     callbacks: {
                                         label: function (ctx) {
                                             return ' Daily Revenue: ₹' + Number(ctx.raw).toLocaleString('en-IN');
@@ -383,11 +475,18 @@ else
                                 }
                             },
                             scales: {
+                                x: {
+                                    grid: { display: false },
+                                    ticks: { color: '#96A2B4', font: { weight: '600' } }
+                                },
                                 y: {
                                     beginAtZero: true,
+                                    grid: { color: '#F2F2F2' },
                                     ticks: {
+                                        color: '#96A2B4',
+                                        font: { weight: '600' },
                                         callback: function (val) {
-                                            return '₹' + val.toLocaleString('en-IN');
+                                            return '₹' + (val >= 1000 ? (val / 1000).toLocaleString('en-IN') + 'k' : val);
                                         }
                                     }
                                 }
