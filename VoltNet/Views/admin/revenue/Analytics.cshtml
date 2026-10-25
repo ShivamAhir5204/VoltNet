@@ -4,294 +4,564 @@
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<div class="row">
-    <div class="col-12">
-        <div class="page-title-box d-flex align-items-center justify-content-between mb-4">
-            <div>
-                <h4 class="mb-1 text-primary"><i class="fas fa-chart-line mr-2"></i>Financial Analyst Studio & Custom Date Review</h4>
-                <p class="text-muted mb-0">Multi-granularity time-series analysis, revenue run-rate modeling, and regional monetization intelligence.</p>
-            </div>
-            <div>
-                <a href="/admin/revenue/analytics/export?startDate=@(Model.StartDate.ToString("yyyy-MM-dd"))&endDate=@(Model.EndDate.ToString("yyyy-MM-dd"))&stationId=@Model.SelectedStationId&city=@Model.SelectedCity&paymentMethod=@Model.SelectedPaymentMethod" class="btn btn-outline-success btn-lg shadow-sm">
-                    <i class="fas fa-file-excel mr-2"></i>Export Analyst Dataset (CSV)
-                </a>
-                <a href="/admin/revenue" class="btn btn-outline-secondary ml-2">
-                    <i class="fas fa-arrow-left mr-1"></i> Macro Dashboard
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
+<style>
+    .an-page {
+        --primary: #6777EF;
+        --text: #353C48;
+        --hover: #34395E;
+        --muted: #96A2B4;
+        --teal: #3DC9B3;
+        --white: #FFFFFF;
+        --bg: #F9F9F9;
+        --field: #F2F2F2;
+        --border: #E3EAEF;
+        --success: #28C76F;
+        --warning: #FFA117;
+        --error: #EA5455;
+        --info: #3ABAF4;
+        color: var(--text);
+        font-size: 15px;
+    }
 
-<!-- Analyst Filter Panel with Preset Buttons -->
-<div class="card shadow-sm border-0 mb-4" style="border-radius:12px;">
-    <div class="card-header bg-white border-0 py-3 d-flex flex-wrap justify-content-between align-items-center">
-        <h6 class="mb-0 font-weight-bold text-dark"><i class="fas fa-sliders-h text-primary mr-2"></i>Analysis Parameters & Granularity</h6>
-        <div class="btn-group btn-group-sm mt-2 mt-md-0" role="group">
-            <button type="button" class="btn btn-outline-primary" onclick="applyPreset(7, 'day')">Last 7 Days</button>
-            <button type="button" class="btn btn-outline-primary" onclick="applyPreset(30, 'day')">Last 30 Days</button>
-            <button type="button" class="btn btn-outline-primary" onclick="applyPreset(90, 'week')">Last 90 Days</button>
-            <button type="button" class="btn btn-outline-primary" onclick="applyPreset(365, 'month')">Past 1 Year</button>
-        </div>
-    </div>
-    <div class="card-body pt-0">
-        <form method="get" action="/admin/revenue/analytics" id="analystFilterForm" class="row">
-            <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
-                <label class="font-weight-bold text-muted small mb-1">From Date</label>
-                <input type="date" name="startDate" id="filterStartDate" class="form-control form-control-sm" value="@Model.StartDate.ToString("yyyy-MM-dd")" />
-            </div>
-            <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
-                <label class="font-weight-bold text-muted small mb-1">To Date</label>
-                <input type="date" name="endDate" id="filterEndDate" class="form-control form-control-sm" value="@Model.EndDate.ToString("yyyy-MM-dd")" />
-            </div>
-            <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
-                <label class="font-weight-bold text-muted small mb-1">Time Granularity</label>
-                <select name="groupBy" id="filterGroupBy" class="form-control form-control-sm">
-                    <!option value="day" @(Model.GroupBy == "day" ? "selected" : "")>Daily Buckets</!option>
-                    <!option value="week" @(Model.GroupBy == "week" ? "selected" : "")>Weekly Buckets</!option>
-                    <!option value="month" @(Model.GroupBy == "month" ? "selected" : "")>Monthly Buckets</!option>
-                </select>
-            </div>
-            <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
-                <label class="font-weight-bold text-muted small mb-1">Station Scope</label>
-                <select name="stationId" class="form-control form-control-sm">
-                    <option value="">All Stations (@Model.AvailableStations.Count)</option>
-                    @foreach (var s in Model.AvailableStations)
-                    {
-                        <!option value="@s.Id" @(Model.SelectedStationId.HasValue && Model.SelectedStationId.Value == s.Id ? "selected" : "")>@s.Name (@s.City)</!option>
-                    }
-                </select>
-            </div>
-            <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
-                <label class="font-weight-bold text-muted small mb-1">City Filter</label>
-                <select name="city" class="form-control form-control-sm">
-                    <option value="">All Cities</option>
-                    @foreach (var c in Model.AvailableCities)
-                    {
-                        <!option value="@c" @(string.Equals(Model.SelectedCity, c, StringComparison.OrdinalIgnoreCase) ? "selected" : "")>@c</!option>
-                    }
-                </select>
-            </div>
-            <div class="col-lg-2 col-md-4 col-sm-6 mb-3 d-flex align-items-end">
-                <button type="submit" class="btn btn-primary btn-sm btn-block"><i class="fas fa-search mr-1"></i>Run Analysis</button>
-            </div>
-        </form>
-    </div>
-</div>
+    /* Header */
+    .an-page .an-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+    .an-page .an-head h4 { margin: 0; font-size: 22px; font-weight: 600; color: var(--text); }
+    .an-page .an-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 
-<!-- Statistical Summary Cards -->
-<div class="row">
-    <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12 mb-4">
-        <div class="card bg-white border-0 shadow-sm p-3" style="border-radius:12px; border-left: 4px solid #00F260 !important;">
-            <div class="text-muted small text-uppercase font-weight-bold">Period Gross Revenue</div>
-            <h3 class="text-dark font-weight-bold mb-1 mt-1">₹@Model.TotalRevenue.ToString("N0")</h3>
-            <small class="text-muted"><i class="fas fa-bolt text-warning mr-1"></i>@Model.TotalBookings sessions completed</small>
-        </div>
-    </div>
-    <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12 mb-4">
-        <div class="card bg-white border-0 shadow-sm p-3" style="border-radius:12px; border-left: 4px solid #0575E6 !important;">
-            <div class="text-muted small text-uppercase font-weight-bold">Energy Dispensed</div>
-            <h3 class="text-primary font-weight-bold mb-1 mt-1">@Model.TotalEnergyKwh.ToString("N1") <span class="font-size-14 font-weight-normal text-muted">kWh</span></h3>
-            <small class="text-muted"><i class="fas fa-tag text-info mr-1"></i>₹@Model.EffectiveRatePerKwh.ToString("N2") avg rate/kWh</small>
-        </div>
-    </div>
-    <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12 mb-4">
-        <div class="card bg-white border-0 shadow-sm p-3" style="border-radius:12px; border-left: 4px solid #8E2DE2 !important;">
-            <div class="text-muted small text-uppercase font-weight-bold">Average Order Value (AOV)</div>
-            <h3 class="text-success font-weight-bold mb-1 mt-1">₹@Model.AverageOrderValue.ToString("N0")</h3>
-            <small class="text-muted"><i class="fas fa-calculator mr-1"></i>₹@Model.AveragePeriodRevenue.ToString("N0") avg per @Model.GroupBy</small>
-        </div>
-    </div>
-    <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12 mb-4">
-        <div class="card bg-white border-0 shadow-sm p-3" style="border-radius:12px; border-left: 4px solid #f857a6 !important;">
-            <div class="text-muted small text-uppercase font-weight-bold">Peak @Model.GroupBy.ToUpper() Earning</div>
-            <h4 class="text-danger font-weight-bold mb-1 mt-1">₹@Model.PeakPeriodRevenue.ToString("N0")</h4>
-            <small class="text-muted"><i class="fas fa-calendar-check mr-1"></i>@Model.PeakPeriodLabel</small>
-        </div>
-    </div>
-</div>
+    /* Buttons */
+    .an-page .btn-main,
+    .an-page .btn-ghost,
+    .an-page .btn-back {
+        min-height: 44px;
+        padding: 0 20px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-weight: 500;
+        transition: background-color .2s, color .2s, border-color .2s;
+    }
+    .an-page .btn-main {
+        background-color: #6777EF !important;
+        border: 1px solid #6777EF !important;
+        color: #FFFFFF !important;
+    }
+    .an-page .btn-main:hover,
+    .an-page .btn-main:focus,
+    .an-page .btn-main:active {
+        background-color: #34395E !important;
+        border-color: #34395E !important;
+        color: #FFFFFF !important;
+    }
+    .an-page .btn-ghost {
+        background-color: #FFFFFF !important;
+        border: 1px solid #3DC9B3 !important;
+        color: #353C48 !important;
+    }
+    .an-page .btn-ghost:hover,
+    .an-page .btn-ghost:focus,
+    .an-page .btn-ghost:active {
+        background-color: #3DC9B3 !important;
+        border-color: #3DC9B3 !important;
+        color: #FFFFFF !important;
+    }
+    .an-page .btn-back {
+        background-color: #FFFFFF !important;
+        border: 1px solid #E3EAEF !important;
+        color: #353C48 !important;
+    }
+    .an-page .btn-back:hover,
+    .an-page .btn-back:focus,
+    .an-page .btn-back:active {
+        background-color: #F9F9F9 !important;
+        border-color: #96A2B4 !important;
+        color: #353C48 !important;
+    }
+    .an-page .btn-main i,
+    .an-page .btn-ghost i,
+    .an-page .btn-back i { color: inherit !important; }
 
-<!-- Interactive Multi-Metric Chart Canvas -->
-<div class="card shadow-sm border-0 mb-4" style="border-radius:12px;">
-    <div class="card-header bg-white border-0 py-3 d-flex flex-wrap justify-content-between align-items-center">
-        <div>
-            <h5 class="card-title mb-0 text-dark font-weight-bold"><i class="fas fa-wave-square text-primary mr-2"></i>Time-Series Review Matrix</h5>
-            <small class="text-muted">Interactive telemetry over @Model.TimeSeries.Count @Model.GroupBy bucket(s) from @Model.StartDate.ToString("dd MMM yyyy") to @Model.EndDate.ToString("dd MMM yyyy")</small>
-        </div>
-        <!-- Metric Switcher Buttons -->
-        <div class="btn-group btn-group-toggle mt-2 mt-md-0" data-toggle="buttons">
-            <label class="btn btn-sm btn-outline-primary active" onclick="switchMetric('revenue')">
-                <input type="radio" name="options" checked> Revenue (₹)
-            </label>
-            <label class="btn btn-sm btn-outline-success" onclick="switchMetric('energy')">
-                <input type="radio" name="options"> Energy (kWh)
-            </label>
-            <label class="btn btn-sm btn-outline-info" onclick="switchMetric('count')">
-                <input type="radio" name="options"> Volume (Sessions)
-            </label>
-            <label class="btn btn-sm btn-outline-warning" onclick="switchMetric('aov')">
-                <input type="radio" name="options"> AOV (₹)
-            </label>
-        </div>
-    </div>
-    <div class="card-body">
-        <div style="position: relative; height: 350px;">
-            <canvas id="analystMatrixChart"></canvas>
-        </div>
-    </div>
-</div>
+    /* Preset and metric chips */
+    .an-page .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+    .an-page .chip {
+        min-height: 40px;
+        padding: 0 16px;
+        margin: 0 !important;
+        border-radius: 8px !important;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        background-color: #FFFFFF !important;
+        border: 1px solid #E3EAEF !important;
+        color: #353C48 !important;
+        transition: background-color .2s, color .2s, border-color .2s;
+    }
+    .an-page .chip:hover,
+    .an-page .chip:focus {
+        background-color: #F9F9F9 !important;
+        border-color: #96A2B4 !important;
+        color: #353C48 !important;
+    }
+    .an-page .chip.active,
+    .an-page .chip.active:hover,
+    .an-page .chip.active:focus,
+    .an-page .chip:active {
+        background-color: #6777EF !important;
+        border-color: #6777EF !important;
+        color: #FFFFFF !important;
+        box-shadow: none !important;
+    }
+    .an-page .chip input { position: absolute; opacity: 0; pointer-events: none; }
 
-<!-- Two Column Breakdown: Regional Attribution & Payment Split -->
-<div class="row">
-    <!-- City Breakdown -->
-    <div class="col-lg-6 col-12 mb-4">
-        <div class="card shadow-sm border-0 h-100" style="border-radius:12px;">
-            <div class="card-header bg-white border-0 py-3">
-                <h6 class="card-title mb-0 text-dark font-weight-bold"><i class="fas fa-map-marked-alt text-info mr-2"></i>City Attribution Matrix</h6>
-                <small class="text-muted">Regional distribution in selected time window</small>
+    .an-page .btn-main:focus,
+    .an-page .btn-ghost:focus,
+    .an-page .btn-back:focus,
+    .an-page .chip:focus {
+        outline: 3px solid rgba(103, 119, 239, .35);
+        outline-offset: 2px;
+        box-shadow: none;
+    }
+
+    /* Cards */
+    .an-page .card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(52, 57, 94, .06);
+        margin-bottom: 0;
+    }
+    .an-page .card-header {
+        background: var(--white);
+        border-bottom: 1px solid var(--border);
+        border-radius: 12px 12px 0 0;
+        padding: 16px 20px;
+        min-height: 0;
+        gap: 12px;
+    }
+    .an-page .card-header h5 { margin: 0; font-size: 17px; font-weight: 600; color: var(--text); }
+    .an-page .card-body { padding: 20px; }
+    .an-page .card-body.flush { padding: 0; }
+    .an-page .gap-b { margin-bottom: 24px; }
+
+    /* Filter form */
+    .an-page .form-label {
+        color: var(--text);
+        font-size: 14px;
+        font-weight: 500;
+        margin-bottom: 6px;
+    }
+    .an-page .form-control {
+        background: var(--field);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text);
+        min-height: 44px;
+        height: auto;
+        padding: 0 14px;
+        font-size: 15px;
+        transition: border-color .2s, box-shadow .2s, background .2s;
+    }
+    .an-page .form-control:hover { border-color: var(--muted); }
+    .an-page .form-control:focus {
+        background: var(--white);
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(103, 119, 239, .2);
+        outline: 0;
+    }
+
+    /* KPI cards */
+    .an-page .kpi { display: flex; align-items: center; gap: 16px; padding: 20px; height: 100%; }
+    .an-page .kpi-icon {
+        flex: 0 0 52px;
+        width: 52px;
+        height: 52px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+    }
+    .an-page .kpi-teal   .kpi-icon { background: rgba(61, 201, 179, .15);  color: var(--teal); }
+    .an-page .kpi-info   .kpi-icon { background: rgba(58, 186, 244, .14);  color: var(--info); }
+    .an-page .kpi-indigo .kpi-icon { background: rgba(103, 119, 239, .12); color: var(--primary); }
+    .an-page .kpi-warn   .kpi-icon { background: rgba(255, 161, 23, .14);  color: var(--warning); }
+    .an-page .kpi-text { min-width: 0; }
+    .an-page .kpi-label {
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+    }
+    .an-page .kpi-value { font-size: 24px; font-weight: 700; color: var(--text); line-height: 1.3; word-break: break-word; }
+    .an-page .kpi-value small { font-size: 14px; font-weight: 500; color: var(--muted); }
+    .an-page .kpi-note { color: var(--muted); font-size: 13px; }
+
+    /* Chart */
+    .an-page .chart-box { position: relative; height: 350px; }
+
+    /* Tables */
+    .an-page .table { margin: 0; color: var(--text); }
+    .an-page .table thead th {
+        background: var(--bg);
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        border-top: 0;
+        border-bottom: 1px solid var(--border);
+        padding: 14px 12px;
+        white-space: nowrap;
+    }
+    .an-page .table td {
+        padding: 14px 12px;
+        vertical-align: middle;
+        border-top: 1px solid var(--border);
+    }
+    .an-page .table tbody tr:hover { background: rgba(103, 119, 239, .06); }
+    .an-page .table-scroll { max-height: 400px; overflow-y: auto; }
+    .an-page .table-scroll thead th { position: sticky; top: 0; z-index: 1; }
+
+    /* Side spacing (!important beats the template) */
+    .an-page .table th:first-child,
+    .an-page .table td:first-child { padding-left: 24px !important; }
+    .an-page .table th:last-child,
+    .an-page .table td:last-child  { padding-right: 24px !important; }
+
+    .an-page .cell-strong { font-weight: 600; color: var(--text); }
+    .an-page .cell-money  { font-weight: 600; color: #1B8F50; white-space: nowrap; }
+    .an-page .cell-kwh    { font-weight: 600; color: var(--info); }
+    .an-page .cell-muted  { color: var(--muted); white-space: nowrap; }
+    .an-page .cell-empty  { text-align: center; color: var(--muted); padding: 24px 12px !important; }
+
+    /* Share bars */
+    .an-page .share { display: flex; align-items: center; gap: 8px; min-width: 100px; }
+    .an-page .share .progress { flex: 1; height: 6px; border-radius: 3px; background: var(--field); overflow: hidden; }
+    .an-page .share .bar-teal   { background-color: #3DC9B3; }
+    .an-page .share .bar-indigo { background-color: #6777EF; }
+    .an-page .share span { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; }
+
+    /* Payment icons */
+    .an-page .pay-icon { margin-right: 8px; }
+    .an-page .pay-upi  { color: var(--primary); }
+    .an-page .pay-cash { color: var(--success); }
+    .an-page .pay-card { color: var(--warning); }
+
+    /* Mobile */
+    @@media (max-width: 767px) {
+        .an-page .an-head h4 { font-size: 20px; }
+        .an-page .an-actions { width: 100%; flex-direction: column; }
+        .an-page .btn-main,
+        .an-page .btn-ghost,
+        .an-page .btn-back { width: 100%; }
+        .an-page .card-header { padding: 14px 16px; }
+        .an-page .card-body { padding: 16px; }
+        .an-page .card-body.flush { padding: 0; }
+        .an-page .kpi { padding: 16px; }
+        .an-page .kpi-value { font-size: 22px; }
+        .an-page .chart-box { height: 280px; }
+        .an-page .chips { width: 100%; display: grid; grid-template-columns: 1fr 1fr; }
+        .an-page .chip { width: 100%; padding: 0 8px; }
+        .an-page .table th:first-child,
+        .an-page .table td:first-child { padding-left: 16px !important; }
+        .an-page .table th:last-child,
+        .an-page .table td:last-child  { padding-right: 16px !important; }
+    }
+</style>
+
+<div class="an-page">
+
+    <div class="an-head">
+        <h4>Analyst Studio</h4>
+        <div class="an-actions">
+            <a href="/admin/revenue/analytics/export?startDate=@(Model.StartDate.ToString("yyyy-MM-dd"))&endDate=@(Model.EndDate.ToString("yyyy-MM-dd"))&stationId=@Model.SelectedStationId&city=@Model.SelectedCity&paymentMethod=@Model.SelectedPaymentMethod" class="btn btn-ghost">
+                <i class="fas fa-file-excel"></i> Export CSV
+            </a>
+            <a href="/admin/revenue" class="btn btn-back">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card gap-b">
+        <div class="card-header d-flex flex-wrap justify-content-between align-items-center">
+            <h5>Filters</h5>
+            <div class="chips">
+                <button type="button" class="btn chip" onclick="applyPreset(7, 'day')">Last 7 Days</button>
+                <button type="button" class="btn chip" onclick="applyPreset(30, 'day')">Last 30 Days</button>
+                <button type="button" class="btn chip" onclick="applyPreset(90, 'week')">Last 90 Days</button>
+                <button type="button" class="btn chip" onclick="applyPreset(365, 'month')">Past 1 Year</button>
             </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="thead-light">
-                            <tr>
-                                <th>City</th>
-                                <th class="text-center">Bookings</th>
-                                <th class="text-center">Energy (kWh)</th>
-                                <th class="text-right">Revenue (₹)</th>
-                                <th style="width: 120px;">Share</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (!Model.CityBreakdown.Any())
-                            {
-                                <tr><td colspan="5" class="text-center py-4 text-muted">No completed transactions in this window.</td></tr>
-                            }
-                            else
-                            {
-                                @foreach (var c in Model.CityBreakdown)
-                                {
-                                    <tr>
-                                        <td class="font-weight-bold"><i class="fas fa-building text-primary mr-2"></i>@c.City</td>
-                                        <td class="text-center">@c.Count</td>
-                                        <td class="text-center font-weight-bold text-info">@c.EnergyKwh.ToString("N1")</td>
-                                        <td class="text-right font-weight-bold text-success">₹@c.Revenue.ToString("N0")</td>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <div class="progress flex-grow-1 mr-2" style="height: 6px;">
-                                                    <div class="progress-bar bg-info" style="width: @c.SharePercentage%;"></div>
-                                                </div>
-                                                <small class="font-weight-bold">@c.SharePercentage%</small>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                }
-                            }
-                        </tbody>
-                    </table>
+        </div>
+        <div class="card-body">
+            <form method="get" action="/admin/revenue/analytics" id="analystFilterForm" class="row">
+                <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                    <label class="form-label">From</label>
+                    <input type="date" name="startDate" id="filterStartDate" class="form-control" value="@Model.StartDate.ToString("yyyy-MM-dd")" />
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Payment Method Distribution -->
-    <div class="col-lg-6 col-12 mb-4">
-        <div class="card shadow-sm border-0 h-100" style="border-radius:12px;">
-            <div class="card-header bg-white border-0 py-3">
-                <h6 class="card-title mb-0 text-dark font-weight-bold"><i class="fas fa-wallet text-success mr-2"></i>Payment Channels & Settlement Split</h6>
-                <small class="text-muted">Payment mode penetration across selected sessions</small>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="thead-light">
-                            <tr>
-                                <th>Payment Method</th>
-                                <th class="text-center">Transactions</th>
-                                <th class="text-right">Collection (₹)</th>
-                                <th style="width: 140px;">Collection Share</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (!Model.PaymentBreakdown.Any())
-                            {
-                                <tr><td colspan="4" class="text-center py-4 text-muted">No transactions in this window.</td></tr>
-                            }
-                            else
-                            {
-                                @foreach (var p in Model.PaymentBreakdown)
-                                {
-                                    <tr>
-                                        <td class="font-weight-bold">
-                                            @if (p.Method.Contains("UPI")) { <i class="fas fa-qrcode text-primary mr-2"></i> }
-                                            else if (p.Method.Contains("Cash")) { <i class="fas fa-money-bill-wave text-success mr-2"></i> }
-                                            else { <i class="fas fa-credit-card text-warning mr-2"></i> }
-                                            @p.Method
-                                        </td>
-                                        <td class="text-center">@p.Count</td>
-                                        <td class="text-right font-weight-bold text-success">₹@p.Revenue.ToString("N2")</td>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <div class="progress flex-grow-1 mr-2" style="height: 6px;">
-                                                    <div class="progress-bar bg-success" style="width: @p.SharePercentage%;"></div>
-                                                </div>
-                                                <small class="font-weight-bold">@p.SharePercentage%</small>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                }
-                            }
-                        </tbody>
-                    </table>
+                <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                    <label class="form-label">To</label>
+                    <input type="date" name="endDate" id="filterEndDate" class="form-control" value="@Model.EndDate.ToString("yyyy-MM-dd")" />
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Detailed Time-Series Data Table for Analysts -->
-<div class="card shadow-sm border-0 mb-4" style="border-radius:12px;">
-    <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
-        <div>
-            <h6 class="card-title mb-0 text-dark font-weight-bold"><i class="fas fa-table text-primary mr-2"></i>Bucket Aggregation Ledger</h6>
-            <small class="text-muted">Exact numeric values per @Model.GroupBy interval for financial audits</small>
-        </div>
-        <span class="badge badge-light border">@Model.TimeSeries.Count Intervals Aggregated</span>
-    </div>
-    <div class="card-body p-0">
-        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
-            <table class="table table-hover mb-0">
-                <thead class="thead-light sticky-top" style="position: sticky; top: 0; z-index: 1;">
-                    <tr>
-                        <th>Interval Period</th>
-                        <th class="text-center">Sessions</th>
-                        <th class="text-center">Energy (kWh)</th>
-                        <th class="text-right">Gross Revenue</th>
-                        <th class="text-right">AOV</th>
-                        <th class="text-right">Realized Rate</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (!Model.TimeSeries.Any())
-                    {
-                        <tr><td colspan="6" class="text-center py-4 text-muted">No data in selected date range.</td></tr>
-                    }
-                    else
-                    {
-                        @foreach (var row in Model.TimeSeries)
+                <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                    <label class="form-label">Granularity</label>
+                    <select name="groupBy" id="filterGroupBy" class="form-control">
+                        <!option value="day" @(Model.GroupBy == "day" ? "selected" : "")>Daily</!option>
+                        <!option value="week" @(Model.GroupBy == "week" ? "selected" : "")>Weekly</!option>
+                        <!option value="month" @(Model.GroupBy == "month" ? "selected" : "")>Monthly</!option>
+                    </select>
+                </div>
+                <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                    <label class="form-label">Station</label>
+                    <select name="stationId" class="form-control">
+                        <option value="">All Stations (@Model.AvailableStations.Count)</option>
+                        @foreach (var s in Model.AvailableStations)
                         {
-                            <tr>
-                                <td class="font-weight-bold text-dark">@row.Label</td>
-                                <td class="text-center">@row.Count</td>
-                                <td class="text-center text-info font-weight-bold">@row.EnergyKwh.ToString("N1")</td>
-                                <td class="text-right text-success font-weight-bold">₹@row.Revenue.ToString("N2")</td>
-                                <td class="text-right">₹@row.AverageOrderValue.ToString("N0")</td>
-                                <td class="text-right text-muted">₹@row.EffectiveRatePerKwh.ToString("N2")/kWh</td>
-                            </tr>
+                            <!option value="@s.Id" @(Model.SelectedStationId.HasValue && Model.SelectedStationId.Value == s.Id ? "selected" : "")>@s.Name (@s.City)</!option>
                         }
-                    }
-                </tbody>
-            </table>
+                    </select>
+                </div>
+                <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+                    <label class="form-label">City</label>
+                    <select name="city" class="form-control">
+                        <option value="">All Cities</option>
+                        @foreach (var c in Model.AvailableCities)
+                        {
+                            <!option value="@c" @(string.Equals(Model.SelectedCity, c, StringComparison.OrdinalIgnoreCase) ? "selected" : "")>@c</!option>
+                        }
+                    </select>
+                </div>
+                <div class="col-lg-2 col-md-4 col-sm-6 mb-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-main btn-block"><i class="fas fa-search"></i> Run Analysis</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- KPI cards -->
+    <div class="row">
+        <div class="col-xl-3 col-md-6 col-12 gap-b">
+            <div class="card kpi kpi-teal">
+                <div class="kpi-icon"><i class="fas fa-rupee-sign"></i></div>
+                <div class="kpi-text">
+                    <div class="kpi-label">Gross Revenue</div>
+                    <div class="kpi-value">₹@Model.TotalRevenue.ToString("N0")</div>
+                    <div class="kpi-note">@Model.TotalBookings sessions</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 col-12 gap-b">
+            <div class="card kpi kpi-info">
+                <div class="kpi-icon"><i class="fas fa-bolt"></i></div>
+                <div class="kpi-text">
+                    <div class="kpi-label">Energy</div>
+                    <div class="kpi-value">@Model.TotalEnergyKwh.ToString("N1") <small>kWh</small></div>
+                    <div class="kpi-note">₹@Model.EffectiveRatePerKwh.ToString("N2") avg rate/kWh</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 col-12 gap-b">
+            <div class="card kpi kpi-indigo">
+                <div class="kpi-icon"><i class="fas fa-calculator"></i></div>
+                <div class="kpi-text">
+                    <div class="kpi-label">Avg Order Value</div>
+                    <div class="kpi-value">₹@Model.AverageOrderValue.ToString("N0")</div>
+                    <div class="kpi-note">₹@Model.AveragePeriodRevenue.ToString("N0") avg per @Model.GroupBy</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 col-12 gap-b">
+            <div class="card kpi kpi-warn">
+                <div class="kpi-icon"><i class="fas fa-trophy"></i></div>
+                <div class="kpi-text">
+                    <div class="kpi-label">Peak @Model.GroupBy.ToUpper()</div>
+                    <div class="kpi-value">₹@Model.PeakPeriodRevenue.ToString("N0")</div>
+                    <div class="kpi-note">@Model.PeakPeriodLabel</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="card gap-b">
+        <div class="card-header d-flex flex-wrap justify-content-between align-items-center">
+            <h5>Trend</h5>
+            <div class="chips btn-group-toggle" data-toggle="buttons">
+                <label class="btn chip active" onclick="switchMetric('revenue')">
+                    <input type="radio" name="options" checked> Revenue
+                </label>
+                <label class="btn chip" onclick="switchMetric('energy')">
+                    <input type="radio" name="options"> Energy
+                </label>
+                <label class="btn chip" onclick="switchMetric('count')">
+                    <input type="radio" name="options"> Sessions
+                </label>
+                <label class="btn chip" onclick="switchMetric('aov')">
+                    <input type="radio" name="options"> AOV
+                </label>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="chart-box">
+                <canvas id="analystMatrixChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- City breakdown -->
+        <div class="col-lg-6 col-12 gap-b">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5>Cities</h5>
+                </div>
+                <div class="card-body flush">
+                    <div class="table-responsive">
+                        <table class="table no-datatable">
+                            <thead>
+                                <tr>
+                                    <th>City</th>
+                                    <th class="text-center">Bookings</th>
+                                    <th class="text-center">kWh</th>
+                                    <th class="text-right">Revenue</th>
+                                    <th style="width: 140px;">Share</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (!Model.CityBreakdown.Any())
+                                {
+                                    <tr><td colspan="5" class="cell-empty">No transactions in this period.</td></tr>
+                                }
+                                else
+                                {
+                                    @foreach (var c in Model.CityBreakdown)
+                                    {
+                                        <tr>
+                                            <td class="cell-strong">@c.City</td>
+                                            <td class="text-center">@c.Count</td>
+                                            <td class="text-center cell-kwh">@c.EnergyKwh.ToString("N1")</td>
+                                            <td class="text-right cell-money">₹@c.Revenue.ToString("N0")</td>
+                                            <td>
+                                                <div class="share">
+                                                    <div class="progress"><div class="progress-bar bar-teal" style="width: @c.SharePercentage%;"></div></div>
+                                                    <span>@c.SharePercentage%</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment breakdown -->
+        <div class="col-lg-6 col-12 gap-b">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5>Payment Methods</h5>
+                </div>
+                <div class="card-body flush">
+                    <div class="table-responsive">
+                        <table class="table no-datatable">
+                            <thead>
+                                <tr>
+                                    <th>Method</th>
+                                    <th class="text-center">Transactions</th>
+                                    <th class="text-right">Collection</th>
+                                    <th style="width: 140px;">Share</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (!Model.PaymentBreakdown.Any())
+                                {
+                                    <tr><td colspan="4" class="cell-empty">No transactions in this period.</td></tr>
+                                }
+                                else
+                                {
+                                    @foreach (var p in Model.PaymentBreakdown)
+                                    {
+                                        <tr>
+                                            <td class="cell-strong">
+                                                @if (p.Method.Contains("UPI")) { <i class="fas fa-qrcode pay-icon pay-upi"></i> }
+                                                else if (p.Method.Contains("Cash")) { <i class="fas fa-money-bill-wave pay-icon pay-cash"></i> }
+                                                else { <i class="fas fa-credit-card pay-icon pay-card"></i> }
+                                                @p.Method
+                                            </td>
+                                            <td class="text-center">@p.Count</td>
+                                            <td class="text-right cell-money">₹@p.Revenue.ToString("N2")</td>
+                                            <td>
+                                                <div class="share">
+                                                    <div class="progress"><div class="progress-bar bar-indigo" style="width: @p.SharePercentage%;"></div></div>
+                                                    <span>@p.SharePercentage%</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ledger -->
+    <div class="card gap-b">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5>Ledger</h5>
+        </div>
+        <div class="card-body flush">
+            <div class="table-responsive table-scroll">
+                <table class="table no-datatable">
+                    <thead>
+                        <tr>
+                            <th>Period</th>
+                            <th class="text-center">Sessions</th>
+                            <th class="text-center">kWh</th>
+                            <th class="text-right">Revenue</th>
+                            <th class="text-right">AOV</th>
+                            <th class="text-right">Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.TimeSeries.Any())
+                        {
+                            <tr><td colspan="6" class="cell-empty">No data in selected date range.</td></tr>
+                        }
+                        else
+                        {
+                            @foreach (var row in Model.TimeSeries)
+                            {
+                                <tr>
+                                    <td class="cell-strong">@row.Label</td>
+                                    <td class="text-center">@row.Count</td>
+                                    <td class="text-center cell-kwh">@row.EnergyKwh.ToString("N1")</td>
+                                    <td class="text-right cell-money">₹@row.Revenue.ToString("N2")</td>
+                                    <td class="text-right">₹@row.AverageOrderValue.ToString("N0")</td>
+                                    <td class="text-right cell-muted">₹@row.EffectiveRatePerKwh.ToString("N2")/kWh</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -324,32 +594,32 @@
             revenue: {
                 label: 'Gross Revenue (₹)',
                 data: dataRevenue,
-                borderColor: '#2ecc71',
-                backgroundColor: 'rgba(46, 204, 113, 0.15)',
+                borderColor: '#3DC9B3',
+                backgroundColor: 'rgba(61, 201, 179, 0.15)',
                 prefix: '₹',
                 suffix: ''
             },
             energy: {
                 label: 'Energy Dispensed (kWh)',
                 data: dataEnergy,
-                borderColor: '#3498db',
-                backgroundColor: 'rgba(52, 152, 219, 0.15)',
+                borderColor: '#3ABAF4',
+                backgroundColor: 'rgba(58, 186, 244, 0.15)',
                 prefix: '',
                 suffix: ' kWh'
             },
             count: {
                 label: 'Completed Sessions',
                 data: dataCount,
-                borderColor: '#9b59b6',
-                backgroundColor: 'rgba(155, 89, 182, 0.15)',
+                borderColor: '#6777EF',
+                backgroundColor: 'rgba(103, 119, 239, 0.15)',
                 prefix: '',
                 suffix: ' sessions'
             },
             aov: {
                 label: 'Average Order Value (₹)',
                 data: dataAov,
-                borderColor: '#f39c12',
-                backgroundColor: 'rgba(243, 156, 18, 0.15)',
+                borderColor: '#34395E',
+                backgroundColor: 'rgba(52, 57, 94, 0.12)',
                 prefix: '₹',
                 suffix: ''
             }
@@ -395,9 +665,15 @@
                         }
                     },
                     scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#96A2B4' }
+                        },
                         y: {
                             beginAtZero: true,
+                            grid: { color: '#E3EAEF' },
                             ticks: {
+                                color: '#96A2B4',
                                 callback: function (val) {
                                     return config.prefix + (val >= 1000 ? (val / 1000).toLocaleString('en-IN') + 'k' : val) + config.suffix;
                                 }

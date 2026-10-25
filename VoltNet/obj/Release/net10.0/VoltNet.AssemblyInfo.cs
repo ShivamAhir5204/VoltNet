@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("VoltNet")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8316125fe157cc85414e882cea5aaa6cb6b4d5a5")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+45240b8e54229a307a421712b185aed806a2da62")]
 [assembly: System.Reflection.AssemblyProductAttribute("VoltNet")]
 [assembly: System.Reflection.AssemblyTitleAttribute("VoltNet")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

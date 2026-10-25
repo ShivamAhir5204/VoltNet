@@ -8,113 +8,235 @@
 }
 
 <style>
-    .detail-card {
-        background: #ffffff;
-        border: 1px solid #dce2eb;
-        border-radius: 8px;
-        padding: 24px;
-        margin-bottom: 24px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    .cr-page {
+        --primary: #6777EF;
+        --text: #353C48;
+        --hover: #34395E;
+        --muted: #96A2B4;
+        --teal: #3DC9B3;
+        --white: #FFFFFF;
+        --bg: #F9F9F9;
+        --field: #F2F2F2;
+        --border: #E3EAEF;
+        --success: #28C76F;
+        --warning: #FFA117;
+        --error: #EA5455;
+        --info: #3ABAF4;
+        color: var(--text);
+        font-size: 15px;
+    }
+
+    .cr-page .card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(52, 57, 94, .06);
+    }
+    .cr-page .card-header {
+        background: var(--white);
+        border-bottom: 1px solid var(--border);
+        border-radius: 12px 12px 0 0;
+        padding: 18px 24px;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+    .cr-page .card-header h4 { margin: 0; font-size: 20px; font-weight: 600; color: var(--text); }
+    .cr-page .card-body { padding: 24px; }
+    .cr-page .card-footer {
+        background: var(--white);
+        border-top: 1px solid var(--border);
+        border-radius: 0 0 12px 12px;
+        padding: 18px 24px;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    /* Section cards */
+    .cr-page .detail-card {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 20px;
         height: 100%;
     }
-    .detail-card-title {
-        font-size: 17px;
-        font-weight: 700;
-        color: #212529;
-        margin-bottom: 18px;
+    .cr-page .detail-card.accent-error   { border-top: 3px solid var(--error); }
+    .cr-page .detail-card.accent-success { border-top: 3px solid var(--success); }
+    .cr-page .detail-card-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text);
+        margin-bottom: 16px;
         padding-bottom: 12px;
-        border-bottom: 1px solid #edf0f5;
-        display: flex;
-        align-items: center;
-        letter-spacing: -0.2px;
+        border-bottom: 1px solid var(--border);
     }
-    .detail-card-title i {
-        font-size: 17px;
-        margin-right: 10px;
-    }
-    .detail-row {
+    .cr-page .detail-row {
         display: flex;
         flex-direction: column;
-        margin-bottom: 16px;
+        margin-bottom: 14px;
     }
-    .detail-row:last-child {
-        margin-bottom: 0;
-    }
-    .detail-label {
-        font-size: 14px;
-        font-weight: 700;
-        color: #34395e;
-        margin-bottom: 4px;
-        display: inline-block;
-    }
-    .detail-value {
+    .cr-page .detail-row:last-child { margin-bottom: 0; }
+    .cr-page .detail-label { font-size: 13px; font-weight: 500; color: var(--muted); margin-bottom: 2px; }
+    .cr-page .detail-value { font-size: 15px; font-weight: 600; color: var(--text); word-break: break-word; }
+    .cr-page .detail-value.money { color: #1B8F50; font-size: 20px; }
+    .cr-page .detail-box {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 12px 14px;
+        color: var(--text);
         font-size: 15px;
-        font-weight: 600;
-        color: #212529;
-        word-break: break-word;
-    }
-    .detail-box {
-        background: #ffffff;
-        border: 1px solid #dce2eb;
-        border-radius: 6px;
-        padding: 14px 16px;
-        color: #212529;
-        font-size: 15px;
-        font-weight: 600;
         line-height: 1.6;
     }
+    .cr-page .note { color: var(--muted); font-size: 13px; margin-top: 2px; }
+
+    /* Pills */
+    .cr-page .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 500;
+    }
+    .cr-page .status-pending  { background: rgba(255, 161, 23, .14); color: #B86F00; }
+    .cr-page .status-cancel   { background: rgba(234, 84, 85, .12);  color: var(--error); }
+    .cr-page .status-active   { background: rgba(40, 199, 111, .12); color: #1B8F50; }
+    .cr-page .status-plan     { background: rgba(103, 119, 239, .12); color: var(--primary); }
+
+    /* Form fields */
+    .cr-page .form-label { color: var(--text); font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+    .cr-page .form-control {
+        background: var(--field);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text);
+        padding: 10px 14px;
+        font-size: 15px;
+        transition: border-color .2s, box-shadow .2s, background .2s;
+    }
+    .cr-page .form-control:hover { border-color: var(--muted); }
+    .cr-page .form-control:focus {
+        background: var(--white);
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(103, 119, 239, .2);
+        outline: 0;
+    }
+
+    /* Buttons */
+    .cr-page .btn-approve,
+    .cr-page .btn-reject,
+    .cr-page .btn-back,
+    .cr-page .btn-view {
+        min-height: 44px;
+        padding: 0 22px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-weight: 500;
+        transition: background-color .2s, color .2s, border-color .2s;
+    }
+    .cr-page .btn-approve {
+        background-color: #6777EF !important;
+        border: 1px solid #6777EF !important;
+        color: #FFFFFF !important;
+    }
+    .cr-page .btn-approve:hover,
+    .cr-page .btn-approve:focus,
+    .cr-page .btn-approve:active {
+        background-color: #34395E !important;
+        border-color: #34395E !important;
+        color: #FFFFFF !important;
+    }
+    .cr-page .btn-reject {
+        background-color: #FFFFFF !important;
+        border: 1px solid #EA5455 !important;
+        color: #EA5455 !important;
+    }
+    .cr-page .btn-reject:hover,
+    .cr-page .btn-reject:focus,
+    .cr-page .btn-reject:active {
+        background-color: #EA5455 !important;
+        border-color: #EA5455 !important;
+        color: #FFFFFF !important;
+    }
+    .cr-page .btn-back,
+    .cr-page .btn-view {
+        background-color: #FFFFFF !important;
+        border: 1px solid #E3EAEF !important;
+        color: #353C48 !important;
+    }
+    .cr-page .btn-back:hover,
+    .cr-page .btn-back:focus,
+    .cr-page .btn-back:active,
+    .cr-page .btn-view:hover,
+    .cr-page .btn-view:focus,
+    .cr-page .btn-view:active {
+        background-color: #F9F9F9 !important;
+        border-color: #96A2B4 !important;
+        color: #353C48 !important;
+    }
+    .cr-page .btn-approve i,
+    .cr-page .btn-reject i,
+    .cr-page .btn-back i,
+    .cr-page .btn-view i { color: inherit !important; }
+    .cr-page .btn-approve:focus,
+    .cr-page .btn-reject:focus,
+    .cr-page .btn-back:focus,
+    .cr-page .btn-view:focus {
+        outline: 3px solid rgba(103, 119, 239, .35);
+        outline-offset: 2px;
+        box-shadow: none;
+    }
+
     @@media (min-width: 576px) {
-        .detail-row-inline {
+        .cr-page .detail-row-inline {
             flex-direction: row;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px dashed #e8ebf1;
+            border-bottom: 1px dashed var(--border);
             padding-bottom: 12px;
         }
-        .detail-row-inline:last-child {
-            border-bottom: none;
-            padding-bottom: 0;
-        }
-        .detail-row-inline .detail-label {
-            margin-bottom: 0;
-            flex-shrink: 0;
-            margin-right: 18px;
-        }
-        .detail-row-inline .detail-value {
-            text-align: right;
-        }
+        .cr-page .detail-row-inline:last-child { border-bottom: none; padding-bottom: 0; }
+        .cr-page .detail-row-inline .detail-label { margin-bottom: 0; margin-right: 18px; flex-shrink: 0; }
+        .cr-page .detail-row-inline .detail-value { text-align: right; }
+    }
+
+    /* Mobile */
+    @@media (max-width: 767px) {
+        .cr-page .card-header { padding: 16px; }
+        .cr-page .card-body { padding: 16px; }
+        .cr-page .card-footer { padding: 16px; flex-direction: column-reverse; }
+        .cr-page .btn-approve,
+        .cr-page .btn-reject,
+        .cr-page .btn-back,
+        .cr-page .btn-view { width: 100%; }
     }
 </style>
 
+<div class="cr-page">
 <div class="row">
     <div class="col-12">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-                <div class="d-flex align-items-center flex-wrap">
-                    <h4 class="mb-0 mr-3 font-weight-bold" style="color: #212529; font-size: 20px;">Cancellation Request Details</h4>
+                <div class="d-flex align-items-center flex-wrap" style="gap: 12px;">
+                    <h4 class="mb-0">Cancellation Request</h4>
                     @if (isPending)
                     {
-                        <span class="badge badge-warning font-weight-700 font-14 px-3 py-2">
-                            <i class="fas fa-clock mr-1"></i> Pending Review
-                        </span>
+                        <span class="status status-pending">Pending Review</span>
                     }
                     else if (isCancelled)
                     {
-                        <span class="badge badge-danger font-weight-700 font-14 px-3 py-2">
-                            <i class="fas fa-check-circle mr-1"></i> Approved & Cancelled
-                        </span>
+                        <span class="status status-cancel">Cancelled</span>
                     }
                     else
                     {
-                        <span class="badge badge-success font-weight-700 font-14 px-3 py-2">
-                            <i class="fas fa-shield-alt mr-1"></i> Active (Request Rejected)
-                        </span>
+                        <span class="status status-active">Active (Rejected)</span>
                     }
-                </div>
-                <div class="card-header-action mt-2 mt-sm-0">
-                    <a href="/admin/subscription/cancellation-requests" class="btn btn-outline-secondary font-weight-600">
-                        <i class="fas fa-arrow-left mr-1"></i> Back to Requests
-                    </a>
                 </div>
             </div>
             <div class="card-body">
@@ -122,32 +244,22 @@
                     <!-- Owner Details -->
                     <div class="col-12 col-lg-6 mb-4">
                         <div class="detail-card">
-                            <div class="detail-card-title text-primary">
-                                <i class="fas fa-user-circle"></i> Owner Details
+                            <div class="detail-card-title">Owner</div>
+                            <div class="detail-row detail-row-inline">
+                                <span class="detail-label">Name</span>
+                                <span class="detail-value">@(Model.Owner?.FullName ?? Model.Owner?.User?.Fullname ?? "N/A")</span>
                             </div>
                             <div class="detail-row detail-row-inline">
-                                <span class="detail-label">Owner Name</span>
-                                <span class="detail-value font-weight-bold text-dark font-16">
-                                    @(Model.Owner?.FullName ?? Model.Owner?.User?.Fullname ?? "N/A")
-                                </span>
+                                <span class="detail-label">Business</span>
+                                <span class="detail-value">@(Model.Owner?.BusinessName ?? "Individual Owner")</span>
                             </div>
                             <div class="detail-row detail-row-inline">
-                                <span class="detail-label">Business Name</span>
-                                <span class="detail-value font-weight-600 text-dark">
-                                    @(Model.Owner?.BusinessName ?? "Individual Owner")
-                                </span>
+                                <span class="detail-label">Email</span>
+                                <span class="detail-value">@(Model.Owner?.User?.Email ?? "N/A")</span>
                             </div>
                             <div class="detail-row detail-row-inline">
-                                <span class="detail-label">Email Address</span>
-                                <span class="detail-value font-weight-600 text-primary">
-                                    @(Model.Owner?.User?.Email ?? "N/A")
-                                </span>
-                            </div>
-                            <div class="detail-row detail-row-inline">
-                                <span class="detail-label">Phone Number</span>
-                                <span class="detail-value font-weight-600 text-dark">
-                                    @(Model.Owner?.Phone ?? "N/A")
-                                </span>
+                                <span class="detail-label">Phone</span>
+                                <span class="detail-value">@(Model.Owner?.Phone ?? "N/A")</span>
                             </div>
                         </div>
                     </div>
@@ -155,60 +267,44 @@
                     <!-- Subscription Info -->
                     <div class="col-12 col-lg-6 mb-4">
                         <div class="detail-card">
-                            <div class="detail-card-title text-info">
-                                <i class="fas fa-receipt"></i> Subscription Details
-                            </div>
+                            <div class="detail-card-title">Subscription</div>
                             <div class="detail-row detail-row-inline">
-                                <span class="detail-label">Plan Name</span>
-                                <span class="detail-value">
-                                    <span class="badge badge-primary font-weight-700 font-14 px-3 py-1">@(Model.Plan?.Name ?? "Plan")</span>
-                                </span>
+                                <span class="detail-label">Plan</span>
+                                <span class="detail-value"><span class="status status-plan">@(Model.Plan?.Name ?? "Plan")</span></span>
                             </div>
                             <div class="detail-row detail-row-inline">
                                 <span class="detail-label">Amount Paid</span>
-                                <span class="detail-value font-weight-bold text-success font-22">
-                                    ₹@Model.AmountPaid.ToString("N2")
-                                </span>
+                                <span class="detail-value money">₹@Model.AmountPaid.ToString("N2")</span>
                             </div>
                             <div class="detail-row detail-row-inline">
                                 <span class="detail-label">Payment ID</span>
-                                <span class="detail-value text-monospace font-weight-700 text-dark font-14">
-                                    @Model.PaymentId
-                                </span>
+                                <span class="detail-value text-monospace">@Model.PaymentId</span>
                             </div>
                             <div class="detail-row detail-row-inline">
                                 <span class="detail-label">Purchased On</span>
-                                <span class="detail-value font-weight-600 text-dark font-15">
-                                    @Model.CreatedAt.ToString("dd MMM yyyy, hh:mm tt") UTC
-                                </span>
+                                <span class="detail-value">@Model.CreatedAt.ToString("dd MMM yyyy, hh:mm tt") UTC</span>
                             </div>
                             <div class="detail-row detail-row-inline">
-                                <span class="detail-label">Stations Linked</span>
-                                <span class="detail-value font-weight-bold text-dark font-15">
-                                    <i class="fas fa-charging-station text-primary mr-1"></i> @Model.Stations.Count Stations
-                                </span>
+                                <span class="detail-label">Stations</span>
+                                <span class="detail-value">@Model.Stations.Count</span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Cancellation Request Info (Clean White Design) -->
+                    <!-- Cancellation Request Info -->
                     <div class="col-12 mb-4">
-                        <div class="detail-card" style="border-left: 5px solid #fc544b;">
-                            <div class="detail-card-title text-danger">
-                                <i class="fas fa-exclamation-triangle"></i> Cancellation Request Details
-                            </div>
+                        <div class="detail-card accent-error">
+                            <div class="detail-card-title">Request</div>
                             <div class="row">
                                 <div class="col-12 col-md-4 mb-3">
                                     <span class="detail-label">Requested On</span>
-                                    <div class="detail-value text-dark font-weight-bold font-16">
+                                    <div class="detail-value">
                                         @(Model.CancellationRequestedAt?.ToString("dd MMM yyyy, hh:mm tt") ?? Model.CreatedAt.ToString("dd MMM yyyy"))
                                     </div>
-                                    <div class="mt-1 font-weight-600 font-13" style="color: #34395e;">
-                                        (@hoursSincePurchase hours after purchase)
-                                    </div>
+                                    <div class="note">@hoursSincePurchase hours after purchase</div>
                                 </div>
                                 <div class="col-12 col-md-8 mb-3">
-                                    <span class="detail-label">Reason Stated by Owner</span>
+                                    <span class="detail-label">Reason</span>
                                     <div class="detail-box">
                                         @(string.IsNullOrWhiteSpace(Model.CancellationReason) ? "No reason specified" : Model.CancellationReason)
                                     </div>
@@ -217,32 +313,26 @@
 
                             @if (!string.IsNullOrWhiteSpace(Model.CancellationAdminRemarks) || Model.RefundAmount.HasValue || Model.CancellationProcessedAt.HasValue)
                             {
-                                <div class="border-top pt-3 mt-2 row">
+                                <div class="row" style="border-top: 1px solid #E3EAEF; padding-top: 16px; margin-top: 8px;">
                                     @if (!string.IsNullOrWhiteSpace(Model.CancellationAdminRemarks))
                                     {
                                         <div class="col-12 col-md-6 mb-2">
                                             <span class="detail-label">Admin Remarks</span>
-                                            <div class="detail-box text-dark font-weight-700" style="color: #0b5ed7;">
-                                                @Model.CancellationAdminRemarks
-                                            </div>
+                                            <div class="detail-box">@Model.CancellationAdminRemarks</div>
                                         </div>
                                     }
                                     @if (Model.RefundAmount.HasValue)
                                     {
                                         <div class="col-12 col-md-3 mb-2">
-                                            <span class="detail-label">Refund Amount</span>
-                                            <div class="detail-value font-weight-bold text-success font-22">
-                                                ₹@Model.RefundAmount.Value.ToString("N2")
-                                            </div>
+                                            <span class="detail-label">Refund</span>
+                                            <div class="detail-value money">₹@Model.RefundAmount.Value.ToString("N2")</div>
                                         </div>
                                     }
                                     @if (Model.CancellationProcessedAt.HasValue)
                                     {
                                         <div class="col-12 col-md-3 mb-2">
                                             <span class="detail-label">Processed On</span>
-                                            <div class="detail-value text-dark font-weight-600 font-15">
-                                                @Model.CancellationProcessedAt.Value.ToString("dd MMM yyyy, hh:mm tt") UTC
-                                            </div>
+                                            <div class="detail-value">@Model.CancellationProcessedAt.Value.ToString("dd MMM yyyy, hh:mm tt") UTC</div>
                                         </div>
                                     }
                                 </div>
@@ -254,42 +344,32 @@
                     @if (isPending)
                     {
                         <div class="col-12 col-lg-6 mb-4">
-                            <div class="detail-card" style="border-top: 4px solid #47c363;">
-                                <div class="detail-card-title text-success">
-                                    <i class="fas fa-check-circle"></i> Approve Cancellation & Refund
-                                </div>
-                                <p class="font-14 mb-3 font-weight-500" style="color: #34395e; line-height: 1.6;">
-                                    Approving will take all @Model.Stations.Count assigned station(s) offline, process a full refund of <strong class="text-dark">₹@Model.AmountPaid.ToString("N2")</strong>, and email the owner.
-                                </p>
+                            <div class="detail-card accent-success">
+                                <div class="detail-card-title">Approve & Refund</div>
                                 <form method="post" action="/admin/subscription/approve-cancellation/@Model.Id">
                                     @Html.AntiForgeryToken()
                                     <div class="form-group mb-3">
-                                        <label class="font-weight-700 text-dark font-14">Admin Remarks (Optional)</label>
-                                        <textarea name="adminRemarks" class="form-control" rows="2" placeholder="e.g. Cancellation approved within 24h refund window."></textarea>
+                                        <label class="form-label">Remarks (Optional)</label>
+                                        <textarea name="adminRemarks" class="form-control" rows="2"></textarea>
                                     </div>
-                                    <button type="submit" class="btn btn-success btn-block py-2 font-weight-700 font-15" onclick="return confirm('Confirm approval of this cancellation request?');">
-                                        <i class="fas fa-check mr-1"></i> Approve & Process Refund
+                                    <button type="submit" class="btn btn-approve btn-block" onclick="return confirm('Confirm approval of this cancellation request?');">
+                                        <i class="fas fa-check"></i> Approve & Refund
                                     </button>
                                 </form>
                             </div>
                         </div>
 
                         <div class="col-12 col-lg-6 mb-4">
-                            <div class="detail-card" style="border-top: 4px solid #fc544b;">
-                                <div class="detail-card-title text-danger">
-                                    <i class="fas fa-times-circle"></i> Reject Cancellation
-                                </div>
-                                <p class="font-14 mb-3 font-weight-500" style="color: #34395e; line-height: 1.6;">
-                                    Rejecting will keep the subscription Active. The owner's stations will remain online, and an explanation email will be dispatched.
-                                </p>
+                            <div class="detail-card accent-error">
+                                <div class="detail-card-title">Reject</div>
                                 <form method="post" action="/admin/subscription/reject-cancellation/@Model.Id">
                                     @Html.AntiForgeryToken()
                                     <div class="form-group mb-3">
-                                        <label class="font-weight-700 text-danger font-14">Rejection Remarks (Mandatory) *</label>
-                                        <textarea name="adminRemarks" class="form-control" rows="2" required placeholder="e.g. Request rejected as stations were actively utilized."></textarea>
+                                        <label class="form-label">Remarks *</label>
+                                        <textarea name="adminRemarks" class="form-control" rows="2" required></textarea>
                                     </div>
-                                    <button type="submit" class="btn btn-danger btn-block py-2 font-weight-700 font-15" onclick="return confirm('Confirm rejection of this cancellation request?');">
-                                        <i class="fas fa-ban mr-1"></i> Reject Cancellation
+                                    <button type="submit" class="btn btn-reject btn-block" onclick="return confirm('Confirm rejection of this cancellation request?');">
+                                        <i class="fas fa-ban"></i> Reject
                                     </button>
                                 </form>
                             </div>
@@ -297,14 +377,15 @@
                     }
                 </div>
             </div>
-            <div class="card-footer bg-white border-top d-flex justify-content-between align-items-center flex-wrap">
-                <a href="/admin/subscription/cancellation-requests" class="btn btn-outline-secondary font-weight-600">
-                    <i class="fas fa-arrow-left mr-1"></i> Back to Cancellation Requests
+            <div class="card-footer">
+                <a href="/admin/subscription/cancellation-requests" class="btn btn-back">
+                    <i class="fas fa-arrow-left"></i> Back to Requests
                 </a>
-                <a href="/admin/subscription/subscription-details/@Model.Id" class="btn btn-outline-info font-weight-600">
-                    <i class="fas fa-receipt mr-1"></i> View Subscription Record
+                <a href="/admin/subscription/subscription-details/@Model.Id" class="btn btn-view">
+                    <i class="fas fa-receipt"></i> Subscription Record
                 </a>
             </div>
         </div>
     </div>
+</div>
 </div>

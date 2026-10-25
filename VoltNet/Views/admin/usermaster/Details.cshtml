@@ -5,65 +5,227 @@
     Layout = "_AdminLayout";
 }
 
-<div class="row">
-  <div class="col-12">
-    <div class="card">
-      <div class="card-header">
-        <h4>User Details</h4>
-      </div>
-      <div class="card-body">
-        <div class="row">
-            <div class="col-md-6 mb-3">
-                <span class="text-muted d-block mb-1">Full Name</span>
-                <strong>@Html.DisplayFor(model => model.Fullname)</strong>
-            </div>
+<style>
+    .ud-page {
+        --primary: #6777EF;
+        --text: #353C48;
+        --hover: #34395E;
+        --muted: #96A2B4;
+        --white: #FFFFFF;
+        --bg: #F9F9F9;
+        --field: #F2F2F2;
+        --border: #E3EAEF;
+        --success: #28C76F;
+        --error: #EA5455;
+        color: var(--text);
+        font-size: 15px;
+    }
 
-            <div class="col-md-6 mb-3">
-                <span class="text-muted d-block mb-1">Email</span>
-                <strong>@Html.DisplayFor(model => model.Email)</strong>
-            </div>
+    .ud-page .card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(52, 57, 94, .06);
+    }
 
-            <div class="col-md-6 mb-3">
-                <span class="text-muted d-block mb-1">Mobile</span>
-                <strong>@Html.DisplayFor(model => model.Mobile)</strong>
-            </div>
+    .ud-page .card-header {
+        background: var(--white);
+        border-bottom: 1px solid var(--border);
+        border-radius: 12px 12px 0 0;
+        padding: 18px 24px;
+    }
 
-            <div class="col-md-6 mb-3">
-                <span class="text-muted d-block mb-1">City</span>
-                <strong>@(Model.City ?? "—")</strong>
-            </div>
+    .ud-page .card-header h4 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--text);
+    }
 
-            <div class="col-md-6 mb-3">
-                <span class="text-muted d-block mb-1">State</span>
-                <strong>@(Model.State ?? "—")</strong>
-            </div>
+    .ud-page .card-body { padding: 24px; }
 
-            <div class="col-md-6 mb-3">
-                <span class="text-muted d-block mb-1">Role</span>
-                <strong>@Html.DisplayFor(model => model.Role)</strong>
-            </div>
+    /* Detail items */
+    .ud-page .detail-item {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 14px 16px;
+        height: 100%;
+    }
+    .ud-page .detail-label {
+        display: block;
+        margin-bottom: 4px;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 500;
+    }
+    .ud-page .detail-value {
+        display: block;
+        color: var(--text);
+        font-size: 16px;
+        font-weight: 600;
+        word-break: break-word;
+    }
 
-            <div class="col-md-6 mb-3">
-                <span class="text-muted d-block mb-1">Active Status</span>
-                <div>
-                    @if (Model.Isactive)
-                    {
-                        <span class="badge bg-success">Active</span>
-                    }
-                    else
-                    {
-                        <span class="badge bg-danger">Inactive</span>
-                    }
-                </div>
-            </div>
+    /* Status pills */
+    .ud-page .status {
+        display: inline-block;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 500;
+    }
+    .ud-page .status-active   { background: rgba(40, 199, 111, .12); color: var(--success); }
+    .ud-page .status-inactive { background: rgba(234, 84, 85, .12);  color: var(--error); }
+
+    /* Footer */
+    .ud-page .card-footer {
+        background: var(--white);
+        border-top: 1px solid var(--border);
+        border-radius: 0 0 12px 12px;
+        padding: 18px 24px;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    /* Buttons */
+    .ud-page .btn-edit,
+    .ud-page .btn-back {
+        min-height: 44px;
+        padding: 0 22px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-weight: 500;
+        margin: 0 !important;
+        transition: background-color .2s, color .2s, border-color .2s;
+    }
+
+    .ud-page .btn-edit {
+        background-color: #6777EF !important;
+        border: 1px solid #6777EF !important;
+        color: #FFFFFF !important;
+    }
+    .ud-page .btn-edit:hover,
+    .ud-page .btn-edit:focus,
+    .ud-page .btn-edit:active {
+        background-color: #34395E !important;
+        border-color: #34395E !important;
+        color: #FFFFFF !important;
+    }
+
+    .ud-page .btn-back {
+        background-color: #FFFFFF !important;
+        border: 1px solid #E3EAEF !important;
+        color: #353C48 !important;
+    }
+    .ud-page .btn-back:hover,
+    .ud-page .btn-back:focus,
+    .ud-page .btn-back:active {
+        background-color: #F9F9F9 !important;
+        border-color: #96A2B4 !important;
+        color: #353C48 !important;
+    }
+
+    .ud-page .btn-edit i,
+    .ud-page .btn-back i { color: inherit !important; }
+
+    .ud-page .btn-edit:focus,
+    .ud-page .btn-back:focus {
+        outline: 3px solid rgba(103, 119, 239, .35);
+        outline-offset: 2px;
+        box-shadow: none;
+    }
+
+    /* Mobile */
+    @@media (max-width: 767px) {
+        .ud-page .card-header { padding: 16px; }
+        .ud-page .card-body { padding: 16px; }
+        .ud-page .card-footer { padding: 16px; flex-direction: column-reverse; }
+        .ud-page .card-footer form { width: 100%; }
+        .ud-page .btn-edit,
+        .ud-page .btn-back { width: 100%; }
+    }
+</style>
+
+<div class="ud-page">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h4>User Details</h4>
         </div>
-      </div>
-      <div class="card-footer bg-whitesmoke d-flex gap-2">
-        <form asp-action="LoadEdit" method="post" class="d-inline">
-            <input type="hidden" name="id" value="@Model.Id" />
-            <button type="submit" class="btn btn-warning"><i class="fas fa-edit"></i> Edit</button>
-        </form>
-        <a asp-action="Index" class="btn btn-outline-secondary ml-2"><i class="fas fa-arrow-left"></i> Back to List</a>
+        <div class="card-body">
+          <div class="row">
+              <div class="col-md-6 mb-3">
+                  <div class="detail-item">
+                      <span class="detail-label">Full Name</span>
+                      <span class="detail-value">@Html.DisplayFor(model => model.Fullname)</span>
+                  </div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                  <div class="detail-item">
+                      <span class="detail-label">Email</span>
+                      <span class="detail-value">@Html.DisplayFor(model => model.Email)</span>
+                  </div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                  <div class="detail-item">
+                      <span class="detail-label">Mobile</span>
+                      <span class="detail-value">@Html.DisplayFor(model => model.Mobile)</span>
+                  </div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                  <div class="detail-item">
+                      <span class="detail-label">City</span>
+                      <span class="detail-value">@(Model.City ?? "—")</span>
+                  </div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                  <div class="detail-item">
+                      <span class="detail-label">State</span>
+                      <span class="detail-value">@(Model.State ?? "—")</span>
+                  </div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                  <div class="detail-item">
+                      <span class="detail-label">Role</span>
+                      <span class="detail-value">@Html.DisplayFor(model => model.Role)</span>
+                  </div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                  <div class="detail-item">
+                      <span class="detail-label">Active Status</span>
+                      <span class="detail-value">
+                          @if (Model.Isactive)
+                          {
+                              <span class="status status-active">Active</span>
+                          }
+                          else
+                          {
+                              <span class="status status-inactive">Inactive</span>
+                          }
+                      </span>
+                  </div>
+              </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <form asp-action="LoadEdit" method="post" class="d-inline">
+              <input type="hidden" name="id" value="@Model.Id" />
+              <button type="submit" class="btn btn-edit"><i class="fas fa-edit"></i> Edit</button>
+          </form>
+          <a asp-action="Index" class="btn btn-back"><i class="fas fa-arrow-left"></i> Back to List</a>
+        </div>
       </div>
     </div>
   </div>

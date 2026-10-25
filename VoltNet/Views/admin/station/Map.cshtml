@@ -6,87 +6,254 @@
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
-    #stationMap {
-        height: calc(100vh - 220px);
+    .sm-page {
+        --primary: #6777EF;
+        --text: #353C48;
+        --hover: #34395E;
+        --muted: #96A2B4;
+        --teal: #3DC9B3;
+        --white: #FFFFFF;
+        --bg: #F9F9F9;
+        --field: #F2F2F2;
+        --border: #E3EAEF;
+        --success: #28C76F;
+        --warning: #FFA117;
+        --error: #EA5455;
+        color: var(--text);
+        font-size: 15px;
+    }
+
+    .sm-page .card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(52, 57, 94, .06);
+    }
+
+    .sm-page .card-header {
+        background: var(--white);
+        border-bottom: 1px solid var(--border);
+        border-radius: 12px 12px 0 0;
+        padding: 18px 24px;
+        gap: 12px;
+    }
+
+    .sm-page .card-header h4 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--text);
+    }
+
+    .sm-page .card-body { padding: 16px; }
+    .sm-page .header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    /* Map */
+    .sm-page #stationMap {
+        height: calc(100vh - 240px);
         min-height: 500px;
-        border-radius: 8px;
-        border: 1px solid #dee2e6;
+        border-radius: 10px;
+        border: 1px solid var(--border);
         z-index: 1;
     }
-    .route-info {
-        background: #1a2236;
-        color: #e2e8f0;
-        border: 1px solid rgba(255,255,255,0.1);
+
+    /* Header buttons */
+    .sm-page .btn-loc,
+    .sm-page .btn-clear,
+    .sm-page .btn-back {
+        min-height: 44px;
+        padding: 0 18px;
         border-radius: 8px;
-        padding: 12px 18px;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-weight: 500;
+        transition: background-color .2s, color .2s, border-color .2s;
+    }
+    .sm-page .btn-loc,
+    .sm-page .btn-back { display: inline-flex; }
+    .sm-page .btn-clear { display: inline-flex; }
+
+    .sm-page .btn-loc {
+        background-color: #FFFFFF !important;
+        border: 1px solid #3DC9B3 !important;
+        color: #353C48 !important;
+    }
+    .sm-page .btn-loc:hover,
+    .sm-page .btn-loc:focus,
+    .sm-page .btn-loc:active {
+        background-color: #3DC9B3 !important;
+        border-color: #3DC9B3 !important;
+        color: #FFFFFF !important;
+    }
+
+    .sm-page .btn-clear {
+        background-color: #FFFFFF !important;
+        border: 1px solid #EA5455 !important;
+        color: #EA5455 !important;
+    }
+    .sm-page .btn-clear:hover,
+    .sm-page .btn-clear:focus,
+    .sm-page .btn-clear:active {
+        background-color: #EA5455 !important;
+        border-color: #EA5455 !important;
+        color: #FFFFFF !important;
+    }
+
+    .sm-page .btn-back {
+        background-color: #FFFFFF !important;
+        border: 1px solid #E3EAEF !important;
+        color: #353C48 !important;
+    }
+    .sm-page .btn-back:hover,
+    .sm-page .btn-back:focus,
+    .sm-page .btn-back:active {
+        background-color: #F9F9F9 !important;
+        border-color: #96A2B4 !important;
+        color: #353C48 !important;
+    }
+
+    .sm-page .btn-loc i,
+    .sm-page .btn-clear i,
+    .sm-page .btn-back i { color: inherit !important; }
+
+    .sm-page .btn-loc:focus,
+    .sm-page .btn-clear:focus,
+    .sm-page .btn-back:focus {
+        outline: 3px solid rgba(103, 119, 239, .35);
+        outline-offset: 2px;
+        box-shadow: none;
+    }
+
+    /* Route info bar */
+    .sm-page .route-info {
+        background: var(--text);
+        color: var(--white);
+        border-radius: 10px;
+        padding: 14px 20px;
         display: none;
         align-items: center;
-        gap: 20px;
+        gap: 28px;
         flex-wrap: wrap;
     }
-    .route-info.active { display: flex; }
-    .route-info .route-stat {
-        text-align: center;
-    }
-    .route-info .route-stat strong {
+    .sm-page .route-info.active { display: flex; }
+    .sm-page .route-info .route-stat { text-align: left; min-width: 0; }
+    .sm-page .route-info .route-stat strong {
         display: block;
         font-size: 1.1rem;
-        color: #00d4aa;
+        color: var(--teal);
+        word-break: break-word;
     }
-    .route-info .route-stat small {
-        color: #94a3b8;
+    .sm-page .route-info .route-stat small {
+        color: var(--muted);
         font-size: 0.75rem;
     }
-    .leaflet-popup-content { min-width: 200px; }
-    .popup-station-name { font-weight: 700; font-size: 1rem; margin-bottom: 6px; }
-    .popup-meta { color: #666; font-size: 0.85rem; margin-bottom: 4px; }
-    .popup-status { display: inline-block; padding: 2px 10px; border-radius: 50px; font-size: 0.75rem; font-weight: 600; }
-    .popup-status.active { background: #d1fae5; color: #065f46; }
-    .popup-status.inactive { background: #fee2e2; color: #991b1b; }
-    .popup-status.maintenance { background: #fef3c7; color: #92400e; }
-    .popup-actions { margin-top: 10px; display: flex; gap: 6px; }
-    .popup-actions a, .popup-actions button { font-size: 0.8rem; padding: 4px 10px; border-radius: 4px; border: none; cursor: pointer; text-decoration: none; }
-    .popup-btn-directions { background: #00d4aa; color: #fff; }
-    .popup-btn-directions:hover { background: #00b894; color: #fff; }
-    .popup-btn-details { background: #e2e8f0; color: #1a2236; }
-    .popup-btn-details:hover { background: #cbd5e1; color: #1a2236; }
+
+    /* Popups */
+    .sm-page .leaflet-popup-content-wrapper {
+        border-radius: 10px;
+        color: var(--text);
+        box-shadow: 0 6px 20px rgba(52, 57, 94, .18);
+    }
+    .sm-page .leaflet-popup-content { min-width: 200px; margin: 14px 16px; }
+    .sm-page .popup-station-name { font-weight: 700; font-size: 1rem; margin-bottom: 6px; color: var(--text); }
+    .sm-page .popup-meta { color: var(--muted); font-size: 0.85rem; margin-bottom: 4px; }
+    .sm-page .popup-status { display: inline-block; padding: 3px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; margin-top: 4px; }
+    .sm-page .popup-status.active { background: rgba(40, 199, 111, .12); color: #28C76F; }
+    .sm-page .popup-status.inactive { background: rgba(234, 84, 85, .12); color: #EA5455; }
+    .sm-page .popup-status.maintenance { background: rgba(255, 161, 23, .14); color: #B86F00; }
+
+    .sm-page .popup-actions { margin-top: 12px; display: flex; gap: 8px; }
+    .sm-page .popup-actions a,
+    .sm-page .popup-actions button {
+        font-size: 0.85rem;
+        min-height: 36px;
+        padding: 0 14px;
+        border-radius: 8px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 500;
+        transition: background-color .2s, color .2s, border-color .2s;
+    }
+    .sm-page .popup-actions .popup-btn-directions {
+        background-color: #6777EF !important;
+        border: 1px solid #6777EF !important;
+        color: #FFFFFF !important;
+    }
+    .sm-page .popup-actions .popup-btn-directions:hover,
+    .sm-page .popup-actions .popup-btn-directions:focus,
+    .sm-page .popup-actions .popup-btn-directions:active {
+        background-color: #34395E !important;
+        border-color: #34395E !important;
+        color: #FFFFFF !important;
+    }
+    .sm-page .popup-actions .popup-btn-details {
+        background-color: #FFFFFF !important;
+        border: 1px solid #E3EAEF !important;
+        color: #353C48 !important;
+    }
+    .sm-page .popup-actions .popup-btn-details:hover,
+    .sm-page .popup-actions .popup-btn-details:focus,
+    .sm-page .popup-actions .popup-btn-details:active {
+        background-color: #F9F9F9 !important;
+        border-color: #96A2B4 !important;
+        color: #353C48 !important;
+    }
+
+    /* Mobile */
+    @@media (max-width: 767px) {
+        .sm-page .card-header { padding: 16px; }
+        .sm-page .card-body { padding: 12px; }
+        .sm-page .header-actions { width: 100%; flex-direction: column; }
+        .sm-page .btn-loc,
+        .sm-page .btn-clear,
+        .sm-page .btn-back { width: 100%; }
+        .sm-page #stationMap { height: calc(100vh - 200px); min-height: 420px; }
+        .sm-page .route-info { gap: 16px; padding: 12px 16px; }
+        .sm-page .leaflet-popup-content { min-width: 170px; }
+    }
 </style>
 
-<div class="row">
-  <div class="col-12">
-    <div class="card">
-      <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-        <h4 class="mb-0">Station Map</h4>
-        <div class="d-flex gap-2">
-            <button id="btnMyLocation" class="btn btn-sm btn-outline-info">
-                <i class="bi bi-crosshair"></i> My Location
-            </button>
-            <button id="btnClearRoute" class="btn btn-sm btn-outline-danger" style="display: none;">
-                <i class="bi bi-x-lg"></i> Clear Route
-            </button>
-            <a href="/admin/Station" class="btn btn-sm btn-outline-secondary">
-                <i class="bi bi-list-ul"></i> Back to List
-            </a>
+<div class="sm-page">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+          <h4 class="mb-0">Station Map</h4>
+          <div class="header-actions">
+              <button id="btnMyLocation" class="btn btn-loc">
+                  <i class="bi bi-crosshair"></i> My Location
+              </button>
+              <button id="btnClearRoute" class="btn btn-clear" style="display: none;">
+                  <i class="bi bi-x-lg"></i> Clear Route
+              </button>
+              <a href="/admin/Station" class="btn btn-back">
+                  <i class="bi bi-list-ul"></i> Back to List
+              </a>
+          </div>
         </div>
-      </div>
-      <div class="card-body p-2">
-        <!-- Route Info Bar -->
-        <div id="routeInfo" class="route-info mb-2">
-            <div class="route-stat">
-                <strong id="routeDistance">—</strong>
-                <small>Distance</small>
-            </div>
-            <div class="route-stat">
-                <strong id="routeDuration">—</strong>
-                <small>Est. Time</small>
-            </div>
-            <div class="route-stat">
-                <strong id="routeTo">—</strong>
-                <small>Destination</small>
-            </div>
-        </div>
+        <div class="card-body">
+          <!-- Route Info Bar -->
+          <div id="routeInfo" class="route-info mb-2">
+              <div class="route-stat">
+                  <strong id="routeDistance">—</strong>
+                  <small>Distance</small>
+              </div>
+              <div class="route-stat">
+                  <strong id="routeDuration">—</strong>
+                  <small>Est. Time</small>
+              </div>
+              <div class="route-stat">
+                  <strong id="routeTo">—</strong>
+                  <small>Destination</small>
+              </div>
+          </div>
 
-        <div id="stationMap"></div>
+          <div id="stationMap"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -125,21 +292,21 @@
     // Custom icons
     var stationIcon = L.divIcon({
         className: 'custom-div-icon',
-        html: '<div style="background:#00d4aa;width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.3);"></div>',
+        html: '<div style="background:#3DC9B3;width:14px;height:14px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 6px rgba(53,60,72,0.3);"></div>',
         iconSize: [20, 20],
         iconAnchor: [10, 10]
     });
 
     var highlightIcon = L.divIcon({
         className: 'custom-div-icon',
-        html: '<div style="background:#ff4757;width:18px;height:18px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(255,71,87,0.5);animation:pulse 1.5s infinite;"></div>',
+        html: '<div style="background:#6777EF;width:18px;height:18px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(103,119,239,0.5);animation:pulse 1.5s infinite;"></div>',
         iconSize: [24, 24],
         iconAnchor: [12, 12]
     });
 
     var userIcon = L.divIcon({
         className: 'custom-div-icon',
-        html: '<div style="background:#6c63ff;width:16px;height:16px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(108,99,255,0.5);"></div>',
+        html: '<div style="background:#34395E;width:16px;height:16px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(52,57,94,0.5);"></div>',
         iconSize: [22, 22],
         iconAnchor: [11, 11]
     });
@@ -169,8 +336,8 @@
                     '<div class="popup-meta"><i class="bi bi-clock"></i> ' + s.opening + ' – ' + s.closing + '</div>' +
                     '<span class="popup-status ' + statusClass + '">' + s.status + '</span>' +
                     '<div class="popup-actions">' +
-                        '<button class="popup-btn-directions" onclick="getDirections(' + s.latitude + ',' + s.longitude + ',\'' + s.name.replace(/'/g, "\\'") + '\')">🧭 Directions</button>' +
-                        '<a href="/admin/Station/Map?highlight=' + s.id + '" class="popup-btn-details">📍 Focus</a>' +
+                        '<button class="popup-btn-directions" onclick="getDirections(' + s.latitude + ',' + s.longitude + ',\'' + s.name.replace(/'/g, "\\'") + '\')">Directions</button>' +
+                        '<a href="/admin/Station/Map?highlight=' + s.id + '" class="popup-btn-details">Focus</a>' +
                     '</div>';
 
                 var marker = L.marker([s.latitude, s.longitude], { icon: icon })
@@ -256,7 +423,7 @@
                     });
 
                     routeLine = L.polyline(coords, {
-                        color: '#6c63ff',
+                        color: '#6777EF',
                         weight: 5,
                         opacity: 0.8,
                         dashArray: '10, 8'

@@ -16,8 +16,297 @@
     .modal-dialog {
         z-index: 1051 !important;
     }
+
+    .cq-page {
+        --primary: #6777EF;
+        --text: #353C48;
+        --hover: #34395E;
+        --muted: #96A2B4;
+        --teal: #3DC9B3;
+        --white: #FFFFFF;
+        --bg: #F9F9F9;
+        --field: #F2F2F2;
+        --border: #E3EAEF;
+        --success: #28C76F;
+        --warning: #FFA117;
+        --error: #EA5455;
+        --info: #3ABAF4;
+        color: var(--text);
+        font-size: 15px;
+    }
+
+    .cq-page .card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(52, 57, 94, .06);
+    }
+    .cq-page .card-header {
+        background: var(--white);
+        border-bottom: 1px solid var(--border);
+        border-radius: 12px 12px 0 0;
+        padding: 18px 24px;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+    .cq-page .card-header h4 { margin: 0; font-size: 20px; font-weight: 600; color: var(--text); }
+    .cq-page .card-body { padding: 8px 24px 24px; }
+    .cq-page .header-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+    /* Alerts */
+    .cq-page .alert {
+        border: 1px solid transparent;
+        border-radius: 10px;
+        padding: 12px 16px;
+        margin-bottom: 16px;
+    }
+    .cq-page .alert .alert-body { padding: 0; }
+    .cq-page .alert-success { background: rgba(40, 199, 111, .12); border-color: rgba(40, 199, 111, .3); color: #1B8F50; }
+    .cq-page .alert-danger  { background: rgba(234, 84, 85, .12);  border-color: rgba(234, 84, 85, .3);  color: #EA5455; }
+    .cq-page .alert .close { color: inherit; opacity: .7; min-width: 32px; min-height: 32px; }
+
+    /* Table */
+    .cq-page .table { margin: 0; color: var(--text); }
+    .cq-page .table thead th {
+        background: var(--bg);
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        border-top: 0;
+        border-bottom: 1px solid var(--border);
+        padding: 14px 12px;
+        white-space: nowrap;
+    }
+    .cq-page .table td {
+        padding: 14px 12px;
+        vertical-align: middle;
+        border-top: 1px solid var(--border);
+    }
+    .cq-page .table-striped tbody tr:nth-of-type(odd) { background: var(--bg); }
+    .cq-page .table tbody tr:hover { background: rgba(103, 119, 239, .06); }
+    .cq-page .cell-strong { font-weight: 600; color: var(--text); }
+    .cq-page .cell-money  { font-weight: 600; color: #1B8F50; white-space: nowrap; }
+    .cq-page .cell-empty  { text-align: center; color: var(--muted); padding: 32px 12px !important; }
+
+    /* Pills */
+    .cq-page .status {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 500;
+        white-space: nowrap;
+    }
+    .cq-page .status-pending { background: rgba(255, 161, 23, .14); color: #B86F00; }
+    .cq-page .status-cancel  { background: rgba(234, 84, 85, .12);  color: var(--error); }
+    .cq-page .status-active  { background: rgba(40, 199, 111, .12); color: #1B8F50; }
+    .cq-page .status-plan    { background: rgba(103, 119, 239, .12); color: var(--primary); }
+
+    /* Header buttons */
+    .cq-page .btn-ghost,
+    .cq-page .btn-back {
+        min-height: 44px;
+        padding: 0 18px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-weight: 500;
+        transition: background-color .2s, color .2s, border-color .2s;
+    }
+    .cq-page .btn-ghost {
+        background-color: #FFFFFF !important;
+        border: 1px solid #3DC9B3 !important;
+        color: #353C48 !important;
+    }
+    .cq-page .btn-ghost:hover,
+    .cq-page .btn-ghost:focus,
+    .cq-page .btn-ghost:active {
+        background-color: #3DC9B3 !important;
+        border-color: #3DC9B3 !important;
+        color: #FFFFFF !important;
+    }
+    .cq-page .btn-back {
+        background-color: #FFFFFF !important;
+        border: 1px solid #E3EAEF !important;
+        color: #353C48 !important;
+    }
+    .cq-page .btn-back:hover,
+    .cq-page .btn-back:focus,
+    .cq-page .btn-back:active {
+        background-color: #F9F9F9 !important;
+        border-color: #96A2B4 !important;
+        color: #353C48 !important;
+    }
+    .cq-page .btn-ghost i,
+    .cq-page .btn-back i { color: inherit !important; }
+
+    /* Action icon buttons */
+    .cq-page .icon-btn {
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #FFFFFF !important;
+        border: 1px solid #E3EAEF !important;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color .2s, color .2s, border-color .2s;
+    }
+    .cq-page .icon-btn-info    { color: #3ABAF4 !important; }
+    .cq-page .icon-btn-approve { color: #28C76F !important; }
+    .cq-page .icon-btn-reject  { color: #EA5455 !important; }
+    .cq-page .icon-btn-info:hover,
+    .cq-page .icon-btn-info:focus,
+    .cq-page .icon-btn-info:active    { background-color: #3ABAF4 !important; border-color: #3ABAF4 !important; color: #FFFFFF !important; }
+    .cq-page .icon-btn-approve:hover,
+    .cq-page .icon-btn-approve:focus,
+    .cq-page .icon-btn-approve:active { background-color: #28C76F !important; border-color: #28C76F !important; color: #FFFFFF !important; }
+    .cq-page .icon-btn-reject:hover,
+    .cq-page .icon-btn-reject:focus,
+    .cq-page .icon-btn-reject:active  { background-color: #EA5455 !important; border-color: #EA5455 !important; color: #FFFFFF !important; }
+    .cq-page .icon-btn i { color: inherit !important; }
+
+    .cq-page .mobile-expand-btn { background: transparent; border: 0; color: var(--primary); }
+
+    .cq-page .btn-ghost:focus,
+    .cq-page .btn-back:focus,
+    .cq-page .icon-btn:focus,
+    .cq-page .mobile-expand-btn:focus {
+        outline: 3px solid rgba(103, 119, 239, .35);
+        outline-offset: 2px;
+        box-shadow: none;
+    }
+
+    /* Mobile */
+    @@media (max-width: 767px) {
+        .cq-page .card-header { padding: 16px; }
+        .cq-page .card-body { padding: 8px 16px 16px; }
+        .cq-page .header-actions { width: 100%; flex-direction: column; align-items: stretch; }
+        .cq-page .btn-ghost,
+        .cq-page .btn-back { width: 100%; }
+        .cq-page .icon-btn { width: 44px; height: 44px; }
+    }
 </style>
 
+<style>
+    /* Modal styling (modals are moved to body, so not scoped) */
+    .cq-modal .modal-content {
+        border: 1px solid #E3EAEF;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(52, 57, 94, .15);
+        color: #353C48;
+    }
+    .cq-modal .modal-header {
+        background: #FFFFFF;
+        border-bottom: 1px solid #E3EAEF;
+        border-radius: 12px 12px 0 0;
+        padding: 18px 24px;
+    }
+    .cq-modal .modal-title { font-size: 18px; font-weight: 600; color: #353C48 !important; }
+    .cq-modal .modal-header .close { color: #96A2B4 !important; opacity: 1; text-shadow: none; }
+    .cq-modal .modal-body { padding: 24px; }
+    .cq-modal .modal-footer {
+        border-top: 1px solid #E3EAEF;
+        padding: 16px 24px;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    .cq-modal .modal-footer > * { margin: 0 !important; }
+    .cq-modal .form-label { color: #353C48; font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+    .cq-modal .form-control {
+        background: #F2F2F2;
+        border: 1px solid #E3EAEF;
+        border-radius: 8px;
+        color: #353C48;
+        padding: 10px 14px;
+        font-size: 15px;
+    }
+    .cq-modal .form-control:focus {
+        background: #FFFFFF;
+        border-color: #6777EF;
+        box-shadow: 0 0 0 3px rgba(103, 119, 239, .2);
+        outline: 0;
+    }
+    .cq-modal .impact {
+        background: #F9F9F9;
+        border: 1px solid #E3EAEF;
+        border-radius: 10px;
+        padding: 12px 16px;
+        margin-bottom: 16px;
+        color: #353C48;
+    }
+
+    .cq-modal .btn-approve,
+    .cq-modal .btn-reject,
+    .cq-modal .btn-cancel {
+        min-height: 44px;
+        padding: 0 22px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-weight: 500;
+        transition: background-color .2s, color .2s, border-color .2s;
+    }
+    .cq-modal .btn-approve {
+        background-color: #6777EF !important;
+        border: 1px solid #6777EF !important;
+        color: #FFFFFF !important;
+    }
+    .cq-modal .btn-approve:hover,
+    .cq-modal .btn-approve:focus,
+    .cq-modal .btn-approve:active {
+        background-color: #34395E !important;
+        border-color: #34395E !important;
+        color: #FFFFFF !important;
+    }
+    .cq-modal .btn-reject {
+        background-color: #FFFFFF !important;
+        border: 1px solid #EA5455 !important;
+        color: #EA5455 !important;
+    }
+    .cq-modal .btn-reject:hover,
+    .cq-modal .btn-reject:focus,
+    .cq-modal .btn-reject:active {
+        background-color: #EA5455 !important;
+        border-color: #EA5455 !important;
+        color: #FFFFFF !important;
+    }
+    .cq-modal .btn-cancel {
+        background-color: #FFFFFF !important;
+        border: 1px solid #E3EAEF !important;
+        color: #353C48 !important;
+    }
+    .cq-modal .btn-cancel:hover,
+    .cq-modal .btn-cancel:focus,
+    .cq-modal .btn-cancel:active {
+        background-color: #F9F9F9 !important;
+        border-color: #96A2B4 !important;
+        color: #353C48 !important;
+    }
+    .cq-modal .btn-approve i,
+    .cq-modal .btn-reject i,
+    .cq-modal .btn-cancel i { color: inherit !important; }
+
+    @@media (max-width: 767px) {
+        .cq-modal .modal-header { padding: 16px; }
+        .cq-modal .modal-body { padding: 16px; }
+        .cq-modal .modal-footer { padding: 16px; flex-direction: column-reverse; }
+        .cq-modal .btn-approve,
+        .cq-modal .btn-reject,
+        .cq-modal .btn-cancel { width: 100%; }
+    }
+</style>
+
+<div class="cq-page">
 <div class="row">
     <div class="col-12">
         @if (TempData["Success"] != null)
@@ -25,7 +314,7 @@
             <div class="alert alert-success alert-dismissible show fade">
                 <div class="alert-body">
                     <button class="close" data-dismiss="alert"><span>&times;</span></button>
-                    <i class="fas fa-check-circle mr-2"></i>@TempData["Success"]
+                    @TempData["Success"]
                 </div>
             </div>
         }
@@ -35,25 +324,23 @@
             <div class="alert alert-danger alert-dismissible show fade">
                 <div class="alert-body">
                     <button class="close" data-dismiss="alert"><span>&times;</span></button>
-                    <i class="fas fa-exclamation-circle mr-2"></i>@TempData["Error"]
+                    @TempData["Error"]
                 </div>
             </div>
         }
 
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-                <div class="d-flex align-items-center flex-wrap">
-                    <h4 class="mb-0 mr-3 font-weight-bold" style="color: #212529; font-size: 20px;">Cancellation Requests</h4>
-                    <span class="badge badge-warning font-weight-700 mr-2">@pendingCount Pending</span>
-                    <span class="badge badge-secondary font-weight-700 mr-2">@Model.Count(r => r.Status == "Cancelled") Approved</span>
-                    <span class="badge badge-light font-weight-700">@Model.Count() Total</span>
+                <div class="d-flex align-items-center flex-wrap" style="gap: 10px;">
+                    <h4 class="mb-0">Cancellation Requests</h4>
+                    <span class="status status-pending">@pendingCount Pending</span>
                 </div>
-                <div class="card-header-action mt-2 mt-sm-0 d-flex align-items-center">
-                    <a href="/admin/subscription/subscribers" class="btn btn-outline-info btn-sm mr-2" title="View all owner subscriptions">
-                        <i class="fas fa-users mr-1"></i> Owner Subscriptions
+                <div class="header-actions">
+                    <a href="/admin/subscription/subscribers" class="btn btn-ghost">
+                        <i class="fas fa-users"></i> Owner Subscriptions
                     </a>
-                    <a href="/admin/subscription" class="btn btn-outline-secondary btn-sm">
-                        <i class="fas fa-arrow-left mr-1"></i> Back to Plans
+                    <a href="/admin/subscription" class="btn btn-back">
+                        <i class="fas fa-arrow-left"></i> Back to Plans
                     </a>
                 </div>
             </div>
@@ -62,13 +349,13 @@
                     <table class="table table-striped align-middle table-responsive-cards" id="table-1">
                         <thead>
                             <tr>
-                                <th>Owner / Business</th>
-                                <th>Plan Details</th>
-                                <th>Amount & Payment</th>
-                                <th>Requested At</th>
+                                <th>Owner</th>
+                                <th>Plan</th>
+                                <th>Amount</th>
+                                <th>Requested</th>
                                 <th>Reason</th>
                                 <th>Status</th>
-                                <th class="text-center" data-orderable="false" style="width: 170px;">Actions</th>
+                                <th class="text-center" data-orderable="false">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -81,7 +368,7 @@
                                 <tr>
                                     <td class="col-primary" data-label="Owner">
                                         <div class="d-flex align-items-center justify-content-between">
-                                            <span class="font-weight-600 text-dark font-15">@(req.Owner?.FullName ?? req.Owner?.User?.Fullname ?? "N/A")</span>
+                                            <span class="cell-strong">@(req.Owner?.FullName ?? req.Owner?.User?.Fullname ?? "N/A")</span>
                                             <button type="button" class="mobile-expand-btn ml-2" title="Show details">
                                                 <i data-feather="chevron-down"></i>
                                             </button>
@@ -89,24 +376,22 @@
                                     </td>
                                     <td class="col-secondary" data-label="Plan Details">
                                         <div>
-                                            <span class="badge badge-light text-dark font-weight-600">@(req.Plan?.Name ?? "Plan")</span>
+                                            <span class="status status-plan">@(req.Plan?.Name ?? "Plan")</span>
                                         </div>
                                     </td>
                                     <td class="col-secondary" data-label="Amount & Payment">
                                         <div>
-                                            <span class="font-weight-bold text-success font-15">₹@req.AmountPaid.ToString("N2")</span>
+                                            <span class="cell-money">₹@req.AmountPaid.ToString("N2")</span>
                                         </div>
                                     </td>
                                     <td class="col-secondary" data-label="Requested At">
                                         <div>
-                                            <span class="text-dark font-weight-600">
-                                                @(req.CancellationRequestedAt?.ToString("dd MMM yyyy") ?? req.CreatedAt.ToString("dd MMM yyyy"))
-                                            </span>
+                                            @(req.CancellationRequestedAt?.ToString("dd MMM yyyy") ?? req.CreatedAt.ToString("dd MMM yyyy"))
                                         </div>
                                     </td>
                                     <td class="col-secondary" data-label="Reason" style="max-width: 250px;">
                                         <div>
-                                            <span class="text-dark" title="@req.CancellationReason">
+                                            <span title="@req.CancellationReason">
                                                 @(string.IsNullOrWhiteSpace(req.CancellationReason) ? "No reason specified" : (req.CancellationReason.Length > 35 ? req.CancellationReason.Substring(0, 32) + "..." : req.CancellationReason))
                                             </span>
                                         </div>
@@ -115,35 +400,29 @@
                                         <div>
                                             @if (isPending)
                                             {
-                                                <span class="badge badge-warning font-weight-600">
-                                                    <i class="fas fa-clock mr-1"></i> Pending Review
-                                                </span>
+                                                <span class="status status-pending">Pending</span>
                                             }
                                             else if (isCancelled)
                                             {
-                                                <span class="badge badge-danger font-weight-600">
-                                                    <i class="fas fa-check-circle mr-1"></i> Approved & Cancelled
-                                                </span>
+                                                <span class="status status-cancel">Cancelled</span>
                                             }
                                             else
                                             {
-                                                <span class="badge badge-success font-weight-600">
-                                                    <i class="fas fa-shield-alt mr-1"></i> Active (Rejected)
-                                                </span>
+                                                <span class="status status-active">Rejected</span>
                                             }
                                         </div>
                                     </td>
                                     <td class="text-center col-action" data-label="Actions">
-                                        <div class="d-flex justify-content-center align-items-center flex-wrap">
-                                            <a href="/admin/subscription/cancellation-details/@req.Id" class="btn btn-info btn-sm mr-1 mb-1" title="View Full Details">
-                                                <i class="fas fa-info-circle mr-1"></i> Details
+                                        <div class="d-flex justify-content-center align-items-center flex-wrap" style="gap: 8px;">
+                                            <a href="/admin/subscription/cancellation-details/@req.Id" class="icon-btn icon-btn-info" title="Details">
+                                                <i class="fas fa-info-circle"></i>
                                             </a>
                                             @if (isPending)
                                             {
-                                                <button type="button" class="btn btn-success btn-sm mr-1 mb-1" title="Approve Cancellation & Refund" onclick="openApproveModal('@req.Id', '@req.Plan?.Name', '@req.Owner?.FullName', @req.AmountPaid)">
+                                                <button type="button" class="icon-btn icon-btn-approve" title="Approve" onclick="openApproveModal('@req.Id', '@req.Plan?.Name', '@req.Owner?.FullName', @req.AmountPaid)">
                                                     <i class="fas fa-check"></i>
                                                 </button>
-                                                <button type="button" class="btn btn-danger btn-sm mb-1" title="Reject Cancellation" onclick="openRejectModal('@req.Id', '@req.Plan?.Name', '@req.Owner?.FullName')">
+                                                <button type="button" class="icon-btn icon-btn-reject" title="Reject" onclick="openRejectModal('@req.Id', '@req.Plan?.Name', '@req.Owner?.FullName')">
                                                     <i class="fas fa-times"></i>
                                                 </button>
                                             }
@@ -154,11 +433,7 @@
                             @if (!Model.Any())
                             {
                                 <tr>
-                                    <td colspan="7" class="text-center py-5 text-muted">
-                                        <i class="fas fa-inbox fa-3x mb-3 text-secondary d-block"></i>
-                                        <h5>No Cancellation Requests</h5>
-                                        <p class="mb-0">There are currently no pending or processed subscription cancellation requests.</p>
-                                    </td>
+                                    <td colspan="7" class="cell-empty">No cancellation requests.</td>
                                 </tr>
                             }
                         </tbody>
@@ -168,35 +443,30 @@
         </div>
     </div>
 </div>
+</div>
 
 <!-- ─── Approve Cancellation Modal ─── -->
-<div class="modal fade" id="approveModal" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade cq-modal" id="approveModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <form id="approveForm" method="post" action="">
                 @Html.AntiForgeryToken()
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title text-white"><i class="fas fa-check-circle mr-2"></i>Approve Cancellation & Issue Refund</h5>
-                    <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+                <div class="modal-header">
+                    <h5 class="modal-title">Approve & Refund</h5>
+                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
                 </div>
                 <div class="modal-body">
-                    <p>Are you sure you want to approve this subscription cancellation?</p>
-                    <div class="alert alert-warning">
-                        <strong>Impact:</strong>
-                        <ul class="mb-0 pl-3">
-                            <li>All assigned stations will be taken offline immediately.</li>
-                            <li>The owner will receive a full refund of <strong id="modalApproveAmount"></strong>.</li>
-                            <li>An official confirmation email will be dispatched to the owner.</li>
-                        </ul>
+                    <div class="impact">
+                        Stations go offline and the owner is refunded <strong id="modalApproveAmount"></strong>.
                     </div>
-                    <div class="form-group">
-                        <label class="font-weight-bold">Admin Remarks / Notes to Owner</label>
-                        <textarea name="adminRemarks" class="form-control" rows="3" placeholder="e.g., Cancellation approved as request was placed within the 24h window. Refund processed."></textarea>
+                    <div class="form-group mb-0">
+                        <label class="form-label">Remarks (Optional)</label>
+                        <textarea name="adminRemarks" class="form-control" rows="3"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-success"><i class="fas fa-check mr-1"></i>Confirm & Approve</button>
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-approve"><i class="fas fa-check"></i> Approve</button>
                 </div>
             </form>
         </div>
@@ -204,26 +474,25 @@
 </div>
 
 <!-- ─── Reject Cancellation Modal ─── -->
-<div class="modal fade" id="rejectModal" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade cq-modal" id="rejectModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <form id="rejectForm" method="post" action="">
                 @Html.AntiForgeryToken()
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title text-white"><i class="fas fa-times-circle mr-2"></i>Reject Cancellation Request</h5>
-                    <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+                <div class="modal-header">
+                    <h5 class="modal-title">Reject Request</h5>
+                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
                 </div>
                 <div class="modal-body">
-                    <p>You are rejecting the cancellation request for <strong id="modalRejectPlan"></strong> by <strong id="modalRejectOwner"></strong>.</p>
-                    <div class="form-group">
-                        <label class="font-weight-bold text-danger">Reason for Rejection (Mandatory) *</label>
-                        <textarea name="adminRemarks" class="form-control" rows="3" required placeholder="e.g., Request rejected because station was actively utilized or reason does not meet policy criteria."></textarea>
+                    <p><strong id="modalRejectPlan"></strong> by <strong id="modalRejectOwner"></strong></p>
+                    <div class="form-group mb-0">
+                        <label class="form-label">Remarks *</label>
+                        <textarea name="adminRemarks" class="form-control" rows="3" required></textarea>
                     </div>
-                    <p class="text-muted small">An email explaining the rejection decision will be dispatched to the owner.</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Back</button>
-                    <button type="submit" class="btn btn-danger"><i class="fas fa-ban mr-1"></i>Confirm Rejection</button>
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal">Back</button>
+                    <button type="submit" class="btn btn-reject"><i class="fas fa-ban"></i> Reject</button>
                 </div>
             </form>
         </div>

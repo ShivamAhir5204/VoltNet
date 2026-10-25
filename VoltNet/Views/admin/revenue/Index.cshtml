@@ -4,249 +4,457 @@
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<div class="row">
-    <div class="col-12">
-        <div class="page-title-box d-flex align-items-center justify-content-between mb-4">
-            <div>
-                <h4 class="mb-1 text-primary"><i class="fas fa-chart-line mr-2"></i>Platform Revenue & Financial Intelligence</h4>
-                <p class="text-muted mb-0">Consolidated Gross Merchandise Value (GMV), network charging monetization, and B2B SaaS owner subscriptions.</p>
-            </div>
-            <div>
-                <a href="/admin/revenue/analytics" class="btn btn-primary btn-lg shadow-sm mr-2">
-                    <i class="fas fa-sliders-h mr-2"></i>Analyst Studio & Custom Date Review
-                </a>
-                <a href="/admin/revenue/export" class="btn btn-outline-success btn-lg shadow-sm">
-                    <i class="fas fa-file-csv mr-2"></i>Export Transactions
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
+<style>
+    .rv-page {
+        --primary: #6777EF;
+        --text: #353C48;
+        --hover: #34395E;
+        --muted: #96A2B4;
+        --teal: #3DC9B3;
+        --white: #FFFFFF;
+        --bg: #F9F9F9;
+        --field: #F2F2F2;
+        --border: #E3EAEF;
+        --success: #28C76F;
+        --warning: #FFA117;
+        --error: #EA5455;
+        --info: #3ABAF4;
+        color: var(--text);
+        font-size: 15px;
+    }
 
-<!-- Macro KPI Overview Cards -->
-<div class="row">
-    <!-- Total GMV -->
-    <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12 mb-4">
-        <div class="card card-statistic-1 border-0 shadow-sm" style="border-radius:12px; background:linear-gradient(135deg, #0575E6 0%, #00F260 100%); color:#fff;">
-            <div class="card-icon" style="background:rgba(255,255,255,0.2); border-radius:12px; margin:15px;">
-                <i class="fas fa-wallet fa-2x text-white"></i>
-            </div>
-            <div class="card-wrap p-3">
-                <div class="card-header p-0" style="color:rgba(255,255,255,0.85); font-size:13px; text-transform:uppercase; letter-spacing:0.5px;">Platform Total GMV</div>
-                <div class="card-body p-0 mt-1 font-weight-bold" style="font-size:26px; color:#fff;">₹@Model.TotalPlatformGMV.ToString("N0")</div>
-                <small style="color:rgba(255,255,255,0.85);"><i class="fas fa-arrow-up mr-1"></i>₹@Model.ThisMonthGMV.ToString("N0") this month</small>
-            </div>
+    /* Header */
+    .rv-page .rv-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+    .rv-page .rv-head h4 {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 600;
+        color: var(--text);
+    }
+    .rv-page .rv-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    /* Buttons */
+    .rv-page .btn-main,
+    .rv-page .btn-ghost {
+        min-height: 44px;
+        padding: 0 20px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-weight: 500;
+        transition: background-color .2s, color .2s, border-color .2s;
+    }
+    .rv-page .btn-main {
+        background-color: #6777EF !important;
+        border: 1px solid #6777EF !important;
+        color: #FFFFFF !important;
+    }
+    .rv-page .btn-main:hover,
+    .rv-page .btn-main:focus,
+    .rv-page .btn-main:active {
+        background-color: #34395E !important;
+        border-color: #34395E !important;
+        color: #FFFFFF !important;
+    }
+    .rv-page .btn-ghost {
+        background-color: #FFFFFF !important;
+        border: 1px solid #3DC9B3 !important;
+        color: #353C48 !important;
+    }
+    .rv-page .btn-ghost:hover,
+    .rv-page .btn-ghost:focus,
+    .rv-page .btn-ghost:active {
+        background-color: #3DC9B3 !important;
+        border-color: #3DC9B3 !important;
+        color: #FFFFFF !important;
+    }
+    .rv-page .btn-main i,
+    .rv-page .btn-ghost i { color: inherit !important; }
+    .rv-page .btn-main:focus,
+    .rv-page .btn-ghost:focus {
+        outline: 3px solid rgba(103, 119, 239, .35);
+        outline-offset: 2px;
+        box-shadow: none;
+    }
+
+    /* Cards */
+    .rv-page .card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(52, 57, 94, .06);
+        margin-bottom: 0;
+    }
+    .rv-page .card-header {
+        background: var(--white);
+        border-bottom: 1px solid var(--border);
+        border-radius: 12px 12px 0 0;
+        padding: 16px 20px;
+        min-height: 0;
+    }
+    .rv-page .card-header h5 {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 600;
+        color: var(--text);
+    }
+    .rv-page .card-body { padding: 20px; }
+    .rv-page .card-body.flush { padding: 0; }
+
+    /* KPI cards */
+    .rv-page .kpi {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 20px;
+        height: 100%;
+    }
+    .rv-page .kpi-icon {
+        flex: 0 0 52px;
+        width: 52px;
+        height: 52px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+    }
+    .rv-page .kpi-indigo .kpi-icon { background: rgba(103, 119, 239, .12); color: var(--primary); }
+    .rv-page .kpi-teal   .kpi-icon { background: rgba(61, 201, 179, .15);  color: var(--teal); }
+    .rv-page .kpi-info   .kpi-icon { background: rgba(58, 186, 244, .14);  color: var(--info); }
+    .rv-page .kpi-warn   .kpi-icon { background: rgba(255, 161, 23, .14);  color: var(--warning); }
+    .rv-page .kpi-text { min-width: 0; }
+    .rv-page .kpi-label {
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+    }
+    .rv-page .kpi-value {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--text);
+        line-height: 1.3;
+        word-break: break-word;
+    }
+    .rv-page .kpi-note { color: var(--muted); font-size: 13px; }
+
+    /* Chart */
+    .rv-page .chart-box { position: relative; height: 340px; }
+
+    /* Tables */
+    .rv-page .table { margin: 0; color: var(--text); }
+    .rv-page .table thead th {
+        background: var(--bg);
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        border-top: 0;
+        border-bottom: 1px solid var(--border);
+        padding: 14px 12px;
+        white-space: nowrap;
+    }
+    .rv-page .table td {
+        padding: 14px 12px;
+        vertical-align: middle;
+        border-top: 1px solid var(--border);
+    }
+    .rv-page .table tbody tr:hover { background: rgba(103, 119, 239, .06); }
+
+    /* Side spacing for tables inside flush cards */
+    /* Side spacing for tables inside flush cards (!important beats the template) */
+.rv-page .table th:first-child,
+.rv-page .table td:first-child { padding-left: 24px !important; }
+.rv-page .table th:last-child,
+.rv-page .table td:last-child  { padding-right: 24px !important; }
+    .rv-page .cell-strong { font-weight: 600; color: var(--text); }
+    .rv-page .cell-money  { font-weight: 600; color: #1B8F50; white-space: nowrap; }
+    .rv-page .cell-kwh    { font-weight: 600; color: var(--info); }
+    .rv-page .cell-empty  { text-align: center; color: var(--muted); padding: 24px 12px !important; }
+    .rv-page .cell-sub    { color: var(--muted); font-size: 12px; }
+
+    /* Pills */
+    .rv-page .pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 28px;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+    .rv-page .pill-gold    { background: rgba(255, 161, 23, .16); color: #B86F00; }
+    .rv-page .pill-silver  { background: var(--field); color: var(--text); }
+    .rv-page .pill-bronze  { background: rgba(234, 84, 85, .12); color: var(--error); }
+    .rv-page .pill-plain   { background: var(--bg); color: var(--muted); }
+    .rv-page .pill-count   { background: var(--field); color: var(--text); }
+    .rv-page .pill-success { background: rgba(40, 199, 111, .12); color: #1B8F50; }
+
+    /* Subscription health */
+    .rv-page .health-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        font-weight: 600;
+    }
+    .rv-page .progress {
+        height: 10px;
+        border-radius: 5px;
+        background: var(--field);
+        overflow: hidden;
+    }
+    .rv-page .progress .bar-active    { background-color: #28C76F; }
+    .rv-page .progress .bar-expired   { background-color: #FFA117; }
+    .rv-page .progress .bar-cancelled { background-color: #EA5455; }
+    .rv-page .health-stats { display: flex; text-align: center; margin-top: 18px; }
+    .rv-page .health-stats > div { flex: 1; }
+    .rv-page .health-stats .lbl { color: var(--muted); font-size: 13px; }
+    .rv-page .health-stats .num { font-size: 20px; font-weight: 700; margin-top: 2px; }
+    .rv-page .num-active    { color: #1B8F50; }
+    .rv-page .num-expired   { color: #B86F00; }
+    .rv-page .num-cancelled { color: var(--error); }
+
+    /* Spacing */
+    .rv-page .gap-b { margin-bottom: 24px; }
+
+    /* Mobile */
+    @@media (max-width: 767px) {
+        .rv-page .rv-head h4 { font-size: 20px; }
+        .rv-page .rv-actions { width: 100%; flex-direction: column; }
+        .rv-page .btn-main,
+        .rv-page .btn-ghost { width: 100%; }
+        .rv-page .card-header { padding: 14px 16px; }
+        .rv-page .card-body { padding: 16px; }
+        .rv-page .card-body.flush { padding: 0; }
+        .rv-page .kpi { padding: 16px; }
+        .rv-page .kpi-value { font-size: 22px; }
+        .rv-page .chart-box { height: 280px; }
+       .rv-page .table th:first-child,
+.rv-page .table td:first-child { padding-left: 16px !important; }
+.rv-page .table th:last-child,
+.rv-page .table td:last-child  { padding-right: 16px !important; }
+    }
+</style>
+
+<div class="rv-page">
+
+    <div class="rv-head">
+        <h4>Platform Revenue</h4>
+        <div class="rv-actions">
+            <a href="/admin/revenue/analytics" class="btn btn-main">
+                <i class="fas fa-sliders-h"></i> Analyst Studio
+            </a>
+            <a href="/admin/revenue/export" class="btn btn-ghost">
+                <i class="fas fa-file-csv"></i> Export
+            </a>
         </div>
     </div>
 
-    <!-- Charging Revenue -->
-    <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12 mb-4">
-        <div class="card card-statistic-1 border-0 shadow-sm" style="border-radius:12px; background:linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color:#fff;">
-            <div class="card-icon" style="background:rgba(255,255,255,0.2); border-radius:12px; margin:15px;">
-                <i class="fas fa-charging-station fa-2x text-white"></i>
-            </div>
-            <div class="card-wrap p-3">
-                <div class="card-header p-0" style="color:rgba(255,255,255,0.85); font-size:13px; text-transform:uppercase; letter-spacing:0.5px;">Charging Revenue</div>
-                <div class="card-body p-0 mt-1 font-weight-bold" style="font-size:26px; color:#fff;">₹@Model.TotalBookingRevenue.ToString("N0")</div>
-                <small style="color:rgba(255,255,255,0.85);"><i class="fas fa-bolt mr-1"></i>@Model.TotalBookingCount bookings | @Model.TotalEnergyKwh.ToString("N0") kWh</small>
-            </div>
-        </div>
-    </div>
-
-    <!-- Subscription Revenue -->
-    <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12 mb-4">
-        <div class="card card-statistic-1 border-0 shadow-sm" style="border-radius:12px; background:linear-gradient(135deg, #8E2DE2 0%, #4A00E0 100%); color:#fff;">
-            <div class="card-icon" style="background:rgba(255,255,255,0.2); border-radius:12px; margin:15px;">
-                <i class="fas fa-crown fa-2x text-white"></i>
-            </div>
-            <div class="card-wrap p-3">
-                <div class="card-header p-0" style="color:rgba(255,255,255,0.85); font-size:13px; text-transform:uppercase; letter-spacing:0.5px;">SaaS Subscriptions</div>
-                <div class="card-body p-0 mt-1 font-weight-bold" style="font-size:26px; color:#fff;">₹@Model.TotalSubscriptionRevenue.ToString("N0")</div>
-                <small style="color:rgba(255,255,255,0.85);"><i class="fas fa-check-circle mr-1"></i>@Model.ActiveSubscriptionsCount Active | @Model.ExpiredSubscriptionsCount Expired</small>
-            </div>
-        </div>
-    </div>
-
-    <!-- Stations Footprint -->
-    <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12 col-12 mb-4">
-        <div class="card card-statistic-1 border-0 shadow-sm" style="border-radius:12px; background:linear-gradient(135deg, #f857a6 0%, #ff5858 100%); color:#fff;">
-            <div class="card-icon" style="background:rgba(255,255,255,0.2); border-radius:12px; margin:15px;">
-                <i class="fas fa-network-wired fa-2x text-white"></i>
-            </div>
-            <div class="card-wrap p-3">
-                <div class="card-header p-0" style="color:rgba(255,255,255,0.85); font-size:13px; text-transform:uppercase; letter-spacing:0.5px;">Network Footprint</div>
-                <div class="card-body p-0 mt-1 font-weight-bold" style="font-size:26px; color:#fff;">@Model.TotalStationsCount Stations</div>
-                <small style="color:rgba(255,255,255,0.85);"><i class="fas fa-city mr-1"></i>Spanning @Model.TopCities.Count+ prime EV cities</small>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- 12-Month Multi-Stream Trend Chart -->
-<div class="card shadow-sm border-0 mb-4" style="border-radius:12px;">
-    <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
-        <div>
-            <h5 class="card-title mb-0 text-dark font-weight-bold"><i class="fas fa-chart-area text-primary mr-2"></i>12-Month Platform Revenue Progression</h5>
-            <small class="text-muted">Breakdown of Station Charging collections vs B2B SaaS Subscription plans over the past 12 months</small>
-        </div>
-        <div class="d-none d-md-block">
-            <span class="badge badge-success px-3 py-2 mr-1"><i class="fas fa-bolt mr-1"></i>Charging Revenue</span>
-            <span class="badge badge-primary px-3 py-2"><i class="fas fa-credit-card mr-1"></i>Owner Subscriptions</span>
-        </div>
-    </div>
-    <div class="card-body">
-        <div style="position: relative; height: 340px;">
-            <canvas id="platformTrendChart"></canvas>
-        </div>
-    </div>
-</div>
-
-<!-- Two Column Breakdown: Top 10 Stations & Top 5 Cities -->
-<div class="row">
-    <!-- Top 10 Stations -->
-    <div class="col-lg-7 col-12 mb-4">
-        <div class="card shadow-sm border-0 h-100" style="border-radius:12px;">
-            <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
-                <div>
-                    <h5 class="card-title mb-0 text-dark font-weight-bold"><i class="fas fa-medal text-warning mr-2"></i>Top 10 Earning Stations</h5>
-                    <small class="text-muted">Highest grossing charging locations on VoltNet</small>
+    <!-- KPI cards -->
+    <div class="row">
+        <div class="col-xl-3 col-md-6 col-12 gap-b">
+            <div class="card kpi kpi-indigo">
+                <div class="kpi-icon"><i class="fas fa-wallet"></i></div>
+                <div class="kpi-text">
+                    <div class="kpi-label">Total GMV</div>
+                    <div class="kpi-value">₹@Model.TotalPlatformGMV.ToString("N0")</div>
+                    <div class="kpi-note">₹@Model.ThisMonthGMV.ToString("N0") this month</div>
                 </div>
-                <span class="badge badge-warning text-dark font-weight-bold px-2 py-1">Top Performers</span>
             </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="thead-light">
-                            <tr>
-                                <th style="width: 40px;">#</th>
-                                <th>Station & City</th>
-                                <th class="text-center">Bookings</th>
-                                <th class="text-center">Energy (kWh)</th>
-                                <th class="text-right">Total Revenue</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (!Model.TopStations.Any())
-                            {
+        </div>
+
+        <div class="col-xl-3 col-md-6 col-12 gap-b">
+            <div class="card kpi kpi-teal">
+                <div class="kpi-icon"><i class="fas fa-charging-station"></i></div>
+                <div class="kpi-text">
+                    <div class="kpi-label">Charging Revenue</div>
+                    <div class="kpi-value">₹@Model.TotalBookingRevenue.ToString("N0")</div>
+                    <div class="kpi-note">@Model.TotalBookingCount bookings | @Model.TotalEnergyKwh.ToString("N0") kWh</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 col-12 gap-b">
+            <div class="card kpi kpi-info">
+                <div class="kpi-icon"><i class="fas fa-crown"></i></div>
+                <div class="kpi-text">
+                    <div class="kpi-label">Subscriptions</div>
+                    <div class="kpi-value">₹@Model.TotalSubscriptionRevenue.ToString("N0")</div>
+                    <div class="kpi-note">@Model.ActiveSubscriptionsCount Active | @Model.ExpiredSubscriptionsCount Expired</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 col-12 gap-b">
+            <div class="card kpi kpi-warn">
+                <div class="kpi-icon"><i class="fas fa-network-wired"></i></div>
+                <div class="kpi-text">
+                    <div class="kpi-label">Stations</div>
+                    <div class="kpi-value">@Model.TotalStationsCount</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 12-month chart -->
+    <div class="card gap-b">
+        <div class="card-header">
+            <h5>12-Month Revenue</h5>
+        </div>
+        <div class="card-body">
+            <div class="chart-box">
+                <canvas id="platformTrendChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Top 10 stations -->
+        <div class="col-lg-7 col-12 gap-b">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5>Top 10 Stations</h5>
+                </div>
+                <div class="card-body flush">
+                    <div class="table-responsive">
+                        <table class="table no-datatable">
+                            <thead>
                                 <tr>
-                                    <td colspan="5" class="text-center py-4 text-muted">
-                                        <i class="fas fa-info-circle mr-1"></i> No completed sessions recorded yet.
-                                    </td>
+                                    <th class="text-center" style="width: 60px;">#</th>
+                                    <th>Station</th>
+                                    <th class="text-center">Bookings</th>
+                                    <th class="text-center">kWh</th>
+                                    <th class="text-right">Revenue</th>
                                 </tr>
-                            }
-                            else
-                            {
-                                int rank = 1;
-                                @foreach (var st in Model.TopStations)
+                            </thead>
+                            <tbody>
+                                @if (!Model.TopStations.Any())
                                 {
                                     <tr>
-                                        <td class="font-weight-bold text-center">
-                                            @if (rank == 1) { <span class="badge badge-warning text-dark">1</span> }
-                                            else if (rank == 2) { <span class="badge badge-secondary text-dark">2</span> }
-                                            else if (rank == 3) { <span class="badge badge-danger">3</span> }
-                                            else { <span class="text-muted">@rank</span> }
-                                        </td>
-                                        <td>
-                                            <div class="font-weight-bold text-dark">@st.StationName</div>
-                                            <small class="text-muted"><i class="fas fa-map-marker-alt text-danger mr-1"></i>@st.City</small>
-                                        </td>
-                                        <td class="text-center font-weight-bold">@st.TotalBookings</td>
-                                        <td class="text-center font-weight-bold text-info">@st.TotalEnergyKwh.ToString("N1")</td>
-                                        <td class="text-right font-weight-bold text-success font-size-15">₹@st.TotalRevenue.ToString("N2")</td>
+                                        <td colspan="5" class="cell-empty">No completed sessions yet.</td>
                                     </tr>
-                                    rank++;
                                 }
-                            }
-                        </tbody>
-                    </table>
+                                else
+                                {
+                                    int rank = 1;
+                                    @foreach (var st in Model.TopStations)
+                                    {
+                                        <tr>
+                                            <td class="text-center">
+                                                @if (rank == 1) { <span class="pill pill-gold">1</span> }
+                                                else if (rank == 2) { <span class="pill pill-silver">2</span> }
+                                                else if (rank == 3) { <span class="pill pill-bronze">3</span> }
+                                                else { <span class="pill pill-plain">@rank</span> }
+                                            </td>
+                                            <td>
+                                                <div class="cell-strong">@st.StationName</div>
+                                                <div class="cell-sub">@st.City</div>
+                                            </td>
+                                            <td class="text-center cell-strong">@st.TotalBookings</td>
+                                            <td class="text-center cell-kwh">@st.TotalEnergyKwh.ToString("N1")</td>
+                                            <td class="text-right cell-money">₹@st.TotalRevenue.ToString("N2")</td>
+                                        </tr>
+                                        rank++;
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Top 5 Cities & Subscription Health -->
-    <div class="col-lg-5 col-12 mb-4">
-        <!-- Top 5 Cities -->
-        <div class="card shadow-sm border-0 mb-4" style="border-radius:12px;">
-            <div class="card-header bg-white border-0 py-3">
-                <h5 class="card-title mb-0 text-dark font-weight-bold"><i class="fas fa-city text-info mr-2"></i>Top 5 Earning Cities</h5>
-                <small class="text-muted">Metros driving EV charging volume</small>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="thead-light">
-                            <tr>
-                                <th>City</th>
-                                <th class="text-center">Stations</th>
-                                <th class="text-center">Bookings</th>
-                                <th class="text-right">Revenue</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (!Model.TopCities.Any())
-                            {
+        <div class="col-lg-5 col-12">
+            <!-- Top 5 cities -->
+            <div class="card gap-b">
+                <div class="card-header">
+                    <h5>Top 5 Cities</h5>
+                </div>
+                <div class="card-body flush">
+                    <div class="table-responsive">
+                        <table class="table no-datatable">
+                            <thead>
                                 <tr>
-                                    <td colspan="4" class="text-center py-4 text-muted">
-                                        <i class="fas fa-info-circle mr-1"></i> No city revenue aggregated yet.
-                                    </td>
+                                    <th>City</th>
+                                    <th class="text-center">Stations</th>
+                                    <th class="text-center">Bookings</th>
+                                    <th class="text-right">Revenue</th>
                                 </tr>
-                            }
-                            else
-                            {
-                                @foreach (var city in Model.TopCities)
+                            </thead>
+                            <tbody>
+                                @if (!Model.TopCities.Any())
                                 {
                                     <tr>
-                                        <td class="font-weight-bold text-dark">
-                                            <i class="fas fa-building text-primary mr-2"></i>@city.City
-                                        </td>
-                                        <td class="text-center"><span class="badge badge-light border">@city.StationCount</span></td>
-                                        <td class="text-center font-weight-bold">@city.TotalBookings</td>
-                                        <td class="text-right font-weight-bold text-success">₹@city.TotalRevenue.ToString("N0")</td>
+                                        <td colspan="4" class="cell-empty">No city revenue yet.</td>
                                     </tr>
                                 }
-                            }
-                        </tbody>
-                    </table>
+                                else
+                                {
+                                    @foreach (var city in Model.TopCities)
+                                    {
+                                        <tr>
+                                            <td class="cell-strong">@city.City</td>
+                                            <td class="text-center"><span class="pill pill-count">@city.StationCount</span></td>
+                                            <td class="text-center cell-strong">@city.TotalBookings</td>
+                                            <td class="text-right cell-money">₹@city.TotalRevenue.ToString("N0")</td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- SaaS Subscription Health Breakdown -->
-        <div class="card shadow-sm border-0" style="border-radius:12px;">
-            <div class="card-header bg-white border-0 py-3">
-                <h5 class="card-title mb-0 text-dark font-weight-bold"><i class="fas fa-sliders-h text-primary mr-2"></i>Owner SaaS Subscription Health</h5>
-                <small class="text-muted">Subscription status & recurring monetization lifecycle</small>
-            </div>
-            <div class="card-body">
-                <div class="d-flex justify-content-between mb-2">
-                    <span class="text-muted font-weight-bold">Active Station Owners</span>
-                    <span class="badge badge-success font-weight-bold">@Model.ActiveSubscriptionsCount Active</span>
+            <!-- Subscription health -->
+            <div class="card">
+                <div class="card-header">
+                    <h5>Subscription Health</h5>
                 </div>
-                <div class="progress mb-3" style="height: 10px; border-radius: 5px;">
+                <div class="card-body">
                     @{
                         var totalSubs = Math.Max(1, Model.ActiveSubscriptionsCount + Model.ExpiredSubscriptionsCount + Model.CancelledSubscriptionsCount);
                         var activePct = Math.Round(((double)Model.ActiveSubscriptionsCount / totalSubs) * 100);
                         var expiredPct = Math.Round(((double)Model.ExpiredSubscriptionsCount / totalSubs) * 100);
                         var cancelledPct = Math.Round(((double)Model.CancelledSubscriptionsCount / totalSubs) * 100);
                     }
-                    <div class="progress-bar bg-success" role="progressbar" style="width: @activePct%;" title="Active"></div>
-                    <div class="progress-bar bg-warning" role="progressbar" style="width: @expiredPct%;" title="Expired"></div>
-                    <div class="progress-bar bg-danger" role="progressbar" style="width: @cancelledPct%;" title="Cancelled"></div>
-                </div>
+                    <div class="health-top">
+                        <span>Active Owners</span>
+                        <span class="pill pill-success">@Model.ActiveSubscriptionsCount</span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar bar-active" role="progressbar" style="width: @activePct%;" title="Active"></div>
+                        <div class="progress-bar bar-expired" role="progressbar" style="width: @expiredPct%;" title="Expired"></div>
+                        <div class="progress-bar bar-cancelled" role="progressbar" style="width: @cancelledPct%;" title="Cancelled"></div>
+                    </div>
 
-                <div class="row text-center mt-3">
-                    <div class="col-4">
-                        <div class="text-muted small">Active</div>
-                        <div class="font-weight-bold text-success font-size-18 mt-1">@Model.ActiveSubscriptionsCount</div>
-                    </div>
-                    <div class="col-4">
-                        <div class="text-muted small">Expired</div>
-                        <div class="font-weight-bold text-warning font-size-18 mt-1">@Model.ExpiredSubscriptionsCount</div>
-                    </div>
-                    <div class="col-4">
-                        <div class="text-muted small">Cancelled</div>
-                        <div class="font-weight-bold text-danger font-size-18 mt-1">@Model.CancelledSubscriptionsCount</div>
+                    <div class="health-stats">
+                        <div>
+                            <div class="lbl">Active</div>
+                            <div class="num num-active">@Model.ActiveSubscriptionsCount</div>
+                        </div>
+                        <div>
+                            <div class="lbl">Expired</div>
+                            <div class="num num-expired">@Model.ExpiredSubscriptionsCount</div>
+                        </div>
+                        <div>
+                            <div class="lbl">Cancelled</div>
+                            <div class="num num-cancelled">@Model.CancelledSubscriptionsCount</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -272,32 +480,33 @@
                         datasets: [
                             {
                                 type: 'line',
-                                label: 'Total Platform GMV (₹)',
+                                label: 'Total GMV (₹)',
                                 data: totalData,
-                                borderColor: '#ff9f43',
+                                borderColor: '#34395E',
                                 backgroundColor: 'transparent',
                                 borderWidth: 3,
                                 tension: 0.3,
                                 pointRadius: 4,
                                 pointHoverRadius: 7,
+                                pointBackgroundColor: '#34395E',
                                 order: 1
                             },
                             {
                                 type: 'bar',
-                                label: 'Station Charging Revenue (₹)',
+                                label: 'Charging Revenue (₹)',
                                 data: chargingData,
-                                backgroundColor: 'rgba(46, 204, 113, 0.75)',
-                                borderColor: 'rgba(46, 204, 113, 1)',
+                                backgroundColor: 'rgba(61, 201, 179, 0.8)',
+                                borderColor: '#3DC9B3',
                                 borderWidth: 1,
                                 borderRadius: 4,
                                 order: 2
                             },
                             {
                                 type: 'bar',
-                                label: 'Owner Subscriptions (₹)',
+                                label: 'Subscriptions (₹)',
                                 data: subscriptionData,
-                                backgroundColor: 'rgba(54, 162, 235, 0.75)',
-                                borderColor: 'rgba(54, 162, 235, 1)',
+                                backgroundColor: 'rgba(103, 119, 239, 0.8)',
+                                borderColor: '#6777EF',
                                 borderWidth: 1,
                                 borderRadius: 4,
                                 order: 3
@@ -316,7 +525,8 @@
                                 position: 'top',
                                 labels: {
                                     usePointStyle: true,
-                                    padding: 15
+                                    padding: 15,
+                                    color: '#353C48'
                                 }
                             },
                             tooltip: {
@@ -329,11 +539,14 @@
                         },
                         scales: {
                             x: {
-                                grid: { display: false }
+                                grid: { display: false },
+                                ticks: { color: '#96A2B4' }
                             },
                             y: {
                                 beginAtZero: true,
+                                grid: { color: '#E3EAEF' },
                                 ticks: {
+                                    color: '#96A2B4',
                                     callback: function (val) {
                                         return '₹' + (val >= 1000 ? (val / 1000).toLocaleString('en-IN') + 'k' : val);
                                     }

@@ -4,192 +4,479 @@
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
+<style>
+    .oa-page {
+        --primary: #6777EF;
+        --text: #353C48;
+        --hover: #34395E;
+        --muted: #96A2B4;
+        --teal: #3DC9B3;
+        --white: #FFFFFF;
+        --bg: #F9F9F9;
+        --field: #F2F2F2;
+        --border: #E3EAEF;
+        --success: #28C76F;
+        --warning: #FFA117;
+        --error: #EA5455;
+        --info: #3ABAF4;
+        color: var(--text);
+        font-size: 15px;
+    }
+
+    .oa-page .card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(52, 57, 94, .06);
+    }
+    .oa-page .card-header {
+        background: var(--white);
+        border-bottom: 1px solid var(--border);
+        border-radius: 12px 12px 0 0;
+        padding: 18px 24px;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+    .oa-page .card-header h4 { margin: 0; font-size: 20px; font-weight: 600; color: var(--text); }
+    .oa-page .card-body { padding: 24px; }
+    .oa-page .divider { border: 0; border-top: 1px solid var(--border); margin: 24px 0; }
+
+    /* Detail tiles */
+    .oa-page .detail-item {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 14px 16px;
+        height: 100%;
+    }
+    .oa-page .detail-label {
+        display: block;
+        margin-bottom: 4px;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 500;
+    }
+    .oa-page .detail-value {
+        display: block;
+        color: var(--text);
+        font-size: 16px;
+        font-weight: 600;
+        word-break: break-word;
+    }
+
+    /* Section head */
+    .oa-page .docs-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+    .oa-page .docs-head h5 { margin: 0; font-size: 17px; font-weight: 600; color: var(--text); }
+
+    /* Pills */
+    .oa-page .status {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 500;
+        white-space: nowrap;
+    }
+    .oa-page .status-warn    { background: rgba(255, 161, 23, .14); color: #B86F00; }
+    .oa-page .status-success { background: rgba(40, 199, 111, .12); color: #1B8F50; }
+    .oa-page .status-error   { background: rgba(234, 84, 85, .12);  color: var(--error); }
+    .oa-page .status-plan    { background: rgba(103, 119, 239, .12); color: var(--primary); }
+    .oa-page .status-plain   { background: var(--field); color: var(--text); }
+
+    /* Alert */
+    .oa-page .alert-warning {
+        background: rgba(255, 161, 23, .12);
+        border: 1px solid rgba(255, 161, 23, .3);
+        border-radius: 10px;
+        color: #B86F00;
+        padding: 12px 16px;
+        margin: 0;
+    }
+
+    /* Documents table */
+    .oa-page .table-wrap { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .oa-page .table { margin: 0; color: var(--text); }
+    .oa-page .table thead th {
+        background: var(--bg);
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        border-top: 0;
+        border-bottom: 1px solid var(--border);
+        padding: 14px 12px;
+        white-space: nowrap;
+    }
+    .oa-page .table td {
+        padding: 14px 12px;
+        vertical-align: middle;
+        border-top: 1px solid var(--border);
+    }
+    .oa-page .table tbody tr:first-child td { border-top: 0; }
+    .oa-page .table tbody tr:hover { background: rgba(103, 119, 239, .06); }
+    .oa-page .cell-strong { font-weight: 600; color: var(--text); }
+    .oa-page .cell-sub    { color: var(--muted); font-size: 13px; word-break: break-all; }
+    .oa-page .cell-error  { color: var(--error); font-size: 13px; font-weight: 600; margin-top: 4px; }
+    .oa-page .mobile-expand-btn { background: transparent; border: 0; color: var(--primary); }
+
+    /* Side spacing (desktop only, cards on mobile) */
+    @@media (min-width: 768px) {
+        .oa-page .table th:first-child,
+        .oa-page .table td:first-child { padding-left: 24px !important; }
+        .oa-page .table th:last-child,
+        .oa-page .table td:last-child  { padding-right: 24px !important; }
+    }
+
+    /* Buttons */
+    .oa-page .btn-main,
+    .oa-page .btn-reject,
+    .oa-page .btn-back {
+        min-height: 44px;
+        padding: 0 22px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-weight: 500;
+        transition: background-color .2s, color .2s, border-color .2s;
+    }
+    .oa-page .btn-main {
+        background-color: #6777EF !important;
+        border: 1px solid #6777EF !important;
+        color: #FFFFFF !important;
+    }
+    .oa-page .btn-main:hover,
+    .oa-page .btn-main:focus,
+    .oa-page .btn-main:active {
+        background-color: #34395E !important;
+        border-color: #34395E !important;
+        color: #FFFFFF !important;
+    }
+    .oa-page .btn-reject {
+        background-color: #FFFFFF !important;
+        border: 1px solid #EA5455 !important;
+        color: #EA5455 !important;
+    }
+    .oa-page .btn-reject:hover,
+    .oa-page .btn-reject:focus,
+    .oa-page .btn-reject:active {
+        background-color: #EA5455 !important;
+        border-color: #EA5455 !important;
+        color: #FFFFFF !important;
+    }
+    .oa-page .btn-back {
+        background-color: #FFFFFF !important;
+        border: 1px solid #E3EAEF !important;
+        color: #353C48 !important;
+    }
+    .oa-page .btn-back:hover,
+    .oa-page .btn-back:focus,
+    .oa-page .btn-back:active {
+        background-color: #F9F9F9 !important;
+        border-color: #96A2B4 !important;
+        color: #353C48 !important;
+    }
+    .oa-page .btn-main i,
+    .oa-page .btn-reject i,
+    .oa-page .btn-back i { color: inherit !important; }
+
+    /* Document row actions */
+    .oa-page .doc-actions { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; }
+    .oa-page .doc-actions form { margin: 0; }
+    .oa-page .icon-btn {
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #FFFFFF !important;
+        border: 1px solid #E3EAEF !important;
+        border-radius: 8px;
+        cursor: pointer;
+        margin: 0 !important;
+        transition: background-color .2s, color .2s, border-color .2s;
+    }
+    .oa-page .icon-btn-open    { color: #34395E !important; }
+    .oa-page .icon-btn-approve { color: #28C76F !important; }
+    .oa-page .icon-btn-reject  { color: #EA5455 !important; }
+    .oa-page .icon-btn-open:hover,
+    .oa-page .icon-btn-open:focus,
+    .oa-page .icon-btn-open:active    { background-color: #34395E !important; border-color: #34395E !important; color: #FFFFFF !important; }
+    .oa-page .icon-btn-approve:hover,
+    .oa-page .icon-btn-approve:focus,
+    .oa-page .icon-btn-approve:active { background-color: #28C76F !important; border-color: #28C76F !important; color: #FFFFFF !important; }
+    .oa-page .icon-btn-reject:hover,
+    .oa-page .icon-btn-reject:focus,
+    .oa-page .icon-btn-reject:active  { background-color: #EA5455 !important; border-color: #EA5455 !important; color: #FFFFFF !important; }
+    .oa-page .icon-btn i { color: inherit !important; }
+
+    .oa-page .btn-preview-doc {
+        min-height: 40px;
+        padding: 0 16px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 500;
+        background-color: #FFFFFF !important;
+        border: 1px solid #E3EAEF !important;
+        color: #353C48 !important;
+        transition: background-color .2s, color .2s, border-color .2s;
+    }
+    .oa-page .btn-preview-doc:hover,
+    .oa-page .btn-preview-doc:focus,
+    .oa-page .btn-preview-doc:active {
+        background-color: #F9F9F9 !important;
+        border-color: #96A2B4 !important;
+        color: #353C48 !important;
+    }
+
+    .oa-page .btn-main:focus,
+    .oa-page .btn-reject:focus,
+    .oa-page .btn-back:focus,
+    .oa-page .icon-btn:focus,
+    .oa-page .btn-preview-doc:focus,
+    .oa-page .mobile-expand-btn:focus {
+        outline: 3px solid rgba(103, 119, 239, .35);
+        outline-offset: 2px;
+        box-shadow: none;
+    }
+
+    /* Final actions */
+    .oa-page .final-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    .oa-page .final-actions form { margin: 0; }
+
+    /* Mobile */
+    @@media (max-width: 767px) {
+        .oa-page .card-header { padding: 16px; }
+        .oa-page .card-body { padding: 16px; }
+        .oa-page .card-header .btn-back { width: 100%; }
+        .oa-page .table-wrap { border: 0; border-radius: 0; overflow: visible; }
+        .oa-page .final-actions { flex-direction: column; }
+        .oa-page .final-actions form,
+        .oa-page .final-actions .btn-main,
+        .oa-page .final-actions .btn-reject { width: 100%; }
+        .oa-page .icon-btn { width: 44px; height: 44px; }
+        .oa-page .btn-preview-doc { min-height: 44px; }
+    }
+</style>
+
+<div class="oa-page">
 <div class="row">
-    <div class="col-12 col-lg-8">
+    <div class="col-12">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h4>Partner Application — @Model.FullName</h4>
-                <a href="/admin/VerifyOwners" class="btn btn-outline-secondary btn-sm"><i class="fas fa-arrow-left"></i> Back</a>
+                <a href="/admin/VerifyOwners" class="btn btn-back"><i class="fas fa-arrow-left"></i> Back</a>
             </div>
             <div class="card-body">
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <strong>Full Name</strong>
-                        <p>@Model.FullName</p>
+                <div class="row">
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="detail-item">
+                            <span class="detail-label">Full Name</span>
+                            <span class="detail-value">@Model.FullName</span>
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        <strong>Email</strong>
-                        <p>@(Model.User?.Email ?? "N/A")</p>
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="detail-item">
+                            <span class="detail-label">Email</span>
+                            <span class="detail-value">@(Model.User?.Email ?? "N/A")</span>
+                        </div>
                     </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <strong>Phone</strong>
-                        <p>@Model.Phone</p>
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="detail-item">
+                            <span class="detail-label">Phone</span>
+                            <span class="detail-value">@Model.Phone</span>
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        <strong>Business Name</strong>
-                        <p>@(Model.BusinessName ?? "—")</p>
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="detail-item">
+                            <span class="detail-label">Business Name</span>
+                            <span class="detail-value">@(Model.BusinessName ?? "—")</span>
+                        </div>
                     </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <strong>Business Registration Number</strong>
-                        <p>@(Model.BusinessRegistrationNumber ?? "—")</p>
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="detail-item">
+                            <span class="detail-label">Business Registration Number</span>
+                            <span class="detail-value">@(Model.BusinessRegistrationNumber ?? "—")</span>
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        <strong>GST Number</strong>
-                        <p>@(Model.GSTNumber ?? "—")</p>
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="detail-item">
+                            <span class="detail-label">GST Number</span>
+                            <span class="detail-value">@(Model.GSTNumber ?? "—")</span>
+                        </div>
                     </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <strong>Address</strong>
-                        <p>@(Model.Address ?? "—")</p>
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="detail-item">
+                            <span class="detail-label">Address</span>
+                            <span class="detail-value">@(Model.Address ?? "—")</span>
+                        </div>
                     </div>
-                    <div class="col-md-3">
-                        <strong>City</strong>
-                        <p>@(Model.City ?? "—")</p>
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="detail-item">
+                            <span class="detail-label">City</span>
+                            <span class="detail-value">@(Model.City ?? "—")</span>
+                        </div>
                     </div>
-                    <div class="col-md-3">
-                        <strong>State</strong>
-                        <p>@(Model.State ?? "—")</p>
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="detail-item">
+                            <span class="detail-label">State</span>
+                            <span class="detail-value">@(Model.State ?? "—")</span>
+                        </div>
                     </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <strong>Status</strong>
-                        <p>
-                            @if (Model.Status == "Pending")
-                            {
-                                <span class="badge badge-warning">Pending</span>
-                            }
-                            else if (Model.Status == "Approved")
-                            {
-                                <span class="badge badge-success">Approved</span>
-                            }
-                            else
-                            {
-                                <span class="badge badge-danger">Rejected</span>
-                            }
-                        </p>
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="detail-item">
+                            <span class="detail-label">Status</span>
+                            <span class="detail-value">
+                                @if (Model.Status == "Pending")
+                                {
+                                    <span class="status status-warn">Pending</span>
+                                }
+                                else if (Model.Status == "Approved")
+                                {
+                                    <span class="status status-success">Approved</span>
+                                }
+                                else
+                                {
+                                    <span class="status status-error">Rejected</span>
+                                }
+                            </span>
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        <strong>Applied On</strong>
-                        <p>@Model.CreatedAt.ToString("dd MMM yyyy, hh:mm tt")</p>
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="detail-item">
+                            <span class="detail-label">Applied On</span>
+                            <span class="detail-value">@Model.CreatedAt.ToString("dd MMM yyyy, hh:mm tt")</span>
+                        </div>
                     </div>
                 </div>
 
                 <!-- KYC & Verification Documents -->
-                <hr />
-                <div class="mb-4">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="font-weight-bold text-dark mb-0">
-                            <i class="fas fa-folder-check text-primary mr-2"></i> KYC & Verification Documents
-                        </h5>
-                        <span class="badge badge-primary font-12 font-weight-bold">@(Model.Documents?.Count ?? 0) Document(s)</span>
+                <hr class="divider" />
+                <div>
+                    <div class="docs-head">
+                        <h5>KYC Documents</h5>
+                        <span class="status status-plan">@(Model.Documents?.Count ?? 0) Document(s)</span>
                     </div>
 
                     @if (Model.Documents == null || !Model.Documents.Any())
                     {
-                        <div class="alert alert-warning py-3">
-                            <i class="fas fa-exclamation-circle mr-1"></i> No verification documents were uploaded with this application.
-                        </div>
+                        <div class="alert alert-warning">No documents uploaded</div>
                     }
                     else
                     {
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-sm mb-0">
-                                <thead class="thead-light">
-                                    <tr>
-                                        <th>Document Type</th>
-                                        <th>Ref / ID</th>
-                                        <th>File</th>
-                                        <th>Status</th>
-                                        <th class="text-center" style="width: 220px;">Review Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var doc in Model.Documents)
-                                    {
+                        <div class="table-wrap">
+                            <div class="table-responsive">
+                                <table class="table align-middle no-datatable table-responsive-cards">
+                                    <thead>
                                         <tr>
-                                            <td>
-                                                <strong>@doc.DocumentType</strong>
-                                                @if (!string.IsNullOrEmpty(doc.RejectionReason))
-                                                {
-                                                    <div class="small text-danger font-weight-bold mt-1">
-                                                        <i class="fas fa-times-circle mr-1"></i> @doc.RejectionReason
-                                                    </div>
-                                                }
-                                            </td>
-                                            <td>@(doc.DocumentNumber ?? "—")</td>
-                                            <td>
-                                                <div class="small text-muted font-weight-600">@doc.OriginalFileName</div>
-                                                <small class="badge badge-light border">@(doc.FileSizeBytes / 1024) KB</small>
-                                            </td>
-                                            <td>
-                                                @if (doc.Status == "Verified")
-                                                {
-                                                    <span class="badge badge-success font-11 font-weight-bold"><i class="fas fa-check-circle"></i> Verified</span>
-                                                }
-                                                else if (doc.Status == "Rejected")
-                                                {
-                                                    <span class="badge badge-danger font-11 font-weight-bold"><i class="fas fa-ban"></i> Rejected</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge badge-warning font-11 font-weight-bold"><i class="fas fa-clock"></i> Pending</span>
-                                                }
-                                            </td>
-                                            <td class="text-center">
-                                                <div class="btn-group" role="group">
-                                                    <button type="button" class="btn btn-outline-primary btn-sm btn-preview-doc" data-filepath="@doc.FilePath" data-title="@doc.DocumentType" data-ext="@doc.FileExtension">
-                                                        <i class="fas fa-eye"></i> Preview
-                                                    </button>
-                                                    <a href="@doc.FilePath" target="_blank" class="btn btn-outline-secondary btn-sm" title="Open in new tab">
-                                                        <i class="fas fa-external-link-alt"></i>
-                                                    </a>
-                                                    @if (doc.Status != "Verified")
-                                                    {
-                                                        <form method="post" action="/admin/VerifyDocuments/VerifyOwnerDocument" class="d-inline-block ml-1">
-                                                            @Html.AntiForgeryToken()
-                                                            <input type="hidden" name="documentId" value="@doc.Id" />
-                                                            <input type="hidden" name="ownerId" value="@Model.Id" />
-                                                            <button type="submit" class="btn btn-success btn-sm" title="Mark Verified">
-                                                                <i class="fas fa-check"></i>
-                                                            </button>
-                                                        </form>
-                                                    }
-                                                    @if (doc.Status != "Rejected")
-                                                    {
-                                                        <button type="button" class="btn btn-danger btn-sm ml-1" data-toggle="modal" data-target="#rejectDocModal"
-                                                                onclick="openRejectDocModal('@doc.Id', '@doc.DocumentType');" title="Mark Rejected">
-                                                            <i class="fas fa-times"></i>
-                                                        </button>
-                                                    }
-                                                </div>
-                                            </td>
+                                            <th>Document</th>
+                                            <th>Ref / ID</th>
+                                            <th>File</th>
+                                            <th>Status</th>
+                                            <th class="text-center">Actions</th>
                                         </tr>
-                                    }
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var doc in Model.Documents)
+                                        {
+                                            <tr>
+                                                <td class="col-primary" data-label="Document">
+                                                    <div class="d-flex align-items-center justify-content-between">
+                                                        <span class="cell-strong">@doc.DocumentType</span>
+                                                        <button type="button" class="mobile-expand-btn ml-2" title="Show details">
+                                                            <i data-feather="chevron-down"></i>
+                                                        </button>
+                                                    </div>
+                                                    @if (!string.IsNullOrEmpty(doc.RejectionReason))
+                                                    {
+                                                        <div class="cell-error">@doc.RejectionReason</div>
+                                                    }
+                                                </td>
+                                                <td class="col-secondary" data-label="Ref / ID"><div>@(doc.DocumentNumber ?? "—")</div></td>
+                                                <td class="col-secondary" data-label="File">
+                                                    <div>
+                                                        <div class="cell-sub">@doc.OriginalFileName</div>
+                                                        <span class="status status-plain mt-1">@(doc.FileSizeBytes / 1024) KB</span>
+                                                    </div>
+                                                </td>
+                                                <td data-label="Status">
+                                                    <div>
+                                                        @if (doc.Status == "Verified")
+                                                        {
+                                                            <span class="status status-success">Verified</span>
+                                                        }
+                                                        else if (doc.Status == "Rejected")
+                                                        {
+                                                            <span class="status status-error">Rejected</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="status status-warn">Pending</span>
+                                                        }
+                                                    </div>
+                                                </td>
+                                                <td class="text-center col-action" data-label="Actions">
+                                                    <div class="doc-actions">
+                                                        <button type="button" class="btn btn-preview-doc" data-filepath="@doc.FilePath" data-title="@doc.DocumentType" data-ext="@doc.FileExtension">
+                                                            Preview
+                                                        </button>
+                                                        <a href="@doc.FilePath" target="_blank" class="icon-btn icon-btn-open" title="Open in new tab">
+                                                            <i class="fas fa-external-link-alt"></i>
+                                                        </a>
+                                                        @if (doc.Status != "Verified")
+                                                        {
+                                                            <form method="post" action="/admin/VerifyDocuments/VerifyOwnerDocument">
+                                                                @Html.AntiForgeryToken()
+                                                                <input type="hidden" name="documentId" value="@doc.Id" />
+                                                                <input type="hidden" name="ownerId" value="@Model.Id" />
+                                                                <button type="submit" class="icon-btn icon-btn-approve" title="Mark Verified">
+                                                                    <i class="fas fa-check"></i>
+                                                                </button>
+                                                            </form>
+                                                        }
+                                                        @if (doc.Status != "Rejected")
+                                                        {
+                                                            <button type="button" class="icon-btn icon-btn-reject" data-toggle="modal" data-target="#rejectDocModal"
+                                                                    onclick="openRejectDocModal('@doc.Id', '@doc.DocumentType');" title="Mark Rejected">
+                                                                <i class="fas fa-times"></i>
+                                                            </button>
+                                                        }
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     }
                 </div>
 
                 @if (Model.Status == "Pending")
                 {
-                    <hr />
-                    <div class="d-flex gap-2">
-                        <form method="post" action="/admin/VerifyOwners/Approve" class="d-inline-block mr-2">
+                    <hr class="divider" />
+                    <div class="final-actions">
+                        <form method="post" action="/admin/VerifyOwners/Approve">
                             @Html.AntiForgeryToken()
                             <input type="hidden" name="id" value="@Model.Id" />
-                            <button type="submit" class="btn btn-success font-weight-600" onclick="return confirm('Approve this partner application and elevate user role to StationOwner?');">
-                                <i class="fas fa-check-circle mr-1"></i> Approve Application
+                            <button type="submit" class="btn btn-main" onclick="return confirm('Approve this partner application and elevate user role to StationOwner?');">
+                                <i class="fas fa-check-circle"></i> Approve Application
                             </button>
                         </form>
-                        <button type="button" class="btn btn-danger font-weight-600" data-toggle="modal" data-target="#rejectOwnerModal">
-                            <i class="fas fa-times-circle mr-1"></i> Reject Application
+                        <button type="button" class="btn btn-reject" data-toggle="modal" data-target="#rejectOwnerModal">
+                            <i class="fas fa-times-circle"></i> Reject Application
                         </button>
                     </div>
                 }
@@ -197,52 +484,157 @@
         </div>
     </div>
 </div>
+</div>
 
 @section Modals {
+<style>
+    /* Modal styling (modals are moved to body, so not scoped to the page) */
+    .oa-modal .modal-content {
+        border: 1px solid #E3EAEF;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(52, 57, 94, .15);
+        color: #353C48;
+    }
+    .oa-modal .modal-header {
+        background: #FFFFFF;
+        border-bottom: 1px solid #E3EAEF;
+        border-radius: 12px 12px 0 0;
+        padding: 18px 24px;
+    }
+    .oa-modal .modal-title { font-size: 18px; font-weight: 600; color: #353C48 !important; }
+    .oa-modal .modal-header .close { color: #96A2B4 !important; opacity: 1; text-shadow: none; }
+    .oa-modal .modal-body { padding: 24px; }
+    .oa-modal .modal-footer {
+        background: #FFFFFF;
+        border-top: 1px solid #E3EAEF;
+        border-radius: 0 0 12px 12px;
+        padding: 16px 24px;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    .oa-modal .modal-footer > * { margin: 0 !important; }
+    .oa-modal #docPreviewModalBody { background: #F9F9F9; min-height: 500px; padding: 0; }
+    .oa-modal .form-label { color: #353C48; font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+    .oa-modal .form-control {
+        background: #F2F2F2;
+        border: 1px solid #E3EAEF;
+        border-radius: 8px;
+        color: #353C48;
+        padding: 10px 14px;
+        font-size: 15px;
+    }
+    .oa-modal .form-control:focus {
+        background: #FFFFFF;
+        border-color: #6777EF;
+        box-shadow: 0 0 0 3px rgba(103, 119, 239, .2);
+        outline: 0;
+    }
+
+    .oa-modal .btn-main,
+    .oa-modal .btn-reject,
+    .oa-modal .btn-cancel {
+        min-height: 44px;
+        padding: 0 22px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-weight: 500;
+        transition: background-color .2s, color .2s, border-color .2s;
+    }
+    .oa-modal .btn-main {
+        background-color: #6777EF !important;
+        border: 1px solid #6777EF !important;
+        color: #FFFFFF !important;
+    }
+    .oa-modal .btn-main:hover,
+    .oa-modal .btn-main:focus,
+    .oa-modal .btn-main:active {
+        background-color: #34395E !important;
+        border-color: #34395E !important;
+        color: #FFFFFF !important;
+    }
+    .oa-modal .btn-reject {
+        background-color: #FFFFFF !important;
+        border: 1px solid #EA5455 !important;
+        color: #EA5455 !important;
+    }
+    .oa-modal .btn-reject:hover,
+    .oa-modal .btn-reject:focus,
+    .oa-modal .btn-reject:active {
+        background-color: #EA5455 !important;
+        border-color: #EA5455 !important;
+        color: #FFFFFF !important;
+    }
+    .oa-modal .btn-cancel {
+        background-color: #FFFFFF !important;
+        border: 1px solid #E3EAEF !important;
+        color: #353C48 !important;
+    }
+    .oa-modal .btn-cancel:hover,
+    .oa-modal .btn-cancel:focus,
+    .oa-modal .btn-cancel:active {
+        background-color: #F9F9F9 !important;
+        border-color: #96A2B4 !important;
+        color: #353C48 !important;
+    }
+    .oa-modal .btn-main i,
+    .oa-modal .btn-reject i,
+    .oa-modal .btn-cancel i { color: inherit !important; }
+
+    @@media (max-width: 767px) {
+        .oa-modal .modal-header { padding: 16px; }
+        .oa-modal .modal-body { padding: 16px; }
+        .oa-modal .modal-footer { padding: 16px; flex-direction: column-reverse; }
+        .oa-modal .btn-main,
+        .oa-modal .btn-reject,
+        .oa-modal .btn-cancel { width: 100%; }
+    }
+</style>
+
 <!-- In-Browser Document Preview Modal -->
-<div class="modal fade" id="docPreviewModal" tabindex="-1" role="dialog">
+<div class="modal fade oa-modal" id="docPreviewModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
-        <div class="modal-content" style="border-radius: 8px;">
-            <div class="modal-header bg-dark text-white">
-                <h5 class="modal-title font-weight-bold text-white" id="docPreviewModalTitle">Document Preview</h5>
-                <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="docPreviewModalTitle">Document Preview</h5>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
             </div>
-            <div class="modal-body p-0 text-center" id="docPreviewModalBody" style="min-height: 550px; background: #0f172a;">
+            <div class="modal-body text-center" id="docPreviewModalBody">
                 <!-- Dynamically loaded preview -->
             </div>
-            <div class="modal-footer bg-light">
-                <a href="#" id="docPreviewDownloadBtn" target="_blank" class="btn btn-primary btn-sm font-weight-600">
-                    <i class="fas fa-external-link-alt mr-1"></i> Open Full View
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel" data-dismiss="modal">Close</button>
+                <a href="#" id="docPreviewDownloadBtn" target="_blank" class="btn btn-main">
+                    <i class="fas fa-external-link-alt"></i> Open Full View
                 </a>
-                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Centralized Reject Single KYC Document Modal -->
-<div class="modal fade" id="rejectDocModal" tabindex="-1" role="dialog">
+<div class="modal fade oa-modal" id="rejectDocModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content text-left">
             <form method="post" action="/admin/VerifyDocuments/RejectOwnerDocument">
                 @Html.AntiForgeryToken()
                 <input type="hidden" name="documentId" id="rejectSingleDocId" />
                 <input type="hidden" name="ownerId" value="@Model.Id" />
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title font-weight-bold text-white">
-                        <i class="fas fa-file-excel mr-1"></i> Reject KYC Document: <span id="rejectSingleDocTitle"></span>
-                    </h5>
-                    <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+                <div class="modal-header">
+                    <h5 class="modal-title">Reject Document: <span id="rejectSingleDocTitle"></span></h5>
+                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
                 </div>
-                <div class="modal-body p-4">
+                <div class="modal-body">
                     <div class="form-group mb-0">
-                        <label class="font-weight-600">Rejection Reason / Feedback to Applicant <span class="text-danger">*</span></label>
-                        <textarea name="rejectionReason" class="form-control" rows="3" required placeholder="e.g. Document is blurry, cropped or expired. Please upload a full-page scan..."></textarea>
+                        <label class="form-label">Reason *</label>
+                        <textarea name="rejectionReason" class="form-control" rows="3" required></textarea>
                     </div>
                 </div>
-                <div class="modal-footer bg-light">
-                    <button type="button" class="btn btn-outline-secondary font-weight-600" data-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-danger font-weight-600">Confirm Rejection</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-reject"><i class="fas fa-ban"></i> Reject</button>
                 </div>
             </form>
         </div>
@@ -252,26 +644,26 @@
 @if (Model.Status == "Pending")
 {
     <!-- Reject Partner Application Modal -->
-    <div class="modal fade" id="rejectOwnerModal" tabindex="-1" role="dialog">
+    <div class="modal fade oa-modal" id="rejectOwnerModal" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <form method="post" action="/admin/VerifyOwners/Reject">
                     @Html.AntiForgeryToken()
                     <input type="hidden" name="id" value="@Model.Id" />
-                    <div class="modal-header bg-danger text-white">
-                        <h5 class="modal-title font-weight-bold text-white"><i class="fas fa-ban mr-1"></i> Reject Partner Application</h5>
-                        <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+                    <div class="modal-header">
+                        <h5 class="modal-title">Reject Application</h5>
+                        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
                     </div>
-                    <div class="modal-body p-4">
-                        <p>Rejecting application from: <strong>@Model.FullName</strong></p>
+                    <div class="modal-body">
+                        <p><strong>@Model.FullName</strong></p>
                         <div class="form-group mb-0">
-                            <label class="font-weight-600">Reason for Rejection <span class="text-danger">*</span></label>
-                            <textarea name="rejectionReason" class="form-control" rows="3" required placeholder="Specify why the partner application is rejected..."></textarea>
+                            <label class="form-label">Reason *</label>
+                            <textarea name="rejectionReason" class="form-control" rows="3" required></textarea>
                         </div>
                     </div>
-                    <div class="modal-footer bg-light">
-                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-danger font-weight-600">Confirm Rejection</button>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-cancel" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-reject"><i class="fas fa-ban"></i> Reject</button>
                     </div>
                 </form>
             </div>

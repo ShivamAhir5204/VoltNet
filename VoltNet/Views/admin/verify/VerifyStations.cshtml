@@ -4,11 +4,142 @@
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
+<style>
+    .vs-page {
+        --primary: #6777EF;
+        --text: #353C48;
+        --hover: #34395E;
+        --muted: #96A2B4;
+        --teal: #3DC9B3;
+        --white: #FFFFFF;
+        --bg: #F9F9F9;
+        --field: #F2F2F2;
+        --border: #E3EAEF;
+        --success: #28C76F;
+        --warning: #FFA117;
+        --error: #EA5455;
+        --info: #3ABAF4;
+        color: var(--text);
+        font-size: 15px;
+    }
+
+    .vs-page .card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(52, 57, 94, .06);
+    }
+    .vs-page .card-header {
+        background: var(--white);
+        border-bottom: 1px solid var(--border);
+        border-radius: 12px 12px 0 0;
+        padding: 18px 24px;
+    }
+    .vs-page .card-header h4 { margin: 0; font-size: 20px; font-weight: 600; color: var(--text); }
+    .vs-page .card-body { padding: 8px 24px 24px; }
+
+    /* Alerts */
+    .vs-page .alert {
+        border: 1px solid transparent;
+        border-radius: 10px;
+        padding: 12px 16px;
+        margin: 16px 0 8px;
+    }
+    .vs-page .alert-success { background: rgba(40, 199, 111, .12); border-color: rgba(40, 199, 111, .3); color: #1B8F50; }
+    .vs-page .alert-info    { background: rgba(58, 186, 244, .12); border-color: rgba(58, 186, 244, .3); color: #1C8FC4; }
+    .vs-page .alert .close { color: inherit; opacity: .7; min-width: 32px; min-height: 32px; }
+
+    /* Table */
+    .vs-page .table { margin: 0; color: var(--text); }
+    .vs-page .table thead th {
+        background: var(--bg);
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        border-top: 0;
+        border-bottom: 1px solid var(--border);
+        padding: 14px 12px;
+        white-space: nowrap;
+    }
+    .vs-page .table td {
+        padding: 14px 12px;
+        vertical-align: middle;
+        border-top: 1px solid var(--border);
+    }
+    .vs-page .table-striped tbody tr:nth-of-type(odd) { background: var(--bg); }
+    .vs-page .table tbody tr:hover { background: rgba(103, 119, 239, .06); }
+    .vs-page .cell-strong { font-weight: 600; color: var(--text); }
+    .vs-page .pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+
+    /* Pills */
+    .vs-page .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 500;
+        white-space: nowrap;
+    }
+    .vs-page .status-warn  { background: rgba(255, 161, 23, .14); color: #B86F00; }
+    .vs-page .status-info  { background: rgba(58, 186, 244, .14); color: #1C8FC4; }
+    .vs-page .status-plain { background: var(--field); color: var(--muted); }
+    .vs-page .status-doc   { background: var(--field); color: var(--text); }
+    .vs-page .status-doc b { color: var(--error); font-weight: 600; }
+
+    /* Action icon buttons */
+    .vs-page .icon-btn {
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #FFFFFF !important;
+        border: 1px solid #E3EAEF !important;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color .2s, color .2s, border-color .2s;
+    }
+    .vs-page .icon-btn-info    { color: #3ABAF4 !important; }
+    .vs-page .icon-btn-approve { color: #28C76F !important; }
+    .vs-page .icon-btn-reject  { color: #EA5455 !important; }
+    .vs-page .icon-btn-info:hover,
+    .vs-page .icon-btn-info:focus,
+    .vs-page .icon-btn-info:active    { background-color: #3ABAF4 !important; border-color: #3ABAF4 !important; color: #FFFFFF !important; }
+    .vs-page .icon-btn-approve:hover,
+    .vs-page .icon-btn-approve:focus,
+    .vs-page .icon-btn-approve:active { background-color: #28C76F !important; border-color: #28C76F !important; color: #FFFFFF !important; }
+    .vs-page .icon-btn-reject:hover,
+    .vs-page .icon-btn-reject:focus,
+    .vs-page .icon-btn-reject:active  { background-color: #EA5455 !important; border-color: #EA5455 !important; color: #FFFFFF !important; }
+    .vs-page .icon-btn i { color: inherit !important; }
+    .vs-page .icon-btn:focus,
+    .vs-page .mobile-expand-btn:focus {
+        outline: 3px solid rgba(103, 119, 239, .35);
+        outline-offset: 2px;
+        box-shadow: none;
+    }
+    .vs-page .col-action form { margin: 0; }
+    .vs-page .mobile-expand-btn { background: transparent; border: 0; color: var(--primary); }
+
+    /* Mobile */
+    @@media (max-width: 767px) {
+        .vs-page .card-header { padding: 16px; }
+        .vs-page .card-body { padding: 8px 16px 16px; }
+        .vs-page .icon-btn { width: 44px; height: 44px; }
+    }
+</style>
+
+<div class="vs-page">
 <div class="row">
     <div class="col-12">
         <div class="card">
             <div class="card-header">
-                <h4>Pending Station Verifications</h4>
+                <h4>Station Verifications</h4>
             </div>
             <div class="card-body">
                 @if (TempData["Success"] != null)
@@ -20,17 +151,15 @@
                 }
                 @if (!Model.Any())
                 {
-                    <div class="alert alert-info">
-                        <i class="fas fa-check-circle"></i> No pending station verifications.
-                    </div>
+                    <div class="alert alert-info">No pending verifications.</div>
                 }
                 else
                 {
                     <div class="table-responsive">
-                        <table class="table table-striped">
+                        <table class="table table-striped align-middle table-responsive-cards">
                             <thead>
                                 <tr>
-                                    <th>Station Name</th>
+                                    <th>Station</th>
                                     <th>Owner</th>
                                     <th>City</th>
                                     <th>State</th>
@@ -42,54 +171,34 @@
                                 @foreach (var station in Model)
                                 {
                                     <tr>
-                                        <td>
-                                            <strong>@station.Name</strong>
-                                            <div class="mt-1">
-                                                @if (station.Status == "PendingVerification")
-                                                {
-                                                    <span class="badge badge-warning font-11 mr-1"><i class="fas fa-clock mr-1"></i> New Station</span>
-                                                }
-                                                else if (station.Documents != null && station.Documents.Any(d => d.Status == "Pending"))
-                                                {
-                                                    <span class="badge badge-info font-11 mr-1"><i class="fas fa-file-upload mr-1"></i> New Docs Pending</span>
-                                                }
-
-                                                @if (station.Documents != null && station.Documents.Any())
-                                                {
-                                                    var pendingCount = station.Documents.Count(d => d.Status == "Pending");
-                                                    <span class="badge badge-light border text-dark font-11">
-                                                        <i class="fas fa-file-contract mr-1"></i> @station.Documents.Count doc(s)
-                                                        @if (pendingCount > 0)
-                                                        {
-                                                            <strong class="text-danger ml-1">(@pendingCount pending)</strong>
-                                                        }
-                                                    </span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge badge-light border text-muted font-11">No docs</span>
-                                                }
+                                        <td class="col-primary" data-label="Station">
+                                            <div class="d-flex align-items-center justify-content-between">
+                                                <span class="cell-strong">@station.Name</span>
+                                                <button type="button" class="mobile-expand-btn ml-2" title="Show details">
+                                                    <i data-feather="chevron-down"></i>
+                                                </button>
                                             </div>
+                                            
                                         </td>
-                                        <td>@(station.OwnerUser?.Fullname ?? "N/A")</td>
-                                        <td>@station.City</td>
-                                        <td>@station.State</td>
-                                        <td>@station.CreatedAt.ToString("dd MMM yyyy")</td>
-                                        <td>
-                                            <div class="d-flex justify-content-center gap-1">
-                                                <a href="/admin/VerifyStations/Details/@station.Id" class="btn btn-info mr-1" title="View Details">
+                                        <td data-label="Owner"><div>@(station.OwnerUser?.Fullname ?? "N/A")</div></td>
+                                        <td class="col-secondary" data-label="City"><div>@station.City</div></td>
+                                        <td class="col-secondary" data-label="State"><div>@station.State</div></td>
+                                        <td class="col-secondary" data-label="Submitted"><div>@station.CreatedAt.ToString("dd MMM yyyy")</div></td>
+                                        <td class="text-center col-action" data-label="Actions">
+                                            <div class="d-flex justify-content-center" style="gap: 8px;">
+                                                <a href="/admin/VerifyStations/Details/@station.Id" class="icon-btn icon-btn-info" title="Details">
                                                     <i class="fas fa-info-circle"></i>
                                                 </a>
                                                 @if (station.Status == "PendingVerification")
                                                 {
-                                                    <form method="post" action="/admin/VerifyStations/Approve" class="d-inline-block mr-1">
+                                                    <form method="post" action="/admin/VerifyStations/Approve" class="d-inline-block">
                                                         @Html.AntiForgeryToken()
                                                         <input type="hidden" name="id" value="@station.Id" />
-                                                        <button type="submit" class="btn btn-success" title="Approve Station" onclick="return confirm('Approve this station?');">
+                                                        <button type="submit" class="icon-btn icon-btn-approve" title="Approve" onclick="return confirm('Approve this station?');">
                                                             <i class="fas fa-check"></i>
                                                         </button>
                                                     </form>
-                                                    <button type="button" class="btn btn-danger" title="Reject Station"
+                                                    <button type="button" class="icon-btn icon-btn-reject" title="Reject"
                                                             data-toggle="modal" data-target="#rejectModal"
                                                             onclick="document.getElementById('rejectStationId').value='@station.Id'; document.getElementById('rejectStationName').textContent='@station.Name';">
                                                         <i class="fas fa-times"></i>
@@ -107,29 +216,119 @@
         </div>
     </div>
 </div>
+</div>
 
 @section Modals {
+<style>
+    /* Modal styling (modals are moved to body, so not scoped to the page) */
+    .vs-modal .modal-content {
+        border: 1px solid #E3EAEF;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(52, 57, 94, .15);
+        color: #353C48;
+    }
+    .vs-modal .modal-header {
+        background: #FFFFFF;
+        border-bottom: 1px solid #E3EAEF;
+        border-radius: 12px 12px 0 0;
+        padding: 18px 24px;
+    }
+    .vs-modal .modal-title { font-size: 18px; font-weight: 600; color: #353C48 !important; }
+    .vs-modal .modal-header .close { color: #96A2B4 !important; opacity: 1; text-shadow: none; }
+    .vs-modal .modal-body { padding: 24px; }
+    .vs-modal .modal-footer {
+        background: #FFFFFF;
+        border-top: 1px solid #E3EAEF;
+        padding: 16px 24px;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    .vs-modal .modal-footer > * { margin: 0 !important; }
+    .vs-modal .form-label { color: #353C48; font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+    .vs-modal .form-control {
+        background: #F2F2F2;
+        border: 1px solid #E3EAEF;
+        border-radius: 8px;
+        color: #353C48;
+        padding: 10px 14px;
+        font-size: 15px;
+    }
+    .vs-modal .form-control:focus {
+        background: #FFFFFF;
+        border-color: #6777EF;
+        box-shadow: 0 0 0 3px rgba(103, 119, 239, .2);
+        outline: 0;
+    }
+
+    .vs-modal .btn-reject,
+    .vs-modal .btn-cancel {
+        min-height: 44px;
+        padding: 0 22px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-weight: 500;
+        transition: background-color .2s, color .2s, border-color .2s;
+    }
+    .vs-modal .btn-reject {
+        background-color: #FFFFFF !important;
+        border: 1px solid #EA5455 !important;
+        color: #EA5455 !important;
+    }
+    .vs-modal .btn-reject:hover,
+    .vs-modal .btn-reject:focus,
+    .vs-modal .btn-reject:active {
+        background-color: #EA5455 !important;
+        border-color: #EA5455 !important;
+        color: #FFFFFF !important;
+    }
+    .vs-modal .btn-cancel {
+        background-color: #FFFFFF !important;
+        border: 1px solid #E3EAEF !important;
+        color: #353C48 !important;
+    }
+    .vs-modal .btn-cancel:hover,
+    .vs-modal .btn-cancel:focus,
+    .vs-modal .btn-cancel:active {
+        background-color: #F9F9F9 !important;
+        border-color: #96A2B4 !important;
+        color: #353C48 !important;
+    }
+    .vs-modal .btn-reject i,
+    .vs-modal .btn-cancel i { color: inherit !important; }
+
+    @@media (max-width: 767px) {
+        .vs-modal .modal-header { padding: 16px; }
+        .vs-modal .modal-body { padding: 16px; }
+        .vs-modal .modal-footer { padding: 16px; flex-direction: column-reverse; }
+        .vs-modal .btn-reject,
+        .vs-modal .btn-cancel { width: 100%; }
+    }
+</style>
+
 <!-- Reject Modal -->
-<div class="modal fade" id="rejectModal" tabindex="-1" role="dialog">
+<div class="modal fade vs-modal" id="rejectModal" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <form method="post" action="/admin/VerifyStations/Reject">
                 @Html.AntiForgeryToken()
                 <input type="hidden" name="id" id="rejectStationId" />
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title font-weight-bold text-white"><i class="fas fa-ban mr-1"></i> Reject Station</h5>
-                    <button type="button" class="close text-white" data-dismiss="modal"><span>&times;</span></button>
+                <div class="modal-header">
+                    <h5 class="modal-title">Reject Station</h5>
+                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
                 </div>
-                <div class="modal-body p-4">
-                    <p>Rejecting station: <strong id="rejectStationName"></strong></p>
+                <div class="modal-body">
+                    <p><strong id="rejectStationName"></strong></p>
                     <div class="form-group mb-0">
-                        <label class="font-weight-600">Reason for Rejection <span class="text-danger">*</span></label>
-                        <textarea name="rejectionReason" class="form-control" rows="3" required placeholder="Specify why the station was rejected so the owner can correct issues..."></textarea>
+                        <label class="form-label">Reason *</label>
+                        <textarea name="rejectionReason" class="form-control" rows="3" required></textarea>
                     </div>
                 </div>
-                <div class="modal-footer bg-light">
-                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-danger font-weight-600">Confirm Rejection</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-cancel" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-reject"><i class="fas fa-ban"></i> Reject</button>
                 </div>
             </form>
         </div>

@@ -7,22 +7,370 @@
     var selectedPlanName = ViewBag.SelectedPlanName as string;
 }
 
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
 <style>
-    .filter-pill {
+    .owner-subs {
+        --c-primary: #6777EF;
+        --c-deep: #353C48;
+        --c-dark: #34395E;
+        --c-muted: #96A2B4;
+        --c-teal: #3DC9B3;
+        --c-white: #FFFFFF;
+        --c-soft: #F9F9F9;
+        --c-light: #F2F2F2;
+        --c-border: #E3EAEF;
+        --c-success: #28C76F;
+        --c-warning: #FFA117;
+        --c-error: #EA5455;
+        --c-info: #3ABAF4;
+        color: var(--c-deep);
+        font-size: 15px;
+    }
+    .owner-subs *,
+    .owner-subs *::before,
+    .owner-subs *::after { box-sizing: border-box; }
+
+    /* ---------- Alerts ---------- */
+    .owner-subs .alert {
+        border-radius: 10px;
+        border: 1px solid var(--c-border);
+        color: var(--c-deep);
+        margin-bottom: 16px;
+        padding: 0;
+    }
+    .owner-subs .alert .alert-body { color: var(--c-deep); padding: 14px 48px 14px 16px; }
+    .owner-subs .alert .close { color: var(--c-deep) !important; opacity: .6; text-shadow: none; }
+    .owner-subs .alert .close:hover,
+    .owner-subs .alert .close:focus { color: var(--c-deep) !important; opacity: 1; background-color: transparent !important; }
+    .owner-subs .alert i { color: inherit; }
+    .owner-subs .alert-success { background-color: rgba(40, 199, 111, 0.12); border-color: var(--c-success); }
+    .owner-subs .alert-danger  { background-color: rgba(234, 84, 85, 0.10);  border-color: var(--c-error); }
+
+    /* ---------- Filter strip ---------- */
+    .owner-subs .filter-strip { gap: 12px; margin-bottom: 20px !important; }
+    .owner-subs .filter-pill,
+    .owner-subs .badge.filter-pill {
+        align-items: center;
+        background-color: #FFFFFF !important;
+        border: 1px solid #E3EAEF !important;
+        border-radius: 999px;
+        box-shadow: none;
+        color: #353C48 !important;
         cursor: pointer;
-        transition: all 0.2s ease;
+        display: inline-flex;
+        font-size: 14px;
+        font-weight: 600;
+        justify-content: center;
+        min-height: 44px;
+        padding: 0 18px !important;
         text-decoration: none !important;
+        transform: none;
+        transition: background-color .15s ease, border-color .15s ease, color .15s ease;
     }
-    .filter-pill:hover {
-        opacity: 0.9;
-        transform: translateY(-1px);
+    .owner-subs .badge.filter-pill:hover,
+    .owner-subs .badge.filter-pill:focus,
+    .owner-subs .badge.filter-pill:active {
+        background-color: #F9F9F9 !important;
+        border-color: #96A2B4 !important;
+        color: #353C48 !important;
+        opacity: 1;
+        transform: none;
+        outline: 0;
+        box-shadow: 0 0 0 3px rgba(103, 119, 239, 0.18);
     }
-    .filter-pill.active {
-        box-shadow: 0 2px 6px rgba(103, 119, 239, 0.4);
+
+    /* Active states (class names come from the existing server logic) */
+    .owner-subs .badge.filter-pill.active.badge-primary,
+    .owner-subs .badge.filter-pill.active.badge-primary:hover,
+    .owner-subs .badge.filter-pill.active.badge-primary:focus,
+    .owner-subs .badge.filter-pill.active.badge-primary:active {
+        background-color: #6777EF !important;
+        border-color: #6777EF !important;
+        color: #FFFFFF !important;
+        box-shadow: none;
+    }
+    .owner-subs .badge.filter-pill.active.badge-primary:hover,
+    .owner-subs .badge.filter-pill.active.badge-primary:focus,
+    .owner-subs .badge.filter-pill.active.badge-primary:active { background-color: #34395E !important; border-color: #34395E !important; }
+
+    .owner-subs .badge.filter-pill.active.badge-success,
+    .owner-subs .badge.filter-pill.active.badge-success:hover,
+    .owner-subs .badge.filter-pill.active.badge-success:focus,
+    .owner-subs .badge.filter-pill.active.badge-success:active {
+        background-color: #E4F9ED !important; border-color: #28C76F !important; color: #353C48 !important; box-shadow: none;
+    }
+    .owner-subs .badge.filter-pill.active.badge-warning,
+    .owner-subs .badge.filter-pill.active.badge-warning:hover,
+    .owner-subs .badge.filter-pill.active.badge-warning:focus,
+    .owner-subs .badge.filter-pill.active.badge-warning:active {
+        background-color: #FFF1DC !important; border-color: #FFA117 !important; color: #353C48 !important; box-shadow: none;
+    }
+    .owner-subs .badge.filter-pill.active.badge-danger,
+    .owner-subs .badge.filter-pill.active.badge-danger:hover,
+    .owner-subs .badge.filter-pill.active.badge-danger:focus,
+    .owner-subs .badge.filter-pill.active.badge-danger:active {
+        background-color: #FCE6E6 !important; border-color: #EA5455 !important; color: #353C48 !important; box-shadow: none;
+    }
+    .owner-subs .badge.filter-pill.active.badge-secondary,
+    .owner-subs .badge.filter-pill.active.badge-secondary:hover,
+    .owner-subs .badge.filter-pill.active.badge-secondary:focus,
+    .owner-subs .badge.filter-pill.active.badge-secondary:active {
+        background-color: #34395E !important; border-color: #34395E !important; color: #FFFFFF !important; box-shadow: none;
+    }
+
+    /* ---------- Badges (status, plan, revenue) ---------- */
+    .owner-subs .badge {
+        align-items: center;
+        border: 1px solid transparent;
+        border-radius: 999px;
+        color: var(--c-deep) !important;
+        display: inline-flex;
+        font-size: 13px;
+        font-weight: 600;
+        gap: 6px;
+        letter-spacing: 0;
+        padding: 6px 12px !important;
+    }
+    .owner-subs .badge-light     { background-color: #F2F2F2 !important; border-color: #E3EAEF; }
+    .owner-subs .badge-success   { background-color: #E4F9ED !important; border-color: #28C76F; }
+    .owner-subs .badge-warning   { background-color: #FFF1DC !important; border-color: #FFA117; }
+    .owner-subs .badge-danger    { background-color: #FCE6E6 !important; border-color: #EA5455; }
+    .owner-subs .badge-info      { background-color: #E3F5FD !important; border-color: #3ABAF4; }
+    .owner-subs .badge-secondary { background-color: #F2F2F2 !important; border-color: #96A2B4; }
+    .owner-subs .badge-info a,
+    .owner-subs .badge-info a:hover { color: #353C48 !important; text-decoration: none; }
+
+    .owner-subs .table .badge-success::before,
+    .owner-subs .table .badge-warning::before,
+    .owner-subs .table .badge-danger::before,
+    .owner-subs .table .badge-secondary::before {
+        border-radius: 50%;
+        content: "";
+        height: 8px;
+        width: 8px;
+    }
+    .owner-subs .table .badge-success::before   { background-color: #28C76F; }
+    .owner-subs .table .badge-warning::before   { background-color: #FFA117; }
+    .owner-subs .table .badge-danger::before    { background-color: #EA5455; }
+    .owner-subs .table .badge-secondary::before { background-color: #96A2B4; }
+
+    /* ---------- Card ---------- */
+    .owner-subs .card {
+        background-color: var(--c-white);
+        border: 1px solid var(--c-border);
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(53, 60, 72, 0.06);
+        overflow: hidden;
+    }
+    .owner-subs .card-header {
+        background-color: var(--c-white);
+        border-bottom: 1px solid var(--c-border);
+        gap: 12px;
+        min-height: 0;
+        padding: 20px 24px;
+    }
+    .owner-subs .card-header h4 {
+        color: var(--c-deep) !important;
+        font-size: 18px !important;
+        font-weight: 700;
+        line-height: 1.3;
+        margin: 0;
+        padding: 0;
+    }
+    .owner-subs .card-body { padding: 0 !important; }
+
+    /* ---------- Buttons ---------- */
+    .owner-subs .btn {
+        align-items: center;
+        border-radius: 8px;
+        box-shadow: none;
+        display: inline-flex;
+        font-size: 14px;
+        font-weight: 600;
+        gap: 8px;
+        justify-content: center;
+        letter-spacing: 0;
+        min-height: 44px;
+        padding: 10px 18px;
+        text-transform: none;
+        transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+    }
+    .owner-subs .btn i,
+    .owner-subs .btn .fas { color: inherit !important; margin: 0 !important; }
+
+    /* Secondary style: Plans Master and Details */
+    .owner-subs .btn-outline-primary,
+    .owner-subs .btn-outline-primary:not(:disabled):not(.disabled),
+    .owner-subs .btn-info,
+    .owner-subs .btn-info:not(:disabled):not(.disabled) {
+        background-color: #FFFFFF !important;
+        border-color: #E3EAEF !important;
+        color: #353C48 !important;
+    }
+    .owner-subs .btn-outline-primary:hover,
+    .owner-subs .btn-outline-primary:focus,
+    .owner-subs .btn-outline-primary:active,
+    .owner-subs .btn-outline-primary:not(:disabled):not(.disabled):hover,
+    .owner-subs .btn-outline-primary:not(:disabled):not(.disabled):focus,
+    .owner-subs .btn-outline-primary:not(:disabled):not(.disabled):active,
+    .owner-subs .btn-info:hover,
+    .owner-subs .btn-info:focus,
+    .owner-subs .btn-info:active,
+    .owner-subs .btn-info:not(:disabled):not(.disabled):hover,
+    .owner-subs .btn-info:not(:disabled):not(.disabled):focus,
+    .owner-subs .btn-info:not(:disabled):not(.disabled):active {
+        background-color: #F9F9F9 !important;
+        border-color: #E3EAEF !important;
+        color: #353C48 !important;
+        box-shadow: 0 0 0 3px rgba(103, 119, 239, 0.18) !important;
+    }
+
+    /* Cancellation Requests (destructive meaning) */
+    .owner-subs .btn-outline-danger,
+    .owner-subs .btn-outline-danger:not(:disabled):not(.disabled) {
+        background-color: #FFFFFF !important;
+        border-color: #EA5455 !important;
+        color: #EA5455 !important;
+    }
+    .owner-subs .btn-outline-danger:hover,
+    .owner-subs .btn-outline-danger:focus,
+    .owner-subs .btn-outline-danger:active,
+    .owner-subs .btn-outline-danger:not(:disabled):not(.disabled):hover,
+    .owner-subs .btn-outline-danger:not(:disabled):not(.disabled):focus,
+    .owner-subs .btn-outline-danger:not(:disabled):not(.disabled):active {
+        background-color: #F9F9F9 !important;
+        border-color: #EA5455 !important;
+        color: #EA5455 !important;
+        box-shadow: 0 0 0 3px rgba(234, 84, 85, 0.18) !important;
+    }
+
+    /* Mobile expand toggle (display is left to the template) */
+    .owner-subs .mobile-expand-btn,
+    .owner-subs .mobile-expand-btn:hover,
+    .owner-subs .mobile-expand-btn:focus,
+    .owner-subs .mobile-expand-btn:active {
+        border: 1px solid #E3EAEF !important;
+        border-radius: 8px;
+        color: #353C48 !important;
+        height: 44px;
+        min-width: 44px;
+        outline: 0;
+    }
+    .owner-subs .mobile-expand-btn { background-color: #FFFFFF !important; }
+    .owner-subs .mobile-expand-btn:hover,
+    .owner-subs .mobile-expand-btn:focus,
+    .owner-subs .mobile-expand-btn:active { background-color: #F9F9F9 !important; }
+    .owner-subs .mobile-expand-btn i,
+    .owner-subs .mobile-expand-btn svg { color: inherit !important; stroke: currentColor; }
+
+    /* ---------- Table ---------- */
+    .owner-subs .table { color: var(--c-deep); margin-bottom: 0; }
+    .owner-subs .table thead th {
+        background-color: #F9F9F9 !important;
+        border-bottom: 1px solid #E3EAEF !important;
+        border-top: 0 !important;
+        color: #96A2B4 !important;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+    .owner-subs .table th,
+    .owner-subs .table td {
+        padding-top: 14px !important;
+        padding-bottom: 14px !important;
+        vertical-align: middle;
+    }
+    .owner-subs .table tbody td {
+        background-color: transparent !important;
+        border-top: 1px solid #E3EAEF !important;
+        color: #353C48;
+    }
+    .owner-subs .table tbody tr,
+    .owner-subs .table-striped tbody tr:nth-of-type(odd) { background-color: #FFFFFF !important; }
+    .owner-subs .table tbody tr:hover,
+    .owner-subs .table-striped tbody tr:nth-of-type(odd):hover { background-color: rgba(103, 119, 239, 0.06) !important; }
+    .owner-subs .table .text-dark,
+    .owner-subs .table .text-success { color: #353C48 !important; }
+    .owner-subs .table td.text-muted { color: #353C48 !important; }
+    .owner-subs .table td h5 { color: #353C48; font-size: 16px; font-weight: 600; margin: 0; }
+
+    .owner-subs .table th:first-child, .owner-subs .table td:first-child { padding-left: 24px !important; }
+    .owner-subs .table th:last-child,  .owner-subs .table td:last-child  { padding-right: 24px !important; }
+
+    /* ---------- DataTables controls ---------- */
+    .owner-subs .dataTables_wrapper > .row { margin: 0; }
+    .owner-subs .dataTables_wrapper > .row > [class*="col-"] { padding-left: 0; padding-right: 0; }
+    .owner-subs .dataTables_wrapper > .row:first-child,
+    .owner-subs .dataTables_wrapper > .row:last-child { padding: 16px 24px; }
+    .owner-subs .dataTables_wrapper label { color: #353C48; font-size: 14px; font-weight: 600; margin-bottom: 0; }
+    .owner-subs .dataTables_wrapper .form-control,
+    .owner-subs .dataTables_wrapper select,
+    .owner-subs .dataTables_wrapper input[type="search"] {
+        background-color: #F2F2F2;
+        border: 1px solid #E3EAEF;
+        border-radius: 8px;
+        color: #353C48;
+        min-height: 44px;
+        box-shadow: none;
+    }
+    .owner-subs .dataTables_wrapper .form-control:focus,
+    .owner-subs .dataTables_wrapper select:focus,
+    .owner-subs .dataTables_wrapper input[type="search"]:focus {
+        background-color: #FFFFFF;
+        border-color: #6777EF;
+        box-shadow: 0 0 0 3px rgba(103, 119, 239, 0.18);
+        outline: 0;
+    }
+    .owner-subs .dataTables_info { color: #353C48; font-size: 14px; }
+    .owner-subs .page-link {
+        background-color: #FFFFFF !important;
+        border: 1px solid #E3EAEF !important;
+        border-radius: 8px;
+        color: #353C48 !important;
+        margin: 0 2px;
+        min-height: 44px;
+        min-width: 44px;
+        align-items: center;
+        display: inline-flex;
+        justify-content: center;
+    }
+    .owner-subs .page-link:hover,
+    .owner-subs .page-link:focus {
+        background-color: #F9F9F9 !important;
+        border-color: #E3EAEF !important;
+        color: #353C48 !important;
+        box-shadow: 0 0 0 3px rgba(103, 119, 239, 0.18);
+    }
+    .owner-subs .page-item.active .page-link,
+    .owner-subs .page-item.active .page-link:hover,
+    .owner-subs .page-item.active .page-link:focus {
+        background-color: #6777EF !important;
+        border-color: #6777EF !important;
+        color: #FFFFFF !important;
+    }
+    .owner-subs .page-item.disabled .page-link { background-color: #F9F9F9 !important; color: #96A2B4 !important; }
+
+    /* ---------- Mobile ---------- */
+    @@media (max-width: 767.98px) {
+        .owner-subs .card-header { padding: 16px; }
+        .owner-subs .card-header .card-header-action { width: 100%; flex-wrap: wrap; gap: 8px; }
+        .owner-subs .card-header .card-header-action .btn { flex: 1 1 100%; margin: 0 !important; }
+        .owner-subs .table th:first-child, .owner-subs .table td:first-child { padding-left: 16px !important; }
+        .owner-subs .table th:last-child,  .owner-subs .table td:last-child  { padding-right: 16px !important; }
+        .owner-subs .dataTables_wrapper > .row:first-child,
+        .owner-subs .dataTables_wrapper > .row:last-child { padding: 12px 16px; }
+    }
+    @@media (max-width: 575.98px) {
+        .owner-subs .filter-strip > div:first-child { width: 100%; }
+        .owner-subs .badge.filter-pill { flex: 1 1 calc(50% - 8px); }
+        .owner-subs .filter-strip > div:last-child { width: 100%; text-align: left !important; }
     }
 </style>
 
-<div class="row">
+<div class="row owner-subs">
     <div class="col-12">
         @if (TempData["Success"] != null)
         {
@@ -45,28 +393,28 @@
         }
 
         <!-- Filter & Revenue Metric Strip -->
-        <div class="mb-3 d-flex flex-wrap align-items-center justify-content-between gap-2">
+        <div class="filter-strip mb-3 d-flex flex-wrap align-items-center justify-content-between gap-2">
             <div class="d-flex flex-wrap align-items-center" style="gap: 8px;">
                 <a href="/admin/subscription/subscribers" class="badge badge-light px-3 py-2 filter-pill @(currentFilter == "All" && !selectedPlanId.HasValue ? "badge-primary active" : "")">
                     All (@ViewBag.TotalCount)
                 </a>
                 <a href="/admin/subscription/subscribers?status=Active" class="badge badge-light px-3 py-2 filter-pill @(currentFilter == "Active" ? "badge-success active text-white" : "")">
-                    <i class="fas fa-check-circle mr-1"></i> Active (@ViewBag.ActiveCount)
+                    Active (@ViewBag.ActiveCount)
                 </a>
                 <a href="/admin/subscription/subscribers?status=CancellationPending" class="badge badge-light px-3 py-2 filter-pill @(currentFilter == "CancellationPending" ? "badge-warning active text-white" : "")">
-                    <i class="fas fa-clock mr-1"></i> Pending Cancel (@ViewBag.PendingCancelCount)
+                    Pending Cancel (@ViewBag.PendingCancelCount)
                 </a>
                 <a href="/admin/subscription/subscribers?status=Cancelled" class="badge badge-light px-3 py-2 filter-pill @(currentFilter == "Cancelled" ? "badge-danger active text-white" : "")">
-                    <i class="fas fa-ban mr-1"></i> Cancelled (@ViewBag.CancelledCount)
+                    Cancelled (@ViewBag.CancelledCount)
                 </a>
                 <a href="/admin/subscription/subscribers?status=Expired" class="badge badge-light px-3 py-2 filter-pill @(currentFilter == "Expired" ? "badge-secondary active text-white" : "")">
-                    <i class="fas fa-hourglass-end mr-1"></i> Expired (@ViewBag.ExpiredCount)
+                    Expired (@ViewBag.ExpiredCount)
                 </a>
             </div>
 
             <div class="text-right mt-2 mt-md-0">
                 <span class="badge badge-success px-3 py-2 font-weight-600">
-                    <i class="fas fa-rupee-sign mr-1"></i> Total Revenue: ₹@(((decimal)ViewBag.TotalRevenue).ToString("N0"))
+                    Total Revenue: ₹@(((decimal)ViewBag.TotalRevenue).ToString("N0"))
                 </span>
             </div>
         </div>
@@ -74,7 +422,7 @@
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                 <div class="d-flex align-items-center flex-wrap">
-                    <h4 class="mb-0 mr-3 font-weight-bold" style="color: #212529; font-size: 20px;">Owner Subscriptions</h4>
+                    <h4 class="mb-0 mr-3 font-weight-bold">Owner Subscriptions</h4>
                     @if (!string.IsNullOrWhiteSpace(selectedPlanName))
                     {
                         <span class="badge badge-info mr-2">
@@ -113,7 +461,7 @@
                                 var isPending = sub.Status == "CancellationPending";
                                 var isCancelled = sub.Status == "Cancelled";
                                 var isActive = sub.Status == "Active" && !isNowExpired;
-                                
+
                                 <tr>
                                     <td class="col-primary" data-label="Owner">
                                         <div class="d-flex align-items-center justify-content-between">
@@ -135,7 +483,7 @@
                                     <td class="col-secondary" data-label="Stations">
                                         <div>
                                             <span class="font-weight-600 text-dark">
-                                                <i class="fas fa-charging-station text-primary mr-1"></i>@sub.Stations.Count / @(sub.Plan?.MaxStations ?? 0)
+                                                @sub.Stations.Count / @(sub.Plan?.MaxStations ?? 0)
                                             </span>
                                         </div>
                                     </td>
@@ -155,27 +503,19 @@
                                         <div>
                                             @if (isActive)
                                             {
-                                                <span class="badge badge-success font-weight-600">
-                                                    <i class="fas fa-check-circle mr-1"></i> Active
-                                                </span>
+                                                <span class="badge badge-success font-weight-600">Active</span>
                                             }
                                             else if (isPending)
                                             {
-                                                <span class="badge badge-warning font-weight-600">
-                                                    <i class="fas fa-clock mr-1"></i> Cancel Pending
-                                                </span>
+                                                <span class="badge badge-warning font-weight-600">Cancel Pending</span>
                                             }
                                             else if (isCancelled)
                                             {
-                                                <span class="badge badge-danger font-weight-600">
-                                                    <i class="fas fa-ban mr-1"></i> Cancelled
-                                                </span>
+                                                <span class="badge badge-danger font-weight-600">Cancelled</span>
                                             }
                                             else
                                             {
-                                                <span class="badge badge-secondary font-weight-600">
-                                                    <i class="fas fa-hourglass-end mr-1"></i> Expired
-                                                </span>
+                                                <span class="badge badge-secondary font-weight-600">Expired</span>
                                             }
                                         </div>
                                     </td>
@@ -192,9 +532,7 @@
                             {
                                 <tr>
                                     <td colspan="7" class="text-center py-5 text-muted">
-                                        <i class="fas fa-receipt fa-3x mb-3 text-secondary d-block"></i>
                                         <h5>No Subscriptions Found</h5>
-                                        <p class="mb-0">There are currently no owner subscription purchases matching your filter.</p>
                                     </td>
                                 </tr>
                             }
