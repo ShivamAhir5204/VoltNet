@@ -2770,8 +2770,9 @@ D:\Voltnet\VoltNet\obj\Debug\net10.0\compressed\wq2cnd114g-{0}-vokxd0db0x-vokxd0
 D:\Voltnet\VoltNet\obj\Debug\net10.0\compressed\m69wm164e3-{0}-lxyzpvn9r1-lxyzpvn9r1.gz
 C:\Users\SHIVAM\Documents\GitHub\VoltNet\VoltNet\bin\Debug\net10.0\System.Security.Cryptography.Pkcs.dll
 C:\Users\SHIVAM\Documents\GitHub\VoltNet\VoltNet\bin\Debug\net10.0\runtimes\win\lib\net10.0\System.Security.Cryptography.Pkcs.dll
-C:\Users\SHIVAM\Documents\GitHub\VoltNet\VoltNet\obj\Debug\net10.0\staticwebassets.upToDateCheck.txt
 D:\Voltnet\VoltNet\bin\Debug\net10.0\System.Security.Cryptography.Pkcs.dll
 D:\Voltnet\VoltNet\bin\Debug\net10.0\runtimes\win\lib\net10.0\System.Security.Cryptography.Pkcs.dll
 D:\Voltnet\VoltNet\obj\Debug\net10.0\compressed\c5dtuibj3n-{0}-k2tvzzt38y-k2tvzzt38y.gz
 C:\Users\SHIVAM\Documents\GitHub\VoltNet\VoltNet\obj\Debug\net10.0\compressed\c5dtuibj3n-{0}-k2tvzzt38y-k2tvzzt38y.gz
+c:\Users\SHIVAM\Documents\GitHub\VoltNet\VoltNet\obj\Debug\net10.0\compressed\rt5rpe8myv-{0}-kqsf7o8uey-kqsf7o8uey.gz
+C:\Users\SHIVAM\Documents\GitHub\VoltNet\VoltNet\obj\Debug\net10.0\staticwebassets.upToDateCheck.txt
