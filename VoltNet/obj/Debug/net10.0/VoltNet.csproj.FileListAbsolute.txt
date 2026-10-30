@@ -2775,4 +2775,5 @@ D:\Voltnet\VoltNet\bin\Debug\net10.0\runtimes\win\lib\net10.0\System.Security.Cr
 D:\Voltnet\VoltNet\obj\Debug\net10.0\compressed\c5dtuibj3n-{0}-k2tvzzt38y-k2tvzzt38y.gz
 C:\Users\SHIVAM\Documents\GitHub\VoltNet\VoltNet\obj\Debug\net10.0\compressed\c5dtuibj3n-{0}-k2tvzzt38y-k2tvzzt38y.gz
 c:\Users\SHIVAM\Documents\GitHub\VoltNet\VoltNet\obj\Debug\net10.0\compressed\rt5rpe8myv-{0}-kqsf7o8uey-kqsf7o8uey.gz
+c:\Users\SHIVAM\Documents\GitHub\VoltNet\VoltNet\obj\Debug\net10.0\compressed\zz77g93u5m-{0}-qci1vkan5e-qci1vkan5e.gz
 C:\Users\SHIVAM\Documents\GitHub\VoltNet\VoltNet\obj\Debug\net10.0\staticwebassets.upToDateCheck.txt

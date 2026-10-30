@@ -1,7 +1,8 @@
-@{
+﻿@{
     ViewData["Title"] = "Dashboard";
     Layout = "~/Views/Shared/_OwnerLayout.cshtml";
 }
+<div class="db">
 
 @if (ViewBag.Error != null)
 {
@@ -9,69 +10,33 @@
 }
 
 <div class="row">
-    <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12">
-        <div class="card">
-            <div class="card-statistic-4">
-                <div class="align-items-center justify-content-between">
-                    <div class="row">
-                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pr-0 pt-3">
-                            <div class="card-content">
-                                <h5 class="font-15">My Stations</h5>
-                                <h2 class="mb-3 font-18">@(ViewBag.TotalStations ?? 0)</h2>
-                                <p class="mb-0"><span class="col-green">@(ViewBag.ActiveStations ?? 0)</span> Active</p>
-                            </div>
-                        </div>
-                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0">
-                            <div class="banner-img">
-                                <img src="~/otika/assets/img/banner/1.png" alt="">
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <div class="col-xl-4 col-md-6 col-12 gap-b">
+        <div class="card kpi kpi-indigo">
+            <div class="kpi-icon"><i class="fas fa-charging-station"></i></div>
+            <div>
+                <div class="kpi-label">My Stations</div>
+                <div class="kpi-value">@(ViewBag.TotalStations ?? 0)</div>
+                <div class="kpi-note"><b>@(ViewBag.ActiveStations ?? 0)</b> Active</div>
             </div>
         </div>
     </div>
-    <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12">
-        <div class="card">
-            <div class="card-statistic-4">
-                <div class="align-items-center justify-content-between">
-                    <div class="row">
-                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pr-0 pt-3">
-                            <div class="card-content">
-                                <h5 class="font-15">Pending</h5>
-                                <h2 class="mb-3 font-18">@(ViewBag.PendingStations ?? 0)</h2>
-                                <p class="mb-0"><span class="col-orange">Verification</span></p>
-                            </div>
-                        </div>
-                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0">
-                            <div class="banner-img">
-                                <img src="~/otika/assets/img/banner/3.png" alt="">
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <div class="col-xl-4 col-md-6 col-12 gap-b">
+        <div class="card kpi kpi-warn">
+            <div class="kpi-icon"><i class="fas fa-clock"></i></div>
+            <div>
+                <div class="kpi-label">Pending</div>
+                <div class="kpi-value">@(ViewBag.PendingStations ?? 0)</div>
+                <div class="kpi-note">Verification</div>
             </div>
         </div>
     </div>
-    <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-xs-12">
-        <div class="card">
-            <div class="card-statistic-4">
-                <div class="align-items-center justify-content-between">
-                    <div class="row">
-                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pr-0 pt-3">
-                            <div class="card-content">
-                                <h5 class="font-15">Managers</h5>
-                                <h2 class="mb-3 font-18">@(ViewBag.TotalManagers ?? 0)</h2>
-                                <p class="mb-0"><span class="col-green">@(ViewBag.ActiveManagers ?? 0)</span> Active</p>
-                            </div>
-                        </div>
-                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6 pl-0">
-                            <div class="banner-img">
-                                <img src="~/otika/assets/img/banner/2.png" alt="">
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <div class="col-xl-4 col-md-6 col-12 gap-b">
+        <div class="card kpi kpi-teal">
+            <div class="kpi-icon"><i class="fas fa-users"></i></div>
+            <div>
+                <div class="kpi-label">Managers</div>
+                <div class="kpi-value">@(ViewBag.TotalManagers ?? 0)</div>
+                <div class="kpi-note"><b>@(ViewBag.ActiveManagers ?? 0)</b> Active</div>
             </div>
         </div>
     </div>
@@ -81,21 +46,21 @@
 {
 <div class="row">
     <div class="col-12">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-                <h4 class="mb-0">Recent Stations</h4>
-                <a href="/owner/stations" class="btn btn-primary btn-sm mt-2 mt-sm-0">View All</a>
+        <div class="card gap-b">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4>Recent Stations</h4>
+                <a href="/owner/stations" class="btn btn-main">View All</a>
             </div>
-            <div class="card-body">
+            <div class="card-body flush">
                 <div class="table-responsive">
-                    <table class="table table-striped align-middle table-responsive-cards">
+                    <table class="table table-striped align-middle no-datatable table-responsive-cards">
                         <thead>
                             <tr>
                                 <th>Name</th>
                                 <th>City</th>
                                 <th>Status</th>
                                 <th>Created</th>
-                                <th class="text-center" style="width: 100px;">Action</th>
+                                <th class="text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -104,37 +69,37 @@
                                 <tr>
                                     <td class="col-primary" data-label="Name">
                                         <div class="d-flex align-items-center justify-content-between">
-                                            <span class="font-weight-bold">@station.Name</span>
+                                            <span class="cell-strong">@station.Name</span>
                                             <button type="button" class="mobile-expand-btn ml-2" title="Show details">
                                                 <i data-feather="chevron-down"></i>
                                             </button>
                                         </div>
                                     </td>
                                     <td class="col-secondary" data-label="City"><div>@station.City</div></td>
-                                    <td class="col-secondary" data-label="Status">
+                                    <td data-label="Status">
                                         <div>
                                             @if (station.Status == "Active")
                                             {
-                                                <span class="badge bg-success">Active</span>
+                                                <span class="status s-ok">Active</span>
                                             }
                                             else if (station.Status == "PendingVerification")
                                             {
-                                                <span class="badge bg-warning text-dark">Pending</span>
+                                                <span class="status s-warn">Pending</span>
                                             }
                                             else if (station.Status == "Rejected")
                                             {
-                                                <span class="badge bg-danger">Rejected</span>
+                                                <span class="status s-err">Rejected</span>
                                             }
                                             else
                                             {
-                                                <span class="badge bg-secondary">@station.Status</span>
+                                                <span class="status s-plain">@station.Status</span>
                                             }
                                         </div>
                                     </td>
                                     <td class="col-secondary" data-label="Created"><div>@station.CreatedAt.ToString("dd MMM yyyy")</div></td>
                                     <td class="text-center col-action" data-label="Action">
                                         <div>
-                                            <a href="/owner/stations/Edit/@station.Id" class="btn btn-warning btn-sm" title="Edit Station">
+                                            <a href="/owner/stations/Edit/@station.Id" class="btn btn-edit" title="Edit Station">
                                                 <i class="fas fa-edit"></i> Edit
                                             </a>
                                         </div>
@@ -149,3 +114,5 @@
     </div>
 </div>
 }
+
+</div>

@@ -43,6 +43,7 @@ wwwroot\bootstrap-5.3.8-dist\bootstrap-5.3.8-dist\js\bootstrap.js.map
 wwwroot\bootstrap-5.3.8-dist\bootstrap-5.3.8-dist\js\bootstrap.min.js
 wwwroot\bootstrap-5.3.8-dist\bootstrap-5.3.8-dist\js\bootstrap.min.js.map
 wwwroot\css\admin-common.css
+wwwroot\css\owner-common.css
 wwwroot\css\site.css
 wwwroot\favicon.ico
 wwwroot\js\indian-states.js
@@ -1011,6 +1012,7 @@ C:\Users\SHIVAM\Documents\GitHub\VoltNet\VoltNet\wwwroot\bootstrap-5.3.8-dist\bo
 C:\Users\SHIVAM\Documents\GitHub\VoltNet\VoltNet\wwwroot\bootstrap-5.3.8-dist\bootstrap-5.3.8-dist\js\bootstrap.min.js
 C:\Users\SHIVAM\Documents\GitHub\VoltNet\VoltNet\wwwroot\bootstrap-5.3.8-dist\bootstrap-5.3.8-dist\js\bootstrap.min.js.map
 C:\Users\SHIVAM\Documents\GitHub\VoltNet\VoltNet\wwwroot\css\admin-common.css
+C:\Users\SHIVAM\Documents\GitHub\VoltNet\VoltNet\wwwroot\css\owner-common.css
 C:\Users\SHIVAM\Documents\GitHub\VoltNet\VoltNet\wwwroot\css\site.css
 C:\Users\SHIVAM\Documents\GitHub\VoltNet\VoltNet\wwwroot\favicon.ico
 C:\Users\SHIVAM\Documents\GitHub\VoltNet\VoltNet\wwwroot\js\indian-states.js

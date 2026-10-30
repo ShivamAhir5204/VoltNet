@@ -3,8 +3,8 @@
   "WorkspaceRootPath": "C:\\Users\\SHIVAM\\Documents\\GitHub\\VoltNet\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{9F6BE109-81B1-4116-A021-8F6481AEA67C}|VoltNet\\VoltNet.csproj|c:\\users\\shivam\\documents\\github\\voltnet\\voltnet\\views\\admin\\verify\\verifyowners.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{9F6BE109-81B1-4116-A021-8F6481AEA67C}|VoltNet\\VoltNet.csproj|solutionrelative:voltnet\\views\\admin\\verify\\verifyowners.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{9F6BE109-81B1-4116-A021-8F6481AEA67C}|VoltNet\\VoltNet.csproj|c:\\users\\shivam\\documents\\github\\voltnet\\voltnet\\views\\stationowner\\stations.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{9F6BE109-81B1-4116-A021-8F6481AEA67C}|VoltNet\\VoltNet.csproj|solutionrelative:voltnet\\views\\stationowner\\stations.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     }
   ],
   "DocumentGroupContainers": [
@@ -43,14 +43,14 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "VerifyOwners.cshtml",
-              "DocumentMoniker": "C:\\Users\\SHIVAM\\Documents\\GitHub\\VoltNet\\VoltNet\\Views\\admin\\verify\\VerifyOwners.cshtml",
-              "RelativeDocumentMoniker": "VoltNet\\Views\\admin\\verify\\VerifyOwners.cshtml",
-              "ToolTip": "C:\\Users\\SHIVAM\\Documents\\GitHub\\VoltNet\\VoltNet\\Views\\admin\\verify\\VerifyOwners.cshtml",
-              "RelativeToolTip": "VoltNet\\Views\\admin\\verify\\VerifyOwners.cshtml",
-              "ViewState": "AgIAAHAAAAAAAAAAAAAAAHAAAAABAAAAAAAAAA==",
+              "Title": "Stations.cshtml",
+              "DocumentMoniker": "C:\\Users\\SHIVAM\\Documents\\GitHub\\VoltNet\\VoltNet\\Views\\stationowner\\Stations.cshtml",
+              "RelativeDocumentMoniker": "VoltNet\\Views\\stationowner\\Stations.cshtml",
+              "ToolTip": "C:\\Users\\SHIVAM\\Documents\\GitHub\\VoltNet\\VoltNet\\Views\\stationowner\\Stations.cshtml",
+              "RelativeToolTip": "VoltNet\\Views\\stationowner\\Stations.cshtml",
+              "ViewState": "AgIAAHMAAAAAAAAAAAAAAHMAAAAGAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2026-10-25T15:15:38.263Z",
+              "WhenOpened": "2026-10-30T02:53:11.444Z",
               "EditorCaption": ""
             }
           ]

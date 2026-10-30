@@ -1,4 +1,4 @@
-@model IEnumerable<VoltNet.Models.SubscriptionPlan>
+﻿@model IEnumerable<VoltNet.Models.SubscriptionPlan>
 @{
     ViewData["Title"] = "Subscription Plans";
     Layout = "~/Views/Shared/_OwnerLayout.cshtml";
@@ -8,554 +8,155 @@
     var remainingDays = (int)(ViewBag.RemainingDays ?? 0);
     var unusedCredit = (decimal)(ViewBag.UnusedCredit ?? 0m);
 }
+<div class="sp">
 
-<style>
-    .pricing-card {
-        background: #ffffff;
-        border: 1px solid #dce2eb;
-        border-radius: 8px;
-        transition: all 0.25s ease;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        padding: 24px;
-        position: relative;
-    }
-    .pricing-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 24px rgba(103, 119, 239, 0.12);
-        border-color: #6777ef;
-    }
-    .pricing-badge {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-    }
-    .pricing-price {
-        font-size: 32px;
-        font-weight: 800;
-        color: #212529;
-        margin: 12px 0 6px 0;
-        letter-spacing: -0.5px;
-    }
-    .pricing-duration {
-        font-size: 14px;
-        font-weight: 600;
-        color: #34395e;
-    }
-    .feature-item {
-        display: flex;
-        align-items: center;
-        margin-bottom: 12px;
-        color: #212529;
-        font-size: 14px;
-        font-weight: 600;
-    }
-    .feature-icon {
-        color: #6777ef;
-        margin-right: 10px;
-        font-size: 16px;
-        flex-shrink: 0;
-    }
-    .btn-buy-plan {
-        background-color: #6777ef;
-        border-color: #6777ef;
-        color: #ffffff !important;
-        font-weight: 700;
-        padding: 10px 16px;
-        border-radius: 6px;
-        width: 100%;
-        transition: all 0.2s;
-        border: none;
-        cursor: pointer;
-        font-size: 15px;
-    }
-    .btn-buy-plan:hover {
-        background-color: #5a67d8 !important;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(103, 119, 239, 0.3);
-    }
-    .btn-buy-plan:disabled {
-        opacity: 0.65;
-        cursor: not-allowed;
-        transform: none;
-    }
-
-    /* ═══════════════════════════════════════════════════════════════
-       RAZORPAY STYLE PAYMENT ANIMATION MODAL
-       ═══════════════════════════════════════════════════════════════ */
-    .razorpay-overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(15, 23, 42, 0.75);
-        backdrop-filter: blur(8px);
-        z-index: 999999;
-        justify-content: center;
-        align-items: center;
-        padding: 1rem;
-    }
-    .razorpay-overlay.active {
-        display: flex;
-    }
-    .razorpay-modal {
-        background: #ffffff;
-        border-radius: 16px;
-        padding: 2.2rem 2rem;
-        width: 100%;
-        max-width: 440px;
-        text-align: center;
-        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-        position: relative;
-        overflow: hidden;
-        animation: modalPop 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    @@keyframes modalPop {
-        0% { transform: scale(0.9); opacity: 0; }
-        100% { transform: scale(1); opacity: 1; }
-    }
-
-    .payment-stage-container {
-        min-height: 180px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .processing-pulse {
-        width: 72px;
-        height: 72px;
-        border-radius: 50%;
-        background: rgba(103, 119, 239, 0.12);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-        animation: pulseRing 1.8s infinite;
-    }
-    .processing-pulse-inner {
-        width: 48px;
-        height: 48px;
-        border-radius: 50%;
-        background: #6777ef;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 1.3rem;
-    }
-    @@keyframes pulseRing {
-        0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(103, 119, 239, 0.4); }
-        70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(103, 119, 239, 0); }
-        100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(103, 119, 239, 0); }
-    }
-
-    .coin-train-stage {
-        display: none;
-        width: 100%;
-        height: 170px;
-        position: relative;
-        margin-bottom: 0.5rem;
-        overflow: hidden;
-        border-radius: 12px;
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
-    }
-    .coin-train-stage.active {
-        display: block;
-    }
-
-    .rail-track-bed {
-        position: absolute;
-        bottom: 35px;
-        left: 0;
-        width: 100%;
-        height: 12px;
-        background: #cbd5e1;
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-    }
-    .track-sleeper {
-        width: 4px;
-        height: 18px;
-        background: #94a3b8;
-        border-radius: 1px;
-    }
-    .rail-steel {
-        position: absolute;
-        bottom: 45px;
-        left: 0;
-        width: 100%;
-        height: 4px;
-        background: #64748b;
-    }
-    .rail-glow {
-        position: absolute;
-        bottom: 45px;
-        left: 0;
-        width: 100%;
-        height: 4px;
-        background: linear-gradient(90deg, transparent, #6777ef, #8292fd, transparent);
-        animation: trackGlow 1.8s ease-in-out infinite;
-    }
-    @@keyframes trackGlow {
-        0% { transform: translateX(-100%); }
-        100% { transform: translateX(100%); }
-    }
-
-    .train-convoy {
-        position: absolute;
-        bottom: 48px;
-        left: -120px;
-        display: flex;
-        align-items: flex-end;
-        gap: 6px;
-        animation: runTrainConvoy 3.2s cubic-bezier(0.25, 1, 0.5, 1) infinite;
-    }
-    @@keyframes runTrainConvoy {
-        0% { transform: translateX(-40px); }
-        35% { transform: translateX(220px); }
-        65% { transform: translateX(240px); }
-        100% { transform: translateX(580px); }
-    }
-
-    .smoke-puff {
-        position: absolute;
-        width: 12px;
-        height: 12px;
-        background: rgba(148, 163, 184, 0.6);
-        border-radius: 50%;
-        top: 15px;
-        left: 15px;
-        animation: puffSmoke 0.9s ease-out infinite;
-    }
-    .smoke-puff:nth-child(2) {
-        animation-delay: 0.3s;
-        left: 8px;
-    }
-    @@keyframes puffSmoke {
-        0% { transform: translate(0, 0) scale(0.6); opacity: 0.8; }
-        100% { transform: translate(-25px, -35px) scale(2.2); opacity: 0; }
-    }
-
-    .train-engine {
-        width: 44px;
-        height: 38px;
-        background: linear-gradient(135deg, #1e293b, #0f172a);
-        border-radius: 6px 14px 4px 4px;
-        position: relative;
-    }
-    .engine-chimney {
-        position: absolute;
-        top: -10px;
-        left: 26px;
-        width: 8px;
-        height: 10px;
-        background: #0f172a;
-        border-radius: 2px 2px 0 0;
-    }
-    .engine-light {
-        position: absolute;
-        top: 14px;
-        right: -3px;
-        width: 6px;
-        height: 6px;
-        background: #ffd700;
-        border-radius: 50%;
-        box-shadow: 0 0 10px 4px rgba(255, 215, 0, 0.8);
-    }
-    .train-wheels {
-        position: absolute;
-        bottom: -6px;
-        left: 3px;
-        display: flex;
-        gap: 6px;
-    }
-    .train-wheel {
-        width: 12px;
-        height: 12px;
-        background: #475569;
-        border: 2px solid #94a3b8;
-        border-radius: 50%;
-        animation: rollWheel 0.4s linear infinite;
-    }
-    @@keyframes rollWheel {
-        100% { transform: rotate(360deg); }
-    }
-
-    .cargo-wagon {
-        width: 46px;
-        height: 32px;
-        background: linear-gradient(135deg, #334155, #1e293b);
-        border-radius: 4px;
-        position: relative;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-    .cargo-wagon .train-wheels {
-        left: 6px;
-        gap: 12px;
-    }
-
-    .golden-coin-3d {
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        background: radial-gradient(circle at 35% 35%, #fff6a9 0%, #ffd700 45%, #e6a100 80%, #b37400 100%);
-        box-shadow: 0 4px 10px rgba(230, 161, 0, 0.45);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #6b3f00;
-        font-weight: 900;
-        font-size: 1.2rem;
-        animation: spinCoin3D 0.7s linear infinite;
-        border: 1.5px solid #fff275;
-        margin-top: -16px;
-    }
-    @@keyframes spinCoin3D {
-        0% { transform: rotateY(0deg); }
-        50% { transform: rotateY(180deg); }
-        100% { transform: rotateY(360deg); }
-    }
-
-    .success-celebration {
-        display: none;
-        padding: 1.5rem 0.5rem;
-    }
-    .success-celebration.active {
-        display: block;
-    }
-    .success-icon-badge {
-        width: 64px;
-        height: 64px;
-        border-radius: 50%;
-        background: #47c363;
-        color: white;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.8rem;
-        margin-bottom: 1rem;
-        box-shadow: 0 8px 20px rgba(71, 195, 99, 0.35);
-    }
-</style>
-
-<div class="row align-items-center mb-3">
-    <div class="col-sm-6">
-        <h4 class="text-dark font-weight-bold mb-0">
-            <i class="fas fa-layer-group text-primary mr-2"></i> Subscription Plans
-        </h4>
+    <div class="head">
+        <h4>Subscription Plans</h4>
+        <a href="/owner/subscription" class="btn btn-back"><i class="fas fa-arrow-left"></i> My Subscriptions</a>
     </div>
-    <div class="col-sm-6 text-sm-right mt-2 mt-sm-0">
-        <a href="/owner/subscription" class="btn btn-outline-secondary btn-sm font-weight-600">
-            <i class="fas fa-arrow-left mr-1"></i> My Subscriptions
-        </a>
-    </div>
-</div>
 
-@if (hasActiveSub)
-{
-    <div class="card mb-3 shadow-sm border-0" style="background: linear-gradient(135deg, #6777ef 0%, #4a54c4 100%); border-radius: 8px;">
-        <div class="card-body p-3 d-flex align-items-center justify-content-between flex-wrap" style="color: #ffffff !important;">
-            <div class="d-flex align-items-center mb-2 mb-md-0">
-                <div class="rounded-circle d-flex align-items-center justify-content-center mr-3 bg-white" style="width: 44px; height: 44px; font-size: 18px; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
-                    <i class="fas fa-crown text-warning"></i>
-                </div>
-                <div>
-                    <div class="d-flex align-items-center flex-wrap">
-                        <span class="font-weight-bold font-16 mr-2" style="color: #ffffff !important; text-shadow: 0 1px 2px rgba(0,0,0,0.2);">Active Plan: @(activeSub?.Plan?.Name ?? "Active") (Max @(activeSub?.Plan?.MaxStations ?? 1) Stations)</span>
-                        <span class="badge shadow-sm" style="background-color: #ffc107 !important; color: #1a1a1a !important; font-weight: 800 !important; font-size: 12px !important; padding: 4px 10px; border-radius: 4px;">
-                            <i class="fas fa-clock mr-1"></i> @remainingDays Days Left
-                        </span>
-                    </div>
-                    <div class="font-13 mt-1" style="color: #ffffff !important; font-weight: 600; text-shadow: 0 1px 2px rgba(0,0,0,0.15);">
-                        Valid till <span style="color: #ffffff !important; font-weight: 800; text-decoration: underline;">@activeSub?.EndDate.ToString("dd MMM yyyy")</span>
-                        &bull; Unused credit: <span class="badge shadow-sm" style="background-color: #ffffff !important; color: #15803d !important; font-weight: 800 !important; font-size: 12px; padding: 2px 8px;">₹@unusedCredit.ToString("N0")</span> applies automatically to upgrades.
-                    </div>
-                </div>
-            </div>
-            <a href="/owner/subscription" class="btn btn-light shadow-sm px-3 py-2 font-13 font-weight-bold" style="background-color: #ffffff !important; color: #6777ef !important; border: none;">
-                <i class="fas fa-cog mr-1"></i> Manage Active Plan
-            </a>
-        </div>
-    </div>
-}
-
-<div class="row">
-    @foreach (var plan in Model)
+    @if (hasActiveSub)
     {
-        var isEnterprise = plan.MaxStations > 10;
-        var isGrowth = plan.MaxStations > 1 && !isEnterprise;
-        var badgeText = isEnterprise ? "Enterprise" : (isGrowth ? "Popular" : "Starter");
-        var badgeClass = isEnterprise ? "badge-dark" : (isGrowth ? "badge-primary" : "badge-info");
-
-        var isCurrentPlan = hasActiveSub && activeSub?.PlanId == plan.Id;
-        var isHigherTier = hasActiveSub && (plan.PricePerMonth > (activeSub?.Plan?.PricePerMonth ?? 0) || plan.MaxStations > (activeSub?.Plan?.MaxStations ?? 0));
-        var isLowerTier = hasActiveSub && !isCurrentPlan && !isHigherTier;
-
-        decimal upgradePayable = 0;
-        if (isHigherTier)
-        {
-            upgradePayable = Math.Max(0, Math.Round(plan.PricePerMonth - unusedCredit, 2));
-        }
-
-        <div class="col-12 col-md-4 mb-3">
-            <div class="pricing-card @(isCurrentPlan ? "border-success shadow-sm" : "")" style="padding: 20px;">
-                <div class="pricing-badge">
-                    @if (isCurrentPlan)
-                    {
-                        <span class="badge badge-success font-weight-700 px-2 py-1 font-11"><i class="fas fa-check-circle mr-1"></i> Current Plan</span>
-                    }
-                    else if (isHigherTier)
-                    {
-                        <span class="badge badge-warning text-dark font-weight-700 px-2 py-1 font-11"><i class="fas fa-arrow-circle-up mr-1"></i> Upgrade</span>
-                    }
-                    else
-                    {
-                        <span class="badge @badgeClass font-weight-700 px-2 py-1 font-11">@badgeText</span>
-                    }
-                </div>
-
-                <h4 class="font-weight-bold text-dark mb-0 font-18">@plan.Name</h4>
-                <div class="pricing-price" style="font-size: 26px; margin: 8px 0 4px 0;">
-                    ₹@plan.PricePerMonth.ToString("N0")
-                    <span class="pricing-duration font-13 font-weight-normal text-muted">/ @plan.DurationDays Days</span>
-                </div>
-
-                <div class="border-top pt-2 mt-2 mb-3 flex-grow-1">
-                    <div class="feature-item mb-2 font-13">
-                        <i class="fas fa-charging-station text-primary mr-2 font-14"></i>
-                        <span>Up to <strong class="text-dark">@plan.MaxStations</strong> Charging Stations</span>
-                    </div>
-                    <div class="feature-item mb-2 font-13">
-                        <i class="fas fa-users text-primary mr-2 font-14"></i>
-                        <span>Up to <strong class="text-dark">@plan.MaxManagersPerStation</strong> Managers / Station</span>
-                    </div>
-                    <div class="feature-item mb-2 font-13">
-                        <i class="fas fa-bolt text-primary mr-2 font-14"></i>
-                        <span>IoT Telemetry & Dynamic Rates</span>
-                    </div>
-                    <div class="feature-item mb-2 font-13">
-                        <i class="fas fa-shield-alt text-success mr-2 font-14"></i>
-                        <span>24h Full Refund Guarantee</span>
-                    </div>
-                </div>
-
-                <div class="mt-auto">
-                    @if (isCurrentPlan)
-                    {
-                        <button type="button" class="btn btn-outline-success btn-block font-weight-bold py-2 font-13" disabled>
-                            <i class="fas fa-check-circle mr-1"></i> Current Plan
-                        </button>
-                    }
-                    else if (isHigherTier)
-                    {
-                        <div class="p-2 rounded mb-2 bg-light border text-center font-12">
-                            <span class="text-muted">Pay after ₹@unusedCredit.ToString("N0") credit:</span>
-                            <strong class="text-primary font-14 ml-1">₹@upgradePayable.ToString("N0")</strong>
+        <div class="card gap-b">
+            <div class="card-body">
+                <div class="active-bar">
+                    <div>
+                        <div class="ab-title">
+                            <span>Active Plan: @(activeSub?.Plan?.Name ?? "Active") (Max @(activeSub?.Plan?.MaxStations ?? 1) Stations)</span>
+                            <span class="status s-warn">@remainingDays Days Left</span>
                         </div>
-                        <button type="button" class="btn btn-warning text-dark btn-block font-weight-bold py-2 font-13 shadow-sm" onclick="initPayment('@plan.Id', '@plan.Name', @upgradePayable, true, @unusedCredit)">
-                            <i class="fas fa-arrow-circle-up mr-1"></i> Upgrade (₹@upgradePayable.ToString("N0"))
-                        </button>
-                    }
-                    else if (isLowerTier)
-                    {
-                        <button type="button" class="btn btn-secondary btn-block font-weight-bold py-2 font-13" disabled title="Downgrading is not permitted while current subscription is active">
-                            <i class="fas fa-lock mr-1"></i> Lower Tier
-                        </button>
-                    }
-                    else
-                    {
-                        <button type="button" class="btn btn-buy-plan py-2 font-13" onclick="initPayment('@plan.Id', '@plan.Name', @plan.PricePerMonth, false, 0)">
-                            <i class="fas fa-bolt mr-1"></i> Select Plan — ₹@plan.PricePerMonth.ToString("N0")
-                        </button>
-                    }
+                        <div class="ab-meta">
+                            Valid till <strong>@activeSub?.EndDate.ToString("dd MMM yyyy")</strong>
+                            &bull; Unused credit: <span class="status s-ok">₹@unusedCredit.ToString("N0")</span>
+                        </div>
+                    </div>
+                    <a href="/owner/subscription" class="btn btn-back"><i class="fas fa-cog"></i> Manage Active Plan</a>
                 </div>
             </div>
         </div>
     }
+
+    <div class="row">
+        @foreach (var plan in Model)
+        {
+            var isEnterprise = plan.MaxStations > 10;
+            var isGrowth = plan.MaxStations > 1 && !isEnterprise;
+            var badgeText = isEnterprise ? "Enterprise" : (isGrowth ? "Popular" : "Starter");
+            var badgeClass = isEnterprise ? "s-dark" : (isGrowth ? "s-plan" : "s-info");
+
+            var isCurrentPlan = hasActiveSub && activeSub?.PlanId == plan.Id;
+            var isHigherTier = hasActiveSub && (plan.PricePerMonth > (activeSub?.Plan?.PricePerMonth ?? 0) || plan.MaxStations > (activeSub?.Plan?.MaxStations ?? 0));
+            var isLowerTier = hasActiveSub && !isCurrentPlan && !isHigherTier;
+
+            decimal upgradePayable = 0;
+            if (isHigherTier)
+            {
+                upgradePayable = Math.Max(0, Math.Round(plan.PricePerMonth - unusedCredit, 2));
+            }
+
+            <div class="col-12 col-md-6 col-lg-4 gap-b">
+                <div class="card plan @(isCurrentPlan ? "current" : "")">
+                    <div class="plan-top">
+                        <h5>@plan.Name</h5>
+                        @if (isCurrentPlan)
+                        {
+                            <span class="status s-ok">Current Plan</span>
+                        }
+                        else if (isHigherTier)
+                        {
+                            <span class="status s-warn">Upgrade</span>
+                        }
+                        else
+                        {
+                            <span class="status @badgeClass">@badgeText</span>
+                        }
+                    </div>
+
+                    <div class="plan-price">₹@plan.PricePerMonth.ToString("N0") <span>/ @plan.DurationDays Days</span></div>
+
+                    <div class="features">
+                        <div class="feature"><i class="fas fa-check"></i><span>Up to <strong>@plan.MaxStations</strong> charging stations</span></div>
+                        <div class="feature"><i class="fas fa-check"></i><span>Up to <strong>@plan.MaxManagersPerStation</strong> managers / station</span></div>
+                        <div class="feature"><i class="fas fa-check"></i><span>IoT telemetry & dynamic rates</span></div>
+                        <div class="feature"><i class="fas fa-check"></i><span>24h full refund guarantee</span></div>
+                    </div>
+
+                    <div>
+                        @if (isCurrentPlan)
+                        {
+                            <button type="button" class="btn btn-current" disabled><i class="fas fa-check-circle"></i> Current Plan</button>
+                        }
+                        else if (isHigherTier)
+                        {
+                            <div class="credit-box">After ₹@unusedCredit.ToString("N0") credit: <strong>₹@upgradePayable.ToString("N0")</strong></div>
+                            <button type="button" class="btn btn-warning btn-warn" onclick="initPayment('@plan.Id', '@plan.Name', @upgradePayable, true, @unusedCredit)">
+                                <i class="fas fa-arrow-circle-up"></i> Upgrade (₹@upgradePayable.ToString("N0"))
+                            </button>
+                        }
+                        else if (isLowerTier)
+                        {
+                            <button type="button" class="btn btn-back" disabled title="Downgrading is not permitted while current subscription is active">
+                                <i class="fas fa-lock"></i> Lower Tier
+                            </button>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn btn-buy-plan btn-main" onclick="initPayment('@plan.Id', '@plan.Name', @plan.PricePerMonth, false, 0)">
+                                <i class="fas fa-bolt"></i> Select Plan — ₹@plan.PricePerMonth.ToString("N0")
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
 </div>
 
-<!-- ─── RAZORPAY PAYMENT SIMULATION OVERLAY ────────────────────────── -->
+<!-- Payment simulation overlay -->
 <div class="razorpay-overlay" id="paymentOverlay">
     <div class="razorpay-modal">
-        <!-- Stage 1: Initiating/Connecting -->
         <div id="stageInitiating" class="payment-stage-container">
             <div class="processing-pulse mb-3">
-                <div class="processing-pulse-inner">
-                    <i class="fas fa-lock"></i>
-                </div>
+                <div class="processing-pulse-inner"><i class="fas fa-lock"></i></div>
             </div>
-            <h5 class="font-weight-bold mb-1" style="color: #212529;">Connecting to Payment Gateway...</h5>
-            <p class="font-weight-600 small mb-0" style="color: #34395e;">Initializing encrypted order with Razorpay</p>
+            <h5 class="font-weight-bold mb-0">Connecting to payment gateway...</h5>
         </div>
 
-        <!-- Stage 2: Train Coin Animation -->
         <div id="stageTrainCoin" class="coin-train-stage">
             <div class="train-convoy">
                 <div class="cargo-wagon">
                     <div class="golden-coin-3d" style="width: 28px; height: 28px; font-size: 0.9rem; margin-top: -12px;">₹</div>
-                    <div class="train-wheels">
-                        <div class="train-wheel"></div>
-                        <div class="train-wheel"></div>
-                    </div>
+                    <div class="train-wheels"><div class="train-wheel"></div><div class="train-wheel"></div></div>
                 </div>
                 <div class="cargo-wagon">
                     <div class="golden-coin-3d">₹</div>
-                    <div class="train-wheels">
-                        <div class="train-wheel"></div>
-                        <div class="train-wheel"></div>
-                    </div>
+                    <div class="train-wheels"><div class="train-wheel"></div><div class="train-wheel"></div></div>
                 </div>
                 <div class="train-engine">
-                    <div class="engine-chimney">
-                        <div class="smoke-puff"></div>
-                        <div class="smoke-puff"></div>
-                    </div>
+                    <div class="engine-chimney"><div class="smoke-puff"></div><div class="smoke-puff"></div></div>
                     <div class="engine-light"></div>
-                    <div class="train-wheels">
-                        <div class="train-wheel"></div>
-                        <div class="train-wheel"></div>
-                    </div>
+                    <div class="train-wheels"><div class="train-wheel"></div><div class="train-wheel"></div></div>
                 </div>
             </div>
 
             <div class="rail-track-bed">
-                <div class="track-sleeper"></div>
-                <div class="track-sleeper"></div>
-                <div class="track-sleeper"></div>
-                <div class="track-sleeper"></div>
-                <div class="track-sleeper"></div>
-                <div class="track-sleeper"></div>
-                <div class="track-sleeper"></div>
-                <div class="track-sleeper"></div>
-                <div class="track-sleeper"></div>
+                <div class="track-sleeper"></div><div class="track-sleeper"></div><div class="track-sleeper"></div>
+                <div class="track-sleeper"></div><div class="track-sleeper"></div><div class="track-sleeper"></div>
+                <div class="track-sleeper"></div><div class="track-sleeper"></div><div class="track-sleeper"></div>
             </div>
             <div class="rail-steel"></div>
             <div class="rail-glow"></div>
 
             <div style="position: absolute; bottom: 8px; left: 0; width: 100%; text-align: center;">
-                <h6 class="font-weight-bold mb-0 text-dark" id="trainTitle" style="font-size: 0.9rem;">Processing Payment...</h6>
-                <small class="font-weight-600" id="trainSub" style="color: #34395e;">Securing transaction...</small>
+                <h6 class="font-weight-bold mb-0" id="trainTitle" style="font-size: 0.9rem;">Processing payment...</h6>
+                <small id="trainSub" style="color:#34395E;font-weight:600;">Securing transaction...</small>
             </div>
         </div>
 
-        <!-- Stage 3: Success Celebration -->
         <div id="stageSuccess" class="success-celebration">
-            <div class="success-icon-badge">
-                <i class="fas fa-check"></i>
-            </div>
-            <h4 class="font-weight-bold text-success mb-1">Payment Successful!</h4>
-            <p class="font-weight-600 small mb-3" style="color: #34395e;">Subscription activated. Redirecting to your subscriptions...</p>
-            <div class="spinner-border spinner-border-sm text-success" role="status"></div>
+            <div class="success-icon-badge"><i class="fas fa-check"></i></div>
+            <h4 class="font-weight-bold mb-3">Payment Successful</h4>
+            <div class="spinner-border spinner-border-sm" style="color:#28C76F" role="status"></div>
         </div>
     </div>
 </div>

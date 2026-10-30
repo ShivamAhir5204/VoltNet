@@ -1,42 +1,28 @@
-@model IEnumerable<VoltNet.Models.Booking>
+﻿@model IEnumerable<VoltNet.Models.Booking>
 
 @{
     var ownerStations = ViewBag.OwnerStations as List<VoltNet.Models.Station> ?? new List<VoltNet.Models.Station>();
     ViewData["Title"] = "Station Bookings";
     Layout = "~/Views/Shared/_OwnerLayout.cshtml";
 }
-
+<div class="bk">
 <div class="row">
     <div class="col-12">
-        <div class="card card-otika">
-            <div class="card-header card-otika-header d-flex justify-content-between align-items-center flex-wrap">
-                <div>
-                    <h4 class="mb-0 text-dark-slate font-weight-700">
-                        <i class="fas fa-calendar-check text-otika-primary mr-2"></i> Bookings
-                    </h4>
-                </div>
-                <div class="mt-2 mt-sm-0">
-                    <span class="badge badge-light border text-muted-slate font-weight-600 px-3 py-2" id="liveCountBadge">
-                        Showing @Model.Count() bookings
-                    </span>
-                </div>
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4>Bookings</h4>
+                <span class="count" id="liveCountBadge">Showing @Model.Count() bookings</span>
             </div>
             <div class="card-body">
-                <!-- Otika Instant Real-time Filter Bar -->
-                <div class="otika-filter-bar">
-                    <div class="row align-items-center">
-                        <div class="col-12 col-md-3 mb-2 mb-md-0">
-                            <label class="small font-weight-bold text-dark-slate mb-1">Quick Search</label>
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text bg-white border-right-0 text-muted-slate"><i class="fas fa-search"></i></span>
-                                </div>
-                                <input type="text" id="liveSearchInput" class="form-control otika-search-input border-left-0" placeholder="Driver, email, charger..." />
-                            </div>
+                <div class="filters">
+                    <div class="row align-items-end">
+                        <div class="col-12 col-md-6 col-lg-3 mb-3 mb-lg-0">
+                            <label class="form-label">Search</label>
+                            <input type="text" id="liveSearchInput" class="form-control" />
                         </div>
-                        <div class="col-12 col-md-3 mb-2 mb-md-0">
-                            <label class="small font-weight-bold text-dark-slate mb-1">Station</label>
-                            <select id="liveStationFilter" class="form-control otika-search-input">
+                        <div class="col-12 col-md-6 col-lg-3 mb-3 mb-lg-0">
+                            <label class="form-label">Station</label>
+                            <select id="liveStationFilter" class="form-control">
                                 <option value="">All Stations</option>
                                 @foreach (var stn in ownerStations)
                                 {
@@ -44,9 +30,9 @@
                                 }
                             </select>
                         </div>
-                        <div class="col-12 col-md-3 mb-2 mb-md-0">
-                            <label class="small font-weight-bold text-dark-slate mb-1">Status</label>
-                            <select id="liveStatusFilter" class="form-control otika-search-input">
+                        <div class="col-12 col-md-6 col-lg-3 mb-3 mb-lg-0">
+                            <label class="form-label">Status</label>
+                            <select id="liveStatusFilter" class="form-control">
                                 <option value="">All Statuses</option>
                                 <option value="confirmed">Confirmed</option>
                                 <option value="charging">Charging</option>
@@ -55,12 +41,12 @@
                                 <option value="noshow">No-Show</option>
                             </select>
                         </div>
-                        <div class="col-12 col-md-2 mb-2 mb-md-0">
-                            <label class="small font-weight-bold text-dark-slate mb-1">Date</label>
-                            <input type="date" id="liveDateFilter" class="form-control otika-search-input" />
+                        <div class="col-8 col-md-4 col-lg-2 mb-3 mb-lg-0">
+                            <label class="form-label">Date</label>
+                            <input type="date" id="liveDateFilter" class="form-control" />
                         </div>
-                        <div class="col-12 col-md-1 d-flex align-items-end">
-                            <button type="button" id="btnResetFilters" class="btn btn-outline-secondary btn-block mt-4" title="Reset Filters">
+                        <div class="col-4 col-md-2 col-lg-1 mb-3 mb-lg-0">
+                            <button type="button" id="btnResetFilters" class="btn btn-reset" title="Reset Filters" aria-label="Reset Filters">
                                 <i class="fas fa-redo-alt"></i>
                             </button>
                         </div>
@@ -69,16 +55,12 @@
 
                 @if (!Model.Any())
                 {
-                    <div class="text-center py-5 bg-soft-grey rounded border-otika">
-                        <i class="fas fa-calendar-times text-muted-slate mb-3" style="font-size: 38px;"></i>
-                        <h6 class="text-dark-slate font-weight-bold mb-1">No Bookings Recorded</h6>
-                        <small class="text-muted-slate">Reservations will display here when customers book a charging slot.</small>
-                    </div>
+                    <div class="empty-box">No bookings recorded.</div>
                 }
                 else
                 {
                     <div class="table-responsive">
-                        <table class="table table-striped otika-table align-middle table-responsive-cards" id="bookingsTable">
+                        <table class="table table-striped align-middle no-datatable table-responsive-cards" id="bookingsTable">
                             <thead>
                                 <tr>
                                     <th>Station</th>
@@ -101,7 +83,7 @@
                                         data-search="@($"{b.Station?.Name} {b.Customer?.Fullname} {b.Customer?.Email} {b.Charger?.Name} {b.Charger?.ConnectorType}".ToLower())">
                                         <td class="col-primary" data-label="Station">
                                             <div class="d-flex align-items-center justify-content-between">
-                                                <span class="font-weight-bold text-dark-slate">@b.Station?.Name</span>
+                                                <span class="cell-strong">@b.Station?.Name</span>
                                                 <button type="button" class="mobile-expand-btn ml-2" title="Show details">
                                                     <i data-feather="chevron-down"></i>
                                                 </button>
@@ -109,50 +91,48 @@
                                         </td>
                                         <td class="col-secondary" data-label="Customer">
                                             <div>
-                                                <strong class="text-dark-slate">@(b.Customer?.Fullname ?? "Customer")</strong>
-                                                <div class="small text-muted-slate">@(b.Customer?.Email ?? "—")</div>
+                                                <div class="cell-strong">@(b.Customer?.Fullname ?? "Customer")</div>
+                                                <div class="cell-sub">@(b.Customer?.Email ?? "—")</div>
                                             </div>
                                         </td>
                                         <td class="col-secondary" data-label="Charger">
                                             <div>
-                                                <span class="badge badge-light border text-dark-slate">@b.Charger?.Name</span>
-                                                <span class="small text-muted-slate ml-1">@b.Charger?.ConnectorType</span>
+                                                <span class="status s-plain">@b.Charger?.Name</span>
+                                                <span class="cell-sub ml-1">@b.Charger?.ConnectorType</span>
                                             </div>
                                         </td>
-                                        <td class="col-secondary" data-label="Date">
-                                            <span class="text-dark-slate font-weight-500">@b.BookingDate.ToString("dd MMM yyyy")</span>
+                                        <td data-label="Date">
+                                            <div class="cell-strong">@b.BookingDate.ToString("dd MMM yyyy")</div>
                                         </td>
                                         <td class="col-secondary" data-label="Slot">
-                                            <span class="badge badge-light border text-otika-primary font-weight-600">
-                                                @b.StartTime.ToString(@"hh\:mm") - @b.EndTime.ToString(@"hh\:mm")
-                                            </span>
+                                            <div><span class="status s-plan">@b.StartTime.ToString(@"hh\:mm") - @b.EndTime.ToString(@"hh\:mm")</span></div>
                                         </td>
-                                        <td class="col-secondary" data-label="Amount">
-                                            <strong class="text-success" style="color: #28C76F !important;">
-                                                ₹@(b.ActualCost?.ToString("F2") ?? b.EstimatedCost.ToString("F2"))
-                                            </strong>
+                                        <td data-label="Amount">
+                                            <div class="cell-money">₹@(b.ActualCost?.ToString("F2") ?? b.EstimatedCost.ToString("F2"))</div>
                                         </td>
-                                        <td class="col-secondary" data-label="Status">
-                                            @if (b.Status == "Confirmed")
-                                            {
-                                                <span class="badge badge-otika-primary">Confirmed</span>
-                                            }
-                                            else if (b.Status == "Completed")
-                                            {
-                                                <span class="badge badge-otika-success">Completed</span>
-                                            }
-                                            else if (b.Status == "Cancelled")
-                                            {
-                                                <span class="badge badge-otika-error" title="@b.CancellationReason">Cancelled</span>
-                                            }
-                                            else if (b.Status == "NoShow")
-                                            {
-                                                <span class="badge badge-otika-warning">No-Show</span>
-                                            }
-                                            else
-                                            {
-                                                <span class="badge badge-otika-info">@b.Status</span>
-                                            }
+                                        <td data-label="Status">
+                                            <div>
+                                                @if (b.Status == "Confirmed")
+                                                {
+                                                    <span class="status s-plan">Confirmed</span>
+                                                }
+                                                else if (b.Status == "Completed")
+                                                {
+                                                    <span class="status s-ok">Completed</span>
+                                                }
+                                                else if (b.Status == "Cancelled")
+                                                {
+                                                    <span class="status s-err" title="@b.CancellationReason">Cancelled</span>
+                                                }
+                                                else if (b.Status == "NoShow")
+                                                {
+                                                    <span class="status s-warn">No-Show</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="status s-info">@b.Status</span>
+                                                }
+                                            </div>
                                         </td>
                                     </tr>
                                 }
@@ -160,14 +140,12 @@
                         </table>
                     </div>
 
-                    <div id="noMatchAlert" class="text-center py-4 bg-soft-grey rounded border-otika mt-2" style="display: none;">
-                        <i class="fas fa-search text-muted-slate mb-2" style="font-size: 26px;"></i>
-                        <p class="text-muted-slate mb-0 font-14">No bookings match your filter criteria.</p>
-                    </div>
+                    <div id="noMatchAlert" class="empty-box mt-3" style="display: none;">No bookings match your filters.</div>
                 }
             </div>
         </div>
     </div>
+</div>
 </div>
 
 @section Scripts {

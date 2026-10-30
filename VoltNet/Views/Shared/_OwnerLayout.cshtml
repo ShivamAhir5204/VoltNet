@@ -1,4 +1,4 @@
-@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,6 +17,37 @@
   <link rel="stylesheet" href="~/otika/assets/css/custom.css">
   <link rel='shortcut icon' type='image/x-icon' href='~/otika/assets/img/voltnet.ico' />
   <style>
+      /* ── Table headers: readable + room for sort arrows ── */
+.table thead th,
+table.dataTable thead th {
+  color: #34395E !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  letter-spacing: .04em;
+  background-color: #F9F9F9 !important;
+  border-bottom: 1px solid #E3EAEF !important;
+  white-space: nowrap;
+}
+table.dataTable thead th.sorting,
+table.dataTable thead th.sorting_asc,
+table.dataTable thead th.sorting_desc,
+table.dataTable thead th.sorting_asc_disabled,
+table.dataTable thead th.sorting_desc_disabled {
+  padding-right: 34px !important;
+}
+table.dataTable thead th.sorting:before,
+table.dataTable thead th.sorting:after,
+table.dataTable thead th.sorting_asc:before,
+table.dataTable thead th.sorting_asc:after,
+table.dataTable thead th.sorting_desc:before,
+table.dataTable thead th.sorting_desc:after {
+  right: 12px !important;
+  color: #34395E;
+}
+table.dataTable thead th.sorting:before,
+table.dataTable thead th.sorting:after { opacity: .35; }
+table.dataTable thead th.sorting_asc:before,
+table.dataTable thead th.sorting_desc:after { opacity: 1; color: #6777EF; }
     .modal-backdrop {
       z-index: 1040 !important;
     }
@@ -30,6 +61,270 @@
       z-index: 1070 !important;
     }
   </style>
+
+  <!-- Otika palette (loaded last so it overrides the template) -->
+  <style>
+    :root {
+      --primary: #6777EF;
+      --text: #353C48;
+      --hover: #34395E;
+      --muted: #96A2B4;
+      --teal: #3DC9B3;
+      --white: #FFFFFF;
+      --bg: #F9F9F9;
+      --field: #F2F2F2;
+      --border: #E3EAEF;
+      --error: #EA5455;
+    }
+
+    body {
+      background-color: #F9F9F9;
+      color: #353C48;
+    }
+
+    /* ── Top navbar ── */
+    .navbar-bg { display: none !important; }
+
+    .main-navbar {
+      background-color: #FFFFFF !important;
+      border-bottom: 1px solid #E3EAEF;
+      box-shadow: 0 2px 12px rgba(52, 57, 94, .05) !important;
+    }
+    .main-navbar .nav-link,
+    .main-navbar .nav-link-lg {
+      color: #353C48 !important;
+      min-width: 44px;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      transition: background-color .2s, color .2s;
+    }
+    .main-navbar .nav-link:hover,
+    .main-navbar .nav-link:focus,
+    .main-navbar .nav-link:active {
+      background-color: #F9F9F9 !important;
+      color: #6777EF !important;
+    }
+    .main-navbar .nav-link i,
+    .main-navbar .nav-link svg { color: inherit !important; stroke: currentColor; }
+    .main-navbar .user-img-radious-style { border: 2px solid #E3EAEF; }
+
+    /* ── Profile dropdown ── */
+    .main-navbar .dropdown-menu {
+      background-color: #FFFFFF;
+      border: 1px solid #E3EAEF;
+      border-radius: 10px;
+      box-shadow: 0 6px 20px rgba(52, 57, 94, .12);
+      padding: 6px;
+      overflow: hidden;
+    }
+    .main-navbar .dropdown-title {
+      color: #96A2B4 !important;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 14px;
+    }
+    .main-navbar .dropdown-item {
+      color: #353C48 !important;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      border-radius: 8px;
+      transition: background-color .2s, color .2s;
+    }
+    .main-navbar .dropdown-item:hover,
+    .main-navbar .dropdown-item:focus,
+    .main-navbar .dropdown-item:active {
+      background-color: #F9F9F9 !important;
+      color: #6777EF !important;
+    }
+    .main-navbar .dropdown-item.text-danger { color: #EA5455 !important; }
+    .main-navbar .dropdown-item.text-danger:hover,
+    .main-navbar .dropdown-item.text-danger:focus,
+    .main-navbar .dropdown-item.text-danger:active {
+      background-color: rgba(234, 84, 85, .1) !important;
+      color: #EA5455 !important;
+    }
+    .main-navbar .dropdown-divider { border-top-color: #E3EAEF; }
+
+    /* ── Sidebar (white theme) ── */
+    .main-sidebar,
+    .main-sidebar .sidebar-brand,
+    .main-sidebar #sidebar-wrapper {
+      background-color: #FFFFFF !important;
+    }
+    .main-sidebar {
+      border-right: 1px solid #E3EAEF;
+      box-shadow: none !important;
+    }
+    .main-sidebar .sidebar-brand {
+      border-bottom: 1px solid #E3EAEF;
+    }
+    .main-sidebar .sidebar-brand a,
+    .main-sidebar .sidebar-brand .logo-name {
+      color: #353C48 !important;
+      font-weight: 600;
+    }
+    .main-sidebar .sidebar-menu li.menu-header {
+      color: #96A2B4 !important;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      padding: 18px 20px 8px;
+    }
+    .main-sidebar .sidebar-menu li a {
+      color: #353C48 !important;
+      min-height: 44px;
+      border-radius: 8px;
+      transition: background-color .2s, color .2s;
+    }
+    .main-sidebar .sidebar-menu li a:hover,
+    .main-sidebar .sidebar-menu li a:focus,
+    .main-sidebar .sidebar-menu li a:active {
+      background-color: #F9F9F9 !important;
+      color: #6777EF !important;
+    }
+    .main-sidebar .sidebar-menu li.active > a,
+    .main-sidebar .sidebar-menu li.active > a:hover,
+    .main-sidebar .sidebar-menu li.active > a:focus {
+      background-color: #6777EF !important;
+      color: #FFFFFF !important;
+      box-shadow: none !important;
+    }
+    .main-sidebar .sidebar-menu li.active > a:before { display: none !important; }
+    .main-sidebar .sidebar-menu li a i,
+    .main-sidebar .sidebar-menu li a svg { color: inherit !important; stroke: currentColor; }
+
+    /* ── Footer ── */
+    .main-footer {
+      background-color: transparent;
+      border-top: 1px solid #E3EAEF;
+      color: #96A2B4;
+    }
+
+    /* ── DataTables ── */
+    .dataTables_wrapper label {
+      color: #353C48;
+      font-weight: 500;
+      font-size: 14px;
+    }
+    .dataTables_wrapper .dataTables_filter input,
+    .dataTables_wrapper .dataTables_length select {
+      background-color: #F2F2F2;
+      border: 1px solid #E3EAEF;
+      border-radius: 8px;
+      color: #353C48;
+      min-height: 44px;
+      padding: 0 14px;
+      transition: border-color .2s, box-shadow .2s, background-color .2s;
+    }
+    .dataTables_wrapper .dataTables_filter input:focus,
+    .dataTables_wrapper .dataTables_length select:focus {
+      background-color: #FFFFFF;
+      border-color: #6777EF;
+      box-shadow: 0 0 0 3px rgba(103, 119, 239, .2);
+      outline: 0;
+    }
+    .dataTables_wrapper .dataTables_info {
+      color: #96A2B4;
+      font-size: 14px;
+    }
+    .dataTables_wrapper .pagination { gap: 6px; flex-wrap: wrap; }
+    .dataTables_wrapper .page-link {
+      background-color: #FFFFFF !important;
+      border: 1px solid #E3EAEF !important;
+      color: #353C48 !important;
+      border-radius: 8px !important;
+      min-width: 40px;
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 !important;
+      transition: background-color .2s, color .2s, border-color .2s;
+    }
+    .dataTables_wrapper .page-link:hover,
+    .dataTables_wrapper .page-link:focus {
+      background-color: #F9F9F9 !important;
+      border-color: #96A2B4 !important;
+      color: #353C48 !important;
+      box-shadow: none !important;
+    }
+    .dataTables_wrapper .page-item.active .page-link,
+    .dataTables_wrapper .page-item.active .page-link:hover,
+    .dataTables_wrapper .page-item.active .page-link:focus {
+      background-color: #6777EF !important;
+      border-color: #6777EF !important;
+      color: #FFFFFF !important;
+    }
+    .dataTables_wrapper .page-item.disabled .page-link {
+      background-color: #F2F2F2 !important;
+      border-color: #E3EAEF !important;
+      color: #96A2B4 !important;
+    }
+
+    /* ── Select2 ── */
+    .select2-container--default .select2-selection--single {
+      background: #F2F2F2;
+      border: 1px solid #E3EAEF;
+      border-radius: 8px;
+      height: 44px;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+      color: #353C48;
+      line-height: 42px;
+      padding-left: 14px;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow { height: 42px; right: 8px; }
+    .select2-container--default.select2-container--focus .select2-selection--single,
+    .select2-container--default.select2-container--open .select2-selection--single {
+      background: #FFFFFF;
+      border-color: #6777EF;
+      box-shadow: 0 0 0 3px rgba(103, 119, 239, .2);
+    }
+    .select2-dropdown {
+      border: 1px solid #E3EAEF;
+      border-radius: 8px;
+      box-shadow: 0 6px 20px rgba(52, 57, 94, .12);
+      overflow: hidden;
+    }
+    .select2-container--default .select2-results__option--highlighted[aria-selected],
+    .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
+      background: #6777EF;
+      color: #FFFFFF;
+    }
+    .select2-container--default .select2-results__option[aria-selected=true] { background: #F2F2F2; color: #353C48; }
+
+    /* ── Modals ── */
+    .modal-content {
+      border: 1px solid #E3EAEF;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(52, 57, 94, .15);
+    }
+    .modal-header,
+    .modal-footer { border-color: #E3EAEF; }
+
+    /* ── Keyboard focus ── */
+    a:focus-visible,
+    button:focus-visible {
+      outline: 3px solid rgba(103, 119, 239, .35);
+      outline-offset: 2px;
+    }
+
+    /* ── Mobile ── */
+    @@media (max-width: 767px) {
+      .main-content {
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+      }
+      .main-footer { text-align: center; }
+    }
+  </style>
+  <!-- Station Owner Views Common CSS -->
+  <link rel="stylesheet" href="~/css/owner-common.css" asp-append-version="true">
 </head>
 
 <body>
@@ -117,7 +412,7 @@
       </div>
       <footer class="main-footer">
         <div class="footer-left">
-          VoltNet &copy; @DateTime.Now.Year — Station Owner Portal
+          VoltNet &copy; @DateTime.Now.Year
         </div>
         <div class="footer-right">
         </div>
