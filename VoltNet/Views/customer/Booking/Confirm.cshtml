@@ -1,4 +1,4 @@
-@{
+﻿@{
     var station = ViewBag.Station as VoltNet.Models.Station;
     var charger = ViewBag.Charger as VoltNet.Models.Charger;
     var bookingDate = (DateTime)ViewBag.BookingDate;
@@ -9,109 +9,83 @@
     ViewData["Title"] = "Review & Confirm Booking";
     Layout = "~/Views/Shared/_CustomerLayout.cshtml";
 }
-
+<div class="rb">
 <div class="row justify-content-center">
     <div class="col-12 col-lg-8">
-        <div class="card shadow-sm border-0">
-            <div class="card-header bg-primary text-white p-4">
-                <span class="badge badge-light text-primary font-weight-bold mb-2">Step 3 of 3: Review & Confirm</span>
-                <h3 class="font-weight-bold mb-0"><i class="fas fa-clipboard-check mr-2"></i> Review Booking Details</h3>
+        <div class="card">
+            <div class="card-header">
+                <div>
+                    <span class="step">Step 3 of 3</span>
+                    <h4 class="mt-2">Review Booking</h4>
+                </div>
             </div>
-            <div class="card-body p-4">
+            <div class="card-body">
                 @if (TempData["Error"] != null)
                 {
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <i class="fas fa-exclamation-triangle mr-2"></i> @TempData["Error"]
+                        @TempData["Error"]
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span>&times;</span></button>
                     </div>
                 }
 
                 <div class="row mb-4">
                     <div class="col-12 col-md-6 mb-3 mb-md-0">
-                        <div class="p-3 bg-light rounded h-100">
-                            <span class="text-muted small text-uppercase font-weight-bold">Charging Station</span>
-                            <h5 class="font-weight-bold text-dark mt-1 mb-1">@station?.Name</h5>
-                            <p class="text-muted small mb-0"><i class="fas fa-map-marker-alt text-danger mr-1"></i> @station?.Address, @station?.City, @station?.State</p>
+                        <div class="tile">
+                            <span class="lbl">Station</span>
+                            <div class="val">@station?.Name</div>
+                            <div class="sub">@station?.Address, @station?.City, @station?.State</div>
                         </div>
                     </div>
                     <div class="col-12 col-md-6">
-                        <div class="p-3 bg-light rounded h-100">
-                            <span class="text-muted small text-uppercase font-weight-bold">Selected Charger</span>
-                            <h5 class="font-weight-bold text-dark mt-1 mb-1">@charger?.Name</h5>
-                            <div class="d-flex align-items-center mt-1">
-                                <span class="badge badge-info mr-2">@charger?.ConnectorType</span>
-                                <span class="badge badge-warning">@charger?.CapacityKw kW Fast Charge</span>
+                        <div class="tile">
+                            <span class="lbl">Charger</span>
+                            <div class="val">@charger?.Name</div>
+                            <div class="mt-2">
+                                <span class="status s-info">@charger?.ConnectorType</span>
+                                <span class="status s-warn">@charger?.CapacityKw kW</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="card border mb-4">
-                    <div class="card-header bg-white font-weight-bold text-dark">
-                        <i class="fas fa-clock text-primary mr-2"></i> Reservation Schedule
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-6 col-md-4 mb-2">
-                                <div class="text-muted small">Date</div>
-                                <div class="font-weight-bold h6 mb-0 text-dark">@bookingDate.ToString("dd MMM yyyy")</div>
-                                <div class="text-muted small">@bookingDate.ToString("dddd")</div>
-                            </div>
-                            <div class="col-6 col-md-4 mb-2">
-                                <div class="text-muted small">Time Slot</div>
-                                <div class="font-weight-bold h6 mb-0 text-primary">@startTime.ToString(@"hh\:mm") - @endTime.ToString(@"hh\:mm")</div>
-                                <div class="text-muted small">1 Hour Duration</div>
-                            </div>
-                            <div class="col-12 col-md-4">
-                                <div class="text-muted small">Cancellation Policy</div>
-                                <div class="text-success small font-weight-bold"><i class="fas fa-shield-alt mr-1"></i> Free cancel up to 30 mins before start</div>
-                            </div>
+                <div class="panel">
+                    <h5 class="section">Schedule</h5>
+                    <div class="row">
+                        <div class="col-6 col-md-4 mb-3 mb-md-0">
+                            <span class="lbl">Date</span>
+                            <div class="val">@bookingDate.ToString("dd MMM yyyy")</div>
+                            <div class="sub">@bookingDate.ToString("dddd")</div>
+                        </div>
+                        <div class="col-6 col-md-4 mb-3 mb-md-0">
+                            <span class="lbl">Time Slot</span>
+                            <div class="val">@startTime.ToString(@"hh\:mm") - @endTime.ToString(@"hh\:mm")</div>
+                            <div class="sub">1 hour</div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <span class="lbl">Cancellation</span>
+                            <div class="val money" style="font-size:15px">Free up to 30 mins before start</div>
                         </div>
                     </div>
                 </div>
 
-                <div class="card border border-success bg-light mb-3">
-                    <div class="card-body p-4">
-                        <h6 class="font-weight-bold text-dark mb-3"><i class="fas fa-gas-pump text-success mr-2"></i> Transparent Petrol-Pump Style Billing</h6>
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span>Energy Unit Rate:</span>
-                            <span class="font-weight-bold text-success">₹@(rate?.RatePerKwh.ToString("F2") ?? "15.00") / kWh</span>
-                        </div>
-                        @if (rate?.RatePerHour.HasValue == true && rate.RatePerHour.Value > 0)
-                        {
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span>Parking / Base Station Fee:</span>
-                                <span class="font-weight-bold">₹@rate.RatePerHour.Value.ToString("F2")</span>
-                            </div>
-                        }
-                        <hr />
-                        <div class="d-flex justify-content-between align-items-center">
-                            <span class="h6 mb-0 font-weight-bold text-dark">Estimated Energy Cost (1 hr):</span>
-                            <span class="h4 mb-0 font-weight-bold text-success">₹@estimatedCost.ToString("F2")</span>
-                        </div>
-                        <small class="text-muted mt-2 d-block"><i class="fas fa-info-circle text-info mr-1"></i> No wasted money: Your final invoice will be accurately billed only for actual energy units consumed during your charging session.</small>
+                <div class="panel">
+                    <h5 class="section">Billing</h5>
+                    <div class="line"><span class="k">Energy rate</span><span class="v money">₹@(rate?.RatePerKwh.ToString("F2") ?? "15.00") / kWh</span></div>
+                    @if (rate?.RatePerHour.HasValue == true && rate.RatePerHour.Value > 0)
+                    {
+                        <div class="line"><span class="k">Parking / base fee</span><span class="v">₹@rate.RatePerHour.Value.ToString("F2")</span></div>
+                    }
+                    <div class="total">
+                        <span>Estimated cost (1 hr)</span>
+                        <span class="amt">₹@estimatedCost.ToString("F2")</span>
                     </div>
+                    <div class="note">You are billed only for the actual energy used.</div>
                 </div>
 
-                <!-- Early Slot Booking Charge (Anti-Hoarding Commitment) -->
-                <div class="card border border-warning bg-light mb-4" style="background: #fffdf5; border-color: #fde047;">
-                    <div class="card-body p-3">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <div>
-                                <span class="font-weight-bold text-dark font-15">
-                                    <i class="fas fa-shield-alt text-warning mr-1"></i> Advance Slot Booking Commitment:
-                                </span>
-                                <div class="small text-muted font-weight-600 mt-1">
-                                    Anti-hoarding deposit to guarantee reserved bay availability for your EV.
-                                </div>
-                            </div>
-                            <span class="h5 mb-0 font-weight-bold text-dark">₹50.00</span>
-                        </div>
-                        <div class="p-2 rounded bg-white border border-warning mt-2 small font-weight-bold text-success d-flex align-items-center">
-                            <i class="fas fa-tag mr-2 text-warning"></i>
-                            <span>100% Deducted from Final Bill: At checkout, you only pay (Final Energy Bill − ₹50.00)!</span>
-                        </div>
-                    </div>
+                <div class="panel">
+                    <h5 class="section">Advance Booking Deposit</h5>
+                    <div class="line"><span class="k">Deposit</span><span class="v">₹50.00</span></div>
+                    <div class="note warn">Fully deducted from your final bill. You pay the final energy bill minus ₹50.00.</div>
                 </div>
 
                 <form asp-action="Create" method="post" id="confirmBookingForm">
@@ -122,37 +96,29 @@
                     <input type="hidden" name="startTime" value="@startTime" />
                     <input type="hidden" name="endTime" value="@endTime" />
 
-                    <!-- Optional Vehicle Info -->
-                    <div class="card border mb-4">
-                        <div class="card-header bg-white font-weight-bold text-dark">
-                            <i class="fas fa-car text-primary mr-2"></i> Vehicle Details (Optional)
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-12 col-md-6 mb-3 mb-md-0">
-                                    <label class="font-weight-bold small">Vehicle Number Plate:</label>
-                                    <input type="text" name="vehicleNumberPlate" class="form-control text-uppercase" placeholder="e.g. MH02DW4589" />
-                                </div>
-                                <div class="col-12 col-md-6">
-                                    <label class="font-weight-bold small">Vehicle Model:</label>
-                                    <input type="text" name="vehicleModel" class="form-control" placeholder="e.g. Tata Nexon EV, MG ZS EV" />
-                                </div>
+                    <div class="panel">
+                        <h5 class="section">Vehicle</h5>
+                        <div class="row">
+                            <div class="col-12 col-md-6 mb-3 mb-md-0">
+                                <label>Number Plate</label>
+                                <input type="text" name="vehicleNumberPlate" class="form-control text-uppercase" autocapitalize="characters" />
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label>Model</label>
+                                <input type="text" name="vehicleModel" class="form-control" />
                             </div>
                         </div>
                     </div>
 
-                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                        <a href="/customer/book/@(station?.Id)/slots?chargerId=@(charger?.Id)&date=@(bookingDate.ToString("yyyy-MM-dd"))" class="btn btn-outline-secondary py-2 px-4">
-                            <i class="fas fa-arrow-left mr-1"></i> Back to Slots
-                        </a>
-                        <button type="submit" class="btn btn-success btn-lg py-3 px-5 font-weight-bold shadow-sm" id="btnConfirmBooking">
-                            <i class="fas fa-check-circle mr-2"></i> Confirm Booking
-                        </button>
+                    <div class="form-actions">
+                        <a href="/customer/book/@(station?.Id)/slots?chargerId=@(charger?.Id)&date=@(bookingDate.ToString("yyyy-MM-dd"))" class="btn btn-back"><i class="fas fa-arrow-left"></i> Back to Slots</a>
+                        <button type="submit" class="btn btn-main" id="btnConfirmBooking"><i class="fas fa-check"></i> Confirm Booking</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
+</div>
 </div>
 
 <script>

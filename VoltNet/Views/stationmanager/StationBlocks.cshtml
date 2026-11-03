@@ -1,4 +1,4 @@
-@model IEnumerable<VoltNet.Models.StationBlockSlot>
+﻿@model IEnumerable<VoltNet.Models.StationBlockSlot>
 
 @{
     var station = ViewBag.Station as VoltNet.Models.Station;
@@ -6,6 +6,9 @@
     ViewData["Title"] = $"Station Maintenance - {station?.Name}";
     Layout = "~/Views/Shared/_ManagerLayout.cshtml";
 }
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<div class="mgr-blocks">
 
 @if (TempData["Success"] != null)
 {
@@ -32,7 +35,7 @@
                     </h4>
                 </div>
                 <div class="mt-2 mt-sm-0">
-                    <button type="button" class="btn btn-warning font-weight-bold text-dark btn-sm" data-toggle="modal" data-target="#blockSlotModal">
+                    <button type="button" class="btn btn-warning btn-act-primary font-weight-bold btn-sm" data-toggle="modal" data-target="#blockSlotModal">
                         <i class="fas fa-ban mr-1"></i> Block a Slot
                     </button>
                 </div>
@@ -40,10 +43,9 @@
             <div class="card-body">
                 @if (!Model.Any())
                 {
-                    <div class="text-center py-5 bg-soft-grey rounded border-otika">
+                    <div class="text-center py-5 bg-soft-grey rounded border-otika empty-state">
                         <i class="fas fa-check-circle text-success mb-3" style="font-size: 38px;"></i>
                         <h6 class="text-dark-slate font-weight-bold mb-1">No Blocked Slots</h6>
-                        <small class="text-muted-slate">All chargers and time slots are currently open for driver bookings.</small>
                     </div>
                 }
                 else
@@ -57,7 +59,7 @@
                                     <th>Time Interval</th>
                                     <th>Reason</th>
                                     <th>Remarks</th>
-                                    <th class="text-center" style="width: 140px;">Action</th>
+                                    <th class="text-center" data-orderable="false">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -78,7 +80,7 @@
                                             </span>
                                         </td>
                                         <td class="col-secondary" data-label="Time Interval">
-                                            <span class="badge badge-light border text-otika-error font-weight-bold" style="color: #EA5455 !important;">
+                                            <span class="badge badge-light border text-otika-error font-weight-bold">
                                                 @b.StartTime.ToString(@"hh\:mm") - @b.EndTime.ToString(@"hh\:mm")
                                             </span>
                                         </td>
@@ -92,7 +94,7 @@
                                             <form asp-action="Delete" method="post" class="d-inline mb-0">
                                                 @Html.AntiForgeryToken()
                                                 <input type="hidden" name="id" value="@b.Id" />
-                                                <button type="submit" class="btn btn-outline-success btn-sm" onclick="return confirm('Unblock this slot and restore customer booking availability?');">
+                                                <button type="submit" class="btn btn-outline-success btn-act-secondary btn-sm" onclick="return confirm('Unblock this slot and restore customer booking availability?');">
                                                     <i class="fas fa-unlock mr-1"></i> Release
                                                 </button>
                                             </form>
@@ -108,8 +110,10 @@
     </div>
 </div>
 
+</div>
+
 <!-- Modal: Block Slot -->
-<div class="modal fade" id="blockSlotModal" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal fade mgr-blocks" id="blockSlotModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content card-otika border-0">
             <div class="modal-header bg-white border-bottom py-3">
@@ -138,13 +142,13 @@
                         <input type="date" name="blockDate" class="form-control" value="@DateTime.Today.ToString("yyyy-MM-dd")" required />
                     </div>
                     <div class="row">
-                        <div class="col-6">
+                        <div class="col-12 col-sm-6">
                             <div class="form-group">
                                 <label class="small font-weight-bold text-dark-slate">Start Time <span class="text-danger">*</span></label>
                                 <input type="time" name="startTime" class="form-control" value="13:00" required />
                             </div>
                         </div>
-                        <div class="col-6">
+                        <div class="col-12 col-sm-6">
                             <div class="form-group">
                                 <label class="small font-weight-bold text-dark-slate">End Time <span class="text-danger">*</span></label>
                                 <input type="time" name="endTime" class="form-control" value="14:00" required />
@@ -161,14 +165,14 @@
                             <option value="Other">Other Operational Issue</option>
                         </select>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group mb-0">
                         <label class="small font-weight-bold text-dark-slate">Remarks (Optional)</label>
-                        <textarea name="remarks" class="form-control" rows="2" placeholder="Brief note..."></textarea>
+                        <textarea name="remarks" class="form-control" rows="2"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer bg-light py-2 px-4">
-                    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-warning btn-sm font-weight-bold text-dark">
+                    <button type="button" class="btn btn-secondary btn-act-secondary btn-sm" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning btn-act-primary btn-sm font-weight-bold">
                         <i class="fas fa-lock mr-1"></i> Confirm Block
                     </button>
                 </div>

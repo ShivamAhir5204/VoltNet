@@ -1,10 +1,11 @@
-@model VoltNet.Models.Station
+﻿@model VoltNet.Models.Station
 @{
     ViewData["Title"] = "My Station Details";
     Layout = "~/Views/Shared/_ManagerLayout.cshtml";
 }
 
-<div class="row">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<div class="row mgr-station">
     <div class="col-12">
         @if (TempData["Success"] != null)
         {
@@ -32,7 +33,7 @@
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table table-striped table-md table-responsive-cards">
+                    <table class="table table-striped table-md table-responsive-cards no-datatable">
                         <tbody>
                             <tr>
                                 <th>Name</th>
